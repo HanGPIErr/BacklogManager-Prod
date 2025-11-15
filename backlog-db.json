@@ -1,0 +1,162 @@
+{
+  "BacklogItems": [
+    {
+      "Id": 3,
+      "Titre": "Mise \u00E0 jour de la documentation",
+      "Description": "Mettre \u00E0 jour le guide utilisateur",
+      "TypeDemande": 0,
+      "Statut": 3,
+      "Priorite": 3,
+      "DevAssigneId": 1,
+      "ProjetId": null,
+      "Complexite": null,
+      "DateFinAttendue": null,
+      "DateCreation": "2025-11-15T15:20:22.4912667+01:00",
+      "DateDerniereMaj": "2025-11-15T15:45:19.2909267+01:00",
+      "EstArchive": false
+    },
+    {
+      "Id": 1,
+      "Titre": "Impl\u00E9menter l\u0027authentification",
+      "Description": "Cr\u00E9er un syst\u00E8me d\u0027authentification pour les utilisateurs",
+      "TypeDemande": 1,
+      "Statut": 3,
+      "Priorite": 1,
+      "DevAssigneId": 3,
+      "ProjetId": null,
+      "Complexite": null,
+      "DateFinAttendue": null,
+      "DateCreation": "2025-11-15T15:20:22.4677647+01:00",
+      "DateDerniereMaj": "2025-11-15T15:45:25.8693525+01:00",
+      "EstArchive": false
+    },
+    {
+      "Id": 2,
+      "Titre": "Corriger le bug d\u0027affichage",
+      "Description": "Le menu ne s\u0027affiche pas correctement sur mobile",
+      "TypeDemande": 1,
+      "Statut": 3,
+      "Priorite": 0,
+      "DevAssigneId": 1,
+      "ProjetId": null,
+      "Complexite": null,
+      "DateFinAttendue": null,
+      "DateCreation": "2025-11-15T15:20:22.4827597+01:00",
+      "DateDerniereMaj": "2025-11-15T15:45:47.2229813+01:00",
+      "EstArchive": false
+    },
+    {
+      "Id": 5,
+      "Titre": "Cr\u00E9ation des vues",
+      "Description": "vue du backlog, vue du kanban board, vue du planning poker",
+      "TypeDemande": 1,
+      "Statut": 1,
+      "Priorite": 2,
+      "DevAssigneId": 3,
+      "ProjetId": 1,
+      "Complexite": 3,
+      "DateFinAttendue": null,
+      "DateCreation": "2025-11-15T15:57:15.7060862+01:00",
+      "DateDerniereMaj": "2025-11-15T15:58:39.5830668+01:00",
+      "EstArchive": false
+    },
+    {
+      "Id": 4,
+      "Titre": "Cr\u00E9ation de l\u0027outil Gestion de backlog",
+      "Description": "Cr\u00E9ation de l\u0027outil en C#\r\nPar Pierre-Romain \u0026 Gianni",
+      "TypeDemande": 1,
+      "Statut": 1,
+      "Priorite": 1,
+      "DevAssigneId": 3,
+      "ProjetId": 1,
+      "Complexite": 3,
+      "DateFinAttendue": "2025-11-21T00:00:00",
+      "DateCreation": "2025-11-15T15:31:58.9510947+01:00",
+      "DateDerniereMaj": "2025-11-15T16:08:01.106217+01:00",
+      "EstArchive": false
+    }
+  ],
+  "Devs": [
+    {
+      "Id": 2,
+      "Nom": "Mouloud",
+      "Initiales": "MO",
+      "Actif": true
+    },
+    {
+      "Id": 3,
+      "Nom": "Pierre-Romain",
+      "Initiales": "PR",
+      "Actif": true
+    },
+    {
+      "Id": 1,
+      "Nom": "Gianni",
+      "Initiales": "GI",
+      "Actif": true
+    }
+  ],
+  "Projets": [
+    {
+      "Id": 1,
+      "Nom": "Outil c# backlog",
+      "Description": "Cr\u00E9ation d\u0027un outil de backlog et d\u0027agilit\u00E9",
+      "DateCreation": "2025-11-15T15:57:12.6319611+01:00",
+      "Actif": true
+    }
+  ],
+  "PokerSessions": [
+    {
+      "Id": 1,
+      "BacklogItemId": 3,
+      "DateSession": "2025-11-15T15:20:49.345251+01:00",
+      "ComplexiteConsensus": null,
+      "JoursPlanifies": null
+    },
+    {
+      "Id": 2,
+      "BacklogItemId": 4,
+      "DateSession": "2025-11-15T15:37:02.0255922+01:00",
+      "ComplexiteConsensus": 3,
+      "JoursPlanifies": 3.75
+    }
+  ],
+  "PokerVotes": [
+    {
+      "Id": 1,
+      "PokerSessionId": 2,
+      "DevId": 1,
+      "ValeurVote": 1
+    },
+    {
+      "Id": 2,
+      "PokerSessionId": 2,
+      "DevId": 2,
+      "ValeurVote": 2
+    },
+    {
+      "Id": 3,
+      "PokerSessionId": 2,
+      "DevId": 3,
+      "ValeurVote": 4
+    },
+    {
+      "Id": 4,
+      "PokerSessionId": 2,
+      "DevId": 1,
+      "ValeurVote": 3
+    },
+    {
+      "Id": 5,
+      "PokerSessionId": 2,
+      "DevId": 2,
+      "ValeurVote": 4
+    },
+    {
+      "Id": 6,
+      "PokerSessionId": 2,
+      "DevId": 3,
+      "ValeurVote": 5
+    }
+  ]
+}

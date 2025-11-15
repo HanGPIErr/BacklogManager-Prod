@@ -1,0 +1,251 @@
+<Window x:Class="BacklogManager.Views.GestionUtilisateursWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:BacklogManager.Domain"
+        Title="Gestion des Utilisateurs et Rôles" Height="650" Width="900"
+        WindowStartupLocation="CenterOwner"
+        Background="#F5F5F5"
+        ResizeMode="CanResize">
+    <Window.Resources>
+        <local:EnumToCollectionConverter x:Key="EnumToCollectionConverter"/>
+        <Style x:Key="BNPButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#00915A"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#007A4D"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <!-- Header -->
+        <Border Height="70" VerticalAlignment="Top" Background="#00915A">
+            <StackPanel VerticalAlignment="Center" Margin="20,0">
+                <TextBlock Text="👥 GESTION DES UTILISATEURS ET RÔLES" 
+                           FontSize="20" FontWeight="Bold" Foreground="White"/>
+                <TextBlock Text="Administration des comptes et permissions" 
+                           FontSize="12" Foreground="White" Opacity="0.9" Margin="0,5,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Tabs -->
+        <TabControl Margin="20,90,20,20" Background="White">
+            <!-- Tab Utilisateurs -->
+            <TabItem Header="👤 Utilisateurs" FontSize="14" FontWeight="SemiBold">
+                <Grid Margin="15">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Formulaire -->
+                    <Border Grid.Row="0" Background="#F8F9FA" Padding="15" CornerRadius="6" Margin="0,0,0,15">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Username Windows -->
+                            <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,10,10">
+                                <TextBlock Text="Username Windows *" FontSize="11" Foreground="#666" Margin="0,0,0,5"/>
+                                <TextBox x:Name="TxtUsername" FontSize="13" Padding="8" Height="32"/>
+                            </StackPanel>
+
+                            <!-- Nom -->
+                            <StackPanel Grid.Row="0" Grid.Column="1" Margin="10,0,10,10">
+                                <TextBlock Text="Nom *" FontSize="11" Foreground="#666" Margin="0,0,0,5"/>
+                                <TextBox x:Name="TxtNom" FontSize="13" Padding="8" Height="32"/>
+                            </StackPanel>
+
+                            <!-- Prénom -->
+                            <StackPanel Grid.Row="0" Grid.Column="2" Margin="10,0,0,10">
+                                <TextBlock Text="Prénom *" FontSize="11" Foreground="#666" Margin="0,0,0,5"/>
+                                <TextBox x:Name="TxtPrenom" FontSize="13" Padding="8" Height="32"/>
+                            </StackPanel>
+
+                            <!-- Email -->
+                            <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,10,10">
+                                <TextBlock Text="Email *" FontSize="11" Foreground="#666" Margin="0,0,0,5"/>
+                                <TextBox x:Name="TxtEmail" FontSize="13" Padding="8" Height="32"/>
+                            </StackPanel>
+
+                            <!-- Rôle -->
+                            <StackPanel Grid.Row="1" Grid.Column="2" Margin="10,0,0,10">
+                                <TextBlock Text="Rôle *" FontSize="11" Foreground="#666" Margin="0,0,0,5"/>
+                                <ComboBox x:Name="CmbRole" FontSize="13" Padding="8" Height="32"
+                                          DisplayMemberPath="Nom" SelectedValuePath="Id"/>
+                            </StackPanel>
+
+                            <!-- Actif -->
+                            <CheckBox Grid.Row="2" Grid.Column="0" x:Name="ChkActif" 
+                                      Content="Utilisateur actif" IsChecked="True" 
+                                      FontSize="13" VerticalAlignment="Center"/>
+
+                            <!-- Boutons -->
+                            <StackPanel Grid.Row="2" Grid.Column="2" Orientation="Horizontal" 
+                                        HorizontalAlignment="Right">
+                                <Button x:Name="BtnAjouterUser" Content="➕ Ajouter" 
+                                        Style="{StaticResource BNPButtonStyle}" 
+                                        Click="BtnAjouterUser_Click" Width="100"/>
+                                <Button x:Name="BtnModifierUser" Content="✏️ Modifier" 
+                                        Style="{StaticResource BNPButtonStyle}" 
+                                        Click="BtnModifierUser_Click" Width="100" Margin="8,0,0,0"
+                                        Visibility="Collapsed"/>
+                                <Button x:Name="BtnAnnulerUser" Content="✖️ Annuler" 
+                                        Background="#6C757D"
+                                        Foreground="White" BorderThickness="0" Padding="15,8"
+                                        Click="BtnAnnulerUser_Click" Width="100" Margin="8,0,0,0"
+                                        Visibility="Collapsed"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- Liste -->
+                    <DataGrid Grid.Row="1" x:Name="DgUtilisateurs" 
+                              AutoGenerateColumns="False" 
+                              IsReadOnly="True"
+                              SelectionMode="Single"
+                              GridLinesVisibility="Horizontal"
+                              HeadersVisibility="Column"
+                              RowBackground="White"
+                              AlternatingRowBackground="#F8F9FA"
+                              SelectionChanged="DgUtilisateurs_SelectionChanged">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Username" Binding="{Binding UsernameWindows}" Width="100"/>
+                            <DataGridTextColumn Header="Nom" Binding="{Binding Nom}" Width="120"/>
+                            <DataGridTextColumn Header="Prénom" Binding="{Binding Prenom}" Width="120"/>
+                            <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="*"/>
+                            <DataGridTextColumn Header="Rôle" Binding="{Binding RoleNom}" Width="150"/>
+                            <DataGridCheckBoxColumn Header="Actif" Binding="{Binding Actif}" Width="60"/>
+                            <DataGridTemplateColumn Header="Actions" Width="120">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Content="✏️" Width="30" Height="30" 
+                                                    Background="#00915A" Foreground="White"
+                                                    BorderThickness="0" Margin="0,0,5,0"
+                                                    Click="BtnEditUser_Click" Tag="{Binding}"/>
+                                            <Button Content="🗑️" Width="30" Height="30"
+                                                    Background="#D32F2F" Foreground="White"
+                                                    BorderThickness="0"
+                                                    Click="BtnDeleteUser_Click" Tag="{Binding}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+
+            <!-- Tab Rôles -->
+            <TabItem Header="🔐 Rôles" FontSize="14" FontWeight="SemiBold">
+                <Grid Margin="15">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Formulaire Rôle -->
+                    <Border Grid.Row="0" Background="#F8F9FA" Padding="15" CornerRadius="6" Margin="0,0,0,15">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Nom du rôle -->
+                            <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,10,10">
+                                <TextBlock Text="Nom du rôle *" FontSize="11" Foreground="#666" Margin="0,0,0,5"/>
+                                <TextBox x:Name="TxtNomRole" FontSize="13" Padding="8" Height="32"/>
+                            </StackPanel>
+
+                            <!-- Type de rôle -->
+                            <StackPanel Grid.Row="0" Grid.Column="1" Margin="10,0,10,10">
+                                <TextBlock Text="Type *" FontSize="11" Foreground="#666" Margin="0,0,0,5"/>
+                                <ComboBox x:Name="CmbTypeRole" FontSize="13" Padding="8" Height="32"
+                                          ItemsSource="{Binding Source={StaticResource EnumToCollectionConverter}, Converter={StaticResource EnumToCollectionConverter}, ConverterParameter={x:Type local:RoleType}}"/>
+                            </StackPanel>
+
+                            <!-- Permissions -->
+                            <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,10,0,10">
+                                <TextBlock Text="Permissions" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                <WrapPanel>
+                                    <CheckBox x:Name="ChkCreerDemandes" Content="Créer demandes" Margin="0,0,15,5"/>
+                                    <CheckBox x:Name="ChkChiffrer" Content="Chiffrer" Margin="0,0,15,5"/>
+                                    <CheckBox x:Name="ChkPrioriser" Content="Prioriser" Margin="0,0,15,5"/>
+                                    <CheckBox x:Name="ChkGererUtilisateurs" Content="Gérer utilisateurs" Margin="0,0,15,5"/>
+                                    <CheckBox x:Name="ChkVoirKPI" Content="Voir KPI" Margin="0,0,15,5"/>
+                                    <CheckBox x:Name="ChkGererReferentiels" Content="Gérer référentiels" Margin="0,0,15,5"/>
+                                </WrapPanel>
+                            </StackPanel>
+
+                            <!-- Boutons -->
+                            <StackPanel Grid.Row="2" Grid.Column="2" Orientation="Horizontal" 
+                                        HorizontalAlignment="Right">
+                                <Button x:Name="BtnAjouterRole" Content="➕ Ajouter" 
+                                        Style="{StaticResource BNPButtonStyle}" 
+                                        Click="BtnAjouterRole_Click" Width="100"/>
+                                <Button x:Name="BtnModifierRole" Content="✏️ Modifier" 
+                                        Style="{StaticResource BNPButtonStyle}" 
+                                        Click="BtnModifierRole_Click" Width="100" Margin="8,0,0,0"
+                                        Visibility="Collapsed"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- Liste des rôles -->
+                    <DataGrid Grid.Row="1" x:Name="DgRoles" 
+                              AutoGenerateColumns="False" 
+                              IsReadOnly="True"
+                              SelectionMode="Single"
+                              GridLinesVisibility="Horizontal"
+                              SelectionChanged="DgRoles_SelectionChanged">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Nom" Binding="{Binding Nom}" Width="200"/>
+                            <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="150"/>
+                            <DataGridCheckBoxColumn Header="Créer demandes" Binding="{Binding PeutCreerDemandes}" Width="120"/>
+                            <DataGridCheckBoxColumn Header="Chiffrer" Binding="{Binding PeutChiffrer}" Width="80"/>
+                            <DataGridCheckBoxColumn Header="Prioriser" Binding="{Binding PeutPrioriser}" Width="80"/>
+                            <DataGridCheckBoxColumn Header="Gérer users" Binding="{Binding PeutGererUtilisateurs}" Width="100"/>
+                            <DataGridCheckBoxColumn Header="Voir KPI" Binding="{Binding PeutVoirKPI}" Width="80"/>
+                            <DataGridCheckBoxColumn Header="Actif" Binding="{Binding Actif}" Width="60"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>

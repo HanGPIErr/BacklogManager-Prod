@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BacklogManager", "BacklogManager.csproj", "{1B1483E9-5B62-5727-3D83-B9D17B5BD59F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1B1483E9-5B62-5727-3D83-B9D17B5BD59F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B1483E9-5B62-5727-3D83-B9D17B5BD59F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B1483E9-5B62-5727-3D83-B9D17B5BD59F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B1483E9-5B62-5727-3D83-B9D17B5BD59F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {36E96126-B545-4281-8521-29CF5A811D9F}
+	EndGlobalSection
+EndGlobal

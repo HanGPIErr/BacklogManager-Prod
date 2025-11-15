@@ -1,0 +1,394 @@
+<UserControl x:Class="BacklogManager.Views.ProjetsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="White">
+    <Grid Margin="15">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="3*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Left Panel: Liste des Projets -->
+        <Border Grid.Column="0" Background="White" CornerRadius="6" Padding="15" Margin="0,0,15,0" BorderBrush="#E0E0E0" BorderThickness="1">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Header -->
+                <StackPanel Grid.Row="0" Margin="0,0,0,15">
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <TextBlock Text="📊 PROJETS" FontSize="18" FontWeight="Bold" Foreground="#1A1919"/>
+                        <TextBlock Text="{Binding ProjetsFiltres.Count}" FontSize="16" Foreground="#00915A" 
+                                   Margin="10,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <!-- Légende -->
+                    <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                        <Border Background="#9E9E9E" CornerRadius="2" Padding="4,2" Margin="0,0,8,0">
+                            <TextBlock Text="📋 À faire" FontSize="9" Foreground="White" FontWeight="Bold"/>
+                        </Border>
+                        <Border Background="#2196F3" CornerRadius="2" Padding="4,2" Margin="0,0,8,0">
+                            <TextBlock Text="⚡ En cours" FontSize="9" Foreground="White" FontWeight="Bold"/>
+                        </Border>
+                        <Border Background="#FF9800" CornerRadius="2" Padding="4,2" Margin="0,0,8,0">
+                            <TextBlock Text="🔍 En test" FontSize="9" Foreground="White" FontWeight="Bold"/>
+                        </Border>
+                        <Border Background="#4CAF50" CornerRadius="2" Padding="4,2">
+                            <TextBlock Text="✓ Terminé" FontSize="9" Foreground="White" FontWeight="Bold"/>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Recherche -->
+                    <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" 
+                             Padding="8" FontSize="13" Margin="0,10,0,0"
+                             BorderBrush="#00915A" BorderThickness="1">
+                        <TextBox.Style>
+                            <Style TargetType="TextBox">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="TextBox">
+                                            <Border Background="White" BorderBrush="{TemplateBinding BorderBrush}" 
+                                                    BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
+                                                <ScrollViewer x:Name="PART_ContentHost" Margin="5"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </TextBox.Style>
+                    </TextBox>
+                    <TextBlock Text="🔍 Rechercher un projet..." Margin="10,-28,0,0" IsHitTestVisible="False" 
+                               Foreground="#999" FontSize="13">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SearchText}" Value="">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+
+                    <!-- Filtres -->
+                    <StackPanel Margin="0,10,0,0">
+                        <CheckBox Content="Projets actifs uniquement" IsChecked="{Binding FilterActifsOnly}" 
+                                  FontSize="12" Foreground="#333" Margin="0,0,0,8"/>
+                        
+                        <TextBlock Text="Trier par:" FontSize="11" Foreground="#666" Margin="0,0,0,3"/>
+                        <ComboBox ItemsSource="{Binding OptionsTriDisponibles}" 
+                                  SelectedItem="{Binding TriSelection}" 
+                                  FontSize="12" Padding="5"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Actions -->
+                <StackPanel Grid.Row="1" Margin="0,0,0,15">
+                    <Button Content="➕ Nouveau Projet" Command="{Binding AjouterProjetCommand}"
+                            Padding="10,8" Background="#00915A" Foreground="White" BorderThickness="0"
+                            FontSize="13" FontWeight="SemiBold" Cursor="Hand" Margin="0,0,0,8"
+                            HorizontalAlignment="Stretch">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="4" 
+                                                    Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#007A4D"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="🔄 Rafraîchir" Command="{Binding RefreshCommand}"
+                                Padding="8,6" Background="#E0E0E0" Foreground="#333" BorderThickness="0"
+                                FontSize="12" Cursor="Hand" Margin="0,0,5,0">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}" CornerRadius="4" 
+                                                        Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#D0D0D0"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+
+                        <Button Content="✖ Réinitialiser" Command="{Binding ClearFiltersCommand}"
+                                Padding="8,6" Background="#E0E0E0" Foreground="#333" BorderThickness="0"
+                                FontSize="12" Cursor="Hand">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}" CornerRadius="4" 
+                                                        Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#D0D0D0"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Liste des Projets -->
+                <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding ProjetsFiltres}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="White" BorderBrush="#E0E0E0" BorderThickness="1" 
+                                        CornerRadius="6" Padding="12" Margin="0,0,0,10" Cursor="Hand"
+                                        Tag="{Binding DataContext, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        MouseLeftButtonUp="Border_MouseLeftButtonUp">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="#F0F9F6"/>
+                                                    <Setter Property="BorderBrush" Value="#00915A"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <!-- Nom du Projet -->
+                                        <TextBlock Grid.Row="0" Text="{Binding Projet.Nom}" FontWeight="Bold" 
+                                                   FontSize="14" Foreground="#1A1919" TextWrapping="Wrap"/>
+
+                                        <!-- Date de création -->
+                                        <TextBlock Grid.Row="1" Text="{Binding DateCreationFormatee}" 
+                                                   FontSize="11" Foreground="#999" Margin="0,3,0,8"/>
+
+                                        <!-- Stats -->
+                                        <StackPanel Grid.Row="2" Orientation="Horizontal">
+                                            <Border Background="#9E9E9E" CornerRadius="3" Padding="5,2" Margin="0,0,5,0">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="📋 " FontSize="10"/>
+                                                    <TextBlock Text="{Binding NbAfaire}" FontSize="10" Foreground="White" FontWeight="Bold"/>
+                                                </StackPanel>
+                                            </Border>
+
+                                            <Border Background="#2196F3" CornerRadius="3" Padding="5,2" Margin="0,0,5,0">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="⚡ " FontSize="10"/>
+                                                    <TextBlock Text="{Binding NbEnCours}" FontSize="10" Foreground="White" FontWeight="Bold"/>
+                                                </StackPanel>
+                                            </Border>
+
+                                            <Border Background="#FF9800" CornerRadius="3" Padding="5,2" Margin="0,0,5,0">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="🔍 " FontSize="10"/>
+                                                    <TextBlock Text="{Binding NbEnTest}" FontSize="10" Foreground="White" FontWeight="Bold"/>
+                                                </StackPanel>
+                                            </Border>
+
+                                            <Border Background="#4CAF50" CornerRadius="3" Padding="5,2">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="✓ " FontSize="10"/>
+                                                    <TextBlock Text="{Binding NbTermine}" FontSize="10" Foreground="White" FontWeight="Bold"/>
+                                                </StackPanel>
+                                            </Border>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+
+        <!-- Right Panel: Tâches du Projet Sélectionné -->
+        <Border Grid.Column="1" Background="White" CornerRadius="6" Padding="15" BorderBrush="#E0E0E0" BorderThickness="1">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Header -->
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,15">
+                    <TextBlock FontSize="16" FontWeight="Bold" Foreground="#1A1919">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Text" Value="📝 TÂCHES"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedProjet}" Value="{x:Null}">
+                                        <Setter Property="Text" Value="📝 Sélectionnez un projet"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <TextBlock Text="{Binding SelectedProjet.Projet.Nom}" FontSize="16" 
+                               Foreground="#00915A" Margin="10,0,0,0" FontWeight="SemiBold"/>
+                </StackPanel>
+
+
+
+                <!-- Liste des Tâches -->
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding TachesProjetSelectionne}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="White" BorderBrush="#E0E0E0" BorderThickness="1" 
+                                        CornerRadius="6" Padding="12" Margin="0,0,0,10">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="{Binding Titre}" FontWeight="SemiBold" FontSize="13" 
+                                                       TextWrapping="Wrap" Margin="0,0,0,5"/>
+
+                                            <StackPanel Orientation="Horizontal">
+                                                <Border CornerRadius="3" Padding="5,2" Margin="0,0,5,0">
+                                                    <Border.Style>
+                                                        <Style TargetType="Border">
+                                                            <Setter Property="Background" Value="#9E9E9E"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Statut}" Value="EnCours">
+                                                                    <Setter Property="Background" Value="#2196F3"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Statut}" Value="EnTest">
+                                                                    <Setter Property="Background" Value="#FF9800"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Statut}" Value="Termine">
+                                                                    <Setter Property="Background" Value="#4CAF50"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Border.Style>
+                                                    <TextBlock Text="{Binding Statut}" FontSize="10" Foreground="White" FontWeight="Bold"/>
+                                                </Border>
+
+                                                <Border CornerRadius="3" Padding="5,2" Margin="0,0,5,0">
+                                                    <Border.Style>
+                                                        <Style TargetType="Border">
+                                                            <Setter Property="Background" Value="#4CAF50"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Priorite}" Value="Urgente">
+                                                                    <Setter Property="Background" Value="#D32F2F"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Priorite}" Value="Haute">
+                                                                    <Setter Property="Background" Value="#F57C00"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Priorite}" Value="Moyenne">
+                                                                    <Setter Property="Background" Value="#FFC107"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Border.Style>
+                                                    <TextBlock Text="{Binding Priorite}" FontSize="10" Foreground="White" FontWeight="Bold"/>
+                                                </Border>
+                                            </StackPanel>
+                                        </StackPanel>
+
+                                        <TextBlock Grid.Column="1" Text="{Binding Complexite}" FontSize="20" 
+                                                   FontWeight="Bold" Foreground="#00915A" VerticalAlignment="Center" Margin="0,0,10,0"/>
+
+                                        <!-- Boutons Actions -->
+                                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Button Content="✏️" ToolTip="Modifier" 
+                                                    Padding="8,6" Margin="0,0,5,0" Background="#2196F3" Foreground="White" 
+                                                    BorderThickness="0" FontSize="12" Cursor="Hand"
+                                                    Tag="{Binding}"
+                                                    Click="ModifierTache_Click">
+                                                <Button.Style>
+                                                    <Style TargetType="Button">
+                                                        <Setter Property="Template">
+                                                            <Setter.Value>
+                                                                <ControlTemplate TargetType="Button">
+                                                                    <Border Background="{TemplateBinding Background}" CornerRadius="4" 
+                                                                            Padding="{TemplateBinding Padding}">
+                                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                    </Border>
+                                                                </ControlTemplate>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                        <Style.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="Background" Value="#1976D2"/>
+                                                            </Trigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Button.Style>
+                                            </Button>
+
+                                            <Button Content="🗑️" ToolTip="Supprimer" 
+                                                    Padding="8,6" Background="#D32F2F" Foreground="White" 
+                                                    BorderThickness="0" FontSize="12" Cursor="Hand"
+                                                    Tag="{Binding}"
+                                                    Click="SupprimerTache_Click">
+                                                <Button.Style>
+                                                    <Style TargetType="Button">
+                                                        <Setter Property="Template">
+                                                            <Setter.Value>
+                                                                <ControlTemplate TargetType="Button">
+                                                                    <Border Background="{TemplateBinding Background}" CornerRadius="4" 
+                                                                            Padding="{TemplateBinding Padding}">
+                                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                    </Border>
+                                                                </ControlTemplate>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                        <Style.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="Background" Value="#C62828"/>
+                                                            </Trigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Button.Style>
+                                            </Button>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

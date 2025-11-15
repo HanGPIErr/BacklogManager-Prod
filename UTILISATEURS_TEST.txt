@@ -1,0 +1,148 @@
+═══════════════════════════════════════════════════════════════════════════════
+                    UTILISATEURS DE TEST - BACKLOG MANAGER
+═══════════════════════════════════════════════════════════════════════════════
+
+📋 LISTE DES COMPTES POUR SIMULATION
+
+🔴 ADMINISTRATEUR
+─────────────────────────────────────────────────────────────────────────────
+Username: J00001
+Nom: Admin Système
+Email: admin@bnpparibas.com
+Rôle: Administrateur
+Permissions: Toutes (gestion utilisateurs, KPI, référentiels, priorisation, chiffrage)
+
+
+🔵 BUSINESS ANALYSTS (BA)
+─────────────────────────────────────────────────────────────────────────────
+Username: J10001
+Nom: Sophie Martin
+Email: sophie.martin@bnpparibas.com
+Rôle: Business Analyst
+Permissions: Créer demandes, voir KPI
+
+Username: J10002
+Nom: Marc Dubois
+Email: marc.dubois@bnpparibas.com
+Rôle: Business Analyst
+Permissions: Créer demandes, voir KPI
+
+
+🟡 CHEF DE PROJET
+─────────────────────────────────────────────────────────────────────────────
+Username: J20001
+Nom: Catherine Leroy
+Email: catherine.leroy@bnpparibas.com
+Rôle: Chef de Projet
+Permissions: Créer demandes, chiffrer, prioriser, voir KPI
+
+
+🟢 DÉVELOPPEURS
+─────────────────────────────────────────────────────────────────────────────
+Username: J04831
+Nom: Pierre-Romain HanGP
+Email: pierre-romain.hangp@bnpparibas.com
+Rôle: Développeur
+Permissions: Créer demandes, chiffrer
+Note: Utilisateur principal / Scrum Master
+
+Username: J30001
+Nom: Thomas Bernard
+Email: thomas.bernard@bnpparibas.com
+Rôle: Développeur
+Permissions: Créer demandes, chiffrer
+
+Username: J30002
+Nom: Julie Petit
+Email: julie.petit@bnpparibas.com
+Rôle: Développeur
+Permissions: Créer demandes, chiffrer
+
+Username: J30003
+Nom: Alexandre Robert
+Email: alexandre.robert@bnpparibas.com
+Rôle: Développeur
+Permissions: Créer demandes, chiffrer
+
+Username: J30004
+Nom: Émilie Moreau
+Email: emilie.moreau@bnpparibas.com
+Rôle: Développeur
+Permissions: Créer demandes, chiffrer
+
+
+═══════════════════════════════════════════════════════════════════════════════
+                            SCÉNARIOS DE TEST
+═══════════════════════════════════════════════════════════════════════════════
+
+📌 SCÉNARIO 1: Flux complet de demande
+────────────────────────────────────────────────────────────────────────────
+1. Se connecter en tant que J10001 (Sophie Martin - BA)
+2. Créer une nouvelle demande métier
+3. Se déconnecter et se reconnecter en tant que J20001 (Catherine Leroy - CP)
+4. Valider la demande et la découper en tâches
+5. Assigner les tâches aux développeurs (J04831, J30001, J30002)
+6. Se connecter en tant que J04831
+7. Déplacer la tâche dans le Kanban (À faire → En cours → Terminé)
+
+
+📌 SCÉNARIO 2: Planning Poker
+────────────────────────────────────────────────────────────────────────────
+1. Se connecter en tant que J04831 (Pierre-Romain - Scrum Master)
+2. Lancer une session Planning Poker sur une User Story
+3. Se connecter en parallèle avec J30001, J30002, J30003
+4. Chaque dev vote avec des cartes (1, 2, 3, 5, 8, 13)
+5. Observer le consensus automatique
+
+
+📌 SCÉNARIO 3: Gestion des permissions
+────────────────────────────────────────────────────────────────────────────
+1. Se connecter en tant que J10001 (BA)
+   → Peut créer des demandes
+   → Ne peut PAS prioriser
+   → Ne peut PAS gérer les utilisateurs
+2. Se connecter en tant que J20001 (Chef de Projet)
+   → Peut prioriser les demandes
+   → Peut chiffrer
+   → Peut voir les KPI
+3. Se connecter en tant que J00001 (Admin)
+   → Accès à tous les modules
+
+
+📌 SCÉNARIO 4: Backlog et Kanban
+────────────────────────────────────────────────────────────────────────────
+1. Créer plusieurs tâches avec différentes complexités (1, 3, 5, 8)
+2. Assigner à différents développeurs
+3. Organiser par priorité (Urgent, Haute, Moyenne, Basse)
+4. Utiliser le Kanban pour suivre l'avancement
+5. Vérifier les automatisations:
+   - Charge restante = Estimation - Temps passé
+   - Coût calculé automatiquement
+   - Statut de la demande parent mis à jour
+
+
+═══════════════════════════════════════════════════════════════════════════════
+                        CONNEXION À L'APPLICATION
+═══════════════════════════════════════════════════════════════════════════════
+
+Au lancement de l'application:
+1. La fenêtre de login affiche un champ "Username Windows"
+2. Saisir un des usernames ci-dessus (ex: J04831)
+3. Cliquer sur "Se connecter"
+
+Note: Pas de mot de passe requis pour la simulation (authentification simplifiée)
+
+
+═══════════════════════════════════════════════════════════════════════════════
+                            DONNÉES INITIALES
+═══════════════════════════════════════════════════════════════════════════════
+
+Au premier lancement, le système crée automatiquement:
+✓ 4 rôles (Admin, BA, Chef de Projet, Développeur)
+✓ 9 utilisateurs (listés ci-dessus)
+✓ Base SQLite vierge prête à l'emploi
+
+Base de données: bin/Debug/data/backlog.db
+
+
+═══════════════════════════════════════════════════════════════════════════════
