@@ -150,6 +150,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\EditProjetWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\EditUtilisateurWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -275,6 +279,9 @@
     </Compile>
     <Compile Include="Views\AdministrationWindow.xaml.cs">
       <DependentUpon>AdministrationWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\EditProjetWindow.xaml.cs">
+      <DependentUpon>EditProjetWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\EditUtilisateurWindow.xaml.cs">
       <DependentUpon>EditUtilisateurWindow.xaml</DependentUpon>

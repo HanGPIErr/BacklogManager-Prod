@@ -67,11 +67,13 @@ namespace BacklogManager.Views
         private bool ValiderFormulaire()
         {
             TxtErreur.Text = "";
+            BrdErreur.Visibility = Visibility.Collapsed;
 
             // Validation Nom
             if (string.IsNullOrWhiteSpace(TxtNom.Text))
             {
                 TxtErreur.Text = "Le nom est obligatoire.";
+                BrdErreur.Visibility = Visibility.Visible;
                 TxtNom.Focus();
                 return false;
             }
@@ -80,6 +82,7 @@ namespace BacklogManager.Views
             if (string.IsNullOrWhiteSpace(TxtUsernameWindows.Text))
             {
                 TxtErreur.Text = "Le username Windows (matricule) est obligatoire.";
+                BrdErreur.Visibility = Visibility.Visible;
                 TxtUsernameWindows.Focus();
                 return false;
             }
@@ -93,6 +96,7 @@ namespace BacklogManager.Views
             if (existingUser != null)
             {
                 TxtErreur.Text = "Ce username Windows existe déjà dans le système.";
+                BrdErreur.Visibility = Visibility.Visible;
                 TxtUsernameWindows.Focus();
                 return false;
             }
@@ -104,6 +108,7 @@ namespace BacklogManager.Views
                 if (!emailRegex.IsMatch(TxtEmail.Text))
                 {
                     TxtErreur.Text = "Le format de l'email est invalide.";
+                    BrdErreur.Visibility = Visibility.Visible;
                     TxtEmail.Focus();
                     return false;
                 }
@@ -113,6 +118,7 @@ namespace BacklogManager.Views
             if (CboRole.SelectedValue == null)
             {
                 TxtErreur.Text = "Veuillez sélectionner un rôle.";
+                BrdErreur.Visibility = Visibility.Visible;
                 CboRole.Focus();
                 return false;
             }

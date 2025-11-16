@@ -30,13 +30,35 @@
                 <TextBlock x:Name="TxtUsername" FontSize="14" Foreground="#666" 
                            HorizontalAlignment="Center" Margin="0,0,0,10"/>
 
-                <TextBlock Text="Entrez votre identifiant Windows:" FontSize="13" 
+                <TextBlock Text="Code d'authentification BNP:" FontSize="13" 
                            Foreground="#333" Margin="0,10,0,8"/>
                 
                 <TextBox x:Name="TxtUsernameInput" FontSize="14" Height="35" 
                          Padding="10,8" BorderBrush="#CCC" BorderThickness="1"
                          VerticalContentAlignment="Center"
-                         Text="J04831"/>
+                         Text="J04831">
+                    <TextBox.Style>
+                        <Style TargetType="TextBox">
+                            <Setter Property="Text" Value=""/>
+                            <Style.Triggers>
+                                <Trigger Property="Text" Value="">
+                                    <Setter Property="Background">
+                                        <Setter.Value>
+                                            <VisualBrush Stretch="None" AlignmentX="Left">
+                                                <VisualBrush.Visual>
+                                                    <TextBlock Text="JXXXXX" 
+                                                               Foreground="#AAAAAA" 
+                                                               FontSize="14"
+                                                               Padding="10,8"/>
+                                                </VisualBrush.Visual>
+                                            </VisualBrush>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBox.Style>
+                </TextBox>
 
                 <TextBlock x:Name="TxtStatut" FontSize="13" Foreground="#00915A" 
                            HorizontalAlignment="Center" Margin="0,15,0,15" 
@@ -78,7 +100,7 @@
                 <Separator Margin="0,25,0,15"/>
 
                 <TextBlock FontSize="11" Foreground="#999" TextAlignment="Center" TextWrapping="Wrap">
-                    <Run Text="Entrez votre identifiant Windows (ex: J04831, J12222)"/>
+                    <Run Text="Entrez votre code d'authentification BNP (ex: JXXXXX)"/>
                     <LineBreak/>
                     <Run Text="Ou laissez vide pour authentification automatique"/>
                 </TextBlock>

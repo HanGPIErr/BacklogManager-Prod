@@ -86,3 +86,5 @@ C:\Users\HanGP\BacklogManager\obj\Debug\Views\ProjetDetailsWindow.g.cs
 C:\Users\HanGP\BacklogManager\obj\Debug\Views\ProjetDetailsWindow.baml
 C:\Users\HanGP\BacklogManager\obj\Debug\Views\DevDetailsWindow.baml
 C:\Users\HanGP\BacklogManager\obj\Debug\Views\DevDetailsWindow.g.cs
+C:\Users\HanGP\BacklogManager\obj\Debug\Views\EditProjetWindow.baml
+C:\Users\HanGP\BacklogManager\obj\Debug\Views\EditProjetWindow.g.cs

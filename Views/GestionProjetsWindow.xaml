@@ -61,7 +61,7 @@
             <StackPanel VerticalAlignment="Center" Margin="20,0">
                 <TextBlock Text="📁 GESTION DES PROJETS" 
                            FontSize="20" FontWeight="Bold" Foreground="White"/>
-                <TextBlock Text="Ajouter, modifier ou supprimer des projets" 
+                <TextBlock Text="Liste de tous les projets" 
                            FontSize="12" Foreground="White" Opacity="0.9" Margin="0,5,0,0"/>
             </StackPanel>
         </Border>
@@ -74,63 +74,11 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <!-- Add/Edit Section -->
-            <Border Grid.Row="0" Background="White" Padding="15" CornerRadius="6" 
-                    Margin="0,0,0,15">
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.2"/>
-                </Border.Effect>
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <!-- Nom -->
-                    <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,10,0">
-                        <TextBlock Text="Nom du projet *" FontSize="12" Foreground="#666" Margin="0,0,0,5"/>
-                        <TextBox x:Name="TxtNomProjet" FontSize="14" Padding="10" Height="36"
-                                 BorderBrush="#DDDDDD" BorderThickness="1"/>
-                    </StackPanel>
-
-                    <!-- Statut Actif -->
-                    <StackPanel Grid.Row="0" Grid.Column="1" Margin="10,0,0,0">
-                        <TextBlock Text="Statut" FontSize="12" Foreground="#666" Margin="0,0,0,5"/>
-                        <CheckBox x:Name="ChkActif" Content="Projet actif" IsChecked="True"
-                                  FontSize="14" VerticalAlignment="Center" Height="36"/>
-                    </StackPanel>
-
-                    <!-- Description -->
-                    <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,12,0,0">
-                        <TextBlock Text="Description" FontSize="12" Foreground="#666" Margin="0,0,0,5"/>
-                        <TextBox x:Name="TxtDescriptionProjet" 
-                                 TextWrapping="Wrap" AcceptsReturn="True"
-                                 FontSize="14" Padding="10" Height="60"
-                                 VerticalScrollBarVisibility="Auto"
-                                 BorderBrush="#DDDDDD" BorderThickness="1"/>
-                    </StackPanel>
-
-                    <!-- Boutons -->
-                    <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" 
-                                Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
-                        <Button x:Name="BtnAjouter" Content="➕ Ajouter" 
-                                Style="{StaticResource BNPButtonStyle}" 
-                                Click="BtnAjouter_Click" Width="100"/>
-                        <Button x:Name="BtnModifier" Content="✏️ Modifier" 
-                                Style="{StaticResource BNPButtonStyle}" 
-                                Click="BtnModifier_Click" Width="100" Margin="8,0,0,0"
-                                Visibility="Collapsed"/>
-                        <Button x:Name="BtnAnnuler" Content="✖️ Annuler" 
-                                Style="{StaticResource SecondaryButtonStyle}" 
-                                Click="BtnAnnuler_Click" Width="100" Margin="8,0,0,0"
-                                Visibility="Collapsed"/>
-                    </StackPanel>
-                </Grid>
+            <!-- Bouton Ajouter -->
+            <Border Grid.Row="0" Margin="0,0,0,15">
+                <Button x:Name="BtnAjouter" Content="➕ Nouveau Projet" 
+                        Style="{StaticResource BNPButtonStyle}" 
+                        Click="BtnAjouter_Click" Padding="20,12" FontSize="14"/>
             </Border>
 
             <!-- Liste des projets -->
@@ -165,49 +113,55 @@
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <Border Padding="15,12" BorderBrush="#EEEEEE" 
-                                        BorderThickness="0,0,0,1" Background="Transparent">
+                                <Border Padding="20,15" BorderBrush="#EEEEEE" 
+                                        BorderThickness="0,0,0,1" Background="Transparent"
+                                        Margin="0,0,0,2">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
 
-                                        <StackPanel Grid.Column="0">
-                                            <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="{Binding Nom}" FontSize="15" 
-                                                           FontWeight="SemiBold" Foreground="#1A1919"/>
-                                                <Border Background="#00915A" CornerRadius="3" 
-                                                        Padding="6,2" Margin="10,0,0,0"
-                                                        Visibility="{Binding Actif, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                                    <TextBlock Text="ACTIF" FontSize="9" FontWeight="Bold" 
-                                                               Foreground="White"/>
-                                                </Border>
-                                                <Border Background="#999999" CornerRadius="3" 
-                                                        Padding="6,2" Margin="10,0,0,0"
-                                                        Visibility="{Binding Actif, Converter={StaticResource InverseBooleanToVisibilityConverter}}">
-                                                    <TextBlock Text="INACTIF" FontSize="9" FontWeight="Bold" 
-                                                               Foreground="White"/>
-                                                </Border>
-                                            </StackPanel>
-                                            <TextBlock Text="{Binding Description}" FontSize="12" 
-                                                       Foreground="#666" Margin="0,4,0,0" TextWrapping="Wrap"/>
-                                            <TextBlock FontSize="10" Foreground="#999" Margin="0,4,0,0">
-                                                <Run Text="ID:"/>
+                                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Nom}" FontSize="16" 
+                                                       FontWeight="SemiBold" Foreground="#1A1919" 
+                                                       Margin="0,0,0,8"/>
+                                            <TextBlock Text="{Binding Description}" FontSize="13" 
+                                                       Foreground="#666" Margin="0,0,0,6" TextWrapping="Wrap"
+                                                       MaxWidth="500" HorizontalAlignment="Left"/>
+                                            <TextBlock FontSize="11" Foreground="#999">
+                                                <Run Text="📌 ID:"/>
                                                 <Run Text="{Binding Id}"/>
-                                                <Run Text=" • Créé le"/>
+                                                <Run Text="  •  "/>
+                                                <Run Text="📅 Créé le"/>
                                                 <Run Text="{Binding DateCreation, StringFormat='{}{0:dd/MM/yyyy}'}"/>
                                             </TextBlock>
                                         </StackPanel>
 
-                                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
-                                            <Button Content="✏️" ToolTip="Modifier"
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0">
+                                            <Border Background="#00915A" CornerRadius="12" 
+                                                    Padding="8,3" Margin="0,0,12,0"
+                                                    VerticalAlignment="Center"
+                                                    Visibility="{Binding Actif, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                <TextBlock Text="✅ ACTIF" FontSize="9" FontWeight="Bold" 
+                                                           Foreground="White"/>
+                                            </Border>
+                                            <Border Background="#999999" CornerRadius="12" 
+                                                    Padding="8,3" Margin="0,0,12,0"
+                                                    VerticalAlignment="Center"
+                                                    Visibility="{Binding Actif, Converter={StaticResource InverseBooleanToVisibilityConverter}}">
+                                                <TextBlock Text="❌ INACTIF" FontSize="9" FontWeight="Bold" 
+                                                           Foreground="White"/>
+                                            </Border>
+                                            <Button Content="✏️" ToolTip="Modifier le projet"
                                                     Style="{StaticResource BNPButtonStyle}"
-                                                    Width="36" Height="36" Padding="0"
+                                                    Width="40" Height="40" Padding="0"
+                                                    FontSize="16"
                                                     Click="BtnEdit_Click" Tag="{Binding}"/>
-                                            <Button Content="🗑️" ToolTip="Supprimer"
+                                            <Button Content="🗑️" ToolTip="Supprimer le projet"
                                                     Style="{StaticResource DangerButtonStyle}"
-                                                    Width="36" Height="36" Padding="0" Margin="8,0,0,0"
+                                                    Width="40" Height="40" Padding="0" Margin="10,0,0,0"
+                                                    FontSize="16"
                                                     Click="BtnDelete_Click" Tag="{Binding}"/>
                                         </StackPanel>
                                     </Grid>
