@@ -118,6 +118,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\DevDetailsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\BacklogView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -247,6 +251,9 @@
     </Compile>
     <Compile Include="Views\ProjetDetailsWindow.xaml.cs">
       <DependentUpon>ProjetDetailsWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\DevDetailsWindow.xaml.cs">
+      <DependentUpon>DevDetailsWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\BacklogView.xaml.cs">
       <DependentUpon>BacklogView.xaml</DependentUpon>

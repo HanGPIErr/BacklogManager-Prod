@@ -16,6 +16,7 @@ namespace BacklogManager.Views
         private readonly IDatabase _database;
         private List<AuditLog> _allLogs;
         private List<AuditLog> _filteredLogs;
+        private bool _isInitialized = false;
 
         public AuditLogWindow(IDatabase database)
         {
@@ -42,21 +43,29 @@ namespace BacklogManager.Views
 
                 // Afficher les logs
                 DgAuditLogs.ItemsSource = _filteredLogs;
+                
+                // Marquer comme initialisé après le chargement
+                _isInitialized = true;
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erreur lors du chargement des logs d'audit :\n{ex.Message}\n\nStackTrace:\n{ex.StackTrace}",
+                MessageBox.Show($"Erreur lors du chargement des logs d'audit :\n{ex.Message}",
                     "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
                     
                 // Initialiser avec des listes vides en cas d'erreur
                 _allLogs = new List<AuditLog>();
                 _filteredLogs = new List<AuditLog>();
                 DgAuditLogs.ItemsSource = _filteredLogs;
+                _isInitialized = true;
             }
         }
 
         private void FiltreChanged(object sender, RoutedEventArgs e)
         {
+            // Ne pas appliquer les filtres pendant l'initialisation
+            if (!_isInitialized)
+                return;
+                
             ApplyFilters();
         }
 
@@ -70,31 +79,40 @@ namespace BacklogManager.Views
                 _filteredLogs = new List<AuditLog>(_allLogs);
 
                 // Filtre par utilisateur
-                if (CmbUtilisateur.SelectedItem != null)
+                if (CmbUtilisateur != null && CmbUtilisateur.SelectedItem != null)
                 {
-                    var selectedUser = CmbUtilisateur.SelectedItem as dynamic;
-                    if (selectedUser.UserId > 0)
+                    try
                     {
-                        _filteredLogs = _filteredLogs.Where(l => l.UserId == selectedUser.UserId).ToList();
+                        var selectedUser = CmbUtilisateur.SelectedItem;
+                        var userIdProp = selectedUser.GetType().GetProperty("UserId");
+                        if (userIdProp != null)
+                        {
+                            var userId = (int)userIdProp.GetValue(selectedUser);
+                            if (userId > 0)
+                            {
+                                _filteredLogs = _filteredLogs.Where(l => l.UserId == userId).ToList();
+                            }
+                        }
                     }
+                    catch { /* Ignorer erreur filtre utilisateur */ }
                 }
 
                 // Filtre par date début
-                if (DpDateDebut.SelectedDate.HasValue)
+                if (DpDateDebut != null && DpDateDebut.SelectedDate.HasValue)
                 {
                     var dateDebut = DpDateDebut.SelectedDate.Value.Date;
                     _filteredLogs = _filteredLogs.Where(l => l.DateAction.Date >= dateDebut).ToList();
                 }
 
                 // Filtre par date fin
-                if (DpDateFin.SelectedDate.HasValue)
+                if (DpDateFin != null && DpDateFin.SelectedDate.HasValue)
                 {
                     var dateFin = DpDateFin.SelectedDate.Value.Date;
                     _filteredLogs = _filteredLogs.Where(l => l.DateAction.Date <= dateFin).ToList();
                 }
 
                 // Filtre par action
-                if (CmbAction.SelectedItem != null)
+                if (CmbAction != null && CmbAction.SelectedItem != null)
                 {
                     var selectedAction = (CmbAction.SelectedItem as ComboBoxItem)?.Content?.ToString();
                     if (!string.IsNullOrEmpty(selectedAction) && selectedAction != "Toutes")

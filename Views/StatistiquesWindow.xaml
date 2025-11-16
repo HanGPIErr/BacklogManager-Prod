@@ -105,7 +105,9 @@
                         <DataGrid x:Name="GridChargeParDev" AutoGenerateColumns="False" 
                                   IsReadOnly="True" CanUserAddRows="False" 
                                   HeadersVisibility="Column" GridLinesVisibility="Horizontal"
-                                  BorderThickness="0" Background="Transparent">
+                                  BorderThickness="0" Background="Transparent"
+                                  MouseDoubleClick="GridChargeParDev_MouseDoubleClick"
+                                  Cursor="Hand">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Développeur" Binding="{Binding NomDev}" Width="*" FontWeight="SemiBold"/>
                                 <DataGridTextColumn Header="À faire" Binding="{Binding AFaire}" Width="80" 
@@ -147,7 +149,9 @@
                         <DataGrid x:Name="GridCompletionParProjet" AutoGenerateColumns="False" 
                                   IsReadOnly="True" CanUserAddRows="False" 
                                   HeadersVisibility="Column" GridLinesVisibility="Horizontal"
-                                  BorderThickness="0" Background="Transparent">
+                                  BorderThickness="0" Background="Transparent"
+                                  MouseDoubleClick="GridCompletionParProjet_MouseDoubleClick"
+                                  Cursor="Hand">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Projet" Binding="{Binding NomProjet}" Width="*" FontWeight="SemiBold"/>
                                 <DataGridTextColumn Header="Total tâches" Binding="{Binding TotalTaches}" Width="100"/>

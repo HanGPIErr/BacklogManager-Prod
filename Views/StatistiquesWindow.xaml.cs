@@ -98,6 +98,7 @@ namespace BacklogManager.Views
 
                     chargeParDev.Add(new ChargeDevStats
                     {
+                        Dev = dev,
                         NomDev = dev.Nom,
                         AFaire = tachesDev.Count(t => t.Statut == Statut.Afaire),
                         EnCours = tachesDev.Count(t => t.Statut == Statut.EnCours),
@@ -120,6 +121,7 @@ namespace BacklogManager.Views
 
                     completionParProjet.Add(new CompletionProjetStats
                     {
+                        Projet = projet,
                         NomProjet = projet.Nom,
                         TotalTaches = totalProjet,
                         TachesTerminees = termineesProjet,
@@ -398,6 +400,24 @@ namespace BacklogManager.Views
         {
             Close();
         }
+
+        private void GridChargeParDev_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (GridChargeParDev.SelectedItem is ChargeDevStats devStats && devStats.Dev != null)
+            {
+                var detailsWindow = new DevDetailsWindow(devStats.Dev, _backlogService);
+                detailsWindow.ShowDialog();
+            }
+        }
+
+        private void GridCompletionParProjet_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (GridCompletionParProjet.SelectedItem is CompletionProjetStats projetStats && projetStats.Projet != null)
+            {
+                var detailsWindow = new ProjetDetailsWindow(projetStats.Projet, _backlogService);
+                detailsWindow.ShowDialog();
+            }
+        }
     }
 
     // Classes pour les données de statistiques
@@ -412,6 +432,7 @@ namespace BacklogManager.Views
 
     public class ChargeDevStats
     {
+        public Dev Dev { get; set; }
         public string NomDev { get; set; }
         public int AFaire { get; set; }
         public int EnCours { get; set; }
@@ -422,6 +443,7 @@ namespace BacklogManager.Views
 
     public class CompletionProjetStats
     {
+        public Projet Projet { get; set; }
         public string NomProjet { get; set; }
         public int TotalTaches { get; set; }
         public int TachesTerminees { get; set; }

@@ -90,6 +90,26 @@ namespace BacklogManager.Views
                     stats += $"   • {kvp.Value} {kvp.Key}(s)\n";
                 }
                 
+                // Calcul des statistiques avancées
+                double chargePrevu = 0;
+                double chargeReelle = 0;
+                int tachesAvecChiffrage = 0;
+                
+                foreach (var item in items)
+                {
+                    if (item.ChiffrageHeures.HasValue)
+                    {
+                        chargePrevu += item.ChiffrageHeures.Value;
+                        chargeReelle += item.TempsReelHeures ?? 0;
+                        tachesAvecChiffrage++;
+                    }
+                }
+                
+                stats += $"\n📊 Charge de travail:\n" +
+                         $"   • {chargePrevu / 7:F1} jours estimés\n" +
+                         $"   • {chargeReelle:F1} heures réalisées\n" +
+                         $"   • {tachesAvecChiffrage} tâches chiffrées\n";
+                
                 stats += $"\n📈 Progression moyenne: {progression:F1}%";
 
                 TxtStatistiques.Text = stats;
@@ -104,12 +124,21 @@ namespace BacklogManager.Views
         {
             if (items.Count == 0) return 0;
             
-            int terminees = 0;
+            // Calculer progression basée sur temps réel vs charge prévue (comme Kanban)
+            double chargePrevu = 0;
+            double chargeReelle = 0;
+            
             foreach (var item in items)
             {
-                if (item.Statut.ToString() == "Termine") terminees++;
+                if (item.ChiffrageHeures.HasValue)
+                {
+                    chargePrevu += item.ChiffrageHeures.Value;
+                    chargeReelle += item.TempsReelHeures ?? 0;
+                }
             }
-            return (double)terminees / items.Count * 100;
+            
+            if (chargePrevu == 0) return 0;
+            return Math.Min(100, (chargeReelle / chargePrevu) * 100);
         }
 
         private void BtnOuvrirAuditLog_Click(object sender, RoutedEventArgs e)
