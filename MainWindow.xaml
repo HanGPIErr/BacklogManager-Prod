@@ -137,53 +137,9 @@
                         Style="{StaticResource MenuButtonStyle}" Margin="0,0,0,0"
                         Click="BtnParametres_Click"/>
                 
-                <!-- Team Info -->
-                <Border Margin="15,40,15,0" Background="#2A2A2A" Padding="12" CornerRadius="4">
-                    <StackPanel>
-                        <Grid>
-                            <TextBlock Text="🧑‍💼 ÉQUIPE" FontSize="11" FontWeight="Bold" 
-                                       Foreground="#00915A" Margin="0,0,0,8" VerticalAlignment="Center"/>
-                            <Button x:Name="BtnGererEquipe" Content="⚙️" ToolTip="Gérer l'équipe"
-                                    HorizontalAlignment="Right" VerticalAlignment="Center"
-                                    Background="#00915A" Foreground="White" 
-                                    BorderThickness="0" Padding="6" Cursor="Hand"
-                                    FontSize="12" Width="26" Height="26"
-                                    Click="BtnGererEquipe_Click">
-                                <Button.Template>
-                                    <ControlTemplate TargetType="Button">
-                                        <Border Background="{TemplateBinding Background}" 
-                                                CornerRadius="4">
-                                            <ContentPresenter HorizontalAlignment="Center" 
-                                                              VerticalAlignment="Center"/>
-                                        </Border>
-                                    </ControlTemplate>
-                                </Button.Template>
-                                <Button.Style>
-                                    <Style TargetType="Button">
-                                        <Style.Triggers>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter Property="Background" Value="#007A4D"/>
-                                            </Trigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Style>
-                            </Button>
-                        </Grid>
-                        <ItemsControl x:Name="LstEquipe">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Foreground="White" FontSize="12" Margin="0,2">
-                                        <Run Text="• "/>
-                                        <Run Text="{Binding Nom}"/>
-                                    </TextBlock>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </StackPanel>
-                </Border>
 
                 <!-- Projets Info -->
-                <Border Margin="15,15,15,0" Background="#2A2A2A" Padding="12" CornerRadius="4">
+                <Border Margin="15,40,15,0" Background="#2A2A2A" Padding="12" CornerRadius="4">
                     <StackPanel>
                         <Grid>
                             <TextBlock Text="📁 PROJETS" FontSize="11" FontWeight="Bold" 

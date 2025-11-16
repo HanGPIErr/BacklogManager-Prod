@@ -54,7 +54,6 @@ namespace BacklogManager
             // Charger après l'initialisation complète
             Loaded += (s, e) =>
             {
-                ChargerEquipe();
                 ChargerInfoProjets();
                 AfficherUtilisateurConnecte();
                 VerifierPermissions();
@@ -107,22 +106,8 @@ namespace BacklogManager
         {
             // Afficher/masquer les boutons selon les permissions
             BtnAdmin.Visibility = _permissionService.PeutAccederAdministration ? Visibility.Visible : Visibility.Collapsed;
-            BtnGererEquipe.Visibility = _permissionService.PeutGererEquipe ? Visibility.Visible : Visibility.Collapsed;
             BtnDemandes.Visibility = _permissionService.PeutCreerDemandes ? Visibility.Visible : Visibility.Collapsed;
             BtnStatistiques.Visibility = _permissionService.PeutVoirKPI ? Visibility.Visible : Visibility.Collapsed;
-        }
-
-        private void ChargerEquipe()
-        {
-            try
-            {
-                var devs = _backlogService.GetAllDevs();
-                LstEquipe.ItemsSource = devs;
-            }
-            catch
-            {
-                // Ignorer les erreurs de chargement initial
-            }
         }
 
         private void ChargerInfoProjets()
@@ -145,9 +130,6 @@ namespace BacklogManager
                 var window = new GestionEquipeWindow(_backlogService);
                 window.Owner = this;
                 window.ShowDialog();
-                
-                // Rafraîchir après fermeture
-                ChargerEquipe();
             }
             catch (System.Exception ex)
             {
