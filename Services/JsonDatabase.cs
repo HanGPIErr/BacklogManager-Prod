@@ -20,6 +20,7 @@ namespace BacklogManager.Services
         public List<Disponibilite> Disponibilites { get; set; }
         public List<Commentaire> Commentaires { get; set; }
         public List<HistoriqueModification> Historique { get; set; }
+        public List<AuditLog> AuditLogs { get; set; }
 
         public DatabaseModel()
         {
@@ -35,6 +36,7 @@ namespace BacklogManager.Services
             Disponibilites = new List<Disponibilite>();
             Commentaires = new List<Commentaire>();
             Historique = new List<HistoriqueModification>();
+            AuditLogs = new List<AuditLog>();
         }
     }
 
@@ -103,6 +105,27 @@ namespace BacklogManager.Services
             lock (_lock)
             {
                 return new List<BacklogItem>(_data.BacklogItems);
+            }
+        }
+
+        public List<AuditLog> GetAuditLogs()
+        {
+            lock (_lock)
+            {
+                return new List<AuditLog>(_data.AuditLogs ?? new List<AuditLog>());
+            }
+        }
+
+        public void AddAuditLog(AuditLog auditLog)
+        {
+            lock (_lock)
+            {
+                if (_data.AuditLogs == null)
+                    _data.AuditLogs = new List<AuditLog>();
+                
+                auditLog.Id = GetNextId(_data.AuditLogs);
+                _data.AuditLogs.Add(auditLog);
+                Save();
             }
         }
 
@@ -273,6 +296,43 @@ namespace BacklogManager.Services
             }
         }
 
+        public void AddUtilisateur(Utilisateur utilisateur)
+        {
+            lock (_lock)
+            {
+                utilisateur.Id = GetNextId(_data.Utilisateurs);
+                _data.Utilisateurs.Add(utilisateur);
+                Save();
+            }
+        }
+
+        public void UpdateUtilisateur(Utilisateur utilisateur)
+        {
+            lock (_lock)
+            {
+                var existing = _data.Utilisateurs.Find(u => u.Id == utilisateur.Id);
+                if (existing != null)
+                {
+                    _data.Utilisateurs.Remove(existing);
+                    _data.Utilisateurs.Add(utilisateur);
+                    Save();
+                }
+            }
+        }
+
+        public void DeleteUtilisateur(int id)
+        {
+            lock (_lock)
+            {
+                var existing = _data.Utilisateurs.Find(u => u.Id == id);
+                if (existing != null)
+                {
+                    _data.Utilisateurs.Remove(existing);
+                    Save();
+                }
+            }
+        }
+
         // Roles
         public List<Role> GetRoles()
         {
@@ -298,6 +358,26 @@ namespace BacklogManager.Services
                 _data.Roles.Add(role);
                 Save();
                 return role;
+            }
+        }
+
+        public void UpdateRole(Role role)
+        {
+            lock (_lock)
+            {
+                var existing = _data.Roles.Find(r => r.Id == role.Id);
+                if (existing != null)
+                {
+                    existing.PeutCreerDemandes = role.PeutCreerDemandes;
+                    existing.PeutChiffrer = role.PeutChiffrer;
+                    existing.PeutPrioriser = role.PeutPrioriser;
+                    existing.PeutGererUtilisateurs = role.PeutGererUtilisateurs;
+                    existing.PeutVoirKPI = role.PeutVoirKPI;
+                    existing.PeutGererReferentiels = role.PeutGererReferentiels;
+                    existing.PeutModifierTaches = role.PeutModifierTaches;
+                    existing.PeutSupprimerTaches = role.PeutSupprimerTaches;
+                    Save();
+                }
             }
         }
 

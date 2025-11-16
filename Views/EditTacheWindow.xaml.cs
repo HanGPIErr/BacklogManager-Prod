@@ -11,15 +11,18 @@ namespace BacklogManager.Views
     {
         private readonly BacklogItem _tache;
         private readonly BacklogService _backlogService;
+        private readonly PermissionService _permissionService;
         public bool Saved { get; private set; }
 
-        public EditTacheWindow(BacklogItem tache, BacklogService backlogService)
+        public EditTacheWindow(BacklogItem tache, BacklogService backlogService, PermissionService permissionService)
         {
             InitializeComponent();
             _tache = tache;
             _backlogService = backlogService;
+            _permissionService = permissionService;
 
             LoadData();
+            ApplyPermissions();
         }
 
         private void LoadData()
@@ -52,8 +55,50 @@ namespace BacklogManager.Views
             DateFinDatePicker.SelectedDate = _tache.DateFinAttendue;
         }
 
+        private void ApplyPermissions()
+        {
+            if (_permissionService == null) return;
+
+            // Vérifier si l'utilisateur peut modifier cette tâche
+            bool peutModifier = _permissionService.PeutModifierTache(_tache);
+
+            // Désactiver les champs si pas de permission de modification
+            TitreTextBox.IsReadOnly = !peutModifier;
+            DescriptionTextBox.IsReadOnly = !peutModifier;
+            TypeDemandeComboBox.IsEnabled = peutModifier;
+            StatutComboBox.IsEnabled = peutModifier;
+
+            // Priorité seulement si PeutPrioriser
+            PrioriteComboBox.IsEnabled = peutModifier && _permissionService.PeutPrioriser;
+
+            // Dev assigné seulement si PeutAssignerDev
+            DevComboBox.IsEnabled = peutModifier && _permissionService.PeutAssignerDev;
+
+            // Complexité seulement si PeutChiffrer
+            ComplexiteComboBox.IsEnabled = peutModifier && _permissionService.PeutChiffrer;
+            ChiffrageTextBox.IsReadOnly = !peutModifier || !_permissionService.PeutChiffrer;
+
+            // Autres champs
+            ProjetComboBox.IsEnabled = peutModifier;
+            DateFinDatePicker.IsEnabled = peutModifier;
+
+            // Changer le titre si lecture seule
+            if (!peutModifier)
+            {
+                Title = "Consultation de tâche (lecture seule)";
+            }
+        }
+
         private void Enregistrer_Click(object sender, RoutedEventArgs e)
         {
+            // Vérifier les permissions avant d'enregistrer
+            if (_permissionService != null && !_permissionService.PeutModifierTache(_tache))
+            {
+                MessageBox.Show("Vous n'avez pas les droits pour modifier cette tâche.",
+                    "Accès refusé", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             if (string.IsNullOrWhiteSpace(TitreTextBox.Text))
             {
                 MessageBox.Show("Le titre est obligatoire.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -64,19 +109,34 @@ namespace BacklogManager.Views
             _tache.Titre = TitreTextBox.Text;
             _tache.Description = DescriptionTextBox.Text;
             _tache.TypeDemande = (TypeDemande)TypeDemandeComboBox.SelectedItem;
-            _tache.Priorite = (Priorite)PrioriteComboBox.SelectedItem;
             _tache.Statut = (Statut)StatutComboBox.SelectedItem;
-            _tache.DevAssigneId = (int?)DevComboBox.SelectedValue;
-            _tache.ProjetId = (int?)ProjetComboBox.SelectedValue;
 
-            if (ComplexiteComboBox.SelectedItem != null && int.TryParse(ComplexiteComboBox.SelectedItem.ToString(), out int complexite))
+            // Priorité (si autorisé)
+            if (_permissionService == null || _permissionService.PeutPrioriser)
             {
-                _tache.Complexite = complexite;
+                _tache.Priorite = (Priorite)PrioriteComboBox.SelectedItem;
             }
 
-            if (double.TryParse(ChiffrageTextBox.Text, out double chiffrageJours))
+            // Dev assigné (si autorisé)
+            if (_permissionService == null || _permissionService.PeutAssignerDev)
             {
-                _tache.ChiffrageHeures = chiffrageJours * 7; // Convertir jours en heures (7h par jour)
+                _tache.DevAssigneId = (int?)DevComboBox.SelectedValue;
+            }
+
+            _tache.ProjetId = (int?)ProjetComboBox.SelectedValue;
+
+            // Complexité (si autorisé)
+            if (_permissionService == null || _permissionService.PeutChiffrer)
+            {
+                if (ComplexiteComboBox.SelectedItem != null && int.TryParse(ComplexiteComboBox.SelectedItem.ToString(), out int complexite))
+                {
+                    _tache.Complexite = complexite;
+                }
+
+                if (double.TryParse(ChiffrageTextBox.Text, out double chiffrageJours))
+                {
+                    _tache.ChiffrageHeures = chiffrageJours * 7; // Convertir jours en heures (7h par jour)
+                }
             }
 
             _tache.DateFinAttendue = DateFinDatePicker.SelectedDate;

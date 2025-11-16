@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Input;
 using BacklogManager.Domain;
 using BacklogManager.Services;
@@ -14,6 +15,7 @@ namespace BacklogManager.ViewModels
     public class BacklogViewModel : INotifyPropertyChanged
     {
         private readonly BacklogService _backlogService;
+        private readonly PermissionService _permissionService;
         private string _searchText;
         private TypeDemande? _selectedType;
         private Priorite? _selectedPriorite;
@@ -28,6 +30,11 @@ namespace BacklogManager.ViewModels
         public ObservableCollection<Utilisateur> Devs { get; set; }
         public ObservableCollection<Projet> Projets { get; set; }
         public List<int?> ComplexiteValues { get; set; }
+
+        // Propri\u00e9t\u00e9s de visibilit\u00e9 selon les permissions
+        public Visibility PeutCreerTachesVisibility => _permissionService?.PeutCreerTaches == true ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility PeutModifierTachesVisibility => _permissionService?.PeutModifierTaches == true ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility PeutGererReferentielsVisibility => _permissionService?.PeutGererReferentiels == true ? Visibility.Visible : Visibility.Collapsed;
 
         public string SearchText
         {
@@ -103,6 +110,8 @@ namespace BacklogManager.ViewModels
                 _selectedItem = value;
                 OnPropertyChanged();
                 IsEditMode = value != null;
+                // Mettre à jour les commandes après changement de sélection
+                CommandManager.InvalidateRequerySuggested();
             }
         }
 
@@ -121,21 +130,41 @@ namespace BacklogManager.ViewModels
         public ICommand ClearFiltersCommand { get; }
         public ICommand NewProjetCommand { get; }
 
-        public BacklogViewModel(BacklogService backlogService)
+        public BacklogViewModel(BacklogService backlogService, PermissionService permissionService = null)
         {
             _backlogService = backlogService;
+            _permissionService = permissionService;
             BacklogItems = new ObservableCollection<BacklogItem>();
             AllBacklogItems = new ObservableCollection<BacklogItem>();
             Devs = new ObservableCollection<Utilisateur>();
             Projets = new ObservableCollection<Projet>();
             ComplexiteValues = new List<int?> { null, 1, 2, 3, 5, 8, 13, 21 };
 
-            SaveCommand = new RelayCommand(_ => SaveItem());
-            NewCommand = new RelayCommand(_ => CreateNewItem());
+            SaveCommand = new RelayCommand(_ => SaveItem(), _ => CanSaveItem());
+            NewCommand = new RelayCommand(_ => CreateNewItem(), _ => CanCreateItem());
             ClearFiltersCommand = new RelayCommand(_ => ClearFilters());
-            NewProjetCommand = new RelayCommand(_ => CreateNewProjet());
+            NewProjetCommand = new RelayCommand(_ => CreateNewProjet(), _ => CanCreateProjet());
 
             LoadData();
+        }
+
+        private bool CanSaveItem()
+        {
+            if (_permissionService == null) return true; // Par d\u00e9faut, autoris\u00e9 si pas de service
+            if (_selectedItem == null) return false;
+            return _permissionService.PeutModifierTache(_selectedItem);
+        }
+
+        private bool CanCreateItem()
+        {
+            if (_permissionService == null) return true;
+            return _permissionService.PeutCreerTaches;
+        }
+
+        private bool CanCreateProjet()
+        {
+            if (_permissionService == null) return true;
+            return _permissionService.PeutGererReferentiels;
         }
 
         public void LoadData()

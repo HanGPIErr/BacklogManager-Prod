@@ -1,0 +1,79 @@
+<Page x:Class="BacklogManager.Views.Pages.GestionRolesPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Background="Transparent">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Actions -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,15">
+            <TextBlock Text="🎭 Configuration des permissions par rôle" FontSize="14" 
+                       FontWeight="Bold" VerticalAlignment="Center" Foreground="#1A1919"/>
+            <Button Content="🔄 Actualiser" Click="BtnActualiser_Click" Margin="20,0,0,0"
+                    Background="#E0E0E0" Foreground="#1A1919" Padding="15,8" 
+                    BorderThickness="0" Cursor="Hand" FontWeight="Bold"/>
+        </StackPanel>
+
+        <!-- Liste des rôles -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <ItemsControl x:Name="LstRoles">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Background="White" CornerRadius="6" Padding="20" Margin="0,0,0,15"
+                                BorderBrush="#E0E0E0" BorderThickness="1">
+                            <StackPanel>
+                                <!-- Nom du rôle -->
+                                <TextBlock Text="{Binding Nom}" FontSize="16" FontWeight="Bold" 
+                                           Foreground="#00915A" Margin="0,0,0,15"/>
+
+                                <!-- Permissions en 2 colonnes -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Colonne 1 -->
+                                    <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                        <CheckBox Content="📝 Créer des demandes" IsChecked="{Binding PeutCreerDemandes}" Margin="0,5"/>
+                                        <CheckBox Content="💰 Chiffrer" IsChecked="{Binding PeutChiffrer}" Margin="0,5"/>
+                                        <CheckBox Content="🎯 Prioriser" IsChecked="{Binding PeutPrioriser}" Margin="0,5"/>
+                                        <CheckBox Content="✏️ Modifier les tâches" IsChecked="{Binding PeutModifierTaches}" Margin="0,5"/>
+                                    </StackPanel>
+
+                                    <!-- Colonne 2 -->
+                                    <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                        <CheckBox Content="🗑️ Supprimer les tâches" IsChecked="{Binding PeutSupprimerTaches}" Margin="0,5"/>
+                                        <CheckBox Content="👥 Gérer les utilisateurs" IsChecked="{Binding PeutGererUtilisateurs}" Margin="0,5"/>
+                                        <CheckBox Content="📚 Gérer les référentiels" IsChecked="{Binding PeutGererReferentiels}" Margin="0,5"/>
+                                        <CheckBox Content="📊 Voir les KPI" IsChecked="{Binding PeutVoirKPI}" Margin="0,5"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <!-- Bouton Enregistrer -->
+                                <Button Content="💾 Enregistrer les modifications" Click="BtnEnregistrerRole_Click"
+                                        Tag="{Binding}" Margin="0,15,0,0"
+                                        Background="#00915A" Foreground="White" Padding="15,10" 
+                                        BorderThickness="0" Cursor="Hand" FontWeight="Bold" HorizontalAlignment="Right">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Background" Value="#00915A"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="#007A4D"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </Grid>
+</Page>

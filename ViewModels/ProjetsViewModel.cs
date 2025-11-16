@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Input;
 using BacklogManager.Domain;
 using BacklogManager.Services;
@@ -63,6 +64,7 @@ namespace BacklogManager.ViewModels
     public class ProjetsViewModel : INotifyPropertyChanged
     {
         private readonly BacklogService _backlogService;
+        private readonly PermissionService _permissionService;
         private ProjetItemViewModel _selectedProjet;
         private string _searchText;
         private bool _filterActifsOnly;
@@ -122,9 +124,20 @@ namespace BacklogManager.ViewModels
         public ICommand RefreshCommand { get; }
         public ICommand ClearFiltersCommand { get; }
 
-        public ProjetsViewModel(BacklogService backlogService)
+        // Propriétés de visibilité basées sur les permissions
+        public Visibility PeutCreerProjetsVisibility => _permissionService?.PeutGererReferentiels == true 
+            ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility PeutModifierTachesVisibility => _permissionService?.PeutModifierTaches == true 
+            ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility PeutSupprimerTachesVisibility => _permissionService?.PeutSupprimerTaches == true 
+            ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility PeutPrioriserVisibility => _permissionService?.PeutPrioriser == true 
+            ? Visibility.Visible : Visibility.Collapsed;
+
+        public ProjetsViewModel(BacklogService backlogService, PermissionService permissionService = null)
         {
             _backlogService = backlogService;
+            _permissionService = permissionService;
             Projets = new ObservableCollection<ProjetItemViewModel>();
             ProjetsFiltres = new ObservableCollection<ProjetItemViewModel>();
             TachesProjetSelectionne = new ObservableCollection<BacklogItem>();
@@ -142,11 +155,17 @@ namespace BacklogManager.ViewModels
             _filterActifsOnly = true;
             _triSelection = "Date (plus récent)";
 
-            AjouterProjetCommand = new RelayCommand(_ => AjouterProjet());
+            AjouterProjetCommand = new RelayCommand(_ => AjouterProjet(), _ => CanAjouterProjet());
             RefreshCommand = new RelayCommand(_ => LoadProjets());
             ClearFiltersCommand = new RelayCommand(_ => ClearFilters());
 
             LoadProjets();
+        }
+
+        private bool CanAjouterProjet()
+        {
+            if (_permissionService == null) return true;
+            return _permissionService.PeutGererReferentiels;
         }
 
         public void LoadProjets()
@@ -269,7 +288,7 @@ namespace BacklogManager.ViewModels
 
         public void ModifierTache(BacklogItem tache)
         {
-            var editWindow = new Views.EditTacheWindow(tache, _backlogService);
+            var editWindow = new Views.EditTacheWindow(tache, _backlogService, _permissionService);
             
             // Trouver la fenêtre parente
             var mainWindow = System.Windows.Application.Current.MainWindow;

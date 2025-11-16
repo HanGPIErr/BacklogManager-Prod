@@ -106,6 +106,19 @@
                         Style="{StaticResource MenuButtonStyle}" Margin="0,8,0,0"
                         Click="BtnDemandes_Click"/>
 
+                <!-- Notifications avec badge -->
+                <Grid Margin="0,8,0,0">
+                    <Button x:Name="BtnNotifications" Content="🔔 Notifications" 
+                            Style="{StaticResource MenuButtonStyle}"
+                            Click="BtnNotifications_Click"/>
+                    <Border x:Name="BadgeNotifications" Background="#D32F2F" CornerRadius="10" 
+                            Padding="6,2" Margin="0,5,15,0" HorizontalAlignment="Right" VerticalAlignment="Top"
+                            Visibility="Collapsed">
+                        <TextBlock x:Name="TxtBadgeCount" Text="0" FontSize="10" FontWeight="Bold" 
+                                   Foreground="White" HorizontalAlignment="Center"/>
+                    </Border>
+                </Grid>
+
                 <Separator Background="#444" Margin="15,20,15,20" Height="1"/>
 
                 <!-- Administration -->
@@ -113,13 +126,23 @@
                         Style="{StaticResource MenuButtonStyle}" Margin="0,0,0,0"
                         Click="BtnAdmin_Click"/>
                 
+                <!-- Statistiques KPI -->
+                <Button x:Name="BtnStatistiques" Content="📊 Statistiques KPI" 
+                        Style="{StaticResource MenuButtonStyle}" Margin="0,0,0,0"
+                        Click="BtnStatistiques_Click"/>
+                
+                <!-- Paramètres -->
+                <Button x:Name="BtnParametres" Content="⚙️ Paramètres" 
+                        Style="{StaticResource MenuButtonStyle}" Margin="0,0,0,0"
+                        Click="BtnParametres_Click"/>
+                
                 <!-- Team Info -->
                 <Border Margin="15,40,15,0" Background="#2A2A2A" Padding="12" CornerRadius="4">
                     <StackPanel>
                         <Grid>
                             <TextBlock Text="🧑‍💼 ÉQUIPE" FontSize="11" FontWeight="Bold" 
                                        Foreground="#00915A" Margin="0,0,0,8" VerticalAlignment="Center"/>
-                            <Button Content="⚙️" ToolTip="Gérer l'équipe"
+                            <Button x:Name="BtnGererEquipe" Content="⚙️" ToolTip="Gérer l'équipe"
                                     HorizontalAlignment="Right" VerticalAlignment="Center"
                                     Background="#00915A" Foreground="White" 
                                     BorderThickness="0" Padding="6" Cursor="Hand"

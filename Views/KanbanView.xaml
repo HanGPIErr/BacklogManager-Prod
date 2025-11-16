@@ -102,7 +102,9 @@
             </Grid.ColumnDefinitions>
 
             <!-- A FAIRE Column -->
-            <Border Grid.Column="0" Background="White" CornerRadius="6" Padding="10" Margin="0,0,8,0">
+            <Border Grid.Column="0" Background="White" CornerRadius="6" Padding="10" Margin="0,0,8,0"
+                    AllowDrop="True" Tag="AFaire"
+                    Drop="KanbanColumn_Drop" DragEnter="KanbanColumn_DragEnter" DragLeave="KanbanColumn_DragLeave">
                 <Border.Effect>
                     <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.15" Color="#00915A"/>
                 </Border.Effect>
@@ -130,7 +132,10 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Border Padding="10" Margin="0,0,0,10" CornerRadius="6" Background="White"
-                                            Cursor="Hand" MouseLeftButtonUp="KanbanCard_MouseLeftButtonUp">
+                                            Cursor="Hand" 
+                                            PreviewMouseLeftButtonDown="KanbanCard_PreviewMouseLeftButtonDown"
+                                            PreviewMouseMove="KanbanCard_PreviewMouseMove"
+                                            MouseLeftButtonUp="KanbanCard_MouseLeftButtonUp">
                                         <Border.Style>
                                             <Style TargetType="Border">
                                                 <Setter Property="BorderThickness" Value="2"/>
@@ -248,7 +253,9 @@
             </Border>
 
             <!-- EN COURS Column -->
-            <Border Grid.Column="1" Background="White" CornerRadius="6" Padding="10" Margin="0,0,8,0">
+            <Border Grid.Column="1" Background="White" CornerRadius="6" Padding="10" Margin="0,0,8,0"
+                    AllowDrop="True" Tag="EnCours"
+                    Drop="KanbanColumn_Drop" DragEnter="KanbanColumn_DragEnter" DragLeave="KanbanColumn_DragLeave">
                 <Border.Effect>
                     <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.15" Color="#00915A"/>
                 </Border.Effect>
@@ -276,7 +283,10 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Border Padding="10" Margin="0,0,0,10" CornerRadius="6" Background="White"
-                                            Cursor="Hand" MouseLeftButtonUp="KanbanCard_MouseLeftButtonUp">
+                                            Cursor="Hand" 
+                                            PreviewMouseLeftButtonDown="KanbanCard_PreviewMouseLeftButtonDown"
+                                            PreviewMouseMove="KanbanCard_PreviewMouseMove"
+                                            MouseLeftButtonUp="KanbanCard_MouseLeftButtonUp">
                                         <Border.Style>
                                             <Style TargetType="Border">
                                                 <Setter Property="BorderThickness" Value="2"/>
@@ -394,7 +404,9 @@
             </Border>
 
             <!-- EN TEST Column -->
-            <Border Grid.Column="2" Background="White" CornerRadius="6" Padding="10" Margin="0,0,8,0">
+            <Border Grid.Column="2" Background="White" CornerRadius="6" Padding="10" Margin="0,0,8,0"
+                    AllowDrop="True" Tag="EnTest"
+                    Drop="KanbanColumn_Drop" DragEnter="KanbanColumn_DragEnter" DragLeave="KanbanColumn_DragLeave">
                 <Border.Effect>
                     <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.15" Color="#00915A"/>
                 </Border.Effect>
@@ -422,7 +434,10 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Border Padding="10" Margin="0,0,0,10" CornerRadius="6" Background="White"
-                                            Cursor="Hand" MouseLeftButtonUp="KanbanCard_MouseLeftButtonUp">
+                                            Cursor="Hand" 
+                                            PreviewMouseLeftButtonDown="KanbanCard_PreviewMouseLeftButtonDown"
+                                            PreviewMouseMove="KanbanCard_PreviewMouseMove"
+                                            MouseLeftButtonUp="KanbanCard_MouseLeftButtonUp">
                                         <Border.Style>
                                             <Style TargetType="Border">
                                                 <Setter Property="BorderThickness" Value="2"/>
@@ -540,7 +555,9 @@
             </Border>
 
             <!-- TERMINÉ Column -->
-            <Border Grid.Column="3" Background="White" CornerRadius="6" Padding="10">
+            <Border Grid.Column="3" Background="White" CornerRadius="6" Padding="10"
+                    AllowDrop="True" Tag="Termine"
+                    Drop="KanbanColumn_Drop" DragEnter="KanbanColumn_DragEnter" DragLeave="KanbanColumn_DragLeave">
                 <Border.Effect>
                     <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.15" Color="#00915A"/>
                 </Border.Effect>
@@ -569,7 +586,10 @@
                                 <DataTemplate>
                                     <Border Padding="10" Margin="0,0,0,10" CornerRadius="6" Background="White"
                                             BorderBrush="#00915A" BorderThickness="2"
-                                            Cursor="Hand" MouseLeftButtonUp="KanbanCard_MouseLeftButtonUp">
+                                            Cursor="Hand" 
+                                            PreviewMouseLeftButtonDown="KanbanCard_PreviewMouseLeftButtonDown"
+                                            PreviewMouseMove="KanbanCard_PreviewMouseMove"
+                                            MouseLeftButtonUp="KanbanCard_MouseLeftButtonUp">
                                         <Border.Effect>
                                             <DropShadowEffect BlurRadius="6" ShadowDepth="2" Opacity="0.2" Color="Gray"/>
                                         </Border.Effect>

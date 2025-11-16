@@ -9,6 +9,7 @@ namespace BacklogManager.Services
     {
         private readonly IDatabase _database;
         private Utilisateur _currentUser;
+        private AuditLogService _auditLogService;
 
         public AuthenticationService(IDatabase database)
         {
@@ -48,6 +49,11 @@ namespace BacklogManager.Services
                     // Mettre à jour la date de dernière connexion
                     _currentUser.DateDerniereConnexion = DateTime.Now;
                     _database.AddOrUpdateUtilisateur(_currentUser);
+
+                    // Initialiser l'audit log service après connexion
+                    _auditLogService = new AuditLogService(_database, _currentUser);
+                    _auditLogService.LogLogin();
+
                     return true;
                 }
 
@@ -73,6 +79,11 @@ namespace BacklogManager.Services
                     // Mettre à jour la date de dernière connexion
                     _currentUser.DateDerniereConnexion = DateTime.Now;
                     _database.AddOrUpdateUtilisateur(_currentUser);
+
+                    // Initialiser l'audit log service après connexion
+                    _auditLogService = new AuditLogService(_database, _currentUser);
+                    _auditLogService.LogLogin();
+
                     return true;
                 }
 
@@ -82,6 +93,11 @@ namespace BacklogManager.Services
             {
                 return false;
             }
+        }
+
+        public AuditLogService GetAuditLogService()
+        {
+            return _auditLogService;
         }
 
         public Role GetCurrentUserRole()

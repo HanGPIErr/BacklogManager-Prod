@@ -60,6 +60,8 @@ namespace BacklogManager.Services
                             PeutGererUtilisateurs INTEGER NOT NULL,
                             PeutVoirKPI INTEGER NOT NULL,
                             PeutGererReferentiels INTEGER NOT NULL,
+                            PeutModifierTaches INTEGER NOT NULL DEFAULT 0,
+                            PeutSupprimerTaches INTEGER NOT NULL DEFAULT 0,
                             Actif INTEGER NOT NULL
                         );
 
@@ -214,6 +216,64 @@ namespace BacklogManager.Services
                             Initiales TEXT NOT NULL,
                             Actif INTEGER NOT NULL
                         );
+
+                        CREATE TABLE IF NOT EXISTS AuditLog (
+                            Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            Action TEXT NOT NULL,
+                            UserId INTEGER NOT NULL,
+                            Username TEXT NOT NULL,
+                            EntityType TEXT NOT NULL,
+                            EntityId INTEGER,
+                            OldValue TEXT,
+                            NewValue TEXT,
+                            DateAction TEXT NOT NULL,
+                            Details TEXT,
+                            FOREIGN KEY (UserId) REFERENCES Utilisateurs(Id)
+                        );
+                    ";
+                    cmd.ExecuteNonQuery();
+                }
+                
+                // Migration: Ajouter les colonnes manquantes si nécessaire
+                MigrateDatabaseSchema(conn);
+            }
+        }
+        
+        private void MigrateDatabaseSchema(SQLiteConnection conn)
+        {
+            using (var cmd = conn.CreateCommand())
+            {
+                // Vérifier et ajouter PeutModifierTaches si manquant
+                cmd.CommandText = @"SELECT COUNT(*) FROM pragma_table_info('Roles') WHERE name='PeutModifierTaches';";
+                var hasPeutModifierTaches = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                
+                if (!hasPeutModifierTaches)
+                {
+                    cmd.CommandText = @"ALTER TABLE Roles ADD COLUMN PeutModifierTaches INTEGER NOT NULL DEFAULT 1;";
+                    cmd.ExecuteNonQuery();
+                    
+                    // Mettre à jour les valeurs par défaut selon les rôles
+                    cmd.CommandText = @"
+                        UPDATE Roles SET PeutModifierTaches = 1 WHERE Type IN (0, 2);
+                        UPDATE Roles SET PeutModifierTaches = 1 WHERE Type = 3;
+                        UPDATE Roles SET PeutModifierTaches = 0 WHERE Type = 1;
+                    ";
+                    cmd.ExecuteNonQuery();
+                }
+                
+                // Vérifier et ajouter PeutSupprimerTaches si manquant
+                cmd.CommandText = @"SELECT COUNT(*) FROM pragma_table_info('Roles') WHERE name='PeutSupprimerTaches';";
+                var hasPeutSupprimerTaches = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                
+                if (!hasPeutSupprimerTaches)
+                {
+                    cmd.CommandText = @"ALTER TABLE Roles ADD COLUMN PeutSupprimerTaches INTEGER NOT NULL DEFAULT 0;";
+                    cmd.ExecuteNonQuery();
+                    
+                    // Mettre à jour les valeurs par défaut selon les rôles
+                    cmd.CommandText = @"
+                        UPDATE Roles SET PeutSupprimerTaches = 1 WHERE Type IN (0, 2);
+                        UPDATE Roles SET PeutSupprimerTaches = 0 WHERE Type IN (1, 3);
                     ";
                     cmd.ExecuteNonQuery();
                 }
@@ -227,7 +287,9 @@ namespace BacklogManager.Services
             using (var conn = GetConnection())
             {
                 conn.Open();
-                using (var cmd = new SQLiteCommand("SELECT * FROM Roles WHERE Actif = 1", conn))
+                using (var cmd = new SQLiteCommand(@"SELECT Id, Nom, Type, PeutCreerDemandes, PeutChiffrer, 
+                    PeutPrioriser, PeutGererUtilisateurs, PeutVoirKPI, PeutGererReferentiels, 
+                    PeutModifierTaches, PeutSupprimerTaches, Actif FROM Roles WHERE Actif = 1", conn))
                 using (var reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
@@ -243,7 +305,9 @@ namespace BacklogManager.Services
                             PeutGererUtilisateurs = reader.GetInt32(6) == 1,
                             PeutVoirKPI = reader.GetInt32(7) == 1,
                             PeutGererReferentiels = reader.GetInt32(8) == 1,
-                            Actif = reader.GetInt32(9) == 1
+                            PeutModifierTaches = reader.GetInt32(9) == 1,
+                            PeutSupprimerTaches = reader.GetInt32(10) == 1,
+                            Actif = reader.GetInt32(11) == 1
                         });
                     }
                 }
@@ -379,6 +443,39 @@ namespace BacklogManager.Services
             }
         }
 
+        public void UpdateRole(Role role)
+        {
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"UPDATE Roles SET 
+                        PeutCreerDemandes = @PeutCreerDemandes,
+                        PeutChiffrer = @PeutChiffrer,
+                        PeutPrioriser = @PeutPrioriser,
+                        PeutGererUtilisateurs = @PeutGererUtilisateurs,
+                        PeutVoirKPI = @PeutVoirKPI,
+                        PeutGererReferentiels = @PeutGererReferentiels,
+                        PeutModifierTaches = @PeutModifierTaches,
+                        PeutSupprimerTaches = @PeutSupprimerTaches
+                        WHERE Id = @Id";
+                    
+                    cmd.Parameters.AddWithValue("@Id", role.Id);
+                    cmd.Parameters.AddWithValue("@PeutCreerDemandes", role.PeutCreerDemandes ? 1 : 0);
+                    cmd.Parameters.AddWithValue("@PeutChiffrer", role.PeutChiffrer ? 1 : 0);
+                    cmd.Parameters.AddWithValue("@PeutPrioriser", role.PeutPrioriser ? 1 : 0);
+                    cmd.Parameters.AddWithValue("@PeutGererUtilisateurs", role.PeutGererUtilisateurs ? 1 : 0);
+                    cmd.Parameters.AddWithValue("@PeutVoirKPI", role.PeutVoirKPI ? 1 : 0);
+                    cmd.Parameters.AddWithValue("@PeutGererReferentiels", role.PeutGererReferentiels ? 1 : 0);
+                    cmd.Parameters.AddWithValue("@PeutModifierTaches", role.PeutModifierTaches ? 1 : 0);
+                    cmd.Parameters.AddWithValue("@PeutSupprimerTaches", role.PeutSupprimerTaches ? 1 : 0);
+                    
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
         public Utilisateur AddOrUpdateUtilisateur(Utilisateur utilisateur)
         {
             using (var conn = GetConnection())
@@ -431,6 +528,31 @@ namespace BacklogManager.Services
                     throw;
                 }
             }
+            }
+        }
+
+        public void AddUtilisateur(Utilisateur utilisateur)
+        {
+            utilisateur.Id = 0; // Force insertion
+            AddOrUpdateUtilisateur(utilisateur);
+        }
+
+        public void UpdateUtilisateur(Utilisateur utilisateur)
+        {
+            AddOrUpdateUtilisateur(utilisateur);
+        }
+
+        public void DeleteUtilisateur(int id)
+        {
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = "DELETE FROM Utilisateurs WHERE Id = @Id";
+                    cmd.Parameters.AddWithValue("@Id", id);
+                    cmd.ExecuteNonQuery();
+                }
             }
         }
 
@@ -547,6 +669,71 @@ namespace BacklogManager.Services
         }
         
         public List<BacklogItem> GetBacklog() { return GetBacklogItems(); }
+        
+        public List<AuditLog> GetAuditLogs()
+        {
+            var logs = new List<AuditLog>();
+            try
+            {
+                using (var conn = GetConnection())
+                {
+                    conn.Open();
+                    using (var cmd = new SQLiteCommand(@"SELECT Id, Action, UserId, Username, EntityType, EntityId, 
+                        OldValue, NewValue, DateAction, Details FROM AuditLog ORDER BY DateAction DESC", conn))
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            logs.Add(new AuditLog
+                            {
+                                Id = reader.GetInt32(0),
+                                Action = reader.GetString(1),
+                                UserId = reader.GetInt32(2),
+                                Username = reader.GetString(3),
+                                EntityType = reader.GetString(4),
+                                EntityId = reader.IsDBNull(5) ? (int?)null : reader.GetInt32(5),
+                                OldValue = reader.IsDBNull(6) ? null : reader.GetString(6),
+                                NewValue = reader.IsDBNull(7) ? null : reader.GetString(7),
+                                DateAction = DateTime.Parse(reader.GetString(8)),
+                                Details = reader.IsDBNull(9) ? null : reader.GetString(9)
+                            });
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                // En cas d'erreur, retourner une liste vide plutôt que null
+                return new List<AuditLog>();
+            }
+            return logs;
+        }
+
+        public void AddAuditLog(AuditLog auditLog)
+        {
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"INSERT INTO AuditLog (Action, UserId, Username, EntityType, EntityId, 
+                        OldValue, NewValue, DateAction, Details)
+                        VALUES (@Action, @UserId, @Username, @EntityType, @EntityId, @OldValue, @NewValue, @DateAction, @Details)";
+                    
+                    cmd.Parameters.AddWithValue("@Action", auditLog.Action);
+                    cmd.Parameters.AddWithValue("@UserId", auditLog.UserId);
+                    cmd.Parameters.AddWithValue("@Username", auditLog.Username);
+                    cmd.Parameters.AddWithValue("@EntityType", auditLog.EntityType);
+                    cmd.Parameters.AddWithValue("@EntityId", auditLog.EntityId.HasValue ? (object)auditLog.EntityId.Value : DBNull.Value);
+                    cmd.Parameters.AddWithValue("@OldValue", auditLog.OldValue ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@NewValue", auditLog.NewValue ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@DateAction", auditLog.DateAction.ToString("yyyy-MM-dd HH:mm:ss"));
+                    cmd.Parameters.AddWithValue("@Details", auditLog.Details ?? (object)DBNull.Value);
+                    
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
         
         public List<Projet> GetProjets()
         {

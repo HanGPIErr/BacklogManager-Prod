@@ -1,0 +1,101 @@
+<Window x:Class="BacklogManager.Views.EditUtilisateurWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Gestion Utilisateur" 
+        Width="500" Height="450" 
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="White">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- En-tête -->
+        <TextBlock Grid.Row="0" Text="👤 Informations Utilisateur" 
+                   FontSize="18" FontWeight="Bold" Foreground="#00915A" Margin="0,0,0,20"/>
+
+        <!-- Formulaire -->
+        <StackPanel Grid.Row="1">
+            <TextBlock Text="Nom *" FontWeight="Bold" Margin="0,0,0,5"/>
+            <TextBox x:Name="TxtNom" Padding="10" FontSize="14" 
+                     BorderBrush="#CCCCCC" BorderThickness="1" Margin="0,0,0,15"/>
+
+            <TextBlock Text="Prénom" FontWeight="Bold" Margin="0,0,0,5"/>
+            <TextBox x:Name="TxtPrenom" Padding="10" FontSize="14" 
+                     BorderBrush="#CCCCCC" BorderThickness="1" Margin="0,0,0,15"/>
+
+            <TextBlock Text="Email" FontWeight="Bold" Margin="0,0,0,5"/>
+            <TextBox x:Name="TxtEmail" Padding="10" FontSize="14" 
+                     BorderBrush="#CCCCCC" BorderThickness="1" Margin="0,0,0,15"/>
+
+            <TextBlock Text="Username Windows (Matricule) *" FontWeight="Bold" Margin="0,0,0,5"/>
+            <TextBox x:Name="TxtUsernameWindows" Padding="10" FontSize="14" 
+                     BorderBrush="#CCCCCC" BorderThickness="1" Margin="0,0,0,15"/>
+
+            <TextBlock Text="Rôle *" FontWeight="Bold" Margin="0,0,0,5"/>
+            <ComboBox x:Name="CboRole" DisplayMemberPath="Nom" SelectedValuePath="Id"
+                      Padding="10" FontSize="14" BorderBrush="#CCCCCC" 
+                      BorderThickness="1" Margin="0,0,0,15"/>
+
+            <CheckBox x:Name="ChkActif" Content="Utilisateur actif" 
+                      IsChecked="True" FontSize="14" Margin="0,0,0,10"/>
+
+            <TextBlock x:Name="TxtErreur" Text="" Foreground="Red" 
+                       FontSize="12" TextWrapping="Wrap" Margin="0,10,0,0"/>
+        </StackPanel>
+
+        <!-- Boutons -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+            <Button Content="💾 Enregistrer" Click="BtnEnregistrer_Click"
+                    Background="#00915A" Foreground="White" Padding="20,10" 
+                    BorderThickness="0" Cursor="Hand" FontWeight="Bold" Margin="0,0,10,0">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}" CornerRadius="4" 
+                                            Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#007A4A"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+            
+            <Button Content="❌ Annuler" Click="BtnAnnuler_Click"
+                    Background="#E0E0E0" Foreground="#1A1919" Padding="20,10" 
+                    BorderThickness="0" Cursor="Hand" FontWeight="Bold">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}" CornerRadius="4" 
+                                            Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#CCCCCC"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </StackPanel>
+    </Grid>
+</Window>

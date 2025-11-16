@@ -135,6 +135,30 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\AdministrationWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\EditUtilisateurWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Pages\GestionUtilisateursPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Pages\GestionRolesPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Pages\GestionProjetsPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Pages\GestionEquipePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\GestionUtilisateursWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -159,6 +183,22 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\StatistiquesWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\AuditLogWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\NotificationsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ParametresWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Domain\BacklogItem.cs" />
@@ -174,14 +214,18 @@
     <Compile Include="Domain\Disponibilite.cs" />
     <Compile Include="Domain\Commentaire.cs" />
     <Compile Include="Domain\HistoriqueModification.cs" />
+    <Compile Include="Domain\AuditLog.cs" />
     <Compile Include="Converters\TimelineBarMarginConverter.cs" />
     <Compile Include="Services\IDatabase.cs" />
     <Compile Include="Services\JsonDatabase.cs" />
     <Compile Include="Services\SqliteDatabase.cs" />
     <Compile Include="Services\BacklogService.cs" />
+    <Compile Include="Services\PermissionService.cs" />
     <Compile Include="Services\PokerService.cs" />
     <Compile Include="Services\AuthenticationService.cs" />
     <Compile Include="Services\InitializationService.cs" />
+    <Compile Include="Services\AuditLogService.cs" />
+    <Compile Include="Services\NotificationService.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\ProjetsViewModel.cs" />
     <Compile Include="ViewModels\BacklogViewModel.cs" />
@@ -212,6 +256,24 @@
     <Compile Include="Views\GestionProjetsWindow.xaml.cs">
       <DependentUpon>GestionProjetsWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\AdministrationWindow.xaml.cs">
+      <DependentUpon>AdministrationWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\EditUtilisateurWindow.xaml.cs">
+      <DependentUpon>EditUtilisateurWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Pages\GestionUtilisateursPage.xaml.cs">
+      <DependentUpon>GestionUtilisateursPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Pages\GestionRolesPage.xaml.cs">
+      <DependentUpon>GestionRolesPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Pages\GestionProjetsPage.xaml.cs">
+      <DependentUpon>GestionProjetsPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Pages\GestionEquipePage.xaml.cs">
+      <DependentUpon>GestionEquipePage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\GestionUtilisateursWindow.xaml.cs">
       <DependentUpon>GestionUtilisateursWindow.xaml</DependentUpon>
     </Compile>
@@ -229,6 +291,18 @@
     </Compile>
     <Compile Include="Views\CommentairesWindow.xaml.cs">
       <DependentUpon>CommentairesWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\StatistiquesWindow.xaml.cs">
+      <DependentUpon>StatistiquesWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\AuditLogWindow.xaml.cs">
+      <DependentUpon>AuditLogWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\NotificationsWindow.xaml.cs">
+      <DependentUpon>NotificationsWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ParametresWindow.xaml.cs">
+      <DependentUpon>ParametresWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Shared\RelayCommand.cs" />
     <Compile Include="Shared\ProgressWidthConverter.cs" />

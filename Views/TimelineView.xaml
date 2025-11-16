@@ -143,6 +143,130 @@
         <!-- Timeline Items -->
         <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
             <StackPanel>
+                <!-- Légende des couleurs - Branding BNP Paribas -->
+                <Border Background="White" CornerRadius="6" Padding="15" Margin="0,0,0,15">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="8" ShadowDepth="0" Opacity="0.12" Color="#00915A"/>
+                    </Border.Effect>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        
+                        <!-- Titre de la légende -->
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,12">
+                            <TextBlock Text="🎨" FontSize="16" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <TextBlock Text="LÉGENDE DES COULEURS" FontSize="14" FontWeight="Bold" 
+                                     Foreground="#1A1919" VerticalAlignment="Center"/>
+                            <Rectangle Width="3" Height="18" Fill="#00915A" Margin="10,0" RadiusX="2" RadiusY="2"/>
+                            <TextBlock Text="BNP Paribas" FontSize="12" Foreground="#00915A" 
+                                     FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        
+                        <!-- Ligne 1: Statuts -->
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10">
+                            <TextBlock Text="📊 Statuts:" FontWeight="SemiBold" FontSize="12" 
+                                     Foreground="#555" VerticalAlignment="Center" Width="90"/>
+                            
+                            <!-- À faire -->
+                            <Border Background="#E3F2FD" CornerRadius="4" Padding="8,4" Margin="0,0,8,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <Ellipse Width="10" Height="10" Fill="#2196F3" Margin="0,0,6,0"/>
+                                    <TextBlock Text="À faire" FontSize="11" Foreground="#1565C0" FontWeight="Medium"/>
+                                </StackPanel>
+                            </Border>
+                            
+                            <!-- En cours -->
+                            <Border Background="#FFF3E0" CornerRadius="4" Padding="8,4" Margin="0,0,8,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <Ellipse Width="10" Height="10" Fill="#FF9800" Margin="0,0,6,0"/>
+                                    <TextBlock Text="En cours" FontSize="11" Foreground="#E65100" FontWeight="Medium"/>
+                                </StackPanel>
+                            </Border>
+                            
+                            <!-- En test -->
+                            <Border Background="#F3E5F5" CornerRadius="4" Padding="8,4" Margin="0,0,8,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <Ellipse Width="10" Height="10" Fill="#9C27B0" Margin="0,0,6,0"/>
+                                    <TextBlock Text="En test" FontSize="11" Foreground="#6A1B9A" FontWeight="Medium"/>
+                                </StackPanel>
+                            </Border>
+                            
+                            <!-- Terminé -->
+                            <Border Background="#E8F5E9" CornerRadius="4" Padding="8,4" Margin="0,0,8,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <Ellipse Width="10" Height="10" Fill="#00915A" Margin="0,0,6,0"/>
+                                    <TextBlock Text="Terminé" FontSize="11" Foreground="#00915A" FontWeight="Medium"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                        
+                        <!-- Ligne 2: Priorités et Alertes -->
+                        <Grid Grid.Row="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <!-- Priorités -->
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,0,20,0">
+                                <TextBlock Text="⚡ Priorités:" FontWeight="SemiBold" FontSize="12" 
+                                         Foreground="#555" VerticalAlignment="Center" Width="90"/>
+                                
+                                <Border Background="#FFEBEE" CornerRadius="4" Padding="8,4" Margin="0,0,8,0">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Polygon Points="0,8 5,0 10,8" Fill="#D32F2F" Margin="0,0,6,0"/>
+                                        <TextBlock Text="Urgente" FontSize="11" Foreground="#B71C1C" FontWeight="Medium"/>
+                                    </StackPanel>
+                                </Border>
+                                
+                                <Border Background="#FFF8E1" CornerRadius="4" Padding="8,4" Margin="0,0,8,0">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Polygon Points="0,8 5,0 10,8" Fill="#FFA000" Margin="0,0,6,0"/>
+                                        <TextBlock Text="Haute" FontSize="11" Foreground="#F57C00" FontWeight="Medium"/>
+                                    </StackPanel>
+                                </Border>
+                                
+                                <Border Background="#E0F2F1" CornerRadius="4" Padding="8,4" Margin="0,0,8,0">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Ellipse Width="10" Height="10" Fill="#00897B" Margin="0,0,6,0"/>
+                                        <TextBlock Text="Normale" FontSize="11" Foreground="#00695C" FontWeight="Medium"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                            
+                            <!-- Alertes -->
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <TextBlock Text="⚠️ Alertes:" FontWeight="SemiBold" FontSize="12" 
+                                         Foreground="#555" VerticalAlignment="Center" Width="80"/>
+                                
+                                <Border Background="#FFCDD2" CornerRadius="4" Padding="8,4" Margin="0,0,8,0">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="🔴" FontSize="10" Margin="0,0,6,0"/>
+                                        <TextBlock Text="Retard critique" FontSize="11" Foreground="#C62828" FontWeight="Medium"/>
+                                    </StackPanel>
+                                </Border>
+                                
+                                <Border Background="#FFE0B2" CornerRadius="4" Padding="8,4" Margin="0,0,8,0">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="🟠" FontSize="10" Margin="0,0,6,0"/>
+                                        <TextBlock Text="Échéance proche" FontSize="11" Foreground="#E65100" FontWeight="Medium"/>
+                                    </StackPanel>
+                                </Border>
+                                
+                                <Border Background="#C8E6C9" CornerRadius="4" Padding="8,4">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="🟢" FontSize="10" Margin="0,0,6,0"/>
+                                        <TextBlock Text="Dans les temps" FontSize="11" Foreground="#00915A" FontWeight="Medium"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+                </Border>
+                
                 <!-- Timeline des projets par mois -->
                 <Border Background="White" CornerRadius="6" Padding="20" Margin="0,0,0,15">
                     <Border.Effect>

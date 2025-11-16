@@ -36,12 +36,9 @@ namespace BacklogManager.Views
                 return;
             }
 
-            var projets = _backlogService.GetAllProjets();
-            var newId = projets.Any() ? projets.Max(p => p.Id) + 1 : 1;
-
             var newProjet = new Projet
             {
-                Id = newId,
+                Id = 0,  // Laisser 0 pour auto-increment
                 Nom = nom,
                 Description = TxtDescriptionProjet.Text.Trim(),
                 DateCreation = DateTime.Now,

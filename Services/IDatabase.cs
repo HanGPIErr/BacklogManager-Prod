@@ -7,8 +7,12 @@ namespace BacklogManager.Services
     {
         List<Role> GetRoles();
         Role AddOrUpdateRole(Role role);
+        void UpdateRole(Role role);
         List<Utilisateur> GetUtilisateurs();
         Utilisateur AddOrUpdateUtilisateur(Utilisateur utilisateur);
+        void AddUtilisateur(Utilisateur utilisateur);
+        void UpdateUtilisateur(Utilisateur utilisateur);
+        void DeleteUtilisateur(int id);
         List<Projet> GetProjets();
         Projet AddOrUpdateProjet(Projet projet);
         List<Sprint> GetSprints();
@@ -32,5 +36,7 @@ namespace BacklogManager.Services
         List<Disponibilite> GetDisponibilites();
         Disponibilite AddOrUpdateDisponibilite(Disponibilite disponibilite);
         List<BacklogItem> GetBacklog();
+        List<AuditLog> GetAuditLogs();
+        void AddAuditLog(AuditLog auditLog);
     }
 }

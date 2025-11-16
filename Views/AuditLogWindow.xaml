@@ -1,0 +1,157 @@
+<Window x:Class="BacklogManager.Views.AuditLogWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="📜 Journal d'Audit - Historique des Actions" 
+        Height="700" Width="1200"
+        WindowStartupLocation="CenterOwner"
+        Background="#F5F5F5">
+    <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="Margin" Value="5,0"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+        <Style TargetType="DatePicker">
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="Margin" Value="5,0"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Filtres -->
+        <Border Grid.Row="0" Background="White" Padding="15" Margin="10" 
+                BorderBrush="#DDD" BorderThickness="1" CornerRadius="5">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="5" ShadowDepth="2" Opacity="0.2"/>
+            </Border.Effect>
+            <StackPanel>
+                <TextBlock Text="🔍 Filtres" FontSize="16" FontWeight="Bold" Margin="0,0,0,10"/>
+                
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Margin="5">
+                        <TextBlock Text="Utilisateur:" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                        <ComboBox x:Name="CmbUtilisateur" DisplayMemberPath="Username" 
+                                  SelectionChanged="FiltreChanged"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Margin="5">
+                        <TextBlock Text="Date début:" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                        <DatePicker x:Name="DpDateDebut" SelectedDateChanged="FiltreChanged"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2" Margin="5">
+                        <TextBlock Text="Date fin:" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                        <DatePicker x:Name="DpDateFin" SelectedDateChanged="FiltreChanged"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="3" Margin="5">
+                        <TextBlock Text="Action:" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                        <ComboBox x:Name="CmbAction" SelectionChanged="FiltreChanged">
+                            <ComboBoxItem Content="Toutes" IsSelected="True"/>
+                            <ComboBoxItem Content="CREATE"/>
+                            <ComboBoxItem Content="UPDATE"/>
+                            <ComboBoxItem Content="DELETE"/>
+                            <ComboBoxItem Content="LOGIN"/>
+                            <ComboBoxItem Content="LOGOUT"/>
+                        </ComboBox>
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <!-- DataGrid -->
+        <Border Grid.Row="1" Background="White" Margin="10" 
+                BorderBrush="#DDD" BorderThickness="1" CornerRadius="5">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="5" ShadowDepth="2" Opacity="0.2"/>
+            </Border.Effect>
+            <DataGrid x:Name="DgAuditLogs" 
+                      AutoGenerateColumns="False"
+                      IsReadOnly="True"
+                      AlternatingRowBackground="#F9F9F9"
+                      RowBackground="White"
+                      GridLinesVisibility="Horizontal"
+                      HeadersVisibility="Column"
+                      BorderThickness="0"
+                      SelectionMode="Single"
+                      CanUserAddRows="False"
+                      CanUserDeleteRows="False"
+                      Margin="10">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="📅 Date" Binding="{Binding DateAction, StringFormat='dd/MM/yyyy HH:mm:ss'}" 
+                                        Width="150" FontWeight="SemiBold"/>
+                    <DataGridTextColumn Header="👤 Utilisateur" Binding="{Binding Username}" Width="120"/>
+                    <DataGridTextColumn Header="⚡ Action" Binding="{Binding Action}" Width="100">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="FontWeight" Value="Bold"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Action}" Value="CREATE">
+                                        <Setter Property="Foreground" Value="#00A676"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Action}" Value="UPDATE">
+                                        <Setter Property="Foreground" Value="#FF8C00"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Action}" Value="DELETE">
+                                        <Setter Property="Foreground" Value="#E74C3C"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Action}" Value="LOGIN">
+                                        <Setter Property="Foreground" Value="#3498DB"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Action}" Value="LOGOUT">
+                                        <Setter Property="Foreground" Value="#95A5A6"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="📦 Type d'Entité" Binding="{Binding EntityType}" Width="130"/>
+                    <DataGridTextColumn Header="🔑 ID Entité" Binding="{Binding EntityId}" Width="90"/>
+                    <DataGridTextColumn Header="📝 Détails" Binding="{Binding Details}" Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+        <!-- Boutons -->
+        <Border Grid.Row="2" Background="White" Padding="15" Margin="10,0,10,10" 
+                BorderBrush="#DDD" BorderThickness="1" CornerRadius="5">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="5" ShadowDepth="2" Opacity="0.2"/>
+            </Border.Effect>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button x:Name="BtnExporterCSV" Content="💾 Exporter CSV" 
+                        Background="#00A676" Foreground="White"
+                        Click="BtnExporterCSV_Click"/>
+                <Button x:Name="BtnActualiser" Content="🔄 Actualiser" 
+                        Background="#3498DB" Foreground="White"
+                        Click="BtnActualiser_Click"/>
+                <Button x:Name="BtnFermer" Content="❌ Fermer" 
+                        Background="#95A5A6" Foreground="White"
+                        Click="BtnFermer_Click"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

@@ -211,6 +211,7 @@ namespace BacklogManager.ViewModels
     public class KanbanViewModel : INotifyPropertyChanged
     {
         private readonly BacklogService _backlogService;
+        private readonly PermissionService _permissionService;
         private int? _selectedDevId;
         private int? _selectedProjetId;
         private bool _isLoading;
@@ -261,7 +262,7 @@ namespace BacklogManager.ViewModels
 
         public void OuvrirDetailsTache(BacklogItem tache)
         {
-            var editWindow = new Views.EditTacheWindow(tache, _backlogService);
+            var editWindow = new Views.EditTacheWindow(tache, _backlogService, _permissionService);
             
             var mainWindow = System.Windows.Application.Current.MainWindow;
             if (mainWindow != null && mainWindow != editWindow)
@@ -275,9 +276,25 @@ namespace BacklogManager.ViewModels
             }
         }
 
-        public KanbanViewModel(BacklogService backlogService)
+        public void ChangerStatutTache(BacklogItem tache, Statut nouveauStatut)
+        {
+            if (tache != null)
+            {
+                tache.Statut = nouveauStatut;
+                tache.DateDerniereMaj = System.DateTime.Now;
+                
+                // Sauvegarder dans la base de données
+                _backlogService.SaveBacklogItem(tache);
+                
+                // Rafraîchir l'affichage
+                LoadItems();
+            }
+        }
+
+        public KanbanViewModel(BacklogService backlogService, PermissionService permissionService = null)
         {
             _backlogService = backlogService;
+            _permissionService = permissionService;
             
             ItemsAfaire = new ObservableCollection<KanbanItemViewModel>();
             ItemsEnCours = new ObservableCollection<KanbanItemViewModel>();

@@ -107,6 +107,7 @@
                     </Button>
 
                     <Button Content="➕ Nouveau Projet" Command="{Binding NewProjetCommand}"
+                            Visibility="{Binding PeutCreerProjetsVisibility}"
                             Padding="8,5" Margin="0,5,0,0" Background="#00915A" Foreground="White" BorderThickness="0"
                             FontSize="12" FontWeight="Bold" Cursor="Hand">
                         <Button.Style>
@@ -131,6 +132,7 @@
                     </Button>
                     
                     <Button Content="+ Nouvelle tâche" Command="{Binding NewCommand}"
+                            Visibility="{Binding PeutCreerTachesVisibility}"
                             Padding="10,8" Margin="0,10,0,0" Background="#00915A" Foreground="White"
                             BorderThickness="0" FontSize="13" FontWeight="SemiBold" Cursor="Hand">
                         <Button.Style>
@@ -238,34 +240,39 @@
                     <ComboBox ItemsSource="{Binding Source={x:Type local:TypeDemande}, Converter={StaticResource EnumToCollectionConverter}}"
                               SelectedItem="{Binding SelectedItem.TypeDemande}" Padding="8"/>
 
-                    <TextBlock Text="Priorité" FontWeight="Bold" Margin="0,10,0,2"/>
+                    <TextBlock Text="Priorité" FontWeight="Bold" Margin="0,10,0,2"
+                               Visibility="{Binding PeutPrioriserVisibility}"/>
                     <ComboBox ItemsSource="{Binding Source={x:Type local:Priorite}, Converter={StaticResource EnumToCollectionConverter}}"
-                              SelectedItem="{Binding SelectedItem.Priorite}" Padding="8"/>
+                              SelectedItem="{Binding SelectedItem.Priorite}" Padding="8"
+                              Visibility="{Binding PeutPrioriserVisibility}"/>
 
                     <TextBlock Text="Statut" FontWeight="Bold" Margin="0,10,0,2"/>
                     <ComboBox ItemsSource="{Binding Source={x:Type local:Statut}, Converter={StaticResource EnumToCollectionConverter}}"
                               SelectedItem="{Binding SelectedItem.Statut}" Padding="8"/>
 
-                    <TextBlock Text="Dev Assigné" FontWeight="Bold" Margin="0,10,0,2"/>
+                    <TextBlock Text="Dev Assigné" FontWeight="Bold" Margin="0,10,0,2"
+                               Visibility="{Binding PeutAssignerDevVisibility}"/>
                     <ComboBox ItemsSource="{Binding Devs}" DisplayMemberPath="Nom"
-                              SelectedValue="{Binding SelectedItem.DevAssigneId}" SelectedValuePath="Id" 
-                              Padding="8"/>
-
-                    <TextBlock Text="Projet" FontWeight="Bold" Margin="0,10,0,2"/>
+                              SelectedValue="{Binding SelectedItem.DevAssigneId}" SelectedValuePath="Id"
+                              Padding="8"
+                              Visibility="{Binding PeutAssignerDevVisibility}"/>                    <TextBlock Text="Projet" FontWeight="Bold" Margin="0,10,0,2"/>
                     <ComboBox ItemsSource="{Binding Projets}" DisplayMemberPath="Nom"
                               SelectedValue="{Binding SelectedItem.ProjetId}" SelectedValuePath="Id" 
                               Padding="8"/>
 
-                    <TextBlock Text="Complexité (Story Points)" FontWeight="Bold" Margin="0,10,0,2"/>
+                    <TextBlock Text="Complexité (Story Points)" FontWeight="Bold" Margin="0,10,0,2"
+                               Visibility="{Binding PeutChiffrerVisibility}"/>
                     <ComboBox ItemsSource="{Binding ComplexiteValues}"
                               SelectedValue="{Binding SelectedItem.Complexite, UpdateSourceTrigger=PropertyChanged}"
-                              Padding="8" FontSize="14" BorderBrush="#CCCCCC" BorderThickness="1"/>
+                              Padding="8" FontSize="14" BorderBrush="#CCCCCC" BorderThickness="1"
+                              Visibility="{Binding PeutChiffrerVisibility}"/>
 
                     <TextBlock Text="Date de fin attendue" FontWeight="Bold" Margin="0,10,0,2"/>
                     <DatePicker SelectedDate="{Binding SelectedItem.DateFinAttendue, UpdateSourceTrigger=PropertyChanged}"
                                 Padding="8" FontSize="14" BorderBrush="#CCCCCC" BorderThickness="1"/>
 
                     <Button Content="💾 Enregistrer" Command="{Binding SaveCommand}"
+                            Visibility="{Binding PeutModifierTachesVisibility}"
                             Padding="12,8" Margin="0,20,0,0" Background="#2196F3" Foreground="White"
                             BorderThickness="0" FontSize="14" FontWeight="Bold" Cursor="Hand"
                             HorizontalAlignment="Left">

@@ -88,6 +88,7 @@
                 <!-- Actions -->
                 <StackPanel Grid.Row="1" Margin="0,0,0,15">
                     <Button Content="➕ Nouveau Projet" Command="{Binding AjouterProjetCommand}"
+                            Visibility="{Binding PeutCreerProjetsVisibility}"
                             Padding="10,8" Background="#00915A" Foreground="White" BorderThickness="0"
                             FontSize="13" FontWeight="SemiBold" Cursor="Hand" Margin="0,0,0,8"
                             HorizontalAlignment="Stretch">
@@ -334,7 +335,8 @@
                                                     Padding="8,6" Margin="0,0,5,0" Background="#2196F3" Foreground="White" 
                                                     BorderThickness="0" FontSize="12" Cursor="Hand"
                                                     Tag="{Binding}"
-                                                    Click="ModifierTache_Click">
+                                                    Click="ModifierTache_Click"
+                                                    Visibility="{Binding DataContext.PeutModifierTachesVisibility, RelativeSource={RelativeSource AncestorType=UserControl}}">
                                                 <Button.Style>
                                                     <Style TargetType="Button">
                                                         <Setter Property="Template">
@@ -360,7 +362,8 @@
                                                     Padding="8,6" Background="#D32F2F" Foreground="White" 
                                                     BorderThickness="0" FontSize="12" Cursor="Hand"
                                                     Tag="{Binding}"
-                                                    Click="SupprimerTache_Click">
+                                                    Click="SupprimerTache_Click"
+                                                    Visibility="{Binding DataContext.PeutSupprimerTachesVisibility, RelativeSource={RelativeSource AncestorType=UserControl}}">
                                                 <Button.Style>
                                                     <Style TargetType="Button">
                                                         <Setter Property="Template">

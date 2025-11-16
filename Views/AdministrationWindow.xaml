@@ -1,0 +1,152 @@
+<Window x:Class="BacklogManager.Views.AdministrationWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="⚙️ Administration - BNP Paribas Backlog Manager" 
+        Height="700" Width="1100"
+        WindowStartupLocation="CenterOwner"
+        Background="#F5F5F5">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="White" CornerRadius="6" Padding="20" Margin="0,0,0,20">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.15" Color="#00915A"/>
+            </Border.Effect>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="⚙️ ADMINISTRATION" FontSize="24" FontWeight="Bold" Foreground="#1A1919"/>
+                <TextBlock Text="Gestion des utilisateurs, rôles et paramètres" FontSize="14" 
+                           Foreground="#6D6D6D" VerticalAlignment="Bottom" Margin="20,0,0,3"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Tabs Navigation -->
+        <TabControl Grid.Row="1" Background="Transparent" BorderThickness="0">
+            <TabControl.Resources>
+                <Style TargetType="TabItem">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="TabItem">
+                                <Border Name="Border" Background="White" BorderBrush="#E0E0E0" 
+                                        BorderThickness="1,1,1,0" CornerRadius="6,6,0,0" 
+                                        Padding="20,12" Margin="0,0,5,0">
+                                    <ContentPresenter x:Name="ContentSite"
+                                                      VerticalAlignment="Center"
+                                                      HorizontalAlignment="Center"
+                                                      ContentSource="Header"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter TargetName="Border" Property="Background" Value="#00915A"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                    </Trigger>
+                                    <Trigger Property="IsSelected" Value="False">
+                                        <Setter Property="Foreground" Value="#6D6D6D"/>
+                                    </Trigger>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Border" Property="Background" Value="#F0F0F0"/>
+                                    </Trigger>
+                                    <MultiTrigger>
+                                        <MultiTrigger.Conditions>
+                                            <Condition Property="IsMouseOver" Value="True"/>
+                                            <Condition Property="IsSelected" Value="True"/>
+                                        </MultiTrigger.Conditions>
+                                        <Setter TargetName="Border" Property="Background" Value="#007A4D"/>
+                                    </MultiTrigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </TabControl.Resources>
+
+            <!-- Tab Utilisateurs -->
+            <TabItem Header="👥 Utilisateurs">
+                <Border Background="White" CornerRadius="0,6,6,6" Padding="20">
+                    <Frame x:Name="FrameUtilisateurs" NavigationUIVisibility="Hidden"/>
+                </Border>
+            </TabItem>
+
+            <!-- Tab Rôles -->
+            <TabItem Header="🎭 Rôles">
+                <Border Background="White" CornerRadius="0,6,6,6" Padding="20">
+                    <Frame x:Name="FrameRoles" NavigationUIVisibility="Hidden"/>
+                </Border>
+            </TabItem>
+
+            <!-- Tab Projets -->
+            <TabItem Header="📊 Projets">
+                <Border Background="White" CornerRadius="0,6,6,6" Padding="20">
+                    <Frame x:Name="FrameProjets" NavigationUIVisibility="Hidden"/>
+                </Border>
+            </TabItem>
+
+            <!-- Tab Équipe -->
+            <TabItem Header="🧑‍💼 Équipe">
+                <Border Background="White" CornerRadius="0,6,6,6" Padding="20">
+                    <Frame x:Name="FrameEquipe" NavigationUIVisibility="Hidden"/>
+                </Border>
+            </TabItem>
+
+            <!-- Tab Statistiques -->
+            <TabItem Header="📈 Statistiques">
+                <Border Background="White" CornerRadius="0,6,6,6" Padding="20">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <TextBlock Text="📈 Statistiques du Backlog" FontSize="18" FontWeight="Bold" 
+                                       Foreground="#1A1919" Margin="0,0,0,20"/>
+                            
+                            <TextBlock x:Name="TxtStatistiques" FontSize="13" TextWrapping="Wrap" 
+                                       Foreground="#6D6D6D"/>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+            </TabItem>
+
+            <!-- Tab Audit Log -->
+            <TabItem Header="📜 Journal d'Audit" x:Name="TabAuditLog">
+                <Border Background="White" CornerRadius="0,6,6,6" Padding="20">
+                    <StackPanel>
+                        <TextBlock Text="📜 Journal d'Audit" FontSize="18" FontWeight="Bold" 
+                                   Foreground="#1A1919" Margin="0,0,0,10"/>
+                        <TextBlock Text="Consultez l'historique complet de toutes les actions effectuées dans l'application." 
+                                   FontSize="13" Foreground="#6D6D6D" Margin="0,0,0,20" TextWrapping="Wrap"/>
+                        
+                        <Button x:Name="BtnOuvrirAuditLog" Content="📜 Ouvrir le Journal d'Audit" 
+                                Background="#00915A" Foreground="White" 
+                                FontSize="14" FontWeight="Bold" Padding="20,12"
+                                Cursor="Hand" BorderThickness="0"
+                                Click="BtnOuvrirAuditLog_Click">
+                            <Button.Effect>
+                                <DropShadowEffect BlurRadius="5" ShadowDepth="2" Opacity="0.3" Color="#00915A"/>
+                            </Button.Effect>
+                        </Button>
+
+                        <Border Background="#F0F8F5" CornerRadius="5" Padding="15" Margin="0,20,0,0">
+                            <StackPanel>
+                                <TextBlock Text="ℹ️ Fonctionnalités disponibles :" FontWeight="Bold" 
+                                           Foreground="#00915A" Margin="0,0,0,10"/>
+                                <TextBlock TextWrapping="Wrap" Foreground="#6D6D6D" Margin="0,0,0,5">
+                                    • Historique complet de toutes les actions (création, modification, suppression)
+                                </TextBlock>
+                                <TextBlock TextWrapping="Wrap" Foreground="#6D6D6D" Margin="0,0,0,5">
+                                    • Filtrage par utilisateur, date et type d'action
+                                </TextBlock>
+                                <TextBlock TextWrapping="Wrap" Foreground="#6D6D6D" Margin="0,0,0,5">
+                                    • Détails des modifications avec valeurs avant/après
+                                </TextBlock>
+                                <TextBlock TextWrapping="Wrap" Foreground="#6D6D6D">
+                                    • Export en format CSV pour analyse externe
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Border>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>

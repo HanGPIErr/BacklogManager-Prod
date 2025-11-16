@@ -11,6 +11,9 @@ namespace BacklogManager
         private BacklogService _backlogService;
         private readonly AuthenticationService _authService;
         private readonly IDatabase _database;
+        private PermissionService _permissionService;
+        private NotificationService _notificationService;
+        private System.Windows.Threading.DispatcherTimer _notificationTimer;
 
         public MainWindow(AuthenticationService authService)
         {
@@ -19,14 +22,28 @@ namespace BacklogManager
             _authService = authService;
             _database = new SqliteDatabase();
             
-            // Initialiser le service
-            _backlogService = new BacklogService(_database);
+            // Initialiser le PermissionService
+            var currentUser = _authService.CurrentUser;
+            var currentRole = _authService.GetCurrentUserRole();
+            _permissionService = new PermissionService(currentUser, currentRole);
+            
+            // Récupérer l'AuditLogService depuis AuthenticationService
+            var auditLogService = _authService.GetAuditLogService();
+            
+            // Initialiser le service avec audit
+            _backlogService = new BacklogService(_database, auditLogService);
             var pokerService = new PokerService(_database, _backlogService);
             
-            // Initialiser les ViewModels
-            var projetsViewModel = new ProjetsViewModel(_backlogService);
-            var backlogViewModel = new BacklogViewModel(_backlogService);
-            var kanbanViewModel = new KanbanViewModel(_backlogService);
+            // Initialiser le NotificationService
+            _notificationService = new NotificationService(_backlogService);
+            
+            // Initialiser le NotificationService
+            _notificationService = new NotificationService(_backlogService);
+            
+            // Initialiser les ViewModels avec PermissionService
+            var projetsViewModel = new ProjetsViewModel(_backlogService, _permissionService);
+            var backlogViewModel = new BacklogViewModel(_backlogService, _permissionService);
+            var kanbanViewModel = new KanbanViewModel(_backlogService, _permissionService);
             var pokerViewModel = new PokerViewModel(_backlogService, pokerService);
             var timelineViewModel = new TimelineViewModel(_backlogService);
             
@@ -41,7 +58,39 @@ namespace BacklogManager
                 ChargerInfoProjets();
                 AfficherUtilisateurConnecte();
                 VerifierPermissions();
+                InitialiserNotifications();
             };
+        }
+
+        private void InitialiserNotifications()
+        {
+            // Générer les notifications initiales
+            _notificationService.AnalyserEtGenererNotifications();
+            MettreAJourBadgeNotifications();
+            
+            // Timer pour mettre à jour les notifications toutes les 5 minutes
+            _notificationTimer = new System.Windows.Threading.DispatcherTimer();
+            _notificationTimer.Interval = System.TimeSpan.FromMinutes(5);
+            _notificationTimer.Tick += (s, e) =>
+            {
+                _notificationService.AnalyserEtGenererNotifications();
+                MettreAJourBadgeNotifications();
+            };
+            _notificationTimer.Start();
+        }
+
+        private void MettreAJourBadgeNotifications()
+        {
+            int count = _notificationService.GetCountNotificationsNonLues();
+            if (count > 0)
+            {
+                BadgeNotifications.Visibility = Visibility.Visible;
+                TxtBadgeCount.Text = count > 99 ? "99+" : count.ToString();
+            }
+            else
+            {
+                BadgeNotifications.Visibility = Visibility.Collapsed;
+            }
         }
 
         private void AfficherUtilisateurConnecte()
@@ -57,11 +106,10 @@ namespace BacklogManager
         private void VerifierPermissions()
         {
             // Afficher/masquer les boutons selon les permissions
-            if (!_authService.HasPermission("GererUtilisateurs"))
-            {
-                // Masquer le bouton de gestion utilisateurs si pas admin
-                // À implémenter selon vos besoins
-            }
+            BtnAdmin.Visibility = _permissionService.PeutAccederAdministration ? Visibility.Visible : Visibility.Collapsed;
+            BtnGererEquipe.Visibility = _permissionService.PeutGererEquipe ? Visibility.Visible : Visibility.Collapsed;
+            BtnDemandes.Visibility = _permissionService.PeutCreerDemandes ? Visibility.Visible : Visibility.Collapsed;
+            BtnStatistiques.Visibility = _permissionService.PeutVoirKPI ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void ChargerEquipe()
@@ -131,20 +179,80 @@ namespace BacklogManager
             try
             {
                 // Vérifier les permissions d'administration
-                if (!_authService.HasPermission("GererUtilisateurs"))
+                if (!_permissionService.PeutAccederAdministration)
                 {
                     MessageBox.Show("Vous n'avez pas les droits pour accéder à l'administration.", 
                         "Accès refusé", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
-                var window = new GestionUtilisateursWindow(_database);
+                var auditLogService = _authService.GetAuditLogService();
+                var window = new AdministrationWindow(_database, auditLogService);
                 window.Owner = this;
                 window.ShowDialog();
             }
             catch (System.Exception ex)
             {
                 MessageBox.Show(string.Format("Erreur lors de l'ouverture de l'administration: {0}", ex.Message), 
+                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void BtnStatistiques_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // Vérifier les permissions KPI
+                if (!_permissionService.PeutVoirKPI)
+                {
+                    MessageBox.Show("Vous n'avez pas les droits pour accéder aux statistiques.", 
+                        "Accès refusé", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                var window = new StatistiquesWindow(_backlogService, _database);
+                window.Owner = this;
+                window.ShowDialog();
+            }
+            catch (System.Exception ex)
+            {
+                MessageBox.Show(string.Format("Erreur lors de l'ouverture des statistiques: {0}\n\nDétails: {1}", 
+                    ex.Message, ex.StackTrace), 
+                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void BtnParametres_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var window = new ParametresWindow(_database);
+                window.Owner = this;
+                window.ShowDialog();
+            }
+            catch (System.Exception ex)
+            {
+                MessageBox.Show(string.Format("Erreur lors de l'ouverture des paramètres: {0}\n\nDétails: {1}", 
+                    ex.Message, ex.StackTrace), 
+                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void BtnNotifications_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var window = new NotificationsWindow(_notificationService);
+                window.Owner = this;
+                window.ShowDialog();
+                
+                // Mettre à jour le badge après fermeture
+                MettreAJourBadgeNotifications();
+            }
+            catch (System.Exception ex)
+            {
+                MessageBox.Show(string.Format("Erreur lors de l'ouverture des notifications: {0}\n\nDétails: {1}", 
+                    ex.Message, ex.StackTrace), 
                     "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
