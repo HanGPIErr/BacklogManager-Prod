@@ -14,13 +14,15 @@ namespace BacklogManager.Views
     {
         private readonly IDatabase _database;
         private readonly AuthenticationService _authService;
+        private readonly PermissionService _permissionService;
         private List<DemandeViewModel> _toutesLesDemandes;
 
-        public DemandesView()
+        public DemandesView(AuthenticationService authService, PermissionService permissionService)
         {
             InitializeComponent();
             _database = new SqliteDatabase();
-            _authService = new AuthenticationService(_database);
+            _authService = authService;
+            _permissionService = permissionService;
             
             InitialiserFiltres();
             ChargerDemandes();
@@ -51,14 +53,70 @@ namespace BacklogManager.Views
 
         private void VerifierPermissions()
         {
-            var utilisateur = _authService.CurrentUser;
-            if (utilisateur == null) return;
-
-            var role = _authService.GetCurrentUserRole();
-            if (role == null) return;
-
-            // Seuls BA et Chef de Projet peuvent créer des demandes
-            BtnNouvelleDemande.IsEnabled = role.PeutCreerDemandes;
+            try
+            {
+                // Debug: Afficher les informations de l'utilisateur et du rôle
+                var currentUser = _authService.CurrentUser;
+                var currentRole = _authService.GetCurrentUserRole();
+                
+                string logPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "permissions_log.txt");
+                using (var writer = new System.IO.StreamWriter(logPath, true))
+                {
+                    writer.WriteLine("=== VERIFICATION PERMISSIONS DEMANDES " + DateTime.Now.ToString("HH:mm:ss") + " ===");
+                    writer.WriteLine(string.Format("User: {0} (ID: {1})", 
+                        currentUser?.Prenom ?? "NULL", 
+                        currentUser?.Id.ToString() ?? "NULL"));
+                    writer.WriteLine(string.Format("Role: {0} (ID: {1}, Type: {2})", 
+                        currentRole?.Nom ?? "NULL",
+                        currentRole?.Id.ToString() ?? "NULL",
+                        currentRole?.Type.ToString() ?? "NULL"));
+                    writer.WriteLine(string.Format("IsAdmin: {0}, IsChefDeProjet: {1}, IsBusinessAnalyst: {2}", 
+                        _permissionService.IsAdmin, 
+                        _permissionService.IsChefDeProjet, 
+                        _permissionService.IsBusinessAnalyst));
+                    writer.WriteLine(string.Format("PeutCreerDemandes (DB): {0}", 
+                        _permissionService.PeutCreerDemandes));
+                    
+                    // Vérification directe du type de rôle
+                    bool isAdminDirect = currentRole != null && currentRole.Type == Domain.RoleType.Administrateur;
+                    bool isChefProjetDirect = currentRole != null && currentRole.Type == Domain.RoleType.ChefDeProjet;
+                    bool isBADirect = currentRole != null && currentRole.Type == Domain.RoleType.BusinessAnalyst;
+                    
+                    writer.WriteLine(string.Format("Vérification directe - Admin: {0}, Chef: {1}, BA: {2}", 
+                        isAdminDirect, isChefProjetDirect, isBADirect));
+                    
+                    // FORCE: Si l'utilisateur est Admin, Chef de projet ou BA, activer le bouton
+                    bool peutCreer = isAdminDirect || isChefProjetDirect || isBADirect || _permissionService.PeutCreerDemandes;
+                    BtnNouvelleDemande.IsEnabled = peutCreer;
+                    
+                    writer.WriteLine(string.Format("BtnNouvelleDemande.IsEnabled: {0}", peutCreer));
+                    writer.WriteLine("==========================================");
+                    
+                    // Configurer le DataContext pour les bindings
+                    bool peutSupprimer = isAdminDirect || isChefProjetDirect;
+                    this.DataContext = new
+                    {
+                        PeutSupprimerDemandes = peutSupprimer
+                    };
+                    
+                    writer.WriteLine(string.Format("PeutSupprimerDemandes: {0}", peutSupprimer));
+                }
+                
+                System.Diagnostics.Debug.WriteLine("=== VERIFICATION PERMISSIONS DEMANDES ===");
+                System.Diagnostics.Debug.WriteLine(string.Format("User: {0} (ID: {1})", 
+                    currentUser?.Prenom ?? "NULL", 
+                    currentUser?.Id.ToString() ?? "NULL"));
+                System.Diagnostics.Debug.WriteLine(string.Format("Role: {0} (ID: {1}, Type: {2})", 
+                    currentRole?.Nom ?? "NULL",
+                    currentRole?.Id.ToString() ?? "NULL",
+                    currentRole?.Type.ToString() ?? "NULL"));
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(string.Format("ERREUR VerifierPermissions: {0}", ex.Message));
+                MessageBox.Show(string.Format("Erreur lors de la vérification des permissions: {0}", ex.Message),
+                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void ChargerDemandes()
@@ -210,6 +268,22 @@ namespace BacklogManager.Views
         {
             try
             {
+                // Récupérer la demande pour vérifier les permissions
+                var demandeDb = _database.GetDemandes().FirstOrDefault(d => d.Id == demandeId);
+                if (demandeDb == null)
+                {
+                    MessageBox.Show("Demande introuvable.", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                // Vérifier les permissions
+                if (!_permissionService.PeutModifierDemande(demandeDb))
+                {
+                    MessageBox.Show("Vous n'avez pas les permissions pour modifier cette demande.",
+                        "Accès refusé", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
                 var window = new EditionDemandeWindow(_database, _authService, demandeId);
                 window.Owner = Window.GetWindow(this);
                 if (window.ShowDialog() == true)
@@ -235,6 +309,55 @@ namespace BacklogManager.Views
             catch (Exception ex)
             {
                 MessageBox.Show(string.Format("Erreur lors de l'affichage des commentaires : {0}", ex.Message), 
+                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void BtnSupprimerClick(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            if (button?.Tag is int demandeId)
+            {
+                SupprimerDemande(demandeId);
+            }
+        }
+
+        private void SupprimerDemande(int demandeId)
+        {
+            try
+            {
+                // Vérifier les permissions
+                if (!_permissionService.IsAdmin && !_permissionService.IsChefDeProjet)
+                {
+                    MessageBox.Show("Vous n'avez pas les permissions pour supprimer des demandes.",
+                        "Accès refusé", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Récupérer la demande pour afficher ses détails
+                var demande = _toutesLesDemandes.FirstOrDefault(d => d.Id == demandeId);
+                if (demande == null) return;
+
+                // Confirmation
+                var result = MessageBox.Show(
+                    string.Format("Êtes-vous sûr de vouloir supprimer cette demande ?\n\nTitre : {0}\nStatut : {1}\n\nCette action est irréversible.",
+                        demande.Titre, demande.Statut),
+                    "Confirmation de suppression",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning,
+                    MessageBoxResult.No);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    _database.DeleteDemande(demandeId);
+                    MessageBox.Show("Demande supprimée avec succès.", "Suppression", 
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                    ChargerDemandes();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("Erreur lors de la suppression de la demande : {0}", ex.Message),
                     "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }

@@ -75,9 +75,14 @@ namespace BacklogManager.ViewModels
         {
             get
             {
-                if (DaysTotal <= 0) return 0;
-                var progress = (double)DaysElapsed / DaysTotal * 100;
-                return Math.Min(100, Math.Max(0, progress));
+                if (Item == null) return 0;
+                // Progression basée sur temps réel vs charge prévue (comme Kanban)
+                if (Item.ChiffrageHeures.HasValue && Item.ChiffrageHeures.Value > 0)
+                {
+                    double tempsReel = Item.TempsReelHeures ?? 0;
+                    return Math.Min(100, (tempsReel / Item.ChiffrageHeures.Value) * 100);
+                }
+                return 0;
             }
         }
 
@@ -120,10 +125,11 @@ namespace BacklogManager.ViewModels
         public int NbTachesTerminees { get; set; }
         public double ProgressionPct { get; set; }
         public double ChargeJours { get; set; }
+        public double ChargeReelleHeures { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
 
-        public string ProgressionInfo => $"{NbTachesTerminees}/{NbTaches} tâches ({ProgressionPct:F0}%)";
+        public string ProgressionInfo => $"{ChargeReelleHeures:F1}h / {ChargeJours * 7:F1}h ({ProgressionPct:F0}%)";
         public string ChargeInfo => $"{ChargeJours:F1}j";
         public string PeriodeInfo => $"{DateDebut:dd/MM/yyyy} → {DateFin:dd/MM/yyyy}";
 
@@ -473,9 +479,13 @@ namespace BacklogManager.ViewModels
 
                 var nbTachesTotal = taches.Count;
                 var nbTachesTerminees = taches.Count(t => t.Statut == Statut.Termine);
-                var progressionPct = nbTachesTotal > 0 ? (nbTachesTerminees * 100.0 / nbTachesTotal) : 0;
+                
+                // Calculer progression basée sur temps réel vs charge prévue (comme Kanban)
+                var chargePrevu = taches.Where(t => t.ChiffrageHeures.HasValue).Sum(t => t.ChiffrageHeures.Value);
+                var chargeReelle = taches.Sum(t => t.TempsReelHeures ?? 0);
+                var progressionPct = chargePrevu > 0 ? Math.Min(100, (chargeReelle / chargePrevu) * 100) : 0;
 
-                var chargeTotal = taches.Where(t => t.ChiffrageHeures.HasValue).Sum(t => t.ChiffrageHeures.Value) / 7.0;
+                var chargeTotal = chargePrevu / 7.0;
 
                 ProjetsTimeline.Add(new TimelineProjetViewModel
                 {
@@ -486,6 +496,7 @@ namespace BacklogManager.ViewModels
                     NbTachesTerminees = nbTachesTerminees,
                     ProgressionPct = progressionPct,
                     ChargeJours = chargeTotal,
+                    ChargeReelleHeures = chargeReelle,
                     StartDate = StartDate,
                     EndDate = EndDate
                 });

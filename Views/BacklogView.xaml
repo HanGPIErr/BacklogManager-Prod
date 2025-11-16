@@ -172,32 +172,12 @@
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
                                     
-                                    <TextBlock Grid.Row="0" Text="{Binding Titre}" FontWeight="Bold" FontSize="13" TextWrapping="Wrap"/>
-                                    <TextBlock Grid.Row="1" Text="{Binding Priorite}" Foreground="#FF5722" FontSize="11" Margin="0,2,0,0"/>
+                                    <TextBlock Grid.Row="0" Text="{Binding Item.Titre}" FontWeight="Bold" FontSize="13" TextWrapping="Wrap"/>
+                                    <TextBlock Grid.Row="1" Text="{Binding Item.Priorite}" Foreground="#FF5722" FontSize="11" Margin="0,2,0,0"/>
                                     
                                     <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,4,0,0">
                                         <TextBlock Text="👤 Dev: " FontSize="11" Foreground="#6D6D6D"/>
-                                        <TextBlock FontSize="11" Foreground="#00915A" FontWeight="SemiBold">
-                                            <TextBlock.Style>
-                                                <Style TargetType="TextBlock">
-                                                    <Setter Property="Text" Value="Non assigné"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding DevAssigneId}" Value="{x:Null}">
-                                                            <Setter Property="Text" Value="Non assigné"/>
-                                                        </DataTrigger>
-                                                        <DataTrigger Binding="{Binding DevAssigneId}" Value="1">
-                                                            <Setter Property="Text" Value="Gianni"/>
-                                                        </DataTrigger>
-                                                        <DataTrigger Binding="{Binding DevAssigneId}" Value="2">
-                                                            <Setter Property="Text" Value="Mouloud"/>
-                                                        </DataTrigger>
-                                                        <DataTrigger Binding="{Binding DevAssigneId}" Value="3">
-                                                            <Setter Property="Text" Value="Pierre-Romain"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </TextBlock.Style>
-                                        </TextBlock>
+                                        <TextBlock Text="{Binding DevNom}" FontSize="11" Foreground="#00915A" FontWeight="SemiBold"/>
                                     </StackPanel>
                                 </Grid>
                             </Border>

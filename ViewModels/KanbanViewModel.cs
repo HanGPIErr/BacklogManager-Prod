@@ -43,7 +43,32 @@ namespace BacklogManager.ViewModels
         public int DaysRemaining
         {
             get { return _daysRemaining; }
-            set { _daysRemaining = value; OnPropertyChanged(); }
+            set { _daysRemaining = value; OnPropertyChanged(); OnPropertyChanged(nameof(TimeRemainingDisplay)); }
+        }
+
+        public string TimeRemainingDisplay
+        {
+            get
+            {
+                if (Item == null || !Item.DateFinAttendue.HasValue) return "";
+                
+                TimeSpan timeRemaining = Item.DateFinAttendue.Value - DateTime.Now;
+                
+                if (timeRemaining.TotalDays < 0)
+                {
+                    int hoursLate = (int)Math.Abs(timeRemaining.TotalHours);
+                    return string.Format("-{0}h", hoursLate);
+                }
+                else if (timeRemaining.TotalDays < 1)
+                {
+                    int hoursRemaining = (int)Math.Ceiling(timeRemaining.TotalHours);
+                    return string.Format("{0}h", hoursRemaining);
+                }
+                else
+                {
+                    return string.Format("{0}j", DaysRemaining);
+                }
+            }
         }
 
         public string AlertLevel
@@ -172,11 +197,12 @@ namespace BacklogManager.ViewModels
             // Alertes basées sur la deadline ou la complexité
             if (Item.DateFinAttendue.HasValue)
             {
-                DaysRemaining = (Item.DateFinAttendue.Value - DateTime.Now).Days;
+                TimeSpan timeRemaining = Item.DateFinAttendue.Value - DateTime.Now;
+                DaysRemaining = (int)timeRemaining.TotalDays;
                 
-                if (DaysRemaining < 0)
+                if (timeRemaining.TotalHours < 0)
                     AlertLevel = "URGENT";
-                else if (DaysRemaining <= 2)
+                else if (timeRemaining.TotalHours <= 48)
                     AlertLevel = "ATTENTION";
                 else
                     AlertLevel = "OK";
@@ -222,6 +248,8 @@ namespace BacklogManager.ViewModels
         public ObservableCollection<KanbanItemViewModel> ItemsTermine { get; set; }
         public ObservableCollection<Dev> Devs { get; set; }
         public ObservableCollection<Projet> Projets { get; set; }
+
+        public bool PeutSupprimerTaches => _permissionService.PeutSupprimerTaches;
 
         public int? SelectedDevId
         {
@@ -427,6 +455,19 @@ namespace BacklogManager.ViewModels
         {
             SelectedDevId = null;
             SelectedProjetId = null;
+            LoadItems();
+        }
+
+        public void SupprimerTache(BacklogItem task)
+        {
+            if (task == null) return;
+            
+            if (!_permissionService.PeutSupprimerTache(task))
+            {
+                throw new UnauthorizedAccessException("Vous n'avez pas les permissions pour supprimer cette tâche.");
+            }
+
+            _backlogService.DeleteBacklogItem(task.Id);
             LoadItems();
         }
 

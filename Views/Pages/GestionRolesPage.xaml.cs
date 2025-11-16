@@ -80,5 +80,75 @@ namespace BacklogManager.Views.Pages
         {
             ChargerRoles();
         }
+
+        private void BtnResetAdmin_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var result = MessageBox.Show(
+                    "Voulez-vous activer TOUTES les permissions pour le rôle Administrateur ?\n\n" +
+                    "Cela inclut :\n" +
+                    "✓ Créer des demandes\n" +
+                    "✓ Chiffrer\n" +
+                    "✓ Prioriser\n" +
+                    "✓ Modifier les tâches\n" +
+                    "✓ Supprimer les tâches\n" +
+                    "✓ Gérer les utilisateurs\n" +
+                    "✓ Gérer les référentiels\n" +
+                    "✓ Voir les KPI",
+                    "Réinitialiser permissions Administrateur",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    var roles = _database.GetRoles();
+                    var adminRole = roles.FirstOrDefault(r => r.Type == Domain.RoleType.Administrateur);
+
+                    if (adminRole != null)
+                    {
+                        // Activer toutes les permissions
+                        adminRole.PeutCreerDemandes = true;
+                        adminRole.PeutChiffrer = true;
+                        adminRole.PeutPrioriser = true;
+                        adminRole.PeutModifierTaches = true;
+                        adminRole.PeutSupprimerTaches = true;
+                        adminRole.PeutGererUtilisateurs = true;
+                        adminRole.PeutGererReferentiels = true;
+                        adminRole.PeutVoirKPI = true;
+
+                        _database.UpdateRole(adminRole);
+
+                        if (_auditLogService != null)
+                        {
+                            _auditLogService.LogUpdate("Role", adminRole.Id, 
+                                "Réinitialisation permissions Administrateur", 
+                                "Anciennes permissions", 
+                                "Toutes les permissions activées");
+                        }
+
+                        MessageBox.Show(
+                            "Les permissions du rôle Administrateur ont été réinitialisées avec succès.\n\n" +
+                            "Toutes les permissions sont maintenant activées.",
+                            "Succès",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Information);
+
+                        ChargerRoles();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Rôle Administrateur introuvable dans la base de données.",
+                            "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("Erreur lors de la réinitialisation : {0}", ex.Message),
+                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
     }
 }
+

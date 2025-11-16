@@ -15,6 +15,10 @@
             <Button Content="🔄 Actualiser" Click="BtnActualiser_Click" Margin="20,0,0,0"
                     Background="#E0E0E0" Foreground="#1A1919" Padding="15,8" 
                     BorderThickness="0" Cursor="Hand" FontWeight="Bold"/>
+            <Button Content="⚡ Réinitialiser permissions Admin" Click="BtnResetAdmin_Click" Margin="10,0,0,0"
+                    Background="#FF6B00" Foreground="White" Padding="15,8" 
+                    BorderThickness="0" Cursor="Hand" FontWeight="Bold"
+                    ToolTip="Active TOUTES les permissions pour le rôle Administrateur"/>
         </StackPanel>
 
         <!-- Liste des rôles -->

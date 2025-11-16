@@ -157,8 +157,39 @@
                                             <DropShadowEffect BlurRadius="6" ShadowDepth="2" Opacity="0.2" Color="Gray"/>
                                         </Border.Effect>
                                         <StackPanel>
-                                            <TextBlock Text="{Binding Item.Titre}" FontWeight="Bold" 
-                                                       FontSize="13" TextWrapping="Wrap" Margin="0,0,0,5"/>
+                                            <Grid Margin="0,0,0,5">
+                                                <TextBlock Text="{Binding Item.Titre}" FontWeight="Bold" 
+                                                           FontSize="13" TextWrapping="Wrap" Margin="0,0,30,0"/>
+                                                <Button Content="ðŸ—‘ï¸" FontSize="11" Width="22" Height="22" 
+                                                        HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-2,0,0"
+                                                        Background="#D32F2F" Foreground="White" BorderThickness="0"
+                                                        Cursor="Hand" ToolTip="Supprimer cette tÃ¢che" Padding="0"
+                                                        Click="DeleteTask_Click" Tag="{Binding Item}"
+                                                        Visibility="{Binding DataContext.PeutSupprimerTaches, 
+                                                                    RelativeSource={RelativeSource AncestorType=UserControl},
+                                                                    Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                    <Button.Style>
+                                                        <Style TargetType="Button">
+                                                            <Setter Property="Template">
+                                                                <Setter.Value>
+                                                                    <ControlTemplate TargetType="Button">
+                                                                        <Border Background="{TemplateBinding Background}" 
+                                                                                CornerRadius="3">
+                                                                            <ContentPresenter HorizontalAlignment="Center" 
+                                                                                            VerticalAlignment="Center"/>
+                                                                        </Border>
+                                                                    </ControlTemplate>
+                                                                </Setter.Value>
+                                                            </Setter>
+                                                            <Style.Triggers>
+                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                    <Setter Property="Background" Value="#B71C1C"/>
+                                                                </Trigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Button.Style>
+                                                </Button>
+                                            </Grid>
                                             
                                             <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
                                                 <Border CornerRadius="3" Padding="5,2" Margin="0,0,5,0">
@@ -198,8 +229,22 @@
 
                                             <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
                                                 <TextBlock Text="⏱️ " FontSize="11"/>
-                                                <TextBlock Text="{Binding DaysInStatus}" FontSize="11" FontWeight="Bold"/>
-                                                <TextBlock Text=" jour(s)" FontSize="11" Margin="2,0,0,0"/>
+                                                <TextBlock Text="{Binding DaysRemaining}" FontSize="11" FontWeight="Bold">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Foreground" Value="#333"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding AlertLevel}" Value="URGENT">
+                                                                    <Setter Property="Foreground" Value="#D32F2F"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding AlertLevel}" Value="ATTENTION">
+                                                                    <Setter Property="Foreground" Value="#F57C00"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                                <TextBlock Text=" jour(s) restant(s)" FontSize="11" Margin="2,0,0,0"/>
                                             </StackPanel>
 
                                             <!-- Charge et Avancement -->
@@ -308,8 +353,39 @@
                                             <DropShadowEffect BlurRadius="6" ShadowDepth="2" Opacity="0.2" Color="Gray"/>
                                         </Border.Effect>
                                         <StackPanel>
-                                            <TextBlock Text="{Binding Item.Titre}" FontWeight="Bold" 
-                                                       FontSize="13" TextWrapping="Wrap" Margin="0,0,0,5"/>
+                                            <Grid Margin="0,0,0,5">
+                                                <TextBlock Text="{Binding Item.Titre}" FontWeight="Bold" 
+                                                           FontSize="13" TextWrapping="Wrap" Margin="0,0,30,0"/>
+                                                <Button Content="ðŸ—‘ï¸" FontSize="11" Width="22" Height="22" 
+                                                        HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-2,0,0"
+                                                        Background="#D32F2F" Foreground="White" BorderThickness="0"
+                                                        Cursor="Hand" ToolTip="Supprimer cette tÃ¢che" Padding="0"
+                                                        Click="DeleteTask_Click" Tag="{Binding Item}"
+                                                        Visibility="{Binding DataContext.PeutSupprimerTaches, 
+                                                                    RelativeSource={RelativeSource AncestorType=UserControl},
+                                                                    Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                    <Button.Style>
+                                                        <Style TargetType="Button">
+                                                            <Setter Property="Template">
+                                                                <Setter.Value>
+                                                                    <ControlTemplate TargetType="Button">
+                                                                        <Border Background="{TemplateBinding Background}" 
+                                                                                CornerRadius="3">
+                                                                            <ContentPresenter HorizontalAlignment="Center" 
+                                                                                            VerticalAlignment="Center"/>
+                                                                        </Border>
+                                                                    </ControlTemplate>
+                                                                </Setter.Value>
+                                                            </Setter>
+                                                            <Style.Triggers>
+                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                    <Setter Property="Background" Value="#B71C1C"/>
+                                                                </Trigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Button.Style>
+                                                </Button>
+                                            </Grid>
                                             
                                             <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
                                                 <Border CornerRadius="3" Padding="5,2" Margin="0,0,5,0">
@@ -349,8 +425,22 @@
 
                                             <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
                                                 <TextBlock Text="⏱️ " FontSize="11"/>
-                                                <TextBlock Text="{Binding DaysInStatus}" FontSize="11" FontWeight="Bold"/>
-                                                <TextBlock Text=" jour(s)" FontSize="11" Margin="2,0,0,0"/>
+                                                <TextBlock Text="{Binding TimeRemainingDisplay}" FontSize="11" FontWeight="Bold">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Foreground" Value="#333"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding AlertLevel}" Value="URGENT">
+                                                                    <Setter Property="Foreground" Value="#D32F2F"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding AlertLevel}" Value="ATTENTION">
+                                                                    <Setter Property="Foreground" Value="#F57C00"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                                <TextBlock Text=" restant(s)" FontSize="11" Margin="2,0,0,0"/>
                                             </StackPanel>
 
                                             <!-- Charge et Avancement -->
@@ -459,8 +549,39 @@
                                             <DropShadowEffect BlurRadius="6" ShadowDepth="2" Opacity="0.2" Color="Gray"/>
                                         </Border.Effect>
                                         <StackPanel>
-                                            <TextBlock Text="{Binding Item.Titre}" FontWeight="Bold" 
-                                                       FontSize="13" TextWrapping="Wrap" Margin="0,0,0,5"/>
+                                            <Grid Margin="0,0,0,5">
+                                                <TextBlock Text="{Binding Item.Titre}" FontWeight="Bold" 
+                                                           FontSize="13" TextWrapping="Wrap" Margin="0,0,30,0"/>
+                                                <Button Content="ðŸ—‘ï¸" FontSize="11" Width="22" Height="22" 
+                                                        HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-2,0,0"
+                                                        Background="#D32F2F" Foreground="White" BorderThickness="0"
+                                                        Cursor="Hand" ToolTip="Supprimer cette tÃ¢che" Padding="0"
+                                                        Click="DeleteTask_Click" Tag="{Binding Item}"
+                                                        Visibility="{Binding DataContext.PeutSupprimerTaches, 
+                                                                    RelativeSource={RelativeSource AncestorType=UserControl},
+                                                                    Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                    <Button.Style>
+                                                        <Style TargetType="Button">
+                                                            <Setter Property="Template">
+                                                                <Setter.Value>
+                                                                    <ControlTemplate TargetType="Button">
+                                                                        <Border Background="{TemplateBinding Background}" 
+                                                                                CornerRadius="3">
+                                                                            <ContentPresenter HorizontalAlignment="Center" 
+                                                                                            VerticalAlignment="Center"/>
+                                                                        </Border>
+                                                                    </ControlTemplate>
+                                                                </Setter.Value>
+                                                            </Setter>
+                                                            <Style.Triggers>
+                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                    <Setter Property="Background" Value="#B71C1C"/>
+                                                                </Trigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Button.Style>
+                                                </Button>
+                                            </Grid>
                                             
                                             <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
                                                 <Border CornerRadius="3" Padding="5,2" Margin="0,0,5,0">
@@ -500,8 +621,22 @@
 
                                             <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
                                                 <TextBlock Text="⏱️ " FontSize="11"/>
-                                                <TextBlock Text="{Binding DaysInStatus}" FontSize="11" FontWeight="Bold"/>
-                                                <TextBlock Text=" jour(s)" FontSize="11" Margin="2,0,0,0"/>
+                                                <TextBlock Text="{Binding TimeRemainingDisplay}" FontSize="11" FontWeight="Bold">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Foreground" Value="#333"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding AlertLevel}" Value="URGENT">
+                                                                    <Setter Property="Foreground" Value="#D32F2F"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding AlertLevel}" Value="ATTENTION">
+                                                                    <Setter Property="Foreground" Value="#F57C00"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                                <TextBlock Text=" restant(s)" FontSize="11" Margin="2,0,0,0"/>
                                             </StackPanel>
 
                                             <!-- Charge et Avancement -->
@@ -594,8 +729,39 @@
                                             <DropShadowEffect BlurRadius="6" ShadowDepth="2" Opacity="0.2" Color="Gray"/>
                                         </Border.Effect>
                                         <StackPanel>
-                                            <TextBlock Text="{Binding Item.Titre}" FontWeight="Bold" 
-                                                       FontSize="13" TextWrapping="Wrap" Margin="0,0,0,5"/>
+                                            <Grid Margin="0,0,0,5">
+                                                <TextBlock Text="{Binding Item.Titre}" FontWeight="Bold" 
+                                                           FontSize="13" TextWrapping="Wrap" Margin="0,0,30,0"/>
+                                                <Button Content="ðŸ—‘ï¸" FontSize="11" Width="22" Height="22" 
+                                                        HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-2,0,0"
+                                                        Background="#D32F2F" Foreground="White" BorderThickness="0"
+                                                        Cursor="Hand" ToolTip="Supprimer cette tÃ¢che" Padding="0"
+                                                        Click="DeleteTask_Click" Tag="{Binding Item}"
+                                                        Visibility="{Binding DataContext.PeutSupprimerTaches, 
+                                                                    RelativeSource={RelativeSource AncestorType=UserControl},
+                                                                    Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                    <Button.Style>
+                                                        <Style TargetType="Button">
+                                                            <Setter Property="Template">
+                                                                <Setter.Value>
+                                                                    <ControlTemplate TargetType="Button">
+                                                                        <Border Background="{TemplateBinding Background}" 
+                                                                                CornerRadius="3">
+                                                                            <ContentPresenter HorizontalAlignment="Center" 
+                                                                                            VerticalAlignment="Center"/>
+                                                                        </Border>
+                                                                    </ControlTemplate>
+                                                                </Setter.Value>
+                                                            </Setter>
+                                                            <Style.Triggers>
+                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                    <Setter Property="Background" Value="#B71C1C"/>
+                                                                </Trigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Button.Style>
+                                                </Button>
+                                            </Grid>
                                             
                                             <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
                                                 <Border CornerRadius="3" Padding="5,2" Margin="0,0,5,0">
@@ -635,8 +801,22 @@
 
                                             <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
                                                 <TextBlock Text="⏱️ " FontSize="11"/>
-                                                <TextBlock Text="{Binding DaysInStatus}" FontSize="11" FontWeight="Bold"/>
-                                                <TextBlock Text=" jour(s)" FontSize="11" Margin="2,0,0,0"/>
+                                                <TextBlock Text="{Binding TimeRemainingDisplay}" FontSize="11" FontWeight="Bold">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Foreground" Value="#333"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding AlertLevel}" Value="URGENT">
+                                                                    <Setter Property="Foreground" Value="#D32F2F"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding AlertLevel}" Value="ATTENTION">
+                                                                    <Setter Property="Foreground" Value="#F57C00"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                                <TextBlock Text=" restant(s)" FontSize="11" Margin="2,0,0,0"/>
                                             </StackPanel>
 
                                             <!-- Charge et Avancement -->
@@ -664,3 +844,4 @@
         </Grid>
     </Grid>
 </UserControl>
+

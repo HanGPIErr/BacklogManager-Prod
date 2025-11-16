@@ -4,15 +4,16 @@
         Title="Connexion - BacklogManager" Height="550" Width="500"
         WindowStartupLocation="CenterScreen"
         Background="#F5F5F5"
-        ResizeMode="NoResize">
+        ResizeMode="NoResize"
+        Icon="/Images/backlogmanager.ico">
     <Grid>
         <!-- Logo BNP -->
         <Border Height="120" VerticalAlignment="Top" Background="#00915A">
             <StackPanel VerticalAlignment="Center">
-                <TextBlock Text="BNP PARIBAS" FontSize="28" FontWeight="Bold" 
-                           Foreground="White" HorizontalAlignment="Center"/>
+                <Image Source="/Images/logobnp.png" Height="50" Width="200" 
+                       Stretch="Uniform" HorizontalAlignment="Center" Margin="0,0,0,10"/>
                 <TextBlock Text="Backlog Manager" FontSize="16" 
-                           Foreground="White" HorizontalAlignment="Center" Margin="0,8,0,0" Opacity="0.9"/>
+                           Foreground="White" HorizontalAlignment="Center" Margin="0,0,0,0" Opacity="0.9"/>
             </StackPanel>
         </Border>
 

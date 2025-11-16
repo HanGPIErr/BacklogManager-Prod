@@ -131,6 +131,9 @@ namespace BacklogManager.Services
                             Id INTEGER PRIMARY KEY AUTOINCREMENT,
                             Titre TEXT NOT NULL,
                             Description TEXT,
+                            Specifications TEXT,
+                            ContexteMetier TEXT,
+                            BeneficesAttendus TEXT,
                             DemandeurId INTEGER NOT NULL,
                             BusinessAnalystId INTEGER,
                             ChefProjetId INTEGER,
@@ -142,8 +145,8 @@ namespace BacklogManager.Services
                             DateValidationChiffrage TEXT,
                             DateAcceptation TEXT,
                             DateLivraison TEXT,
-                            ChiffrageEstimeHeures REAL,
-                            ChiffrageReelHeures REAL,
+                            ChiffrageEstimeJours REAL,
+                            ChiffrageReelJours REAL,
                             DatePrevisionnelleImplementation TEXT,
                             JustificationRefus TEXT,
                             EstArchivee INTEGER NOT NULL,
@@ -277,6 +280,36 @@ namespace BacklogManager.Services
                     ";
                     cmd.ExecuteNonQuery();
                 }
+                
+                // Vérifier et ajouter Specifications si manquant dans Demandes
+                cmd.CommandText = @"SELECT COUNT(*) FROM pragma_table_info('Demandes') WHERE name='Specifications';";
+                var hasSpecifications = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                
+                if (!hasSpecifications)
+                {
+                    cmd.CommandText = @"ALTER TABLE Demandes ADD COLUMN Specifications TEXT;";
+                    cmd.ExecuteNonQuery();
+                }
+                
+                // Vérifier et ajouter ContexteMetier si manquant
+                cmd.CommandText = @"SELECT COUNT(*) FROM pragma_table_info('Demandes') WHERE name='ContexteMetier';";
+                var hasContexteMetier = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                
+                if (!hasContexteMetier)
+                {
+                    cmd.CommandText = @"ALTER TABLE Demandes ADD COLUMN ContexteMetier TEXT;";
+                    cmd.ExecuteNonQuery();
+                }
+                
+                // Vérifier et ajouter BeneficesAttendus si manquant
+                cmd.CommandText = @"SELECT COUNT(*) FROM pragma_table_info('Demandes') WHERE name='BeneficesAttendus';";
+                var hasBeneficesAttendus = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                
+                if (!hasBeneficesAttendus)
+                {
+                    cmd.CommandText = @"ALTER TABLE Demandes ADD COLUMN BeneficesAttendus TEXT;";
+                    cmd.ExecuteNonQuery();
+                }
             }
         }
 
@@ -350,7 +383,11 @@ namespace BacklogManager.Services
             using (var conn = GetConnection())
             {
                 conn.Open();
-                using (var cmd = new SQLiteCommand("SELECT * FROM Demandes WHERE EstArchivee = 0", conn))
+                using (var cmd = new SQLiteCommand(@"SELECT Id, Titre, Description, Specifications, ContexteMetier, BeneficesAttendus,
+                    DemandeurId, BusinessAnalystId, ChefProjetId, DevChiffreurId, Type, Criticite, Statut, DateCreation,
+                    DateValidationChiffrage, DateAcceptation, DateLivraison, ChiffrageEstimeJours, 
+                    ChiffrageReelJours, DatePrevisionnelleImplementation, JustificationRefus, EstArchivee 
+                    FROM Demandes WHERE EstArchivee = 0", conn))
                 using (var reader = cmd.ExecuteReader())
             {
                 while (reader.Read())
@@ -360,22 +397,25 @@ namespace BacklogManager.Services
                         Id = reader.GetInt32(0),
                         Titre = reader.GetString(1),
                         Description = reader.IsDBNull(2) ? null : reader.GetString(2),
-                        DemandeurId = reader.GetInt32(3),
-                        BusinessAnalystId = reader.IsDBNull(4) ? (int?)null : reader.GetInt32(4),
-                        ChefProjetId = reader.IsDBNull(5) ? (int?)null : reader.GetInt32(5),
-                        DevChiffreurId = reader.IsDBNull(6) ? (int?)null : reader.GetInt32(6),
-                        Type = (TypeDemande)reader.GetInt32(7),
-                        Criticite = (Criticite)reader.GetInt32(8),
-                        Statut = (StatutDemande)reader.GetInt32(9),
-                        DateCreation = DateTime.Parse(reader.GetString(10)),
-                        DateValidationChiffrage = reader.IsDBNull(11) ? (DateTime?)null : DateTime.Parse(reader.GetString(11)),
-                        DateAcceptation = reader.IsDBNull(12) ? (DateTime?)null : DateTime.Parse(reader.GetString(12)),
-                        DateLivraison = reader.IsDBNull(13) ? (DateTime?)null : DateTime.Parse(reader.GetString(13)),
-                        ChiffrageEstimeHeures = reader.IsDBNull(14) ? (double?)null : reader.GetDouble(14),
-                        ChiffrageReelHeures = reader.IsDBNull(15) ? (double?)null : reader.GetDouble(15),
-                        DatePrevisionnelleImplementation = reader.IsDBNull(16) ? (DateTime?)null : DateTime.Parse(reader.GetString(16)),
-                        JustificationRefus = reader.IsDBNull(17) ? null : reader.GetString(17),
-                        EstArchivee = reader.GetInt32(18) == 1
+                        Specifications = reader.IsDBNull(3) ? null : reader.GetString(3),
+                        ContexteMetier = reader.IsDBNull(4) ? null : reader.GetString(4),
+                        BeneficesAttendus = reader.IsDBNull(5) ? null : reader.GetString(5),
+                        DemandeurId = reader.GetInt32(6),
+                        BusinessAnalystId = reader.IsDBNull(7) ? (int?)null : reader.GetInt32(7),
+                        ChefProjetId = reader.IsDBNull(8) ? (int?)null : reader.GetInt32(8),
+                        DevChiffreurId = reader.IsDBNull(9) ? (int?)null : reader.GetInt32(9),
+                        Type = (TypeDemande)reader.GetInt32(10),
+                        Criticite = (Criticite)reader.GetInt32(11),
+                        Statut = (StatutDemande)reader.GetInt32(12),
+                        DateCreation = DateTime.Parse(reader.GetString(13)),
+                        DateValidationChiffrage = reader.IsDBNull(14) ? (DateTime?)null : DateTime.Parse(reader.GetString(14)),
+                        DateAcceptation = reader.IsDBNull(15) ? (DateTime?)null : DateTime.Parse(reader.GetString(15)),
+                        DateLivraison = reader.IsDBNull(16) ? (DateTime?)null : DateTime.Parse(reader.GetString(16)),
+                        ChiffrageEstimeJours = reader.IsDBNull(17) ? (double?)null : reader.GetDouble(17),
+                        ChiffrageReelJours = reader.IsDBNull(18) ? (double?)null : reader.GetDouble(18),
+                        DatePrevisionnelleImplementation = reader.IsDBNull(19) ? (DateTime?)null : DateTime.Parse(reader.GetString(19)),
+                        JustificationRefus = reader.IsDBNull(20) ? null : reader.GetString(20),
+                        EstArchivee = reader.GetInt32(21) == 1
                     });
                 }
             }
@@ -569,27 +609,33 @@ namespace BacklogManager.Services
                     {
                         if (demande.Id == 0)
                         {
-                            cmd.CommandText = @"INSERT INTO Demandes (Titre, Description, DemandeurId, BusinessAnalystId, ChefProjetId, DevChiffreurId,
+                            cmd.CommandText = @"INSERT INTO Demandes (Titre, Description, Specifications, ContexteMetier, BeneficesAttendus,
+                                DemandeurId, BusinessAnalystId, ChefProjetId, DevChiffreurId,
                                 Type, Criticite, Statut, DateCreation, DateValidationChiffrage, DateAcceptation, DateLivraison,
-                                ChiffrageEstimeHeures, ChiffrageReelHeures, DatePrevisionnelleImplementation, JustificationRefus, EstArchivee)
-                                VALUES (@Titre, @Description, @DemandeurId, @BusinessAnalystId, @ChefProjetId, @DevChiffreurId,
+                                ChiffrageEstimeJours, ChiffrageReelJours, DatePrevisionnelleImplementation, JustificationRefus, EstArchivee)
+                                VALUES (@Titre, @Description, @Specifications, @ContexteMetier, @BeneficesAttendus,
+                                @DemandeurId, @BusinessAnalystId, @ChefProjetId, @DevChiffreurId,
                                 @Type, @Criticite, @Statut, @DateCreation, @DateValidationChiffrage, @DateAcceptation, @DateLivraison,
-                                @ChiffrageEstimeHeures, @ChiffrageReelHeures, @DatePrevisionnelleImplementation, @JustificationRefus, @EstArchivee);
+                                @ChiffrageEstimeJours, @ChiffrageReelJours, @DatePrevisionnelleImplementation, @JustificationRefus, @EstArchivee);
                                 SELECT last_insert_rowid();";
                         }
                         else
                         {
-                            cmd.CommandText = @"UPDATE Demandes SET Titre = @Titre, Description = @Description, DemandeurId = @DemandeurId,
+                            cmd.CommandText = @"UPDATE Demandes SET Titre = @Titre, Description = @Description, Specifications = @Specifications,
+                                ContexteMetier = @ContexteMetier, BeneficesAttendus = @BeneficesAttendus, DemandeurId = @DemandeurId,
                                 BusinessAnalystId = @BusinessAnalystId, ChefProjetId = @ChefProjetId, DevChiffreurId = @DevChiffreurId,
                                 Type = @Type, Criticite = @Criticite, Statut = @Statut, DateValidationChiffrage = @DateValidationChiffrage,
-                                DateAcceptation = @DateAcceptation, DateLivraison = @DateLivraison, ChiffrageEstimeHeures = @ChiffrageEstimeHeures,
-                                ChiffrageReelHeures = @ChiffrageReelHeures, DatePrevisionnelleImplementation = @DatePrevisionnelleImplementation,
+                                DateAcceptation = @DateAcceptation, DateLivraison = @DateLivraison, ChiffrageEstimeJours = @ChiffrageEstimeJours,
+                                ChiffrageReelJours = @ChiffrageReelJours, DatePrevisionnelleImplementation = @DatePrevisionnelleImplementation,
                                 JustificationRefus = @JustificationRefus, EstArchivee = @EstArchivee WHERE Id = @Id";
                             cmd.Parameters.AddWithValue("@Id", demande.Id);
                         }
 
                         cmd.Parameters.AddWithValue("@Titre", demande.Titre);
                         cmd.Parameters.AddWithValue("@Description", demande.Description ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@Specifications", demande.Specifications ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@ContexteMetier", demande.ContexteMetier ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@BeneficesAttendus", demande.BeneficesAttendus ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@DemandeurId", demande.DemandeurId);
                         cmd.Parameters.AddWithValue("@BusinessAnalystId", demande.BusinessAnalystId ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@ChefProjetId", demande.ChefProjetId ?? (object)DBNull.Value);
@@ -601,8 +647,8 @@ namespace BacklogManager.Services
                         cmd.Parameters.AddWithValue("@DateValidationChiffrage", demande.DateValidationChiffrage?.ToString("yyyy-MM-dd HH:mm:ss") ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@DateAcceptation", demande.DateAcceptation?.ToString("yyyy-MM-dd HH:mm:ss") ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@DateLivraison", demande.DateLivraison?.ToString("yyyy-MM-dd HH:mm:ss") ?? (object)DBNull.Value);
-                        cmd.Parameters.AddWithValue("@ChiffrageEstimeHeures", demande.ChiffrageEstimeHeures ?? (object)DBNull.Value);
-                        cmd.Parameters.AddWithValue("@ChiffrageReelHeures", demande.ChiffrageReelHeures ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@ChiffrageEstimeJours", demande.ChiffrageEstimeJours ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@ChiffrageReelJours", demande.ChiffrageReelJours ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@DatePrevisionnelleImplementation", demande.DatePrevisionnelleImplementation?.ToString("yyyy-MM-dd HH:mm:ss") ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@JustificationRefus", demande.JustificationRefus ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@EstArchivee", demande.EstArchivee ? 1 : 0);
@@ -625,6 +671,42 @@ namespace BacklogManager.Services
                     throw;
                 }
             }
+            }
+        }
+
+        public void DeleteDemande(int id)
+        {
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var transaction = conn.BeginTransaction())
+                {
+                    try
+                    {
+                        // Supprimer les commentaires associés
+                        using (var cmd = conn.CreateCommand())
+                        {
+                            cmd.CommandText = "DELETE FROM Commentaires WHERE DemandeId = @Id";
+                            cmd.Parameters.AddWithValue("@Id", id);
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        // Supprimer la demande
+                        using (var cmd = conn.CreateCommand())
+                        {
+                            cmd.CommandText = "DELETE FROM Demandes WHERE Id = @Id";
+                            cmd.Parameters.AddWithValue("@Id", id);
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        transaction.Commit();
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
             }
         }
 
@@ -817,7 +899,36 @@ namespace BacklogManager.Services
             return devs;
         }
         
-        public List<Commentaire> GetCommentaires() { return new List<Commentaire>(); }
+        public List<Commentaire> GetCommentaires()
+        {
+            var commentaires = new List<Commentaire>();
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = "SELECT * FROM Commentaires ORDER BY DateCreation DESC";
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            commentaires.Add(new Commentaire
+                            {
+                                Id = reader.GetInt32(0),
+                                DemandeId = reader.IsDBNull(1) ? (int?)null : reader.GetInt32(1),
+                                BacklogItemId = reader.IsDBNull(2) ? (int?)null : reader.GetInt32(2),
+                                AuteurId = reader.GetInt32(3),
+                                Contenu = reader.GetString(4),
+                                DateCreation = DateTime.Parse(reader.GetString(5)),
+                                PieceJointeNom = reader.IsDBNull(6) ? null : reader.GetString(6),
+                                PieceJointeChemin = reader.IsDBNull(7) ? null : reader.GetString(7)
+                            });
+                        }
+                    }
+                }
+            }
+            return commentaires;
+        }
         public List<HistoriqueModification> GetHistoriqueModifications() { return new List<HistoriqueModification>(); }
         public List<PokerSession> GetPokerSessions() { return new List<PokerSession>(); }
         public List<PokerVote> GetPokerVotes() { return new List<PokerVote>(); }
@@ -1046,7 +1157,31 @@ namespace BacklogManager.Services
             }
         }
         
-        public Commentaire AddCommentaire(Commentaire commentaire) { return commentaire; }
+        public Commentaire AddCommentaire(Commentaire commentaire)
+        {
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"INSERT INTO Commentaires 
+                        (DemandeId, BacklogItemId, AuteurId, Contenu, DateCreation, PieceJointeNom, PieceJointeChemin) 
+                        VALUES (@DemandeId, @BacklogItemId, @AuteurId, @Contenu, @DateCreation, @PieceJointeNom, @PieceJointeChemin)";
+                    
+                    cmd.Parameters.AddWithValue("@DemandeId", commentaire.DemandeId.HasValue ? (object)commentaire.DemandeId.Value : DBNull.Value);
+                    cmd.Parameters.AddWithValue("@BacklogItemId", commentaire.BacklogItemId.HasValue ? (object)commentaire.BacklogItemId.Value : DBNull.Value);
+                    cmd.Parameters.AddWithValue("@AuteurId", commentaire.AuteurId);
+                    cmd.Parameters.AddWithValue("@Contenu", commentaire.Contenu);
+                    cmd.Parameters.AddWithValue("@DateCreation", commentaire.DateCreation.ToString("yyyy-MM-dd HH:mm:ss"));
+                    cmd.Parameters.AddWithValue("@PieceJointeNom", string.IsNullOrEmpty(commentaire.PieceJointeNom) ? (object)DBNull.Value : commentaire.PieceJointeNom);
+                    cmd.Parameters.AddWithValue("@PieceJointeChemin", string.IsNullOrEmpty(commentaire.PieceJointeChemin) ? (object)DBNull.Value : commentaire.PieceJointeChemin);
+                    
+                    cmd.ExecuteNonQuery();
+                    commentaire.Id = (int)conn.LastInsertRowId;
+                }
+            }
+            return commentaire;
+        }
         public Commentaire AddOrUpdateCommentaire(Commentaire commentaire) { return commentaire; }
         public void AddHistorique(HistoriqueModification historique) { }
         public HistoriqueModification AddOrUpdateHistoriqueModification(HistoriqueModification historique) { return historique; }

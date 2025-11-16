@@ -333,7 +333,10 @@
                                             <Grid>
                                                 <Border Height="24" VerticalAlignment="Center"
                                                         Background="{Binding BarreColor}"
-                                                        CornerRadius="3" HorizontalAlignment="Stretch">
+                                                        CornerRadius="3" HorizontalAlignment="Stretch"
+                                                        MouseDown="ProjetBarre_MouseDown"
+                                                        Tag="{Binding}"
+                                                        Cursor="Hand">
                                                     <Border.Style>
                                                         <Style TargetType="Border">
                                                             <Setter Property="Margin">
@@ -345,6 +348,11 @@
                                                                     </MultiBinding>
                                                                 </Setter.Value>
                                                             </Setter>
+                                                            <Style.Triggers>
+                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                    <Setter Property="Opacity" Value="0.85"/>
+                                                                </Trigger>
+                                                            </Style.Triggers>
                                                         </Style>
                                                     </Border.Style>
                                                     <Border.ToolTip>

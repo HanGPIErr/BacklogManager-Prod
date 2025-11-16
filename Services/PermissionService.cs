@@ -83,5 +83,32 @@ namespace BacklogManager.Services
             
             return false;
         }
+
+        // Permissions pour les demandes
+        public bool PeutModifierDemande(Demande demande)
+        {
+            // Admin peut tout modifier
+            if (IsAdmin) return true;
+            
+            // Chef de projet peut modifier toutes les demandes
+            if (IsChefDeProjet) return true;
+            
+            // Business Analyst peut modifier les demandes qu'il a créées ou dont il est responsable
+            if (IsBusinessAnalyst && (demande.DemandeurId == _currentUser.Id || demande.BusinessAnalystId == _currentUser.Id))
+                return true;
+            
+            // Le créateur peut modifier sa propre demande
+            if (demande.DemandeurId == _currentUser.Id)
+                return true;
+            
+            return false;
+        }
+
+        public bool PeutSupprimerDemande(Demande demande)
+        {
+            // Seuls Admin et Chef de projet peuvent supprimer
+            return IsAdmin || IsChefDeProjet;
+        }
     }
 }
+

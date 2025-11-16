@@ -50,8 +50,8 @@ namespace BacklogManager.Views
             TxtCP.Text = ObtenirNomUtilisateur(demande.ChefProjetId, utilisateurs);
             TxtDev.Text = ObtenirNomUtilisateur(demande.DevChiffreurId, utilisateurs);
             
-            TxtChiffrage.Text = demande.ChiffrageEstimeHeures.HasValue ? 
-                string.Format("{0:F1}", demande.ChiffrageEstimeHeures.Value) : "Non chiffré";
+            TxtChiffrage.Text = demande.ChiffrageEstimeJours.HasValue ? 
+                string.Format("{0:F1} jour(s)", demande.ChiffrageEstimeJours.Value) : "Non chiffré";
             TxtDateCreation.Text = demande.DateCreation.ToString("dd/MM/yyyy HH:mm");
             
             if (demande.DatePrevisionnelleImplementation.HasValue)

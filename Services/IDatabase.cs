@@ -21,6 +21,7 @@ namespace BacklogManager.Services
         BacklogItem AddOrUpdateBacklogItem(BacklogItem item);
         List<Demande> GetDemandes();
         Demande AddOrUpdateDemande(Demande demande);
+        void DeleteDemande(int id);
         List<Dev> GetDevs();
         Dev AddOrUpdateDev(Dev dev);
         List<Commentaire> GetCommentaires();

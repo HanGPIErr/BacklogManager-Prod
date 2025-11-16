@@ -261,7 +261,7 @@ namespace BacklogManager
         {
             try
             {
-                var demandesView = new DemandesView();
+                var demandesView = new DemandesView(_authService, _permissionService);
                 var window = new Window
                 {
                     Title = "Gestion des demandes",

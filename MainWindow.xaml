@@ -5,7 +5,8 @@
         xmlns:vm="clr-namespace:BacklogManager.ViewModels"
         Title="BNP Paribas - Backlog Manager" Height="750" Width="1300"
         WindowStartupLocation="CenterScreen"
-        Background="#F5F5F5">
+        Background="#F5F5F5"
+        Icon="/Images/backlogmanager.ico">
     
     <Window.Resources>
         <DataTemplate DataType="{x:Type vm:ProjetsViewModel}">
@@ -69,10 +70,10 @@
                 <!-- BNP Header -->
                 <Border Background="#00915A" Padding="20,25">
                     <StackPanel>
-                        <TextBlock Text="BNP PARIBAS" FontSize="18" FontWeight="Bold" 
-                                   Foreground="White"/>
+                        <Image Source="/Images/logobnp.png" Height="40" Width="180" 
+                               Stretch="Uniform" HorizontalAlignment="Left" Margin="0,0,0,8"/>
                         <TextBlock Text="Backlog Manager" FontSize="13" 
-                                   Foreground="White" Margin="0,5,0,0" Opacity="0.9"/>
+                                   Foreground="White" Margin="0,0,0,0" Opacity="0.9"/>
                     </StackPanel>
                 </Border>
 

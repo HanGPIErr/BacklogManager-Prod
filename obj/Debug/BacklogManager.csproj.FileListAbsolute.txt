@@ -82,3 +82,5 @@ C:\Users\HanGP\BacklogManager\obj\Debug\Views\ParametresWindow.baml
 C:\Users\HanGP\BacklogManager\obj\Debug\Views\ParametresWindow.g.cs
 C:\Users\HanGP\BacklogManager\obj\Debug\Views\NotificationsWindow.baml
 C:\Users\HanGP\BacklogManager\obj\Debug\Views\NotificationsWindow.g.cs
+C:\Users\HanGP\BacklogManager\obj\Debug\Views\ProjetDetailsWindow.g.cs
+C:\Users\HanGP\BacklogManager\obj\Debug\Views\ProjetDetailsWindow.baml

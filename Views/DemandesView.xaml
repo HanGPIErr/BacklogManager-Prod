@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:BacklogManager.Views">
     <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <local:StatutToColorConverter x:Key="StatutColorConverter"/>
         <local:CriticiteToColorConverter x:Key="CriticiteColorConverter"/>
     </UserControl.Resources>
@@ -14,7 +15,7 @@
         </Grid.RowDefinitions>
         
         <!-- Barre d'outils -->
-        <Border Grid.Row="0" Background="#00A651" Padding="15">
+        <Border Grid.Row="0" Background="#00915A" Padding="15">
             <StackPanel>
                 <TextBlock Text="GESTION DES DEMANDES" FontSize="18" FontWeight="Bold" 
                           Foreground="White" Margin="0,0,0,10"/>
@@ -22,7 +23,7 @@
                 <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
                     <Button x:Name="BtnNouvelleDemande" Content="➕ Nouvelle demande" 
                            Width="150" Height="35" Margin="0,0,10,0"
-                           Background="White" Foreground="#00A651" FontWeight="Bold"
+                           Background="White" Foreground="#00915A" FontWeight="Bold"
                            BorderThickness="0" Cursor="Hand">
                         <Button.Style>
                             <Style TargetType="Button">
@@ -54,7 +55,7 @@
                              SelectedIndex="0"/>
                     
                     <Button x:Name="BtnRefresh" Content="🔄" Width="40" Height="30" 
-                           Background="White" Foreground="#00A651" FontWeight="Bold"
+                           Background="White" Foreground="#00915A" FontWeight="Bold"
                            BorderThickness="0" Cursor="Hand" ToolTip="Actualiser"/>
                 </StackPanel>
             </StackPanel>
@@ -135,7 +136,7 @@
                                 <!-- Actions -->
                                 <StackPanel Grid.Row="3" Orientation="Horizontal">
                                     <Button Content="📝 Détails" Width="90" Height="28" Margin="0,0,5,0"
-                                           Background="#00A651" Foreground="White" BorderThickness="0"
+                                           Background="#00915A" Foreground="White" BorderThickness="0"
                                            FontSize="11" Cursor="Hand" Tag="{Binding Id}"
                                            Click="BtnDetailsClick"/>
                                     <Button Content="✏️ Modifier" Width="90" Height="28" Margin="0,0,5,0"
@@ -146,6 +147,13 @@
                                            Background="#666666" Foreground="White" BorderThickness="0"
                                            FontSize="11" Cursor="Hand" Tag="{Binding Id}"
                                            Click="BtnCommentairesClick"/>
+                                    <Button Content="🗑️ Supprimer" Width="90" Height="28" Margin="0,0,5,0"
+                                           Background="#D32F2F" Foreground="White" BorderThickness="0"
+                                           FontSize="11" Cursor="Hand" Tag="{Binding Id}"
+                                           Click="BtnSupprimerClick"
+                                           Visibility="{Binding DataContext.PeutSupprimerDemandes, 
+                                                       RelativeSource={RelativeSource AncestorType=UserControl},
+                                                       Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                 </StackPanel>
                             </Grid>
                         </Border>

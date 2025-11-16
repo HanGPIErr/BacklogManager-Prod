@@ -4,17 +4,17 @@
 winexe
 C#
 .cs
-c:\Users\HanGP\BacklogManager\obj\Debug\
+C:\Users\HanGP\BacklogManager\obj\Debug\
 BacklogManager
 none
 false
 DEBUG;TRACE
-c:\Users\HanGP\BacklogManager\App.xaml
-25-2028760663
+C:\Users\HanGP\BacklogManager\App.xaml
+26-598486894
 
-63888875528
-23-377551202
-MainWindow.xaml;Views\ProjetsView.xaml;Views\EditTacheWindow.xaml;Views\BacklogView.xaml;Views\KanbanView.xaml;Views\PokerView.xaml;Views\TimelineView.xaml;Views\GestionEquipeWindow.xaml;Views\GestionProjetsWindow.xaml;Views\AdministrationWindow.xaml;Views\EditUtilisateurWindow.xaml;Views\Pages\GestionUtilisateursPage.xaml;Views\Pages\GestionRolesPage.xaml;Views\Pages\GestionProjetsPage.xaml;Views\Pages\GestionEquipePage.xaml;Views\GestionUtilisateursWindow.xaml;Views\LoginWindow.xaml;Views\DemandesView.xaml;Views\EditionDemandeWindow.xaml;Views\DetailsDemandeWindow.xaml;Views\CommentairesWindow.xaml;Views\StatistiquesWindow.xaml;Views\AuditLogWindow.xaml;Views\NotificationsWindow.xaml;Views\ParametresWindow.xaml;
+64-877651800
+231920626423
+MainWindow.xaml;Views\ProjetsView.xaml;Views\EditTacheWindow.xaml;Views\ProjetDetailsWindow.xaml;Views\BacklogView.xaml;Views\KanbanView.xaml;Views\PokerView.xaml;Views\TimelineView.xaml;Views\GestionEquipeWindow.xaml;Views\GestionProjetsWindow.xaml;Views\AdministrationWindow.xaml;Views\EditUtilisateurWindow.xaml;Views\Pages\GestionUtilisateursPage.xaml;Views\Pages\GestionRolesPage.xaml;Views\Pages\GestionProjetsPage.xaml;Views\Pages\GestionEquipePage.xaml;Views\GestionUtilisateursWindow.xaml;Views\LoginWindow.xaml;Views\DemandesView.xaml;Views\EditionDemandeWindow.xaml;Views\DetailsDemandeWindow.xaml;Views\CommentairesWindow.xaml;Views\StatistiquesWindow.xaml;Views\AuditLogWindow.xaml;Views\NotificationsWindow.xaml;Views\ParametresWindow.xaml;
 
 False
 

@@ -149,5 +149,41 @@ namespace BacklogManager.Views
             
             border.Background = originalBackground;
         }
+
+        private void DeleteTask_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var task = button?.Tag as BacklogItem;
+            
+            if (task == null) return;
+
+            // Confirmation modale
+            var result = MessageBox.Show(
+                string.Format("Êtes-vous sûr de vouloir supprimer la tâche ?\n\nTitre : {0}\nStatut : {1}\n\nCette action est irréversible.", 
+                    task.Titre, task.Statut),
+                "Confirmation de suppression",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning,
+                MessageBoxResult.No);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                var viewModel = DataContext as KanbanViewModel;
+                if (viewModel != null)
+                {
+                    try
+                    {
+                        viewModel.SupprimerTache(task);
+                        MessageBox.Show("Tâche supprimée avec succès.", "Suppression", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(string.Format("Erreur lors de la suppression : {0}", ex.Message), 
+                            "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
+        }
     }
 }
+

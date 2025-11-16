@@ -44,7 +44,11 @@ namespace BacklogManager.ViewModels
                 ProjetsViewModel.LoadProjets();
                 CurrentView = ProjetsViewModel;
             });
-            ShowBacklogCommand = new RelayCommand(_ => CurrentView = BacklogViewModel);
+            ShowBacklogCommand = new RelayCommand(_ => 
+            {
+                BacklogViewModel.LoadData();
+                CurrentView = BacklogViewModel;
+            });
             ShowKanbanCommand = new RelayCommand(_ => 
             {
                 KanbanViewModel.LoadItems();

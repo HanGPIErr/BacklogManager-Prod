@@ -409,6 +409,23 @@ namespace BacklogManager.Services
             }
         }
 
+        public void DeleteDemande(int id)
+        {
+            lock (_lock)
+            {
+                var demande = _data.Demandes.Find(d => d.Id == id);
+                if (demande != null)
+                {
+                    _data.Demandes.Remove(demande);
+                    
+                    // Supprimer les commentaires associés
+                    _data.Commentaires.RemoveAll(c => c.DemandeId == id);
+                    
+                    Save();
+                }
+            }
+        }
+
         // Sprints
         public List<Sprint> GetSprints()
         {

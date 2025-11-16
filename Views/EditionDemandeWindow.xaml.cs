@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
 using BacklogManager.Domain;
 using BacklogManager.Services;
 
@@ -28,6 +30,22 @@ namespace BacklogManager.Views
                 TxtTitre.Text = "MODIFIER LA DEMANDE";
                 ChargerDemande();
                 PanelChiffrage.Visibility = Visibility.Visible;
+                
+                // Afficher le panel des spécifications si la demande est en attente de spécification
+                if (_demandeActuelle != null && _demandeActuelle.Statut == StatutDemande.EnAttenteSpecification)
+                {
+                    PanelSpecifications.Visibility = Visibility.Visible;
+                }
+                
+                // Afficher le panel d'arbitrage si la demande est en attente d'arbitrage et que l'utilisateur est Admin ou Chef de Projet
+                if (_demandeActuelle != null && _demandeActuelle.Statut == StatutDemande.EnAttenteArbitrage)
+                {
+                    var currentRole = _authService.GetCurrentUserRole();
+                    if (currentRole != null && (currentRole.Type == Domain.RoleType.Administrateur || currentRole.Type == Domain.RoleType.ChefDeProjet))
+                    {
+                        PanelArbitrage.Visibility = Visibility.Visible;
+                    }
+                }
             }
             else
             {
@@ -42,6 +60,9 @@ namespace BacklogManager.Views
 
             BtnAnnuler.Click += (s, e) => { DialogResult = false; Close(); };
             BtnEnregistrer.Click += BtnEnregistrer_Click;
+            BtnValiderSpecifications.Click += BtnValiderSpecifications_Click;
+            BtnAccepter.Click += BtnAccepter_Click;
+            BtnRefuser.Click += BtnRefuser_Click;
         }
 
         private void InitialiserComboBoxes()
@@ -125,6 +146,9 @@ namespace BacklogManager.Views
 
             TxtTitreDemande.Text = _demandeActuelle.Titre;
             TxtDescription.Text = _demandeActuelle.Description;
+            TxtSpecifications.Text = _demandeActuelle.Specifications;
+            TxtContexte.Text = _demandeActuelle.ContexteMetier;
+            TxtBenefices.Text = _demandeActuelle.BeneficesAttendus;
 
             // Sélectionner les valeurs dans les combos
             CmbType.SelectedValue = _demandeActuelle.Type;
@@ -139,7 +163,7 @@ namespace BacklogManager.Views
             if (_demandeActuelle.DevChiffreurId.HasValue)
                 CmbDevChiffreur.SelectedValue = _demandeActuelle.DevChiffreurId.Value;
 
-            TxtChiffrageEstime.Text = _demandeActuelle.ChiffrageEstimeHeures?.ToString() ?? "";
+            TxtChiffrageEstime.Text = _demandeActuelle.ChiffrageEstimeJours?.ToString() ?? "";
         }
 
         private void BtnEnregistrer_Click(object sender, RoutedEventArgs e)
@@ -173,6 +197,9 @@ namespace BacklogManager.Views
                 // Mise à jour des champs
                 _demandeActuelle.Titre = TxtTitreDemande.Text.Trim();
                 _demandeActuelle.Description = TxtDescription.Text.Trim();
+                _demandeActuelle.Specifications = TxtSpecifications.Text?.Trim();
+                _demandeActuelle.ContexteMetier = TxtContexte.Text?.Trim();
+                _demandeActuelle.BeneficesAttendus = TxtBenefices.Text?.Trim();
                 _demandeActuelle.Type = (TypeDemande)CmbType.SelectedValue;
                 _demandeActuelle.Criticite = (Criticite)CmbCriticite.SelectedValue;
 
@@ -190,9 +217,16 @@ namespace BacklogManager.Views
                     _demandeActuelle.DevChiffreurId = devId != 0 ? (int?)devId : null;
 
                     if (!string.IsNullOrWhiteSpace(TxtChiffrageEstime.Text) && 
-                        decimal.TryParse(TxtChiffrageEstime.Text, out decimal heures))
+                        decimal.TryParse(TxtChiffrageEstime.Text.Replace(",", "."), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out decimal jours))
                     {
-                        _demandeActuelle.ChiffrageEstimeHeures = (double)heures;
+                        _demandeActuelle.ChiffrageEstimeJours = (double)jours;
+                        
+                        // Si un chiffrage est fourni et qu'on est en attente de chiffrage, passer à En attente d'arbitrage
+                        if (_demandeActuelle.Statut == StatutDemande.EnAttenteChiffrage)
+                        {
+                            _demandeActuelle.Statut = StatutDemande.EnAttenteArbitrage;
+                            _demandeActuelle.DateValidationChiffrage = DateTime.Now;
+                        }
                     }
                 }
 
@@ -220,6 +254,223 @@ namespace BacklogManager.Views
             {
                 TxtErreur.Text = string.Format("Erreur : {0}", ex.Message);
                 TxtErreur.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void BtnValiderSpecifications_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(TxtSpecifications.Text))
+                {
+                    MessageBox.Show("Veuillez saisir les spécifications avant de valider.", 
+                        "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Sauvegarder les spécifications
+                _demandeActuelle.Specifications = TxtSpecifications.Text.Trim();
+                
+                // Passer au statut suivant
+                _demandeActuelle.Statut = StatutDemande.EnAttenteChiffrage;
+                
+                // Enregistrer
+                _database.AddOrUpdateDemande(_demandeActuelle);
+
+                // Historique
+                var utilisateur = _authService.CurrentUser;
+                var historique = new HistoriqueModification
+                {
+                    TypeEntite = "Demande",
+                    EntiteId = _demandeActuelle.Id,
+                    UtilisateurId = utilisateur != null ? utilisateur.Id : 0,
+                    DateModification = DateTime.Now,
+                    TypeModification = Domain.TypeModification.Modification,
+                    NouvelleValeur = "En attente de chiffrage",
+                    AncienneValeur = "En attente de spécification",
+                    ChampModifie = "Statut"
+                };
+                _database.AddHistorique(historique);
+
+                MessageBox.Show("Les spécifications ont été validées.\nLa demande passe en attente de chiffrage.", 
+                    "Succès", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                DialogResult = true;
+                Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("Erreur lors de la validation : {0}", ex.Message), 
+                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void BtnAccepter_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var result = MessageBox.Show(
+                    "Voulez-vous accepter cette demande ?\n\nElle passera en statut 'Acceptée' et pourra être planifiée en User Story.",
+                    "Accepter la demande",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    _demandeActuelle.Statut = StatutDemande.Acceptee;
+                    _demandeActuelle.DateAcceptation = DateTime.Now;
+                    
+                    _database.AddOrUpdateDemande(_demandeActuelle);
+
+                    // Historique
+                    var utilisateur = _authService.CurrentUser;
+                    var historique = new HistoriqueModification
+                    {
+                        TypeEntite = "Demande",
+                        EntiteId = _demandeActuelle.Id,
+                        UtilisateurId = utilisateur != null ? utilisateur.Id : 0,
+                        DateModification = DateTime.Now,
+                        TypeModification = Domain.TypeModification.Modification,
+                        NouvelleValeur = "Acceptée",
+                        AncienneValeur = "En attente d'arbitrage",
+                        ChampModifie = "Statut"
+                    };
+                    _database.AddHistorique(historique);
+
+                    MessageBox.Show("La demande a été acceptée avec succès.", 
+                        "Succès", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                    DialogResult = true;
+                    Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("Erreur lors de l'acceptation : {0}", ex.Message), 
+                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void BtnRefuser_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // Demander une justification
+                var justificationWindow = new Window
+                {
+                    Title = "Refuser la demande",
+                    Width = 500,
+                    Height = 300,
+                    WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                    Owner = this,
+                    ResizeMode = ResizeMode.NoResize
+                };
+
+                var grid = new Grid();
+                grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+                grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+
+                var stackPanel = new StackPanel { Margin = new Thickness(20) };
+                
+                var lblTitre = new TextBlock 
+                { 
+                    Text = "Justification du refus *", 
+                    FontWeight = FontWeights.Bold, 
+                    Margin = new Thickness(0, 0, 0, 5) 
+                };
+                
+                var txtJustification = new TextBox 
+                { 
+                    Height = 150, 
+                    TextWrapping = TextWrapping.Wrap, 
+                    AcceptsReturn = true, 
+                    VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                    Padding = new Thickness(8)
+                };
+
+                stackPanel.Children.Add(lblTitre);
+                stackPanel.Children.Add(txtJustification);
+                
+                Grid.SetRow(stackPanel, 0);
+                grid.Children.Add(stackPanel);
+
+                var btnPanel = new StackPanel 
+                { 
+                    Orientation = Orientation.Horizontal, 
+                    HorizontalAlignment = HorizontalAlignment.Right,
+                    Margin = new Thickness(20)
+                };
+
+                var btnAnnuler = new Button 
+                { 
+                    Content = "Annuler", 
+                    Width = 100, 
+                    Height = 35,
+                    Margin = new Thickness(0, 0, 10, 0)
+                };
+                btnAnnuler.Click += (s, ev) => justificationWindow.DialogResult = false;
+
+                var btnValider = new Button 
+                { 
+                    Content = "Refuser", 
+                    Width = 100, 
+                    Height = 35,
+                    Background = new SolidColorBrush(Color.FromRgb(244, 67, 54)),
+                    Foreground = Brushes.White
+                };
+                btnValider.Click += (s, ev) =>
+                {
+                    if (string.IsNullOrWhiteSpace(txtJustification.Text))
+                    {
+                        MessageBox.Show("Veuillez saisir une justification.", "Validation", 
+                            MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return;
+                    }
+                    justificationWindow.Tag = txtJustification.Text;
+                    justificationWindow.DialogResult = true;
+                };
+
+                btnPanel.Children.Add(btnAnnuler);
+                btnPanel.Children.Add(btnValider);
+                
+                Grid.SetRow(btnPanel, 1);
+                grid.Children.Add(btnPanel);
+
+                justificationWindow.Content = grid;
+
+                if (justificationWindow.ShowDialog() == true)
+                {
+                    _demandeActuelle.Statut = StatutDemande.Refusee;
+                    _demandeActuelle.JustificationRefus = justificationWindow.Tag.ToString();
+                    
+                    _database.AddOrUpdateDemande(_demandeActuelle);
+
+                    // Historique
+                    var utilisateur = _authService.CurrentUser;
+                    var historique = new HistoriqueModification
+                    {
+                        TypeEntite = "Demande",
+                        EntiteId = _demandeActuelle.Id,
+                        UtilisateurId = utilisateur != null ? utilisateur.Id : 0,
+                        DateModification = DateTime.Now,
+                        TypeModification = Domain.TypeModification.Modification,
+                        NouvelleValeur = "Refusée: " + _demandeActuelle.JustificationRefus,
+                        AncienneValeur = "En attente d'arbitrage",
+                        ChampModifie = "Statut"
+                    };
+                    _database.AddHistorique(historique);
+
+                    MessageBox.Show("La demande a été refusée.", 
+                        "Refus", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                    DialogResult = true;
+                    Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("Erreur lors du refus : {0}", ex.Message), 
+                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

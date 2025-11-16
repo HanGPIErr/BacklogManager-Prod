@@ -51,6 +51,16 @@ namespace BacklogManager.Views
             // Chiffrage (convertir heures en jours: 7h = 1j)
             ChiffrageTextBox.Text = _tache.ChiffrageHeures.HasValue ? (_tache.ChiffrageHeures.Value / 7.0).ToString("0.#") : "";
 
+            // Temps réel passé (en heures)
+            TempsReelTextBox.Text = _tache.TempsReelHeures.HasValue ? _tache.TempsReelHeures.Value.ToString("0.#") : "0";
+            
+            // Calculer et afficher la progression
+            UpdateProgression();
+
+            // Événements pour recalculer la progression en temps réel
+            ChiffrageTextBox.TextChanged += (s, e) => UpdateProgression();
+            TempsReelTextBox.TextChanged += (s, e) => UpdateProgression();
+
             // Date fin attendue
             DateFinDatePicker.SelectedDate = _tache.DateFinAttendue;
         }
@@ -77,6 +87,7 @@ namespace BacklogManager.Views
             // Complexité seulement si PeutChiffrer
             ComplexiteComboBox.IsEnabled = peutModifier && _permissionService.PeutChiffrer;
             ChiffrageTextBox.IsReadOnly = !peutModifier || !_permissionService.PeutChiffrer;
+            TempsReelTextBox.IsReadOnly = !peutModifier;
 
             // Autres champs
             ProjetComboBox.IsEnabled = peutModifier;
@@ -86,6 +97,42 @@ namespace BacklogManager.Views
             if (!peutModifier)
             {
                 Title = "Consultation de tâche (lecture seule)";
+            }
+        }
+
+        private void UpdateProgression()
+        {
+            if (double.TryParse(ChiffrageTextBox.Text, out double chiffrageJours) && chiffrageJours > 0)
+            {
+                double chiffrageHeures = chiffrageJours * 7.0; // Convertir jours en heures
+                
+                if (double.TryParse(TempsReelTextBox.Text, out double tempsReelHeures))
+                {
+                    double progression = Math.Min(100, (tempsReelHeures / chiffrageHeures) * 100);
+                    double restantHeures = Math.Max(0, chiffrageHeures - tempsReelHeures);
+                    double restantJours = restantHeures / 7.0;
+                    
+                    ProgressionTextBlock.Text = string.Format("Progression: {0:F0}% | Reste: {1:F1}j", progression, restantJours);
+                    
+                    // Changer la couleur selon la progression
+                    if (progression >= 100)
+                        ProgressionTextBlock.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(76, 175, 80)); // Vert
+                    else if (progression >= 75)
+                        ProgressionTextBlock.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 145, 90)); // BNP Green
+                    else if (progression >= 50)
+                        ProgressionTextBlock.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(245, 124, 0)); // Orange
+                    else
+                        ProgressionTextBlock.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(211, 47, 47)); // Rouge
+                }
+                else
+                {
+                    ProgressionTextBlock.Text = "Progression: 0%";
+                }
+            }
+            else
+            {
+                ProgressionTextBlock.Text = "Non estimé";
+                ProgressionTextBlock.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(102, 102, 102)); // Gris
             }
         }
 
@@ -137,6 +184,16 @@ namespace BacklogManager.Views
                 {
                     _tache.ChiffrageHeures = chiffrageJours * 7; // Convertir jours en heures (7h par jour)
                 }
+            }
+
+            // Temps réel passé (en heures)
+            if (double.TryParse(TempsReelTextBox.Text, out double tempsReelHeures))
+            {
+                _tache.TempsReelHeures = tempsReelHeures;
+            }
+            else
+            {
+                _tache.TempsReelHeures = 0;
             }
 
             _tache.DateFinAttendue = DateFinDatePicker.SelectedDate;

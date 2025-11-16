@@ -12,6 +12,37 @@ using BacklogManager.Shared;
 
 namespace BacklogManager.ViewModels
 {
+    public class BacklogItemViewModel : INotifyPropertyChanged
+    {
+        private BacklogItem _item;
+        private string _devNom;
+        private string _projetNom;
+
+        public BacklogItem Item
+        {
+            get { return _item; }
+            set { _item = value; OnPropertyChanged(); }
+        }
+
+        public string DevNom
+        {
+            get { return _devNom; }
+            set { _devNom = value; OnPropertyChanged(); }
+        }
+
+        public string ProjetNom
+        {
+            get { return _projetNom; }
+            set { _projetNom = value; OnPropertyChanged(); }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
+
     public class BacklogViewModel : INotifyPropertyChanged
     {
         private readonly BacklogService _backlogService;
@@ -22,10 +53,10 @@ namespace BacklogManager.ViewModels
         private Statut? _selectedStatut;
         private int? _selectedDevId;
         private int? _selectedProjetId;
-        private BacklogItem _selectedItem;
+        private BacklogItemViewModel _selectedItem;
         private bool _isEditMode;
 
-        public ObservableCollection<BacklogItem> BacklogItems { get; set; }
+        public ObservableCollection<BacklogItemViewModel> BacklogItems { get; set; }
         public ObservableCollection<BacklogItem> AllBacklogItems { get; set; }
         public ObservableCollection<Utilisateur> Devs { get; set; }
         public ObservableCollection<Projet> Projets { get; set; }
@@ -102,7 +133,7 @@ namespace BacklogManager.ViewModels
             }
         }
 
-        public BacklogItem SelectedItem
+        public BacklogItemViewModel SelectedItem
         {
             get { return _selectedItem; }
             set
@@ -134,7 +165,7 @@ namespace BacklogManager.ViewModels
         {
             _backlogService = backlogService;
             _permissionService = permissionService;
-            BacklogItems = new ObservableCollection<BacklogItem>();
+            BacklogItems = new ObservableCollection<BacklogItemViewModel>();
             AllBacklogItems = new ObservableCollection<BacklogItem>();
             Devs = new ObservableCollection<Utilisateur>();
             Projets = new ObservableCollection<Projet>();
@@ -150,9 +181,9 @@ namespace BacklogManager.ViewModels
 
         private bool CanSaveItem()
         {
-            if (_permissionService == null) return true; // Par d\u00e9faut, autoris\u00e9 si pas de service
+            if (_permissionService == null) return true; // Par défaut, autorisé si pas de service
             if (_selectedItem == null) return false;
-            return _permissionService.PeutModifierTache(_selectedItem);
+            return _permissionService.PeutModifierTache(_selectedItem.Item);
         }
 
         private bool CanCreateItem()
@@ -171,11 +202,9 @@ namespace BacklogManager.ViewModels
         {
             var items = _backlogService.GetAllBacklogItems();
             AllBacklogItems.Clear();
-            BacklogItems.Clear();
             foreach (var item in items)
             {
                 AllBacklogItems.Add(item);
-                BacklogItems.Add(item);
             }
 
             var utilisateurs = _backlogService.GetAllUtilisateurs();
@@ -191,6 +220,8 @@ namespace BacklogManager.ViewModels
             {
                 Projets.Add(projet);
             }
+            
+            ApplyFilters();
         }
 
         private void ApplyFilters()
@@ -205,7 +236,26 @@ namespace BacklogManager.ViewModels
             BacklogItems.Clear();
             foreach (var item in filtered)
             {
-                BacklogItems.Add(item);
+                var devNom = "Non assigné";
+                if (item.DevAssigneId.HasValue)
+                {
+                    var dev = Devs.FirstOrDefault(d => d.Id == item.DevAssigneId.Value);
+                    devNom = dev?.Nom ?? "Non assigné";
+                }
+
+                var projetNom = "";
+                if (item.ProjetId.HasValue)
+                {
+                    var projet = Projets.FirstOrDefault(p => p.Id == item.ProjetId.Value);
+                    projetNom = projet?.Nom ?? "";
+                }
+
+                BacklogItems.Add(new BacklogItemViewModel
+                {
+                    Item = item,
+                    DevNom = devNom,
+                    ProjetNom = projetNom
+                });
             }
         }
 
@@ -213,7 +263,7 @@ namespace BacklogManager.ViewModels
         {
             if (SelectedItem == null) return;
 
-            _backlogService.SaveBacklogItem(SelectedItem);
+            _backlogService.SaveBacklogItem(SelectedItem.Item);
             LoadData();
         }
 
@@ -232,7 +282,21 @@ namespace BacklogManager.ViewModels
                 DateDerniereMaj = DateTime.Now,
                 EstArchive = false
             };
-            SelectedItem = newItem;
+            
+            // Ouvrir la fenêtre d'édition
+            var editWindow = new Views.EditTacheWindow(newItem, _backlogService, _permissionService);
+            
+            // Trouver la fenêtre parente
+            var mainWindow = System.Windows.Application.Current.MainWindow;
+            if (mainWindow != null && mainWindow != editWindow)
+            {
+                editWindow.Owner = mainWindow;
+            }
+            
+            if (editWindow.ShowDialog() == true && editWindow.Saved)
+            {
+                LoadData();
+            }
         }
 
         private void ClearFilters()
