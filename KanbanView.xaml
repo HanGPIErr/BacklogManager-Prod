@@ -17,7 +17,7 @@
                 <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.15" Color="#00915A"/>
             </Border.Effect>
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="📊 KANBAN BOARD" FontSize="22" FontWeight="Bold" Foreground="#1A1919"/>
+                <TextBlock Text="?? KANBAN BOARD" FontSize="22" FontWeight="Bold" Foreground="#1A1919"/>
                 <TextBlock Text="BNP Paribas" FontSize="16" Foreground="#00915A" 
                            VerticalAlignment="Center" Margin="15,0,0,0" FontWeight="Medium"/>
             </StackPanel>
@@ -29,7 +29,7 @@
                 <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.15" Color="#00915A"/>
             </Border.Effect>
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="🔍 Filtres:" FontWeight="Bold" FontSize="14" 
+                <TextBlock Text="?? Filtres:" FontWeight="Bold" FontSize="14" 
                            VerticalAlignment="Center" Margin="0,0,10,0"/>
                 
                 <TextBlock Text="Dev:" FontSize="13" VerticalAlignment="Center" Margin="10,0,5,0"/>
@@ -42,7 +42,7 @@
                           SelectedValue="{Binding SelectedProjetId}" SelectedValuePath="Id" 
                           Width="150" Padding="8,5" Margin="0,0,15,0"/>
                 
-                <Button Content="🔄 Actualiser" Command="{Binding RefreshCommand}"
+                <Button Content="?? Actualiser" Command="{Binding RefreshCommand}"
                         Padding="10,5" Margin="0,0,10,0" Background="#00915A" Foreground="White" 
                         BorderThickness="0" FontSize="12" FontWeight="SemiBold" Cursor="Hand">
                     <Button.Style>
@@ -66,7 +66,7 @@
                     </Button.Style>
                 </Button>
 
-                <Button Content="🗑️ Effacer filtres" Command="{Binding ClearFiltersCommand}"
+                <Button Content="??? Effacer filtres" Command="{Binding ClearFiltersCommand}"
                         Padding="10,5" Background="#E0E0E0" Foreground="#333" 
                         BorderThickness="0" FontSize="12" FontWeight="SemiBold" Cursor="Hand">
                     <Button.Style>
@@ -116,7 +116,7 @@
 
                     <Border Grid.Row="0" Background="#9E9E9E" CornerRadius="4" Padding="8" Margin="0,0,0,6">
                         <StackPanel>
-                            <TextBlock Text="📋 À FAIRE" FontWeight="Bold" FontSize="14" 
+                            <TextBlock Text="?? À FAIRE" FontWeight="Bold" FontSize="14" 
                                        Foreground="White" HorizontalAlignment="Center"/>
                             <TextBlock FontSize="18" FontWeight="Bold" Foreground="White" 
                                        HorizontalAlignment="Center" Margin="0,5,0,0">
@@ -160,13 +160,17 @@
                                             <Grid Margin="0,0,0,5">
                                                 <TextBlock Text="{Binding Item.Titre}" FontWeight="SemiBold" 
                                                            FontSize="12" TextWrapping="Wrap" Margin="0,0,26,0" LineHeight="15"/>
-                                                <Button Width="22" Height="22" 
-                                                        HorizontalAlignment="Right" VerticalAlignment="Top" Background="#EF5350" Foreground="White" BorderThickness="0"
-                                                        Cursor="Hand" ToolTip="Supprimer cette tÃ¢che" Padding="0"
+                                                <Button Width="22" Height="22"
+                                                        HorizontalAlignment="Right" VerticalAlignment="Top"
+                                                        Background="#EF5350" Foreground="White" BorderThickness="0"
+                                                        Cursor="Hand" ToolTip="Supprimer" Padding="0"
                                                         Click="DeleteTask_Click" Tag="{Binding Item}"
                                                         Visibility="{Binding DataContext.PeutSupprimerTaches, 
                                                                     RelativeSource={RelativeSource AncestorType=UserControl},
                                                                     Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                    <Button.Content>
+                                                        <TextBlock Text="??" FontSize="12" VerticalAlignment="Center"/>
+                                                    </Button.Content>
                                                     <Button.Style>
                                                         <Style TargetType="Button">
                                                             <Setter Property="Template">
@@ -191,7 +195,7 @@
                                             </Grid>
                                             
                                             <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                                                <Border CornerRadius="4" Padding="4,2" Margin="0,0,5,0">
+                                                <Border CornerRadius="4" Padding="4,2" Margin="0,0,4,0">
                                                     <Border.Style>
                                                         <Style TargetType="Border">
                                                             <Setter Property="Background" Value="#FFC107"/>
@@ -212,23 +216,23 @@
                                                         </Style>
                                                     </Border.Style>
                                                     <TextBlock Text="{Binding Item.Priorite}" Foreground="White" 
-                                                               FontSize="10" FontWeight="Bold"/>
+                                                               FontSize="9" FontWeight="Bold"/>
                                                 </Border>
                                                 
                                                 <Border Background="#00915A" CornerRadius="4" Padding="4,2">
                                                     <TextBlock Text="{Binding Item.TypeDemande}" Foreground="White" 
-                                                               FontSize="10" FontWeight="Bold"/>
+                                                               FontSize="9" FontWeight="Bold"/>
                                                 </Border>
                                             </StackPanel>
 
                                             <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-                                                <TextBlock Text="👤 " FontSize="11"/>
-                                                <TextBlock Text="{Binding DevDisplayName}" FontSize="11" FontWeight="SemiBold" Foreground="#00915A"/>
+                                                <TextBlock Text="?? " FontSize="10"/>
+                                                <TextBlock Text="{Binding DevDisplayName}" FontSize="10" FontWeight="SemiBold" Foreground="#00915A"/>
                                             </StackPanel>
 
                                             <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-                                                <TextBlock Text="⏱️ " FontSize="11"/>
-                                                <TextBlock Text="{Binding DaysRemaining}" FontSize="11" FontWeight="Bold">
+                                                <TextBlock Text="?? " FontSize="10"/>
+                                                <TextBlock Text="{Binding DaysRemaining}" FontSize="10" FontWeight="Bold">
                                                     <TextBlock.Style>
                                                         <Style TargetType="TextBlock">
                                                             <Setter Property="Foreground" Value="#333"/>
@@ -243,16 +247,16 @@
                                                         </Style>
                                                     </TextBlock.Style>
                                                 </TextBlock>
-                                                <TextBlock Text=" jour(s) restant(s)" FontSize="11" Margin="2,0,0,0"/>
+                                                <TextBlock Text=" jour(s) restant(s)" FontSize="10" Margin="0"/>
                                             </StackPanel>
 
                                             <!-- Charge et Avancement -->
                                             <StackPanel Margin="0,5,0,0">
-                                                <TextBlock Text="{Binding ChargeInfo}" FontSize="11" FontWeight="SemiBold" 
+                                                <TextBlock Text="{Binding ChargeInfo}" FontSize="10" FontWeight="SemiBold" 
                                                            Foreground="#00915A" TextWrapping="Wrap"/>
                                                 <ProgressBar Value="{Binding Avancement}" Height="4" Margin="0,3,0,2"
                                                              Foreground="#00915A" Background="#E0E0E0"/>
-                                                <TextBlock Text="{Binding AvancementInfo}" FontSize="10" 
+                                                <TextBlock Text="{Binding AvancementInfo}" FontSize="9" 
                                                            HorizontalAlignment="Right" Foreground="#666"/>
                                             </StackPanel>
 
@@ -270,7 +274,7 @@
                                                         </Style.Triggers>
                                                     </Style>
                                                 </Border.Style>
-                                                <TextBlock Text="{Binding AlertLevel}" FontSize="10" FontWeight="Bold" 
+                                                <TextBlock Text="{Binding AlertLevel}" FontSize="9" FontWeight="Bold" 
                                                            HorizontalAlignment="Center">
                                                     <TextBlock.Style>
                                                         <Style TargetType="TextBlock">
@@ -311,7 +315,7 @@
 
                     <Border Grid.Row="0" Background="#2196F3" CornerRadius="4" Padding="8" Margin="0,0,0,6">
                         <StackPanel>
-                            <TextBlock Text="⚙️ EN COURS" FontWeight="Bold" FontSize="14" 
+                            <TextBlock Text="?? EN COURS" FontWeight="Bold" FontSize="14" 
                                        Foreground="White" HorizontalAlignment="Center"/>
                             <TextBlock FontSize="18" FontWeight="Bold" Foreground="White" 
                                        HorizontalAlignment="Center" Margin="0,5,0,0">
@@ -353,10 +357,11 @@
                                         </Border.Effect>
                                         <StackPanel>
                                             <Grid Margin="0,0,0,5">
-                                                <TextBlock Text="{Binding Item.Titre}" FontWeight="SemiBold" 
-                                                           FontSize="12" TextWrapping="Wrap" Margin="0,0,26,0" LineHeight="15"/>
-                                                <Button Width="22" Height="22" 
-                                                        HorizontalAlignment="Right" VerticalAlignment="Top" Background="#EF5350" Foreground="White" BorderThickness="0"
+                                                <TextBlock Text="{Binding Item.Titre}" FontWeight="Bold" 
+                                                           FontSize="13" TextWrapping="Wrap" Margin="0,0,30,0"/>
+                                                <Button Content="ðŸ—‘ï¸" FontSize="10" Width="22" Height="22" 
+                                                        HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-2,0,0"
+                                                        Background="#D32F2F" Foreground="White" BorderThickness="0"
                                                         Cursor="Hand" ToolTip="Supprimer cette tÃ¢che" Padding="0"
                                                         Click="DeleteTask_Click" Tag="{Binding Item}"
                                                         Visibility="{Binding DataContext.PeutSupprimerTaches, 
@@ -377,7 +382,7 @@
                                                             </Setter>
                                                             <Style.Triggers>
                                                                 <Trigger Property="IsMouseOver" Value="True">
-                                                                    <Setter Property="Background" Value="#E53935"/>
+                                                                    <Setter Property="Background" Value="#B71C1C"/>
                                                                 </Trigger>
                                                             </Style.Triggers>
                                                         </Style>
@@ -386,7 +391,7 @@
                                             </Grid>
                                             
                                             <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                                                <Border CornerRadius="4" Padding="4,2" Margin="0,0,5,0">
+                                                <Border CornerRadius="4" Padding="4,2" Margin="0,0,4,0">
                                                     <Border.Style>
                                                         <Style TargetType="Border">
                                                             <Setter Property="Background" Value="#FFC107"/>
@@ -407,23 +412,23 @@
                                                         </Style>
                                                     </Border.Style>
                                                     <TextBlock Text="{Binding Item.Priorite}" Foreground="White" 
-                                                               FontSize="10" FontWeight="Bold"/>
+                                                               FontSize="9" FontWeight="Bold"/>
                                                 </Border>
                                                 
                                                 <Border Background="#2196F3" CornerRadius="4" Padding="4,2">
                                                     <TextBlock Text="{Binding Item.TypeDemande}" Foreground="White" 
-                                                               FontSize="10" FontWeight="Bold"/>
+                                                               FontSize="9" FontWeight="Bold"/>
                                                 </Border>
                                             </StackPanel>
 
                                             <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-                                                <TextBlock Text="👤 " FontSize="11"/>
-                                                <TextBlock Text="{Binding DevDisplayName}" FontSize="11" FontWeight="SemiBold" Foreground="#2196F3"/>
+                                                <TextBlock Text="?? " FontSize="10"/>
+                                                <TextBlock Text="{Binding DevDisplayName}" FontSize="10" FontWeight="SemiBold" Foreground="#2196F3"/>
                                             </StackPanel>
 
                                             <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-                                                <TextBlock Text="⏱️ " FontSize="11"/>
-                                                <TextBlock Text="{Binding TimeRemainingDisplay}" FontSize="11" FontWeight="Bold">
+                                                <TextBlock Text="?? " FontSize="10"/>
+                                                <TextBlock Text="{Binding TimeRemainingDisplay}" FontSize="10" FontWeight="Bold">
                                                     <TextBlock.Style>
                                                         <Style TargetType="TextBlock">
                                                             <Setter Property="Foreground" Value="#333"/>
@@ -438,16 +443,16 @@
                                                         </Style>
                                                     </TextBlock.Style>
                                                 </TextBlock>
-                                                <TextBlock Text=" restant(s)" FontSize="11" Margin="2,0,0,0"/>
+                                                <TextBlock Text=" restant(s)" FontSize="10" Margin="0"/>
                                             </StackPanel>
 
                                             <!-- Charge et Avancement -->
                                             <StackPanel Margin="0,5,0,0">
-                                                <TextBlock Text="{Binding ChargeInfo}" FontSize="11" FontWeight="SemiBold" 
+                                                <TextBlock Text="{Binding ChargeInfo}" FontSize="10" FontWeight="SemiBold" 
                                                            Foreground="#2196F3" TextWrapping="Wrap"/>
                                                 <ProgressBar Value="{Binding Avancement}" Height="4" Margin="0,3,0,2"
                                                              Foreground="#2196F3" Background="#E0E0E0"/>
-                                                <TextBlock Text="{Binding AvancementInfo}" FontSize="10" 
+                                                <TextBlock Text="{Binding AvancementInfo}" FontSize="9" 
                                                            HorizontalAlignment="Right" Foreground="#666"/>
                                             </StackPanel>
 
@@ -465,7 +470,7 @@
                                                         </Style.Triggers>
                                                     </Style>
                                                 </Border.Style>
-                                                <TextBlock Text="{Binding AlertLevel}" FontSize="10" FontWeight="Bold" 
+                                                <TextBlock Text="{Binding AlertLevel}" FontSize="9" FontWeight="Bold" 
                                                            HorizontalAlignment="Center">
                                                     <TextBlock.Style>
                                                         <Style TargetType="TextBlock">
@@ -506,7 +511,7 @@
 
                     <Border Grid.Row="0" Background="#FF9800" CornerRadius="4" Padding="8" Margin="0,0,0,6">
                         <StackPanel>
-                            <TextBlock Text="🧪 EN TEST" FontWeight="Bold" FontSize="14" 
+                            <TextBlock Text="?? EN TEST" FontWeight="Bold" FontSize="14" 
                                        Foreground="White" HorizontalAlignment="Center"/>
                             <TextBlock FontSize="18" FontWeight="Bold" Foreground="White" 
                                        HorizontalAlignment="Center" Margin="0,5,0,0">
@@ -548,10 +553,11 @@
                                         </Border.Effect>
                                         <StackPanel>
                                             <Grid Margin="0,0,0,5">
-                                                <TextBlock Text="{Binding Item.Titre}" FontWeight="SemiBold" 
-                                                           FontSize="12" TextWrapping="Wrap" Margin="0,0,26,0" LineHeight="15"/>
-                                                <Button Width="22" Height="22" 
-                                                        HorizontalAlignment="Right" VerticalAlignment="Top" Background="#EF5350" Foreground="White" BorderThickness="0"
+                                                <TextBlock Text="{Binding Item.Titre}" FontWeight="Bold" 
+                                                           FontSize="13" TextWrapping="Wrap" Margin="0,0,30,0"/>
+                                                <Button Content="ðŸ—‘ï¸" FontSize="10" Width="22" Height="22" 
+                                                        HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-2,0,0"
+                                                        Background="#D32F2F" Foreground="White" BorderThickness="0"
                                                         Cursor="Hand" ToolTip="Supprimer cette tÃ¢che" Padding="0"
                                                         Click="DeleteTask_Click" Tag="{Binding Item}"
                                                         Visibility="{Binding DataContext.PeutSupprimerTaches, 
@@ -572,7 +578,7 @@
                                                             </Setter>
                                                             <Style.Triggers>
                                                                 <Trigger Property="IsMouseOver" Value="True">
-                                                                    <Setter Property="Background" Value="#E53935"/>
+                                                                    <Setter Property="Background" Value="#B71C1C"/>
                                                                 </Trigger>
                                                             </Style.Triggers>
                                                         </Style>
@@ -581,7 +587,7 @@
                                             </Grid>
                                             
                                             <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                                                <Border CornerRadius="4" Padding="4,2" Margin="0,0,5,0">
+                                                <Border CornerRadius="4" Padding="4,2" Margin="0,0,4,0">
                                                     <Border.Style>
                                                         <Style TargetType="Border">
                                                             <Setter Property="Background" Value="#FFC107"/>
@@ -602,23 +608,23 @@
                                                         </Style>
                                                     </Border.Style>
                                                     <TextBlock Text="{Binding Item.Priorite}" Foreground="White" 
-                                                               FontSize="10" FontWeight="Bold"/>
+                                                               FontSize="9" FontWeight="Bold"/>
                                                 </Border>
                                                 
                                                 <Border Background="#FF9800" CornerRadius="4" Padding="4,2">
                                                     <TextBlock Text="{Binding Item.TypeDemande}" Foreground="White" 
-                                                               FontSize="10" FontWeight="Bold"/>
+                                                               FontSize="9" FontWeight="Bold"/>
                                                 </Border>
                                             </StackPanel>
 
                                             <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-                                                <TextBlock Text="👤 " FontSize="11"/>
-                                                <TextBlock Text="{Binding DevDisplayName}" FontSize="11" FontWeight="SemiBold" Foreground="#FF9800"/>
+                                                <TextBlock Text="?? " FontSize="10"/>
+                                                <TextBlock Text="{Binding DevDisplayName}" FontSize="10" FontWeight="SemiBold" Foreground="#FF9800"/>
                                             </StackPanel>
 
                                             <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-                                                <TextBlock Text="⏱️ " FontSize="11"/>
-                                                <TextBlock Text="{Binding TimeRemainingDisplay}" FontSize="11" FontWeight="Bold">
+                                                <TextBlock Text="?? " FontSize="10"/>
+                                                <TextBlock Text="{Binding TimeRemainingDisplay}" FontSize="10" FontWeight="Bold">
                                                     <TextBlock.Style>
                                                         <Style TargetType="TextBlock">
                                                             <Setter Property="Foreground" Value="#333"/>
@@ -633,16 +639,16 @@
                                                         </Style>
                                                     </TextBlock.Style>
                                                 </TextBlock>
-                                                <TextBlock Text=" restant(s)" FontSize="11" Margin="2,0,0,0"/>
+                                                <TextBlock Text=" restant(s)" FontSize="10" Margin="0"/>
                                             </StackPanel>
 
                                             <!-- Charge et Avancement -->
                                             <StackPanel Margin="0,5,0,0">
-                                                <TextBlock Text="{Binding ChargeInfo}" FontSize="11" FontWeight="SemiBold" 
+                                                <TextBlock Text="{Binding ChargeInfo}" FontSize="10" FontWeight="SemiBold" 
                                                            Foreground="#FF9800" TextWrapping="Wrap"/>
                                                 <ProgressBar Value="{Binding Avancement}" Height="4" Margin="0,3,0,2"
                                                              Foreground="#FF9800" Background="#E0E0E0"/>
-                                                <TextBlock Text="{Binding AvancementInfo}" FontSize="10" 
+                                                <TextBlock Text="{Binding AvancementInfo}" FontSize="9" 
                                                            HorizontalAlignment="Right" Foreground="#666"/>
                                             </StackPanel>
 
@@ -660,7 +666,7 @@
                                                         </Style.Triggers>
                                                     </Style>
                                                 </Border.Style>
-                                                <TextBlock Text="{Binding AlertLevel}" FontSize="10" FontWeight="Bold" 
+                                                <TextBlock Text="{Binding AlertLevel}" FontSize="9" FontWeight="Bold" 
                                                            HorizontalAlignment="Center">
                                                     <TextBlock.Style>
                                                         <Style TargetType="TextBlock">
@@ -701,7 +707,7 @@
 
                     <Border Grid.Row="0" Background="#4CAF50" CornerRadius="4" Padding="8" Margin="0,0,0,6">
                         <StackPanel>
-                            <TextBlock Text="✅ TERMINÉ" FontWeight="Bold" FontSize="14" 
+                            <TextBlock Text="? TERMINÉ" FontWeight="Bold" FontSize="14" 
                                        Foreground="White" HorizontalAlignment="Center"/>
                             <TextBlock FontSize="18" FontWeight="Bold" Foreground="White" 
                                        HorizontalAlignment="Center" Margin="0,5,0,0">
@@ -727,10 +733,11 @@
                                         </Border.Effect>
                                         <StackPanel>
                                             <Grid Margin="0,0,0,5">
-                                                <TextBlock Text="{Binding Item.Titre}" FontWeight="SemiBold" 
-                                                           FontSize="12" TextWrapping="Wrap" Margin="0,0,26,0" LineHeight="15"/>
-                                                <Button Width="22" Height="22" 
-                                                        HorizontalAlignment="Right" VerticalAlignment="Top" Background="#EF5350" Foreground="White" BorderThickness="0"
+                                                <TextBlock Text="{Binding Item.Titre}" FontWeight="Bold" 
+                                                           FontSize="13" TextWrapping="Wrap" Margin="0,0,30,0"/>
+                                                <Button Content="ðŸ—‘ï¸" FontSize="10" Width="22" Height="22" 
+                                                        HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-2,0,0"
+                                                        Background="#D32F2F" Foreground="White" BorderThickness="0"
                                                         Cursor="Hand" ToolTip="Supprimer cette tÃ¢che" Padding="0"
                                                         Click="DeleteTask_Click" Tag="{Binding Item}"
                                                         Visibility="{Binding DataContext.PeutSupprimerTaches, 
@@ -751,7 +758,7 @@
                                                             </Setter>
                                                             <Style.Triggers>
                                                                 <Trigger Property="IsMouseOver" Value="True">
-                                                                    <Setter Property="Background" Value="#E53935"/>
+                                                                    <Setter Property="Background" Value="#B71C1C"/>
                                                                 </Trigger>
                                                             </Style.Triggers>
                                                         </Style>
@@ -760,7 +767,7 @@
                                             </Grid>
                                             
                                             <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                                                <Border CornerRadius="4" Padding="4,2" Margin="0,0,5,0">
+                                                <Border CornerRadius="4" Padding="4,2" Margin="0,0,4,0">
                                                     <Border.Style>
                                                         <Style TargetType="Border">
                                                             <Setter Property="Background" Value="#FFC107"/>
@@ -781,23 +788,23 @@
                                                         </Style>
                                                     </Border.Style>
                                                     <TextBlock Text="{Binding Item.Priorite}" Foreground="White" 
-                                                               FontSize="10" FontWeight="Bold"/>
+                                                               FontSize="9" FontWeight="Bold"/>
                                                 </Border>
                                                 
                                                 <Border Background="#4CAF50" CornerRadius="4" Padding="4,2">
                                                     <TextBlock Text="{Binding Item.TypeDemande}" Foreground="White" 
-                                                               FontSize="10" FontWeight="Bold"/>
+                                                               FontSize="9" FontWeight="Bold"/>
                                                 </Border>
                                             </StackPanel>
 
                                             <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-                                                <TextBlock Text="👤 " FontSize="11"/>
-                                                <TextBlock Text="{Binding DevDisplayName}" FontSize="11" FontWeight="SemiBold" Foreground="#4CAF50"/>
+                                                <TextBlock Text="?? " FontSize="10"/>
+                                                <TextBlock Text="{Binding DevDisplayName}" FontSize="10" FontWeight="SemiBold" Foreground="#4CAF50"/>
                                             </StackPanel>
 
                                             <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-                                                <TextBlock Text="⏱️ " FontSize="11"/>
-                                                <TextBlock Text="{Binding TimeRemainingDisplay}" FontSize="11" FontWeight="Bold">
+                                                <TextBlock Text="?? " FontSize="10"/>
+                                                <TextBlock Text="{Binding TimeRemainingDisplay}" FontSize="10" FontWeight="Bold">
                                                     <TextBlock.Style>
                                                         <Style TargetType="TextBlock">
                                                             <Setter Property="Foreground" Value="#333"/>
@@ -812,21 +819,21 @@
                                                         </Style>
                                                     </TextBlock.Style>
                                                 </TextBlock>
-                                                <TextBlock Text=" restant(s)" FontSize="11" Margin="2,0,0,0"/>
+                                                <TextBlock Text=" restant(s)" FontSize="10" Margin="0"/>
                                             </StackPanel>
 
                                             <!-- Charge et Avancement -->
                                             <StackPanel Margin="0,5,0,0">
-                                                <TextBlock Text="{Binding ChargeInfo}" FontSize="11" FontWeight="SemiBold" 
+                                                <TextBlock Text="{Binding ChargeInfo}" FontSize="10" FontWeight="SemiBold" 
                                                            Foreground="#4CAF50" TextWrapping="Wrap"/>
                                                 <ProgressBar Value="{Binding Avancement}" Height="4" Margin="0,3,0,2"
                                                              Foreground="#4CAF50" Background="#E0E0E0"/>
-                                                <TextBlock Text="{Binding AvancementInfo}" FontSize="10" 
+                                                <TextBlock Text="{Binding AvancementInfo}" FontSize="9" 
                                                            HorizontalAlignment="Right" Foreground="#666"/>
                                             </StackPanel>
 
                                             <Border Margin="0,5,0,0" Padding="5" CornerRadius="4" Background="#E8F5E9">
-                                                <TextBlock Text="✓ TERMINÉ" FontSize="10" FontWeight="Bold" 
+                                                <TextBlock Text="? TERMINÉ" FontSize="9" FontWeight="Bold" 
                                                            HorizontalAlignment="Center" Foreground="#2E7D32"/>
                                             </Border>
                                         </StackPanel>
@@ -840,4 +847,5 @@
         </Grid>
     </Grid>
 </UserControl>
+
 
