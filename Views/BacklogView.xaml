@@ -140,8 +140,8 @@
                                     <!-- Dev Filter -->
                                     <StackPanel Margin="0,0,0,10">
                                         <TextBlock Text="👤 Développeur" FontSize="11" FontWeight="SemiBold" Foreground="#666" Margin="0,0,0,4"/>
-                                        <ComboBox ItemsSource="{Binding Developpeurs}" DisplayMemberPath="Nom"
-                                                  SelectedItem="{Binding SelectedDeveloppeur}" 
+                                        <ComboBox ItemsSource="{Binding Devs}" DisplayMemberPath="Nom"
+                                                  SelectedValue="{Binding SelectedDevId}" SelectedValuePath="Id"
                                                   Height="36" FontSize="12" BorderBrush="#DDD" BorderThickness="1" Padding="10,0"
                                                   Background="White"/>
                                     </StackPanel>
@@ -150,14 +150,14 @@
                                     <StackPanel Margin="0,0,0,10">
                                         <TextBlock Text="📁 Projet" FontSize="11" FontWeight="SemiBold" Foreground="#666" Margin="0,0,0,4"/>
                                         <ComboBox ItemsSource="{Binding Projets}" DisplayMemberPath="Nom"
-                                                  SelectedItem="{Binding SelectedProjet}" 
+                                                  SelectedValue="{Binding SelectedProjetId}" SelectedValuePath="Id"
                                                   Height="36" FontSize="12" BorderBrush="#DDD" BorderThickness="1" Padding="10,0"
                                                   Background="White"/>
                                     </StackPanel>
 
                                     <!-- Reset Button -->
                                     <Button Content="🔄 Réinitialiser les filtres" 
-                                            Command="{Binding ResetFiltersCommand}"
+                                            Command="{Binding ClearFiltersCommand}"
                                             Height="36" Margin="0,4,0,0" Background="#E0E0E0" Foreground="#666" BorderThickness="0"
                                             FontSize="12" FontWeight="SemiBold" Cursor="Hand" Padding="12,0">
                                         <Button.Style>
