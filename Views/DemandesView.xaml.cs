@@ -142,6 +142,7 @@ namespace BacklogManager.Views
             {
                 var demandes = _database.GetDemandes();
                 var utilisateurs = _database.GetUtilisateurs();
+                var projets = _database.GetProjets();
 
                 _toutesLesDemandes = demandes.Select(d => new DemandeViewModel
                 {
@@ -154,7 +155,9 @@ namespace BacklogManager.Views
                     Demandeur = ObtenirNomUtilisateur(d.DemandeurId, utilisateurs),
                     BusinessAnalyst = ObtenirNomUtilisateur(d.BusinessAnalystId, utilisateurs),
                     ChefProjet = ObtenirNomUtilisateur(d.ChefProjetId, utilisateurs),
-                    DateCreation = d.DateCreation
+                    ProjetNom = d.ProjetId.HasValue ? projets.FirstOrDefault(p => p.Id == d.ProjetId.Value)?.Nom ?? "-" : "-",
+                    DateCreation = d.DateCreation,
+                    EstAcceptee = d.Statut == StatutDemande.Acceptee
                 }).OrderByDescending(d => d.DateCreation).ToList();
 
                 AppliquerFiltres();
@@ -268,6 +271,15 @@ namespace BacklogManager.Views
             if (button?.Tag is int demandeId)
             {
                 ModifierDemande(demandeId);
+            }
+        }
+
+        private void BtnCreerTacheClick(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            if (button?.Tag is int demandeId)
+            {
+                CreerTacheDepuisDemande(demandeId);
             }
         }
 
@@ -392,6 +404,62 @@ namespace BacklogManager.Views
                     "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        private void CreerTacheDepuisDemande(int demandeId)
+        {
+            try
+            {
+                var demande = _database.GetDemandes().FirstOrDefault(d => d.Id == demandeId);
+                if (demande == null)
+                {
+                    MessageBox.Show("Demande introuvable.", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                // Créer une nouvelle tâche pré-remplie avec les infos de la demande
+                var nouvelleTache = new BacklogItem
+                {
+                    Titre = demande.Titre,
+                    Description = demande.Description + "\n\n" + 
+                                 (string.IsNullOrEmpty(demande.Specifications) ? "" : "Spécifications:\n" + demande.Specifications),
+                    TypeDemande = demande.Type,
+                    Priorite = demande.Criticite == Criticite.Bloquante ? Priorite.Haute :
+                               demande.Criticite == Criticite.Haute ? Priorite.Haute :
+                               demande.Criticite == Criticite.Moyenne ? Priorite.Moyenne : Priorite.Basse,
+                    Statut = Statut.Afaire,
+                    DateCreation = DateTime.Now,
+                    ProjetId = demande.ProjetId,
+                    DevAssigneId = demande.DevChiffreurId, // Récupérer le dev de la demande
+                    DemandeId = demande.Id, // Lien vers la demande d'origine
+                    DateFinAttendue = demande.DatePrevisionnelleImplementation,
+                    ChiffrageHeures = demande.ChiffrageEstimeJours.HasValue ? demande.ChiffrageEstimeJours.Value * 8.0 : (double?)null
+                };
+
+                // Créer les services nécessaires
+                var backlogService = new BacklogService(_database);
+
+                // Ouvrir la fenêtre d'édition avec la tâche pré-remplie
+                var window = new EditTacheWindow(nouvelleTache, backlogService, _permissionService)
+                {
+                    Owner = Window.GetWindow(this),
+                    Title = "Créer une tâche depuis la demande"
+                };
+
+                if (window.ShowDialog() == true)
+                {
+                    MessageBox.Show(
+                        "Tâche créée avec succès !\n\nLa tâche a été ajoutée au Kanban.",
+                        "Succès",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("Erreur lors de la création de la tâche : {0}", ex.Message),
+                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
     }
 
     public class DemandeViewModel
@@ -405,7 +473,9 @@ namespace BacklogManager.Views
         public string Demandeur { get; set; }
         public string BusinessAnalyst { get; set; }
         public string ChefProjet { get; set; }
+        public string ProjetNom { get; set; }
         public DateTime DateCreation { get; set; }
+        public bool EstAcceptee { get; set; }
     }
 
     // Convertisseur pour les couleurs de statut

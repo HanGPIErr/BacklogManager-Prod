@@ -11,15 +11,17 @@ namespace BacklogManager.Views
     {
         private readonly BacklogItem _tache;
         private readonly BacklogService _backlogService;
+        private readonly CRAService _craService;
         private readonly PermissionService _permissionService;
         public bool Saved { get; private set; }
 
-        public EditTacheWindow(BacklogItem tache, BacklogService backlogService, PermissionService permissionService)
+        public EditTacheWindow(BacklogItem tache, BacklogService backlogService, PermissionService permissionService, CRAService craService = null)
         {
             InitializeComponent();
             _tache = tache;
             _backlogService = backlogService;
             _permissionService = permissionService;
+            _craService = craService;
 
             LoadData();
             ApplyPermissions();
@@ -44,22 +46,38 @@ namespace BacklogManager.Views
             ProjetComboBox.ItemsSource = projets;
             ProjetComboBox.SelectedValue = _tache.ProjetId;
 
-            // Complexité
-            ComplexiteComboBox.ItemsSource = new List<string> { "1", "2", "3", "5", "8", "13", "21" };
-            ComplexiteComboBox.SelectedItem = _tache.Complexite?.ToString();
+            // Chiffrage (en jours: 1j = 8h)
+            ChiffrageTextBox.Text = _tache.ChiffrageHeures.HasValue ? (_tache.ChiffrageHeures.Value / 8.0).ToString("0.#") : "";
 
-            // Chiffrage (convertir heures en jours: 7h = 1j)
-            ChiffrageTextBox.Text = _tache.ChiffrageHeures.HasValue ? (_tache.ChiffrageHeures.Value / 7.0).ToString("0.#") : "";
+            // Date de début (visible uniquement si statut >= En cours)
+            bool enCours = _tache.Statut == Statut.EnCours || _tache.Statut == Statut.Test || _tache.Statut == Statut.Termine;
+            DateDebutLabel.Visibility = enCours ? Visibility.Visible : Visibility.Collapsed;
+            DateDebutDatePicker.Visibility = enCours ? Visibility.Visible : Visibility.Collapsed;
+            DateDebutDatePicker.SelectedDate = _tache.DateDebut;
 
-            // Temps réel passé (en heures)
-            TempsReelTextBox.Text = _tache.TempsReelHeures.HasValue ? _tache.TempsReelHeures.Value.ToString("0.#") : "0";
+            // Temps réel passé (calculé automatiquement depuis les CRA, affiché en jours)
+            double tempsReelHeures = 0;
+            if (_craService != null && _tache.Id > 0)
+            {
+                tempsReelHeures = _craService.GetTempsReelTache(_tache.Id);
+            }
+            double tempsReelJours = tempsReelHeures / 8.0;
+            TempsReelTextBox.Text = tempsReelJours > 0 ? tempsReelJours.ToString("0.#") : "0";
             
             // Calculer et afficher la progression
             UpdateProgression();
 
-            // Événements pour recalculer la progression en temps réel
+            // Événement pour recalculer la progression
             ChiffrageTextBox.TextChanged += (s, e) => UpdateProgression();
-            TempsReelTextBox.TextChanged += (s, e) => UpdateProgression();
+            StatutComboBox.SelectionChanged += (s, e) => 
+            {
+                bool estEnCours = StatutComboBox.SelectedItem != null && 
+                                  ((Statut)StatutComboBox.SelectedItem == Statut.EnCours || 
+                                   (Statut)StatutComboBox.SelectedItem == Statut.Test || 
+                                   (Statut)StatutComboBox.SelectedItem == Statut.Termine);
+                DateDebutLabel.Visibility = estEnCours ? Visibility.Visible : Visibility.Collapsed;
+                DateDebutDatePicker.Visibility = estEnCours ? Visibility.Visible : Visibility.Collapsed;
+            };
 
             // Date fin attendue
             DateFinDatePicker.SelectedDate = _tache.DateFinAttendue;
@@ -84,10 +102,8 @@ namespace BacklogManager.Views
             // Dev assigné seulement si PeutAssignerDev
             DevComboBox.IsEnabled = peutModifier && _permissionService.PeutAssignerDev;
 
-            // Complexité seulement si PeutChiffrer
-            ComplexiteComboBox.IsEnabled = peutModifier && _permissionService.PeutChiffrer;
+            // Chiffrage seulement si PeutChiffrer
             ChiffrageTextBox.IsReadOnly = !peutModifier || !_permissionService.PeutChiffrer;
-            TempsReelTextBox.IsReadOnly = !peutModifier;
 
             // Autres champs
             ProjetComboBox.IsEnabled = peutModifier;
@@ -104,23 +120,20 @@ namespace BacklogManager.Views
         {
             if (double.TryParse(ChiffrageTextBox.Text, out double chiffrageJours) && chiffrageJours > 0)
             {
-                double chiffrageHeures = chiffrageJours * 7.0; // Convertir jours en heures
-                
-                if (double.TryParse(TempsReelTextBox.Text, out double tempsReelHeures))
+                if (double.TryParse(TempsReelTextBox.Text, out double tempsReelJours))
                 {
-                    double progression = Math.Min(100, (tempsReelHeures / chiffrageHeures) * 100);
-                    double restantHeures = Math.Max(0, chiffrageHeures - tempsReelHeures);
-                    double restantJours = restantHeures / 7.0;
+                    double progression = Math.Min(100, (tempsReelJours / chiffrageJours) * 100);
+                    double restantJours = Math.Max(0, chiffrageJours - tempsReelJours);
                     
                     ProgressionTextBlock.Text = string.Format("Progression: {0:F0}% | Reste: {1:F1}j", progression, restantJours);
                     
                     // Changer la couleur selon la progression
                     if (progression >= 100)
                         ProgressionTextBlock.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(76, 175, 80)); // Vert
+                    else if (progression >= 90)
+                        ProgressionTextBlock.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(245, 124, 0)); // Orange (en risque)
                     else if (progression >= 75)
                         ProgressionTextBlock.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 145, 90)); // BNP Green
-                    else if (progression >= 50)
-                        ProgressionTextBlock.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(245, 124, 0)); // Orange
                     else
                         ProgressionTextBlock.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(211, 47, 47)); // Rouge
                 }
@@ -172,29 +185,19 @@ namespace BacklogManager.Views
 
             _tache.ProjetId = (int?)ProjetComboBox.SelectedValue;
 
-            // Complexité (si autorisé)
+            // Chiffrage (si autorisé) - convertir jours en heures (1j = 8h)
             if (_permissionService == null || _permissionService.PeutChiffrer)
             {
-                if (ComplexiteComboBox.SelectedItem != null && int.TryParse(ComplexiteComboBox.SelectedItem.ToString(), out int complexite))
-                {
-                    _tache.Complexite = complexite;
-                }
-
                 if (double.TryParse(ChiffrageTextBox.Text, out double chiffrageJours))
                 {
-                    _tache.ChiffrageHeures = chiffrageJours * 7; // Convertir jours en heures (7h par jour)
+                    _tache.ChiffrageHeures = chiffrageJours * 8.0; // Convertir jours -> heures
                 }
             }
 
-            // Temps réel passé (en heures)
-            if (double.TryParse(TempsReelTextBox.Text, out double tempsReelHeures))
-            {
-                _tache.TempsReelHeures = tempsReelHeures;
-            }
-            else
-            {
-                _tache.TempsReelHeures = 0;
-            }
+            // Date de début
+            _tache.DateDebut = DateDebutDatePicker.SelectedDate;
+
+            // Note: Le temps réel est calculé automatiquement depuis les CRA, pas saisi manuellement
 
             _tache.DateFinAttendue = DateFinDatePicker.SelectedDate;
             _tache.DateDerniereMaj = DateTime.Now;

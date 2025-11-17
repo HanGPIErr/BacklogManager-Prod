@@ -253,6 +253,22 @@ namespace BacklogManager.Services
                             TacheId INTEGER,
                             FOREIGN KEY (TacheId) REFERENCES BacklogItems(Id)
                         );
+
+                        CREATE TABLE IF NOT EXISTS CRA (
+                            Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            BacklogItemId INTEGER NOT NULL,
+                            DevId INTEGER NOT NULL,
+                            Date TEXT NOT NULL,
+                            HeuresTravaillees REAL NOT NULL,
+                            Commentaire TEXT,
+                            DateCreation TEXT NOT NULL,
+                            FOREIGN KEY (BacklogItemId) REFERENCES BacklogItems(Id) ON DELETE CASCADE,
+                            FOREIGN KEY (DevId) REFERENCES Utilisateurs(Id)
+                        );
+
+                        CREATE INDEX IF NOT EXISTS idx_cra_backlogitem ON CRA(BacklogItemId);
+                        CREATE INDEX IF NOT EXISTS idx_cra_dev ON CRA(DevId);
+                        CREATE INDEX IF NOT EXISTS idx_cra_date ON CRA(Date);
                     ";
                     cmd.ExecuteNonQuery();
                 }
@@ -361,6 +377,42 @@ namespace BacklogManager.Services
                     cmd.CommandText = @"ALTER TABLE Demandes ADD COLUMN BeneficesAttendus TEXT;";
                     cmd.ExecuteNonQuery();
                 }
+                
+                // Vérifier et ajouter ProjetId si manquant
+                cmd.CommandText = @"SELECT COUNT(*) FROM pragma_table_info('Demandes') WHERE name='ProjetId';";
+                var hasProjetId = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                
+                if (!hasProjetId)
+                {
+                    cmd.CommandText = @"ALTER TABLE Demandes ADD COLUMN ProjetId INTEGER REFERENCES Projets(Id);";
+                    cmd.ExecuteNonQuery();
+                }
+                
+                // Vérifier et créer la table CRA si elle n'existe pas
+                cmd.CommandText = @"SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='CRA';";
+                var hasCRATable = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                
+                if (!hasCRATable)
+                {
+                    cmd.CommandText = @"
+                        CREATE TABLE IF NOT EXISTS CRA (
+                            Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            BacklogItemId INTEGER NOT NULL,
+                            DevId INTEGER NOT NULL,
+                            Date TEXT NOT NULL,
+                            HeuresTravaillees REAL NOT NULL,
+                            Commentaire TEXT,
+                            DateCreation TEXT NOT NULL,
+                            FOREIGN KEY (BacklogItemId) REFERENCES BacklogItems(Id) ON DELETE CASCADE,
+                            FOREIGN KEY (DevId) REFERENCES Utilisateurs(Id)
+                        );
+                        
+                        CREATE INDEX IF NOT EXISTS idx_cra_backlogitem ON CRA(BacklogItemId);
+                        CREATE INDEX IF NOT EXISTS idx_cra_dev ON CRA(DevId);
+                        CREATE INDEX IF NOT EXISTS idx_cra_date ON CRA(Date);
+                    ";
+                    cmd.ExecuteNonQuery();
+                }
             }
         }
 
@@ -435,7 +487,7 @@ namespace BacklogManager.Services
             {
                 conn.Open();
                 using (var cmd = new SQLiteCommand(@"SELECT Id, Titre, Description, Specifications, ContexteMetier, BeneficesAttendus,
-                    DemandeurId, BusinessAnalystId, ChefProjetId, DevChiffreurId, Type, Criticite, Statut, DateCreation,
+                    DemandeurId, BusinessAnalystId, ChefProjetId, DevChiffreurId, ProjetId, Type, Criticite, Statut, DateCreation,
                     DateValidationChiffrage, DateAcceptation, DateLivraison, ChiffrageEstimeJours, 
                     ChiffrageReelJours, DatePrevisionnelleImplementation, JustificationRefus, EstArchivee 
                     FROM Demandes WHERE EstArchivee = 0", conn))
@@ -455,18 +507,19 @@ namespace BacklogManager.Services
                         BusinessAnalystId = reader.IsDBNull(7) ? (int?)null : reader.GetInt32(7),
                         ChefProjetId = reader.IsDBNull(8) ? (int?)null : reader.GetInt32(8),
                         DevChiffreurId = reader.IsDBNull(9) ? (int?)null : reader.GetInt32(9),
-                        Type = (TypeDemande)reader.GetInt32(10),
-                        Criticite = (Criticite)reader.GetInt32(11),
-                        Statut = (StatutDemande)reader.GetInt32(12),
-                        DateCreation = DateTime.Parse(reader.GetString(13)),
-                        DateValidationChiffrage = reader.IsDBNull(14) ? (DateTime?)null : DateTime.Parse(reader.GetString(14)),
-                        DateAcceptation = reader.IsDBNull(15) ? (DateTime?)null : DateTime.Parse(reader.GetString(15)),
-                        DateLivraison = reader.IsDBNull(16) ? (DateTime?)null : DateTime.Parse(reader.GetString(16)),
-                        ChiffrageEstimeJours = reader.IsDBNull(17) ? (double?)null : reader.GetDouble(17),
-                        ChiffrageReelJours = reader.IsDBNull(18) ? (double?)null : reader.GetDouble(18),
-                        DatePrevisionnelleImplementation = reader.IsDBNull(19) ? (DateTime?)null : DateTime.Parse(reader.GetString(19)),
-                        JustificationRefus = reader.IsDBNull(20) ? null : reader.GetString(20),
-                        EstArchivee = reader.GetInt32(21) == 1
+                        ProjetId = reader.IsDBNull(10) ? (int?)null : reader.GetInt32(10),
+                        Type = (TypeDemande)reader.GetInt32(11),
+                        Criticite = (Criticite)reader.GetInt32(12),
+                        Statut = (StatutDemande)reader.GetInt32(13),
+                        DateCreation = DateTime.Parse(reader.GetString(14)),
+                        DateValidationChiffrage = reader.IsDBNull(15) ? (DateTime?)null : DateTime.Parse(reader.GetString(15)),
+                        DateAcceptation = reader.IsDBNull(16) ? (DateTime?)null : DateTime.Parse(reader.GetString(16)),
+                        DateLivraison = reader.IsDBNull(17) ? (DateTime?)null : DateTime.Parse(reader.GetString(17)),
+                        ChiffrageEstimeJours = reader.IsDBNull(18) ? (double?)null : reader.GetDouble(18),
+                        ChiffrageReelJours = reader.IsDBNull(19) ? (double?)null : reader.GetDouble(19),
+                        DatePrevisionnelleImplementation = reader.IsDBNull(20) ? (DateTime?)null : DateTime.Parse(reader.GetString(20)),
+                        JustificationRefus = reader.IsDBNull(21) ? null : reader.GetString(21),
+                        EstArchivee = reader.GetInt32(22) == 1
                     });
                 }
             }
@@ -661,11 +714,11 @@ namespace BacklogManager.Services
                         if (demande.Id == 0)
                         {
                             cmd.CommandText = @"INSERT INTO Demandes (Titre, Description, Specifications, ContexteMetier, BeneficesAttendus,
-                                DemandeurId, BusinessAnalystId, ChefProjetId, DevChiffreurId,
+                                DemandeurId, BusinessAnalystId, ChefProjetId, DevChiffreurId, ProjetId,
                                 Type, Criticite, Statut, DateCreation, DateValidationChiffrage, DateAcceptation, DateLivraison,
                                 ChiffrageEstimeJours, ChiffrageReelJours, DatePrevisionnelleImplementation, JustificationRefus, EstArchivee)
                                 VALUES (@Titre, @Description, @Specifications, @ContexteMetier, @BeneficesAttendus,
-                                @DemandeurId, @BusinessAnalystId, @ChefProjetId, @DevChiffreurId,
+                                @DemandeurId, @BusinessAnalystId, @ChefProjetId, @DevChiffreurId, @ProjetId,
                                 @Type, @Criticite, @Statut, @DateCreation, @DateValidationChiffrage, @DateAcceptation, @DateLivraison,
                                 @ChiffrageEstimeJours, @ChiffrageReelJours, @DatePrevisionnelleImplementation, @JustificationRefus, @EstArchivee);
                                 SELECT last_insert_rowid();";
@@ -674,7 +727,7 @@ namespace BacklogManager.Services
                         {
                             cmd.CommandText = @"UPDATE Demandes SET Titre = @Titre, Description = @Description, Specifications = @Specifications,
                                 ContexteMetier = @ContexteMetier, BeneficesAttendus = @BeneficesAttendus, DemandeurId = @DemandeurId,
-                                BusinessAnalystId = @BusinessAnalystId, ChefProjetId = @ChefProjetId, DevChiffreurId = @DevChiffreurId,
+                                BusinessAnalystId = @BusinessAnalystId, ChefProjetId = @ChefProjetId, DevChiffreurId = @DevChiffreurId, ProjetId = @ProjetId,
                                 Type = @Type, Criticite = @Criticite, Statut = @Statut, DateValidationChiffrage = @DateValidationChiffrage,
                                 DateAcceptation = @DateAcceptation, DateLivraison = @DateLivraison, ChiffrageEstimeJours = @ChiffrageEstimeJours,
                                 ChiffrageReelJours = @ChiffrageReelJours, DatePrevisionnelleImplementation = @DatePrevisionnelleImplementation,
@@ -691,6 +744,7 @@ namespace BacklogManager.Services
                         cmd.Parameters.AddWithValue("@BusinessAnalystId", demande.BusinessAnalystId ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@ChefProjetId", demande.ChefProjetId ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@DevChiffreurId", demande.DevChiffreurId ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@ProjetId", demande.ProjetId ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@Type", (int)demande.Type);
                         cmd.Parameters.AddWithValue("@Criticite", (int)demande.Criticite);
                         cmd.Parameters.AddWithValue("@Statut", (int)demande.Statut);
@@ -1361,6 +1415,137 @@ namespace BacklogManager.Services
                 using (var cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = "UPDATE Notifications SET EstLue = 1";
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        // ============================================
+        // Méthodes CRA (Compte Rendu d'Activité)
+        // ============================================
+
+        public List<CRA> GetCRAs(int? backlogItemId = null, int? devId = null, DateTime? dateDebut = null, DateTime? dateFin = null)
+        {
+            var cras = new List<CRA>();
+
+            using (var conn = new SQLiteConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    var whereClauses = new List<string>();
+                    
+                    if (backlogItemId.HasValue)
+                    {
+                        whereClauses.Add("BacklogItemId = @BacklogItemId");
+                        cmd.Parameters.AddWithValue("@BacklogItemId", backlogItemId.Value);
+                    }
+                    
+                    if (devId.HasValue)
+                    {
+                        whereClauses.Add("DevId = @DevId");
+                        cmd.Parameters.AddWithValue("@DevId", devId.Value);
+                    }
+                    
+                    if (dateDebut.HasValue)
+                    {
+                        whereClauses.Add("Date >= @DateDebut");
+                        cmd.Parameters.AddWithValue("@DateDebut", dateDebut.Value.ToString("yyyy-MM-dd"));
+                    }
+                    
+                    if (dateFin.HasValue)
+                    {
+                        whereClauses.Add("Date <= @DateFin");
+                        cmd.Parameters.AddWithValue("@DateFin", dateFin.Value.ToString("yyyy-MM-dd"));
+                    }
+
+                    cmd.CommandText = "SELECT * FROM CRA";
+                    if (whereClauses.Any())
+                    {
+                        cmd.CommandText += " WHERE " + string.Join(" AND ", whereClauses);
+                    }
+                    cmd.CommandText += " ORDER BY Date DESC, Id DESC";
+
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            cras.Add(new CRA
+                            {
+                                Id = reader.GetInt32(0),
+                                BacklogItemId = reader.GetInt32(1),
+                                DevId = reader.GetInt32(2),
+                                Date = DateTime.Parse(reader.GetString(3)),
+                                HeuresTravaillees = reader.GetDouble(4),
+                                Commentaire = reader.IsDBNull(5) ? null : reader.GetString(5),
+                                DateCreation = DateTime.Parse(reader.GetString(6))
+                            });
+                        }
+                    }
+                }
+            }
+
+            return cras;
+        }
+
+        public void SaveCRA(CRA cra)
+        {
+            using (var conn = new SQLiteConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    if (cra.Id == 0)
+                    {
+                        // Insert
+                        cmd.CommandText = @"
+                            INSERT INTO CRA (BacklogItemId, DevId, Date, HeuresTravaillees, Commentaire, DateCreation)
+                            VALUES (@BacklogItemId, @DevId, @Date, @HeuresTravaillees, @Commentaire, @DateCreation);
+                            SELECT last_insert_rowid();
+                        ";
+                        cmd.Parameters.AddWithValue("@BacklogItemId", cra.BacklogItemId);
+                        cmd.Parameters.AddWithValue("@DevId", cra.DevId);
+                        cmd.Parameters.AddWithValue("@Date", cra.Date.ToString("yyyy-MM-dd"));
+                        cmd.Parameters.AddWithValue("@HeuresTravaillees", cra.HeuresTravaillees);
+                        cmd.Parameters.AddWithValue("@Commentaire", (object)cra.Commentaire ?? DBNull.Value);
+                        cmd.Parameters.AddWithValue("@DateCreation", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+
+                        cra.Id = Convert.ToInt32(cmd.ExecuteScalar());
+                    }
+                    else
+                    {
+                        // Update
+                        cmd.CommandText = @"
+                            UPDATE CRA 
+                            SET BacklogItemId = @BacklogItemId,
+                                DevId = @DevId,
+                                Date = @Date,
+                                HeuresTravaillees = @HeuresTravaillees,
+                                Commentaire = @Commentaire
+                            WHERE Id = @Id
+                        ";
+                        cmd.Parameters.AddWithValue("@Id", cra.Id);
+                        cmd.Parameters.AddWithValue("@BacklogItemId", cra.BacklogItemId);
+                        cmd.Parameters.AddWithValue("@DevId", cra.DevId);
+                        cmd.Parameters.AddWithValue("@Date", cra.Date.ToString("yyyy-MM-dd"));
+                        cmd.Parameters.AddWithValue("@HeuresTravaillees", cra.HeuresTravaillees);
+                        cmd.Parameters.AddWithValue("@Commentaire", (object)cra.Commentaire ?? DBNull.Value);
+
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+            }
+        }
+
+        public void DeleteCRA(int id)
+        {
+            using (var conn = new SQLiteConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = "DELETE FROM CRA WHERE Id = @Id";
+                    cmd.Parameters.AddWithValue("@Id", id);
                     cmd.ExecuteNonQuery();
                 }
             }

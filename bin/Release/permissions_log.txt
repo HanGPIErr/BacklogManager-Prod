@@ -52,3 +52,84 @@ Vérification directe - Admin: True, Chef: False, BA: False
 BtnNouvelleDemande.IsEnabled: True
 ==========================================
 PeutSupprimerDemandes: True
+=== VERIFICATION PERMISSIONS DEMANDES 20:24:07 ===
+User: Système (ID: 1)
+Role: Administrateur (ID: 1, Type: Administrateur)
+IsAdmin: True, IsChefDeProjet: False, IsBusinessAnalyst: False
+PeutCreerDemandes (DB): True
+Vérification directe - Admin: True, Chef: False, BA: False
+BtnNouvelleDemande.IsEnabled: True
+==========================================
+PeutSupprimerDemandes: True
+=== VERIFICATION PERMISSIONS DEMANDES 21:01:23 ===
+User: Système (ID: 1)
+Role: Administrateur (ID: 1, Type: Administrateur)
+IsAdmin: True, IsChefDeProjet: False, IsBusinessAnalyst: False
+PeutCreerDemandes (DB): True
+Vérification directe - Admin: True, Chef: False, BA: False
+BtnNouvelleDemande.IsEnabled: True
+==========================================
+PeutSupprimerDemandes: True
+=== VERIFICATION PERMISSIONS DEMANDES 00:13:51 ===
+User: Système (ID: 1)
+Role: Administrateur (ID: 1, Type: Administrateur)
+IsAdmin: True, IsChefDeProjet: False, IsBusinessAnalyst: False
+PeutCreerDemandes (DB): True
+Vérification directe - Admin: True, Chef: False, BA: False
+BtnNouvelleDemande.IsEnabled: True
+==========================================
+PeutSupprimerDemandes: True
+=== VERIFICATION PERMISSIONS DEMANDES 00:32:48 ===
+User: Système (ID: 1)
+Role: Administrateur (ID: 1, Type: Administrateur)
+IsAdmin: True, IsChefDeProjet: False, IsBusinessAnalyst: False
+PeutCreerDemandes (DB): True
+Vérification directe - Admin: True, Chef: False, BA: False
+BtnNouvelleDemande.IsEnabled: True
+==========================================
+PeutSupprimerDemandes: True
+=== VERIFICATION PERMISSIONS DEMANDES 00:41:13 ===
+User: Système (ID: 1)
+Role: Administrateur (ID: 1, Type: Administrateur)
+IsAdmin: True, IsChefDeProjet: False, IsBusinessAnalyst: False
+PeutCreerDemandes (DB): True
+Vérification directe - Admin: True, Chef: False, BA: False
+BtnNouvelleDemande.IsEnabled: True
+==========================================
+PeutSupprimerDemandes: True
+=== VERIFICATION PERMISSIONS DEMANDES 00:43:47 ===
+User: Système (ID: 1)
+Role: Administrateur (ID: 1, Type: Administrateur)
+IsAdmin: True, IsChefDeProjet: False, IsBusinessAnalyst: False
+PeutCreerDemandes (DB): True
+Vérification directe - Admin: True, Chef: False, BA: False
+BtnNouvelleDemande.IsEnabled: True
+==========================================
+PeutSupprimerDemandes: True
+=== VERIFICATION PERMISSIONS DEMANDES 00:45:48 ===
+User: Système (ID: 1)
+Role: Administrateur (ID: 1, Type: Administrateur)
+IsAdmin: True, IsChefDeProjet: False, IsBusinessAnalyst: False
+PeutCreerDemandes (DB): True
+Vérification directe - Admin: True, Chef: False, BA: False
+BtnNouvelleDemande.IsEnabled: True
+==========================================
+PeutSupprimerDemandes: True
+=== VERIFICATION PERMISSIONS DEMANDES 00:47:24 ===
+User: Système (ID: 1)
+Role: Administrateur (ID: 1, Type: Administrateur)
+IsAdmin: True, IsChefDeProjet: False, IsBusinessAnalyst: False
+PeutCreerDemandes (DB): True
+Vérification directe - Admin: True, Chef: False, BA: False
+BtnNouvelleDemande.IsEnabled: True
+==========================================
+PeutSupprimerDemandes: True
+=== VERIFICATION PERMISSIONS DEMANDES 00:47:57 ===
+User: Système (ID: 1)
+Role: Administrateur (ID: 1, Type: Administrateur)
+IsAdmin: True, IsChefDeProjet: False, IsBusinessAnalyst: False
+PeutCreerDemandes (DB): True
+Vérification directe - Admin: True, Chef: False, BA: False
+BtnNouvelleDemande.IsEnabled: True
+==========================================
+PeutSupprimerDemandes: True

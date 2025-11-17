@@ -17,11 +17,16 @@ namespace BacklogManager.ViewModels
         private BacklogItem _item;
         private string _devNom;
         private string _projetNom;
+        private double _tempsReel;
+        private double _ecartHeures;
+        private double _ecartPourcentage;
+        private bool _enDepassement;
+        private bool _enRisque;
 
         public BacklogItem Item
         {
             get { return _item; }
-            set { _item = value; OnPropertyChanged(); }
+            set { _item = value; OnPropertyChanged(); OnPropertyChanged(nameof(ChiffrageJours)); }
         }
 
         public string DevNom
@@ -36,6 +41,40 @@ namespace BacklogManager.ViewModels
             set { _projetNom = value; OnPropertyChanged(); }
         }
 
+        public double TempsReel
+        {
+            get { return _tempsReel; }
+            set { _tempsReel = value; OnPropertyChanged(); OnPropertyChanged(nameof(TempsReelJours)); }
+        }
+
+        public double TempsReelJours => _tempsReel / 8.0;
+
+        public double ChiffrageJours => _item?.ChiffrageHeures.HasValue == true ? _item.ChiffrageHeures.Value / 8.0 : 0.0;
+
+        public double EcartHeures
+        {
+            get { return _ecartHeures; }
+            set { _ecartHeures = value; OnPropertyChanged(); }
+        }
+
+        public double EcartPourcentage
+        {
+            get { return _ecartPourcentage; }
+            set { _ecartPourcentage = value; OnPropertyChanged(); }
+        }
+
+        public bool EnDepassement
+        {
+            get { return _enDepassement; }
+            set { _enDepassement = value; OnPropertyChanged(); }
+        }
+
+        public bool EnRisque
+        {
+            get { return _enRisque; }
+            set { _enRisque = value; OnPropertyChanged(); }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
@@ -46,6 +85,7 @@ namespace BacklogManager.ViewModels
     public class BacklogViewModel : INotifyPropertyChanged
     {
         private readonly BacklogService _backlogService;
+        private readonly CRAService _craService;
         private readonly PermissionService _permissionService;
         private string _searchText;
 
@@ -174,10 +214,11 @@ namespace BacklogManager.ViewModels
         public event EventHandler ProjetCreated;
         public event EventHandler TacheCreated;
 
-        public BacklogViewModel(BacklogService backlogService, PermissionService permissionService = null)
+        public BacklogViewModel(BacklogService backlogService, PermissionService permissionService = null, CRAService craService = null)
         {
             _backlogService = backlogService;
             _permissionService = permissionService;
+            _craService = craService;
             BacklogItems = new ObservableCollection<BacklogItemViewModel>();
             AllBacklogItems = new ObservableCollection<BacklogItem>();
             Devs = new ObservableCollection<Utilisateur>();
@@ -264,12 +305,24 @@ namespace BacklogManager.ViewModels
                     projetNom = projet?.Nom ?? "";
                 }
 
-                BacklogItems.Add(new BacklogItemViewModel
+                var viewModel = new BacklogItemViewModel
                 {
                     Item = item,
                     DevNom = devNom,
                     ProjetNom = projetNom
-                });
+                };
+
+                // Calculer les métriques de temps réel si CRAService disponible
+                if (_craService != null && item.Id > 0)
+                {
+                    viewModel.TempsReel = _craService.GetTempsReelTache(item.Id);
+                    viewModel.EcartHeures = _craService.GetEcartTache(item.Id);
+                    viewModel.EcartPourcentage = _craService.GetEcartPourcentage(item.Id);
+                    viewModel.EnDepassement = _craService.EstEnDepassement(item.Id);
+                    viewModel.EnRisque = _craService.EstEnRisque(item.Id);
+                }
+
+                BacklogItems.Add(viewModel);
             }
         }
 
@@ -298,7 +351,7 @@ namespace BacklogManager.ViewModels
             };
             
             // Ouvrir la fenêtre d'édition
-            var editWindow = new Views.EditTacheWindow(newItem, _backlogService, _permissionService);
+            var editWindow = new Views.EditTacheWindow(newItem, _backlogService, _permissionService, _craService);
             
             // Trouver la fenêtre parente
             var mainWindow = System.Windows.Application.Current.MainWindow;
@@ -351,7 +404,7 @@ namespace BacklogManager.ViewModels
             if (parameter is BacklogItemViewModel itemViewModel)
             {
                 // Ouvrir la fenêtre d'édition
-                var editWindow = new Views.EditTacheWindow(itemViewModel.Item, _backlogService, _permissionService);
+                var editWindow = new Views.EditTacheWindow(itemViewModel.Item, _backlogService, _permissionService, _craService);
                 
                 // Trouver la fenêtre parente
                 var mainWindow = System.Windows.Application.Current.MainWindow;

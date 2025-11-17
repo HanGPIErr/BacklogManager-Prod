@@ -31,6 +31,7 @@ namespace BacklogManager.Domain
         public string ContexteMetier { get; set; } // Contexte métier
         public string BeneficesAttendus { get; set; } // Bénéfices attendus
         public int DemandeurId { get; set; } // Utilisateur qui a créé la demande
+        public int? ProjetId { get; set; } // Projet associé à la demande
         public int? BusinessAnalystId { get; set; } // BA assigné
         public int? ChefProjetId { get; set; } // CP/PO assigné
         public int? DevChiffreurId { get; set; } // Dev affecté pour chiffrage

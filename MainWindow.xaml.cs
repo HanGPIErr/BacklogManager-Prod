@@ -37,10 +37,13 @@ namespace BacklogManager
             // Initialiser le NotificationService
             _notificationService = new NotificationService(_backlogService, _database);
             
-            // Initialiser les ViewModels avec PermissionService
-            var projetsViewModel = new ProjetsViewModel(_backlogService, _permissionService);
-            var backlogViewModel = new BacklogViewModel(_backlogService, _permissionService);
-            var kanbanViewModel = new KanbanViewModel(_backlogService, _permissionService);
+            // Initialiser le CRAService
+            var craService = new CRAService(_database);
+            
+            // Initialiser les ViewModels avec PermissionService et CRAService
+            var projetsViewModel = new ProjetsViewModel(_backlogService, _permissionService, craService);
+            var backlogViewModel = new BacklogViewModel(_backlogService, _permissionService, craService);
+            var kanbanViewModel = new KanbanViewModel(_backlogService, _permissionService, craService);
             var pokerViewModel = new PokerViewModel(_backlogService, pokerService);
             var timelineViewModel = new TimelineViewModel(_backlogService);
             
@@ -58,6 +61,7 @@ namespace BacklogManager
                 ChargerInfoProjets();
                 AfficherUtilisateurConnecte();
                 VerifierPermissions();
+                VerifierPermissionsAdmin();
                 InitialiserNotifications();
                 
                 // Afficher le Dashboard par défaut
@@ -297,13 +301,26 @@ namespace BacklogManager
 
         private void BtnTimeline_Click(object sender, RoutedEventArgs e)
         {
-            var timelineView = new Views.TimelineView();
-            var mainViewModel = (MainViewModel)this.DataContext;
-            timelineView.DataContext = mainViewModel.TimelineViewModel;
+            // Vérifier les permissions admin
+            if (!_permissionService.EstAdministrateur)
+            {
+                MessageBox.Show(
+                    "Seul l'administrateur peut accéder au suivi des CRA.",
+                    "Accès refusé",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return;
+            }
+
+            var craService = new CRAService(_database);
+            var suiviCRAViewModel = new SuiviCRAViewModel(craService, _backlogService, _permissionService);
+            var suiviCRAView = new Views.SuiviCRAView();
+            suiviCRAView.DataContext = suiviCRAViewModel;
+
             var contentControl = (System.Windows.Controls.ContentControl)this.FindName("MainContentControl");
             if (contentControl != null)
             {
-                contentControl.Content = timelineView;
+                contentControl.Content = suiviCRAView;
             }
         }
 
@@ -327,6 +344,62 @@ namespace BacklogManager
             {
                 MessageBox.Show(string.Format("Erreur lors de l'ouverture des demandes: {0}", ex.Message), 
                     "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void BtnSaisirCRA_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // Créer le ViewModel pour la vue calendrier
+                var craService = new CRAService(_database);
+                var vm = new ViewModels.CRACalendrierViewModel(craService, _backlogService, _authService, _permissionService);
+                
+                // Créer et afficher la vue
+                var craView = new Views.CRACalendrierView
+                {
+                    DataContext = vm
+                };
+                
+                // Remplacer le contenu principal
+                MainContentControl.Content = craView;
+            }
+            catch (System.Exception ex)
+            {
+                MessageBox.Show(string.Format("Erreur lors de l'ouverture de la saisie CRA: {0}", ex.Message),
+                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void BtnHistoriqueCRA_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var currentUser = _authService.CurrentUser;
+                var isAdmin = _permissionService.IsAdmin;
+                var window = new CRAHistoriqueWindow(_database, currentUser.Id, isAdmin)
+                {
+                    Owner = this
+                };
+                window.ShowDialog();
+            }
+            catch (System.Exception ex)
+            {
+                MessageBox.Show(string.Format("Erreur lors de l'ouverture de l'historique CRA: {0}", ex.Message),
+                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void VerifierPermissionsAdmin()
+        {
+            // Masquer la section admin si pas admin
+            var adminSection = (System.Windows.Controls.TextBlock)this.FindName("AdminSectionTitle");
+            var btnTimeline = (System.Windows.Controls.Button)this.FindName("BtnTimeline");
+
+            if (!_permissionService.EstAdministrateur)
+            {
+                if (adminSection != null) adminSection.Visibility = Visibility.Collapsed;
+                if (btnTimeline != null) btnTimeline.Visibility = Visibility.Collapsed;
             }
         }
 

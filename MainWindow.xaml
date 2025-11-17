@@ -103,12 +103,22 @@
                         Style="{StaticResource MenuButtonStyle}" Margin="0,4,0,0"
                         Click="BtnKanban_Click"/>
 
-                <Button x:Name="BtnTimeline" Content="📅 Timeline"
-                        Style="{StaticResource MenuButtonStyle}" Margin="0,4,0,0"
-                        Click="BtnTimeline_Click"/>
+                <!-- SECTION : TEMPS & CRA -->
+                <TextBlock Text="TEMPS &amp; CRA" FontSize="10" FontWeight="Bold" 
+                           Foreground="#666666" Margin="20,20,0,8" Opacity="0.7"/>
 
-                <Button Content="🃏 Planning Poker" Command="{Binding ShowPokerCommand}"
-                        Style="{StaticResource MenuButtonStyle}" Margin="0,4,0,0" Visibility="Collapsed"/>
+                <Button x:Name="BtnSaisirCRA" Content="⏱️ Saisir CRA" 
+                        Style="{StaticResource MenuButtonStyle}" Margin="0,0,0,0"
+                        Click="BtnSaisirCRA_Click"/>
+
+                <!-- SECTION : ADMIN -->
+                <TextBlock Text="ADMINISTRATION" FontSize="10" FontWeight="Bold" 
+                           Foreground="#666666" Margin="20,20,0,8" Opacity="0.7"
+                           x:Name="AdminSectionTitle"/>
+
+                <Button x:Name="BtnTimeline" Content="📊 Suivi CRA"
+                        Style="{StaticResource MenuButtonStyle}" Margin="0,0,0,0"
+                        Click="BtnTimeline_Click"/>
 
                 <!-- SECTION : ACTIONS -->
                 <TextBlock Text="ACTIONS" FontSize="10" FontWeight="Bold" 

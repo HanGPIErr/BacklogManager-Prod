@@ -350,12 +350,67 @@
                                                         <Run Text="{Binding DevNom}" FontWeight="SemiBold"/>
                                                     </TextBlock>
 
-                                                    <!-- Complexity -->
+                                                    <!-- Chiffrage -->
                                                     <TextBlock FontSize="12" Foreground="#666" Margin="0,0,12,0">
-                                                        <Run Text="🎯"/>
-                                                        <Run Text="{Binding Item.Complexite}"/>
-                                                        <Run Text="pts"/>
+                                                        <Run Text="📊 "/>
+                                                        <Run Text="{Binding ChiffrageJours, StringFormat='{}{0:F1}j', Mode=OneWay}"/>
+                                                        <Run Text=" estimé"/>
                                                     </TextBlock>
+
+                                                    <!-- Temps Réel -->
+                                                    <TextBlock FontSize="12" Margin="0,0,12,0">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Setter Property="Foreground" Value="#27AE60"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding EnRisque}" Value="True">
+                                                                        <Setter Property="Foreground" Value="#F39C12"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding EnDepassement}" Value="True">
+                                                                        <Setter Property="Foreground" Value="#E74C3C"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                        <Run Text="🕐 "/>
+                                                        <Run Text="{Binding TempsReelJours, StringFormat='{}{0:F1}j', Mode=OneWay}" FontWeight="SemiBold"/>
+                                                        <Run Text=" réel"/>
+                                                    </TextBlock>
+
+                                                    <!-- Badge de dépassement -->
+                                                    <Border CornerRadius="4" Padding="6,2" Margin="0,0,6,0">
+                                                        <Border.Style>
+                                                            <Style TargetType="Border">
+                                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding EnRisque}" Value="True">
+                                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                                        <Setter Property="Background" Value="#FFF3E0"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding EnDepassement}" Value="True">
+                                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                                        <Setter Property="Background" Value="#FFEBEE"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Border.Style>
+                                                        <TextBlock FontSize="10" FontWeight="Bold">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding EnRisque}" Value="True">
+                                                                            <Setter Property="Foreground" Value="#F39C12"/>
+                                                                            <Setter Property="Text" Value="⚠ EN RISQUE"/>
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding EnDepassement}" Value="True">
+                                                                            <Setter Property="Foreground" Value="#E74C3C"/>
+                                                                            <Setter Property="Text" Value="🔴 DÉPASSEMENT"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </Border>
 
                                                     <!-- Date -->
                                                     <TextBlock FontSize="12" Foreground="#666">

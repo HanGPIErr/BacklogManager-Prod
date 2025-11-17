@@ -53,18 +53,19 @@
                 <ComboBox x:Name="ProjetComboBox" DisplayMemberPath="Nom" SelectedValuePath="Id"
                           Padding="10" FontSize="14" BorderBrush="#CCCCCC" BorderThickness="1"/>
 
-                <TextBlock Text="Complexité (Story Points)" FontWeight="SemiBold" Margin="0,15,0,2" FontSize="13"/>
-                <ComboBox x:Name="ComplexiteComboBox"
-                          Padding="10" FontSize="14" BorderBrush="#CCCCCC" BorderThickness="1"/>
+                <TextBlock Text="Chiffrage (jours)" FontWeight="SemiBold" Margin="0,15,0,2" FontSize="13"/>
+                <TextBox x:Name="ChiffrageTextBox" Padding="10" FontSize="14" BorderBrush="#CCCCCC" BorderThickness="1"
+                         ToolTip="Estimation initiale en jours (1j = 8h)"/>
 
-                <TextBlock Text="Chiffrage (jours: 0.5, 1, 1.5, 2...)" FontWeight="SemiBold" Margin="0,15,0,2" FontSize="13"/>
-                <TextBox x:Name="ChiffrageTextBox" Padding="10" FontSize="14" BorderBrush="#CCCCCC" BorderThickness="1"/>
+                <TextBlock x:Name="DateDebutLabel" Text="Date de début" FontWeight="SemiBold" Margin="0,15,0,2" FontSize="13" Visibility="Collapsed"/>
+                <DatePicker x:Name="DateDebutDatePicker" Padding="10" FontSize="14" BorderBrush="#CCCCCC" BorderThickness="1" Visibility="Collapsed"/>
 
-                <TextBlock Text="Temps réel passé (heures)" FontWeight="SemiBold" Margin="0,15,0,2" FontSize="13"/>
+                <TextBlock Text="Temps réel passé (calculé automatiquement)" FontWeight="SemiBold" Margin="0,15,0,2" FontSize="13"/>
                 <StackPanel Orientation="Horizontal">
                     <TextBox x:Name="TempsReelTextBox" Padding="10" FontSize="14" BorderBrush="#CCCCCC" BorderThickness="1" Width="150"
-                             ToolTip="Nombre d'heures réellement passées sur cette tâche"/>
-                    <TextBlock Text="h" FontSize="14" VerticalAlignment="Center" Margin="8,0,0,0" Foreground="#666"/>
+                             IsReadOnly="True" Background="#F5F5F5"
+                             ToolTip="Nombre de jours réellement passés sur cette tâche (calculé depuis les CRA)"/>
+                    <TextBlock Text="j" FontSize="14" VerticalAlignment="Center" Margin="8,0,0,0" Foreground="#666"/>
                     <TextBlock x:Name="ProgressionTextBlock" FontSize="12" VerticalAlignment="Center" Margin="15,0,0,0" 
                                Foreground="#00915A" FontWeight="SemiBold"/>
                 </StackPanel>

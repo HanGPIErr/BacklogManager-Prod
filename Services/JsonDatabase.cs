@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using BacklogManager.Domain;
 
@@ -21,6 +22,7 @@ namespace BacklogManager.Services
         public List<Commentaire> Commentaires { get; set; }
         public List<HistoriqueModification> Historique { get; set; }
         public List<AuditLog> AuditLogs { get; set; }
+        public List<CRA> CRAs { get; set; }
 
         public DatabaseModel()
         {
@@ -37,6 +39,7 @@ namespace BacklogManager.Services
             Commentaires = new List<Commentaire>();
             Historique = new List<HistoriqueModification>();
             AuditLogs = new List<AuditLog>();
+            CRAs = new List<CRA>();
         }
     }
 
@@ -578,6 +581,60 @@ namespace BacklogManager.Services
                 _data.Historique.Add(historique);
                 Save();
                 return historique;
+            }
+        }
+
+        // CRA Methods
+        public List<CRA> GetCRAs(int? backlogItemId = null, int? devId = null, System.DateTime? dateDebut = null, System.DateTime? dateFin = null)
+        {
+            lock (_lock)
+            {
+                var query = _data.CRAs.AsEnumerable();
+                
+                if (backlogItemId.HasValue)
+                    query = query.Where(c => c.BacklogItemId == backlogItemId.Value);
+                    
+                if (devId.HasValue)
+                    query = query.Where(c => c.DevId == devId.Value);
+                    
+                if (dateDebut.HasValue)
+                    query = query.Where(c => c.Date >= dateDebut.Value);
+                    
+                if (dateFin.HasValue)
+                    query = query.Where(c => c.Date <= dateFin.Value);
+                    
+                return query.ToList();
+            }
+        }
+
+        public void SaveCRA(CRA cra)
+        {
+            lock (_lock)
+            {
+                var existing = _data.CRAs.FirstOrDefault(c => c.Id == cra.Id);
+                if (existing != null)
+                {
+                    _data.CRAs.Remove(existing);
+                }
+                else if (cra.Id == 0)
+                {
+                    cra.Id = GetNextId(_data.CRAs);
+                }
+                _data.CRAs.Add(cra);
+                Save();
+            }
+        }
+
+        public void DeleteCRA(int id)
+        {
+            lock (_lock)
+            {
+                var cra = _data.CRAs.FirstOrDefault(c => c.Id == id);
+                if (cra != null)
+                {
+                    _data.CRAs.Remove(cra);
+                    Save();
+                }
             }
         }
     }

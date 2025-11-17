@@ -65,6 +65,7 @@ namespace BacklogManager.ViewModels
     {
         private readonly BacklogService _backlogService;
         private readonly PermissionService _permissionService;
+        private readonly CRAService _craService;
         private ProjetItemViewModel _selectedProjet;
         private string _searchText;
         private bool _filterActifsOnly;
@@ -134,10 +135,11 @@ namespace BacklogManager.ViewModels
         public Visibility PeutPrioriserVisibility => _permissionService?.PeutPrioriser == true 
             ? Visibility.Visible : Visibility.Collapsed;
 
-        public ProjetsViewModel(BacklogService backlogService, PermissionService permissionService = null)
+        public ProjetsViewModel(BacklogService backlogService, PermissionService permissionService = null, CRAService craService = null)
         {
             _backlogService = backlogService;
             _permissionService = permissionService;
+            _craService = craService;
             Projets = new ObservableCollection<ProjetItemViewModel>();
             ProjetsFiltres = new ObservableCollection<ProjetItemViewModel>();
             TachesProjetSelectionne = new ObservableCollection<BacklogItem>();
@@ -288,7 +290,7 @@ namespace BacklogManager.ViewModels
 
         public void ModifierTache(BacklogItem tache)
         {
-            var editWindow = new Views.EditTacheWindow(tache, _backlogService, _permissionService);
+            var editWindow = new Views.EditTacheWindow(tache, _backlogService, _permissionService, _craService);
             
             // Trouver la fenêtre parente
             var mainWindow = System.Windows.Application.Current.MainWindow;

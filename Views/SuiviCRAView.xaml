@@ -1,0 +1,416 @@
+<UserControl x:Class="BacklogManager.Views.SuiviCRAView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:BacklogManager.Shared"
+             Background="#F5F5F5">
+
+    <UserControl.Resources>
+        <local:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </UserControl.Resources>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- En-tête -->
+        <Border Grid.Row="0" Background="White" CornerRadius="8" Padding="20" Margin="0,0,0,15">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="15" ShadowDepth="0" Opacity="0.1" Color="#00915A"/>
+            </Border.Effect>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="📊 SUIVI DES CRA" FontSize="24" FontWeight="Bold" 
+                               Foreground="#00915A" Margin="0,0,0,5"/>
+                    <TextBlock Text="Vue administrative - Tracking détaillé par développeur" 
+                               FontSize="13" Foreground="#666" Opacity="0.8"/>
+                </StackPanel>
+
+                <!-- Sélection développeur -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="Développeur:" FontSize="13" VerticalAlignment="Center" Margin="0,0,10,0" Foreground="#666"/>
+                    <ComboBox ItemsSource="{Binding Devs}" DisplayMemberPath="Nom"
+                              SelectedItem="{Binding DevSelectionne}"
+                              Width="200" Padding="10,8" FontSize="13"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Navigation et mode d'affichage -->
+        <Border Grid.Row="1" Background="White" CornerRadius="8" Padding="15" Margin="0,0,0,15">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="15" ShadowDepth="0" Opacity="0.1" Color="#00915A"/>
+            </Border.Effect>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Mode d'affichage -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,0,20,0">
+                    <Button Content="📅 Mois" Command="{Binding ChangerModeCommand}" CommandParameter="mois"
+                            Padding="15,8" Margin="0,0,5,0" FontSize="12" FontWeight="SemiBold" Cursor="Hand"
+                            BorderThickness="0">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background" Value="#E0E0E0"/>
+                                <Setter Property="Foreground" Value="#666"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="6" 
+                                                    Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding EstModeMois}" Value="True">
+                                        <Setter Property="Background" Value="#00915A"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <Button Content="📆 Semaine" Command="{Binding ChangerModeCommand}" CommandParameter="semaine"
+                            Padding="15,8" FontSize="12" FontWeight="SemiBold" Cursor="Hand"
+                            BorderThickness="0">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background" Value="#E0E0E0"/>
+                                <Setter Property="Foreground" Value="#666"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="6" 
+                                                    Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding EstModeSemaine}" Value="True">
+                                        <Setter Property="Background" Value="#00915A"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </StackPanel>
+
+                <!-- Navigation période -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Button Content="◀" Command="{Binding PeriodePrecedenteCommand}"
+                            Padding="12,8" Margin="0,0,15,0" Background="#F0F0F0" BorderThickness="0" 
+                            FontSize="14" FontWeight="Bold" Cursor="Hand">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="6" 
+                                                    Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#D0D0D0"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <TextBlock Text="{Binding PeriodeAffichage}" FontSize="16" FontWeight="Bold" 
+                               Foreground="#00915A" VerticalAlignment="Center" MinWidth="250" TextAlignment="Center"/>
+
+                    <Button Content="▶" Command="{Binding PeriodeSuivanteCommand}"
+                            Padding="12,8" Margin="15,0,15,0" Background="#F0F0F0" BorderThickness="0" 
+                            FontSize="14" FontWeight="Bold" Cursor="Hand">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="6" 
+                                                    Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#D0D0D0"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <Button Content="🎯 Aujourd'hui" Command="{Binding AujourdhuiCommand}"
+                            Padding="12,8" Background="#E8F5E9" Foreground="#00915A" BorderThickness="0" 
+                            FontSize="12" FontWeight="SemiBold" Cursor="Hand">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="6" 
+                                                    Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#C8E6C9"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Contenu principal -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="2*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Calendrier -->
+            <Border Grid.Column="0" Background="White" CornerRadius="8" Padding="15" Margin="0,0,10,0">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="15" ShadowDepth="0" Opacity="0.1" Color="#00915A"/>
+                </Border.Effect>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- En-têtes jours semaine -->
+                    <Grid Grid.Row="0" Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0" Text="LUN" HorizontalAlignment="Center" FontWeight="Bold" 
+                                   Foreground="#00915A" FontSize="12"/>
+                        <TextBlock Grid.Column="1" Text="MAR" HorizontalAlignment="Center" FontWeight="Bold" 
+                                   Foreground="#00915A" FontSize="12"/>
+                        <TextBlock Grid.Column="2" Text="MER" HorizontalAlignment="Center" FontWeight="Bold" 
+                                   Foreground="#00915A" FontSize="12"/>
+                        <TextBlock Grid.Column="3" Text="JEU" HorizontalAlignment="Center" FontWeight="Bold" 
+                                   Foreground="#00915A" FontSize="12"/>
+                        <TextBlock Grid.Column="4" Text="VEN" HorizontalAlignment="Center" FontWeight="Bold" 
+                                   Foreground="#00915A" FontSize="12"/>
+                        <TextBlock Grid.Column="5" Text="SAM" HorizontalAlignment="Center" FontWeight="Bold" 
+                                   Foreground="#757575" FontSize="12"/>
+                        <TextBlock Grid.Column="6" Text="DIM" HorizontalAlignment="Center" FontWeight="Bold" 
+                                   Foreground="#757575" FontSize="12"/>
+                    </Grid>
+
+                    <!-- Grille calendrier -->
+                    <ItemsControl Grid.Row="1" ItemsSource="{Binding JoursCalendrier}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Columns="7"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Command="{Binding DataContext.JourSelectionnCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}"
+                                        Margin="2" BorderThickness="0" Cursor="Hand" Padding="8">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border Background="{TemplateBinding Background}" CornerRadius="6" 
+                                                                BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+                                                                Padding="{TemplateBinding Padding}">
+                                                            <Grid>
+                                                                <Grid.RowDefinitions>
+                                                                    <RowDefinition Height="Auto"/>
+                                                                    <RowDefinition Height="Auto"/>
+                                                                    <RowDefinition Height="*"/>
+                                                                    <RowDefinition Height="Auto"/>
+                                                                </Grid.RowDefinitions>
+
+                                                                <TextBlock Grid.Row="0" Text="{Binding Jour}" FontSize="16" FontWeight="Bold" 
+                                                                           HorizontalAlignment="Center" Foreground="#333"/>
+
+                                                                <TextBlock Grid.Row="1" Text="🎊" FontSize="14" HorizontalAlignment="Center" Margin="0,2,0,0"
+                                                                           Visibility="{Binding EstJourFerie, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+                                                                <Border Grid.Row="3" Background="#00915A" CornerRadius="3" Padding="6,3" Margin="0,4,0,0">
+                                                                    <TextBlock Text="{Binding TotalJoursAffiche}" FontSize="11" FontWeight="Bold" 
+                                                                               Foreground="White" HorizontalAlignment="Center"/>
+                                                                    <Border.Style>
+                                                                        <Style TargetType="Border">
+                                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding TotalJoursAffiche}" Value="">
+                                                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+                                                                    </Border.Style>
+                                                                </Border>
+                                                            </Grid>
+                                                        </Border>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="BorderBrush" Value="#00915A"/>
+                                                                <Setter Property="BorderThickness" Value="2"/>
+                                                            </Trigger>
+                                                            <DataTrigger Binding="{Binding EstAujourdhui}" Value="True">
+                                                                <Setter Property="Background" Value="#C8E6C9"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding EstWeekend}" Value="True">
+                                                                <Setter Property="Background" Value="#F5F5F5"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding EstJourFerie}" Value="True">
+                                                                <Setter Property="Background" Value="#FFF3E0"/>
+                                                            </DataTrigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
+            </Border>
+
+            <!-- Panneau latéral -->
+            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <!-- Statistiques par dev -->
+                    <Border Background="White" CornerRadius="8" Padding="15" Margin="0,0,0,10">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="15" ShadowDepth="0" Opacity="0.1" Color="#00915A"/>
+                        </Border.Effect>
+                        <StackPanel>
+                            <TextBlock Text="👥 STATISTIQUES" FontSize="14" FontWeight="Bold" 
+                                       Foreground="#00915A" Margin="0,0,0,12"/>
+
+                            <ItemsControl ItemsSource="{Binding StatsDev}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="#F9F9F9" BorderBrush="#E0E0E0" BorderThickness="1" 
+                                                CornerRadius="6" Padding="12" Margin="0,0,0,8">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
+
+                                                <TextBlock Grid.Row="0" Text="{Binding Nom}" FontSize="13" FontWeight="SemiBold" 
+                                                           Foreground="#333" Margin="0,0,0,6"/>
+
+                                                <Grid Grid.Row="1">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <StackPanel Grid.Column="0">
+                                                        <TextBlock FontSize="11" Foreground="#666">
+                                                            <Run Text="📊"/>
+                                                            <Run Text="{Binding TotalJoursPeriode, StringFormat='{}{0:F1}j', Mode=OneWay}"/>
+                                                            <Run Text="(" Foreground="#999"/>
+                                                            <Run Text="{Binding TotalHeuresPeriode, StringFormat='{}{0:F1}h', Mode=OneWay}" Foreground="#999"/>
+                                                            <Run Text=")" Foreground="#999"/>
+                                                        </TextBlock>
+                                                        <TextBlock FontSize="11" Foreground="#666" Margin="0,2,0,0">
+                                                            <Run Text="📅"/>
+                                                            <Run Text="{Binding NombreJoursSaisis, Mode=OneWay}"/>
+                                                            <Run Text="jour(s) saisi(s)"/>
+                                                        </TextBlock>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Détail jour sélectionné -->
+                    <Border Background="White" CornerRadius="8" Padding="15">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="15" ShadowDepth="0" Opacity="0.1" Color="#00915A"/>
+                        </Border.Effect>
+                        <StackPanel>
+                            <TextBlock Text="📅 DÉTAIL DU JOUR" FontSize="14" FontWeight="Bold" 
+                                       Foreground="#00915A" Margin="0,0,0,8"/>
+
+                            <TextBlock Text="{Binding JourSelectionne.Date, StringFormat='dddd d MMMM yyyy'}" 
+                                       FontSize="12" FontWeight="SemiBold" Margin="0,0,0,10"/>
+
+                            <ItemsControl ItemsSource="{Binding CRAsJourSelectionne}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="#F9F9F9" BorderBrush="#E0E0E0" BorderThickness="1" 
+                                                CornerRadius="6" Padding="10" Margin="0,0,0,8">
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding TacheNom}" FontSize="12" FontWeight="SemiBold" 
+                                                           Foreground="#333" TextWrapping="Wrap" Margin="0,0,0,4"/>
+                                                <TextBlock FontSize="11" Foreground="#666">
+                                                    <Run Text="⏱️"/>
+                                                    <Run Text="{Binding Jours, StringFormat='{}{0:F1}j'}" FontWeight="Bold"/>
+                                                    <Run Text="(" Foreground="#999"/>
+                                                    <Run Text="{Binding CRA.HeuresTravaillees, StringFormat='{}{0:F1}h'}" Foreground="#999"/>
+                                                    <Run Text=")" Foreground="#999"/>
+                                                </TextBlock>
+                                                <TextBlock Text="{Binding CRA.Commentaire}" FontSize="11" 
+                                                           Foreground="#888" FontStyle="Italic" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <TextBlock Text="Aucun CRA saisi ce jour" FontSize="12" Foreground="#999" 
+                                       FontStyle="Italic" HorizontalAlignment="Center" Margin="0,20,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</UserControl>

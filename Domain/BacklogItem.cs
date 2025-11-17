@@ -24,6 +24,10 @@ namespace BacklogManager.Domain
         public DateTime DateDerniereMaj { get; set; }
         public bool EstArchive { get; set; }
 
+        // Propriétés calculées pour affichage en jours (1j = 8h)
+        public double? ChiffrageJours => ChiffrageHeures.HasValue ? ChiffrageHeures.Value / 8.0 : (double?)null;
+        public double? TempsReelJours => TempsReelHeures.HasValue ? TempsReelHeures.Value / 8.0 : (double?)null;
+
         public BacklogItem()
         {
             DateCreation = DateTime.Now;

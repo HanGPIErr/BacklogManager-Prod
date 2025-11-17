@@ -8,6 +8,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
@@ -23,8 +24,165 @@
             </StackPanel>
         </Border>
 
+        <!-- Admin Section: Tâches en attente et à prioriser -->
+        <Border Grid.Row="1" Background="#FFF3E0" CornerRadius="6" Padding="15" Margin="0,0,0,15"
+                Visibility="{Binding EstAdministrateur, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.15" Color="#FF9800"/>
+            </Border.Effect>
+            <StackPanel>
+                <TextBlock Text="🔐 ZONE ADMINISTRATEUR" FontSize="16" FontWeight="Bold" 
+                           Foreground="#E65100" Margin="0,0,0,10"/>
+                
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Tâches EN ATTENTE -->
+                    <Border Grid.Column="0" Background="White" CornerRadius="6" Padding="10" Margin="0,0,8,0">
+                        <StackPanel>
+                            <Border Background="#9C27B0" CornerRadius="4" Padding="6" Margin="0,0,0,8">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <TextBlock Text="⏸ EN ATTENTE (" Foreground="White" FontSize="13" FontWeight="Bold"/>
+                                    <TextBlock Text="{Binding ItemsEnAttente.Count}" Foreground="White" FontSize="13" FontWeight="Bold"/>
+                                    <TextBlock Text=")" Foreground="White" FontSize="13" FontWeight="Bold"/>
+                                </StackPanel>
+                            </Border>
+                            
+                            <ScrollViewer MaxHeight="150" VerticalScrollBarVisibility="Auto">
+                                <ItemsControl ItemsSource="{Binding ItemsEnAttente}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="#F3E5F5" BorderBrush="#9C27B0" BorderThickness="1" 
+                                                    CornerRadius="4" Padding="8" Margin="0,0,0,6">
+                                                <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                    </Grid.RowDefinitions>
+                                                    
+                                                    <TextBlock Grid.Row="0" Text="{Binding Item.Titre}" 
+                                                               FontWeight="SemiBold" FontSize="11" 
+                                                               TextWrapping="Wrap" Margin="0,0,0,5"/>
+                                                    
+                                                    <StackPanel Grid.Row="1" Orientation="Horizontal">
+                                                        <TextBlock Text="👤 " FontSize="10"/>
+                                                        <TextBlock Text="{Binding DevDisplayName}" FontSize="10" 
+                                                                   Foreground="#666" Margin="0,0,10,0"/>
+                                                        
+                                                        <Button Content="🔄 Réactiver" 
+                                                                Command="{Binding DataContext.ReactiverTacheCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                CommandParameter="{Binding}"
+                                                                Padding="6,3" Background="#4CAF50" Foreground="White" 
+                                                                BorderThickness="0" FontSize="10" FontWeight="SemiBold" 
+                                                                Cursor="Hand" VerticalAlignment="Center">
+                                                            <Button.Style>
+                                                                <Style TargetType="Button">
+                                                                    <Setter Property="Template">
+                                                                        <Setter.Value>
+                                                                            <ControlTemplate TargetType="Button">
+                                                                                <Border Background="{TemplateBinding Background}" 
+                                                                                        CornerRadius="3" Padding="{TemplateBinding Padding}">
+                                                                                    <ContentPresenter HorizontalAlignment="Center" 
+                                                                                                    VerticalAlignment="Center"/>
+                                                                                </Border>
+                                                                            </ControlTemplate>
+                                                                        </Setter.Value>
+                                                                    </Setter>
+                                                                    <Style.Triggers>
+                                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                                            <Setter Property="Background" Value="#388E3C"/>
+                                                                        </Trigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Button.Style>
+                                                        </Button>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Tâches A PRIORISER -->
+                    <Border Grid.Column="1" Background="White" CornerRadius="6" Padding="10" Margin="8,0,0,0">
+                        <StackPanel>
+                            <Border Background="#E91E63" CornerRadius="4" Padding="6" Margin="0,0,0,8">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <TextBlock Text="⚡ A PRIORISER (" Foreground="White" FontSize="13" FontWeight="Bold"/>
+                                    <TextBlock Text="{Binding ItemsAPrioriser.Count}" Foreground="White" FontSize="13" FontWeight="Bold"/>
+                                    <TextBlock Text=")" Foreground="White" FontSize="13" FontWeight="Bold"/>
+                                </StackPanel>
+                            </Border>
+                            
+                            <ScrollViewer MaxHeight="150" VerticalScrollBarVisibility="Auto">
+                                <ItemsControl ItemsSource="{Binding ItemsAPrioriser}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="#FCE4EC" BorderBrush="#E91E63" BorderThickness="1" 
+                                                    CornerRadius="4" Padding="8" Margin="0,0,0,6">
+                                                <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                    </Grid.RowDefinitions>
+                                                    
+                                                    <TextBlock Grid.Row="0" Text="{Binding Item.Titre}" 
+                                                               FontWeight="SemiBold" FontSize="11" 
+                                                               TextWrapping="Wrap" Margin="0,0,0,5"/>
+                                                    
+                                                    <StackPanel Grid.Row="1" Orientation="Horizontal">
+                                                        <TextBlock Text="👤 " FontSize="10"/>
+                                                        <TextBlock Text="{Binding DevDisplayName}" FontSize="10" 
+                                                                   Foreground="#666" Margin="0,0,10,0"/>
+                                                        
+                                                        <Button Content="✓ Activer" 
+                                                                Command="{Binding DataContext.ReactiverTacheCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                CommandParameter="{Binding}"
+                                                                Padding="6,3" Background="#4CAF50" Foreground="White" 
+                                                                BorderThickness="0" FontSize="10" FontWeight="SemiBold" 
+                                                                Cursor="Hand" VerticalAlignment="Center">
+                                                            <Button.Style>
+                                                                <Style TargetType="Button">
+                                                                    <Setter Property="Template">
+                                                                        <Setter.Value>
+                                                                            <ControlTemplate TargetType="Button">
+                                                                                <Border Background="{TemplateBinding Background}" 
+                                                                                        CornerRadius="3" Padding="{TemplateBinding Padding}">
+                                                                                    <ContentPresenter HorizontalAlignment="Center" 
+                                                                                                    VerticalAlignment="Center"/>
+                                                                                </Border>
+                                                                            </ControlTemplate>
+                                                                        </Setter.Value>
+                                                                    </Setter>
+                                                                    <Style.Triggers>
+                                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                                            <Setter Property="Background" Value="#388E3C"/>
+                                                                        </Trigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Button.Style>
+                                                        </Button>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </StackPanel>
+        </Border>
+
         <!-- Filters Bar -->
-        <Border Grid.Row="1" Background="White" CornerRadius="6" Padding="15" Margin="0,0,0,15">
+        <Border Grid.Row="2" Background="White" CornerRadius="6" Padding="15" Margin="0,0,0,15">
             <Border.Effect>
                 <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.15" Color="#00915A"/>
             </Border.Effect>
@@ -112,17 +270,21 @@
         </Border>
 
         <!-- Kanban Columns -->
-        <Grid Grid.Row="2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+        <ScrollViewer Grid.Row="3" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+            <Grid MinWidth="1200">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="300"/>
+                    <ColumnDefinition Width="300"/>
+                    <ColumnDefinition Width="300"/>
+                    <ColumnDefinition Width="300"/>
+                </Grid.ColumnDefinitions>
 
-            <!-- A FAIRE Column -->
-            <Border Grid.Column="0" Background="White" CornerRadius="6" Padding="10" Margin="0,0,8,0"
-                    AllowDrop="True" Tag="AFaire"
+                <!-- EN ATTENTE Column - SUPPRIMÉE (maintenant dans zone admin) -->
+                <!-- A PRIORISER Column - SUPPRIMÉE (maintenant dans zone admin) -->
+
+                <!-- A FAIRE Column -->
+                <Border Grid.Column="0" Background="White" CornerRadius="6" Padding="10" Margin="0,0,8,0"
+                        AllowDrop="True" Tag="AFaire"
                     Drop="KanbanColumn_Drop" DragEnter="KanbanColumn_DragEnter" DragLeave="KanbanColumn_DragLeave">
                 <Border.Effect>
                     <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.15" Color="#00915A"/>
@@ -306,6 +468,35 @@
                                                     </TextBlock.Style>
                                                 </TextBlock>
                                             </Border>
+
+                                            <!-- Bouton Mettre en attente pour admin uniquement -->
+                                            <Button Content="⏸ Mettre en attente" Command="{Binding DataContext.MettreEnAttenteCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding}"
+                                                    Margin="0,8,0,0" Padding="8,4" Background="#9C27B0" Foreground="White" BorderThickness="0"
+                                                    FontSize="11" FontWeight="SemiBold" Cursor="Hand"
+                                                    Visibility="{Binding DataContext.EstAdministrateur, 
+                                                                RelativeSource={RelativeSource AncestorType=UserControl},
+                                                                Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                <Button.Style>
+                                                    <Style TargetType="Button">
+                                                        <Setter Property="Template">
+                                                            <Setter.Value>
+                                                                <ControlTemplate TargetType="Button">
+                                                                    <Border Background="{TemplateBinding Background}" CornerRadius="4" 
+                                                                            Padding="{TemplateBinding Padding}">
+                                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                    </Border>
+                                                                </ControlTemplate>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                        <Style.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="Background" Value="#7B1FA2"/>
+                                                            </Trigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Button.Style>
+                                            </Button>
                                         </StackPanel>
                                     </Border>
                                 </DataTemplate>
@@ -857,6 +1048,7 @@
                 </Grid>
             </Border>
         </Grid>
+    </ScrollViewer>
     </Grid>
 </UserControl>
 

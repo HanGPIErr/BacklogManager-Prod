@@ -14,10 +14,12 @@ namespace BacklogManager.Domain
 
     public enum Statut
     {
-        Afaire,
-        EnCours,
-        Test,
-        Termine
+        Afaire = 1,
+        EnAttente = 2,
+        APrioriser = 3,
+        EnCours = 4,
+        Test = 5,
+        Termine = 6
     }
 
     public enum Priorite

@@ -14,6 +14,7 @@
     <WarningLevel>4</WarningLevel>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>x64</PlatformTarget>
@@ -130,6 +131,22 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\CRACalendrierView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SuiviCRAView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\CRASaisieWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\CRAHistoriqueWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\KanbanView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -225,6 +242,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Domain\BacklogItem.cs" />
+    <Compile Include="Domain\CRA.cs" />
     <Compile Include="Domain\Dev.cs" />
     <Compile Include="Domain\Projet.cs" />
     <Compile Include="Domain\PokerSession.cs" />
@@ -243,20 +261,32 @@
     <Compile Include="Services\JsonDatabase.cs" />
     <Compile Include="Services\SqliteDatabase.cs" />
     <Compile Include="Services\BacklogService.cs" />
+    <Compile Include="Services\CRAService.cs" />
     <Compile Include="Services\PermissionService.cs" />
     <Compile Include="Services\PokerService.cs" />
     <Compile Include="Services\AuthenticationService.cs" />
     <Compile Include="Services\InitializationService.cs" />
     <Compile Include="Services\AuditLogService.cs" />
     <Compile Include="Services\NotificationService.cs" />
+    <Compile Include="Services\JoursFeriesService.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\ProjetsViewModel.cs" />
     <Compile Include="ViewModels\BacklogViewModel.cs" />
+    <Compile Include="ViewModels\CRAHistoriqueViewModel.cs" />
+    <Compile Include="ViewModels\CRAViewModel.cs" />
+    <Compile Include="ViewModels\CRACalendrierViewModel.cs" />
+    <Compile Include="ViewModels\SuiviCRAViewModel.cs" />
     <Compile Include="ViewModels\KanbanViewModel.cs" />
     <Compile Include="ViewModels\PokerViewModel.cs" />
     <Compile Include="ViewModels\TimelineViewModel.cs" />
     <Compile Include="Views\ProjetsView.xaml.cs">
       <DependentUpon>ProjetsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\CRACalendrierView.xaml.cs">
+      <DependentUpon>CRACalendrierView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SuiviCRAView.xaml.cs">
+      <DependentUpon>SuiviCRAView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\EditTacheWindow.xaml.cs">
       <DependentUpon>EditTacheWindow.xaml</DependentUpon>
@@ -272,6 +302,12 @@
     </Compile>
     <Compile Include="Views\BacklogView.xaml.cs">
       <DependentUpon>BacklogView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\CRASaisieWindow.xaml.cs">
+      <DependentUpon>CRASaisieWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\CRAHistoriqueWindow.xaml.cs">
+      <DependentUpon>CRAHistoriqueWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\KanbanView.xaml.cs">
       <DependentUpon>KanbanView.xaml</DependentUpon>

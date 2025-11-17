@@ -91,6 +91,12 @@ namespace BacklogManager.Views
                         Statut newStatus = Statut.Afaire;
                         switch (columnName)
                         {
+                            case "EnAttente":
+                                newStatus = Statut.EnAttente;
+                                break;
+                            case "APrioriser":
+                                newStatus = Statut.APrioriser;
+                                break;
                             case "AFaire":
                                 newStatus = Statut.Afaire;
                                 break;

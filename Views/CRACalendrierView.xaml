@@ -1,0 +1,472 @@
+<UserControl x:Class="BacklogManager.Views.CRACalendrierView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:BacklogManager.ViewModels"
+             Background="#F5F5F5">
+    
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </UserControl.Resources>
+
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="White" CornerRadius="6" Padding="15" Margin="0,0,0,15">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.15" Color="#00915A"/>
+            </Border.Effect>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="⏱️ SAISIE CRA" FontSize="22" FontWeight="Bold" Foreground="#1A1919"/>
+                <TextBlock Text="BNP Paribas" FontSize="16" Foreground="#00915A" 
+                           VerticalAlignment="Center" Margin="15,0,0,0" FontWeight="Medium"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Contrôles calendrier -->
+        <Border Grid.Row="1" Background="White" CornerRadius="6" Padding="15" Margin="0,0,0,15">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.15" Color="#00915A"/>
+            </Border.Effect>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Navigation mois -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <Button Content="◀" Command="{Binding MoisPrecedentCommand}"
+                            Width="40" Height="40" Background="#00915A" Foreground="White" 
+                            BorderThickness="0" FontSize="16" FontWeight="Bold" Cursor="Hand" Margin="0,0,10,0">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="6">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#007A4D"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <TextBlock Text="{Binding MoisAnneeAffichage}" FontSize="20" FontWeight="Bold" 
+                               Foreground="#00915A" VerticalAlignment="Center" MinWidth="200" TextAlignment="Center"/>
+
+                    <Button Content="▶" Command="{Binding MoisSuivantCommand}"
+                            Width="40" Height="40" Background="#00915A" Foreground="White" 
+                            BorderThickness="0" FontSize="16" FontWeight="Bold" Cursor="Hand" Margin="10,0,15,0">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="6">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#007A4D"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <Button Content="📅 Aujourd'hui" Command="{Binding AujourdhuiCommand}"
+                            Padding="12,8" Background="#E0E0E0" Foreground="#333" 
+                            BorderThickness="0" FontSize="12" FontWeight="SemiBold" Cursor="Hand">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="4" 
+                                                    Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#D0D0D0"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </StackPanel>
+
+                <!-- Filtre dev et checkbox -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <TextBlock Text="Développeur:" FontSize="13" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <ComboBox ItemsSource="{Binding Devs}" DisplayMemberPath="Nom"
+                              SelectedItem="{Binding DevSelectionne}"
+                              Width="180" Padding="8,5" Margin="0,0,15,0"/>
+                    
+                    <CheckBox Content="Toutes les tâches" IsChecked="{Binding AfficherToutesLesTaches}"
+                              VerticalAlignment="Center" FontSize="12" Foreground="#666"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Contenu principal : calendrier + formulaire -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Calendrier -->
+            <Border Grid.Column="0" Background="White" CornerRadius="6" Padding="15" Margin="0,0,10,0">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.15" Color="#00915A"/>
+                </Border.Effect>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- En-têtes jours de la semaine -->
+                    <Grid Grid.Row="0" Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0" Text="LUN" HorizontalAlignment="Center" FontWeight="Bold" 
+                                   Foreground="#00915A" FontSize="12"/>
+                        <TextBlock Grid.Column="1" Text="MAR" HorizontalAlignment="Center" FontWeight="Bold" 
+                                   Foreground="#00915A" FontSize="12"/>
+                        <TextBlock Grid.Column="2" Text="MER" HorizontalAlignment="Center" FontWeight="Bold" 
+                                   Foreground="#00915A" FontSize="12"/>
+                        <TextBlock Grid.Column="3" Text="JEU" HorizontalAlignment="Center" FontWeight="Bold" 
+                                   Foreground="#00915A" FontSize="12"/>
+                        <TextBlock Grid.Column="4" Text="VEN" HorizontalAlignment="Center" FontWeight="Bold" 
+                                   Foreground="#00915A" FontSize="12"/>
+                        <TextBlock Grid.Column="5" Text="SAM" HorizontalAlignment="Center" FontWeight="Bold" 
+                                   Foreground="#999" FontSize="12"/>
+                        <TextBlock Grid.Column="6" Text="DIM" HorizontalAlignment="Center" FontWeight="Bold" 
+                                   Foreground="#999" FontSize="12"/>
+                    </Grid>
+
+                    <!-- Grille calendrier -->
+                    <ItemsControl Grid.Row="1" ItemsSource="{Binding JoursCalendrier}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Columns="7" Rows="6"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Command="{Binding DataContext.JourSelectionnCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}"
+                                        Margin="2" Padding="5" BorderThickness="0" Cursor="Hand"
+                                        Background="Transparent">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border Background="{TemplateBinding Background}" CornerRadius="6" 
+                                                                Padding="{TemplateBinding Padding}" BorderBrush="#E0E0E0" BorderThickness="1">
+                                                            <Grid>
+                                                                <Grid.RowDefinitions>
+                                                                    <RowDefinition Height="Auto"/>
+                                                                    <RowDefinition Height="*"/>
+                                                                </Grid.RowDefinitions>
+
+                                                                <TextBlock Grid.Row="0" Text="{Binding Jour}" 
+                                                                           HorizontalAlignment="Right" FontSize="14" FontWeight="SemiBold">
+                                                                    <TextBlock.Style>
+                                                                        <Style TargetType="TextBlock">
+                                                                            <Setter Property="Foreground" Value="#333"/>
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding EstDansMois}" Value="False">
+                                                                                    <Setter Property="Foreground" Value="#CCC"/>
+                                                                                </DataTrigger>
+                                                                                <DataTrigger Binding="{Binding EstWeekend}" Value="True">
+                                                                                    <Setter Property="Foreground" Value="#999"/>
+                                                                                </DataTrigger>
+                                                                                <DataTrigger Binding="{Binding EstAujourdhui}" Value="True">
+                                                                                    <Setter Property="Foreground" Value="#00915A"/>
+                                                                                    <Setter Property="FontWeight" Value="Bold"/>
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+                                                                    </TextBlock.Style>
+                                                                </TextBlock>
+
+                                                                <StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                                                    <!-- Indicateur jour férié -->
+                                                                    <TextBlock Text="🎊" FontSize="16" HorizontalAlignment="Center"
+                                                                               Visibility="{Binding EstJourFerie, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                                                               ToolTip="{Binding NomJourFerie}"/>
+                                                                    
+                                                                    <!-- Total heures -->
+                                                                    <Border Background="#00915A" CornerRadius="10" Padding="4,2" Margin="0,2,0,0"
+                                                                            Visibility="{Binding ADesCRAs, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                                        <TextBlock Text="{Binding TotalJoursAffiche}" Foreground="White" 
+                                                                                   FontSize="10" FontWeight="Bold" TextAlignment="Center"/>
+                                                                    </Border>
+                                                                </StackPanel>
+                                                            </Grid>
+                                                        </Border>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="Background" Value="#E8F5E9"/>
+                                                            </Trigger>
+                                                            <DataTrigger Binding="{Binding EstAujourdhui}" Value="True">
+                                                                <Setter Property="Background" Value="#C8E6C9"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding EstWeekend}" Value="True">
+                                                                <Setter Property="Background" Value="#F5F5F5"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding EstJourFerie}" Value="True">
+                                                                <Setter Property="Background" Value="#FFF3E0"/>
+                                                            </DataTrigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
+            </Border>
+
+            <!-- Panneau de saisie -->
+            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <!-- Jour sélectionné -->
+                    <Border Background="White" CornerRadius="6" Padding="15" Margin="0,0,0,10">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.15" Color="#00915A"/>
+                        </Border.Effect>
+                        <StackPanel>
+                            <TextBlock Text="📅 JOUR SÉLECTIONNÉ" FontSize="14" FontWeight="Bold" 
+                                       Foreground="#00915A" Margin="0,0,0,10"/>
+                            
+                            <TextBlock Text="{Binding JourSelectionne.Date, StringFormat='dddd d MMMM yyyy'}" 
+                                       FontSize="13" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                            
+                            <TextBlock Text="{Binding JourSelectionne.NomJourFerie}" FontSize="12" 
+                                       Foreground="#FF9800" FontWeight="Bold"
+                                       Visibility="{Binding JourSelectionne.EstJourFerie, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Formulaire saisie -->
+                    <Border Background="White" CornerRadius="6" Padding="15" Margin="0,0,0,10">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.15" Color="#00915A"/>
+                        </Border.Effect>
+                        <StackPanel>
+                            <TextBlock Text="✏️ SAISIR UN CRA" FontSize="14" FontWeight="Bold" 
+                                       Foreground="#00915A" Margin="0,0,0,10"/>
+
+                            <!-- Tâche -->
+                            <TextBlock Text="Tâche" FontSize="12" Margin="0,0,0,5"/>
+                            <ComboBox ItemsSource="{Binding TachesDisponibles}" DisplayMemberPath="Titre"
+                                      SelectedItem="{Binding TacheSelectionnee}"
+                                      Padding="8,5" Margin="0,0,0,10"/>
+
+                            <!-- Mode de saisie -->
+                            <CheckBox Content="Saisir sur une période" IsChecked="{Binding SaisirSurPeriode}"
+                                      FontSize="12" Foreground="#00915A" FontWeight="SemiBold" Margin="0,0,0,10"/>
+
+                            <!-- Date de fin (visible si période) -->
+                            <StackPanel Visibility="{Binding AfficherDateFin, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <TextBlock Text="Date de fin de période" FontSize="12" Margin="0,0,0,5"/>
+                                <DatePicker SelectedDate="{Binding DateFinPeriode}" Padding="8,5" Margin="0,0,0,5"/>
+                                <TextBlock Text="{Binding NombreJoursOuvresPeriode}" FontSize="11" 
+                                           Foreground="#00915A" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                            </StackPanel>
+
+                            <!-- Temps -->
+                            <TextBlock Text="Temps (jours par jour ouvré si période)" FontSize="12" Margin="0,0,0,5"/>
+                            <TextBox Text="{Binding JoursASaisir, UpdateSourceTrigger=PropertyChanged}" 
+                                     Padding="8,5" Margin="0,0,0,5"/>
+                            
+                            <!-- Boutons rapides -->
+                            <WrapPanel Margin="0,0,0,10">
+                                <Button Content="0.5j" Command="{Binding SetJoursRapideCommand}" CommandParameter="0.5"
+                                        Padding="8,4" Margin="0,0,5,0" Background="#E0E0E0" BorderThickness="0" FontSize="11" Cursor="Hand">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border Background="{TemplateBinding Background}" CornerRadius="4" 
+                                                                Padding="{TemplateBinding Padding}">
+                                                            <ContentPresenter/>
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="#00915A"/>
+                                                    <Setter Property="Foreground" Value="White"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                                <Button Content="1j" Command="{Binding SetJoursRapideCommand}" CommandParameter="1"
+                                        Padding="8,4" Margin="0,0,5,0" Background="#E0E0E0" BorderThickness="0" FontSize="11" Cursor="Hand">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border Background="{TemplateBinding Background}" CornerRadius="4" 
+                                                                Padding="{TemplateBinding Padding}">
+                                                            <ContentPresenter/>
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="#00915A"/>
+                                                    <Setter Property="Foreground" Value="White"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                            </WrapPanel>
+
+                            <!-- Commentaire -->
+                            <TextBlock Text="Commentaire (optionnel)" FontSize="12" Margin="0,0,0,5"/>
+                            <TextBox Text="{Binding Commentaire}" TextWrapping="Wrap" AcceptsReturn="True"
+                                     Height="60" Padding="8,5" Margin="0,0,0,10"/>
+
+                            <!-- Bouton valider -->
+                            <Button Content="✓ Enregistrer" Command="{Binding SaisirCRACommand}"
+                                    Padding="12,8" Background="#00915A" Foreground="White" 
+                                    BorderThickness="0" FontSize="13" FontWeight="Bold" Cursor="Hand">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border Background="{TemplateBinding Background}" CornerRadius="6" 
+                                                            Padding="{TemplateBinding Padding}">
+                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="#007A4D"/>
+                                            </Trigger>
+                                            <Trigger Property="IsEnabled" Value="False">
+                                                <Setter Property="Background" Value="#BDBDBD"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Liste CRAs du jour -->
+                    <Border Background="White" CornerRadius="6" Padding="15">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.15" Color="#00915A"/>
+                        </Border.Effect>
+                        <StackPanel>
+                            <TextBlock Text="📋 CRA SAISIS CE JOUR" FontSize="14" FontWeight="Bold" 
+                                       Foreground="#00915A" Margin="0,0,0,10"/>
+
+                            <ItemsControl ItemsSource="{Binding CRAsJourSelectionne}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="#F5F5F5" BorderBrush="#E0E0E0" BorderThickness="1" 
+                                                CornerRadius="4" Padding="10" Margin="0,0,0,8">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
+
+                                                <TextBlock Grid.Row="0" Text="{Binding TacheNom}" FontWeight="SemiBold" 
+                                                           FontSize="12" Margin="0,0,0,5" TextWrapping="Wrap"/>
+                                                
+                                                <TextBlock Grid.Row="1" Text="{Binding CRA.Commentaire}" FontSize="10" 
+                                                           Foreground="#666" Margin="0,0,0,5" TextWrapping="Wrap"
+                                                           Visibility="{Binding CRA.Commentaire, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                                
+                                                <StackPanel Grid.Row="2" Orientation="Horizontal">
+                                                    <Border Background="#00915A" CornerRadius="3" Padding="4,2" Margin="0,0,5,0">
+                                                        <TextBlock Text="{Binding Jours, StringFormat='{}{0:F1}j'}" 
+                                                                   FontSize="10" FontWeight="Bold" Foreground="White"/>
+                                                    </Border>
+                                                    
+                                                    <Button Content="🗑️" Command="{Binding DataContext.SupprimerCRACommand, 
+                                                            RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                            CommandParameter="{Binding}"
+                                                            Width="24" Height="24" Background="#EF5350" Foreground="White" 
+                                                            BorderThickness="0" FontSize="10" Cursor="Hand" Padding="0">
+                                                        <Button.Style>
+                                                            <Style TargetType="Button">
+                                                                <Setter Property="Template">
+                                                                    <Setter.Value>
+                                                                        <ControlTemplate TargetType="Button">
+                                                                            <Border Background="{TemplateBinding Background}" CornerRadius="3">
+                                                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                            </Border>
+                                                                        </ControlTemplate>
+                                                                    </Setter.Value>
+                                                                </Setter>
+                                                                <Style.Triggers>
+                                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                                        <Setter Property="Background" Value="#E53935"/>
+                                                                    </Trigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Button.Style>
+                                                    </Button>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</UserControl>

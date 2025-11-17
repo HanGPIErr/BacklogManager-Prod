@@ -156,8 +156,8 @@
                                     </StackPanel>
                                     
                                     <StackPanel Grid.Column="2">
-                                        <TextBlock Text="CHEF DE PROJET" FontSize="10" Foreground="#999999"/>
-                                        <TextBlock Text="{Binding ChefProjet}" FontSize="12" FontWeight="Bold"/>
+                                        <TextBlock Text="PROJET" FontSize="10" Foreground="#999999"/>
+                                        <TextBlock Text="{Binding ProjetNom}" FontSize="12" FontWeight="Bold"/>
                                     </StackPanel>
                                     
                                     <StackPanel Grid.Column="3" Margin="20,0,0,0">
@@ -169,6 +169,11 @@
                                 
                                 <!-- Actions -->
                                 <StackPanel Grid.Row="3" Orientation="Horizontal">
+                                    <Button Content="🎯 Créer tâche" Width="100" Height="28" Margin="0,0,5,0"
+                                           Background="#FF6F00" Foreground="White" BorderThickness="0"
+                                           FontSize="11" Cursor="Hand" Tag="{Binding Id}" FontWeight="SemiBold"
+                                           Click="BtnCreerTacheClick"
+                                           Visibility="{Binding EstAcceptee, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                     <Button Content="📝 Détails" Width="90" Height="28" Margin="0,0,5,0"
                                            Background="#00915A" Foreground="White" BorderThickness="0"
                                            FontSize="11" Cursor="Hand" Tag="{Binding Id}"

@@ -92,18 +92,21 @@
             </StackPanel>
         </Border>
 
-        <!-- Kanban Columns -->
-        <Grid Grid.Row="2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+        <!-- Kanban Columns with Horizontal Scroll -->
+        <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+            <Grid MinWidth="1800">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="300"/>
+                    <ColumnDefinition Width="300"/>
+                    <ColumnDefinition Width="300"/>
+                    <ColumnDefinition Width="300"/>
+                    <ColumnDefinition Width="300"/>
+                    <ColumnDefinition Width="300"/>
+                </Grid.ColumnDefinitions>
 
-            <!-- A FAIRE Column -->
+            <!-- EN ATTENTE Column -->
             <Border Grid.Column="0" Background="White" CornerRadius="6" Padding="10" Margin="0,0,8,0"
-                    AllowDrop="True" Tag="AFaire"
+                    AllowDrop="True" Tag="EnAttente"
                     Drop="KanbanColumn_Drop" DragEnter="KanbanColumn_DragEnter" DragLeave="KanbanColumn_DragLeave">
                 <Border.Effect>
                     <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.15" Color="#00915A"/>
@@ -114,21 +117,21 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    <Border Grid.Row="0" Background="#9E9E9E" CornerRadius="4" Padding="8" Margin="0,0,0,6">
+                    <Border Grid.Row="0" Background="#9C27B0" CornerRadius="4" Padding="8" Margin="0,0,0,6">
                         <StackPanel>
-                            <TextBlock Text="?? À FAIRE" FontWeight="Bold" FontSize="14" 
+                            <TextBlock Text="⏸ EN ATTENTE" FontWeight="Bold" FontSize="14"
                                        Foreground="White" HorizontalAlignment="Center"/>
                             <TextBlock FontSize="18" FontWeight="Bold" Foreground="White" 
                                        HorizontalAlignment="Center" Margin="0,5,0,0">
                                 <TextBlock.Text>
-                                    <Binding Path="ItemsAfaire.Count"/>
+                                    <Binding Path="ItemsEnAttente.Count"/>
                                 </TextBlock.Text>
                             </TextBlock>
                         </StackPanel>
                     </Border>
 
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                        <ItemsControl ItemsSource="{Binding ItemsAfaire}">
+                        <ItemsControl ItemsSource="{Binding ItemsEnAttente}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Border Padding="8" Margin="0,0,0,6" CornerRadius="6" Background="White"
@@ -300,8 +303,322 @@
                 </Grid>
             </Border>
 
-            <!-- EN COURS Column -->
+            <!-- A PRIORISER Column -->
             <Border Grid.Column="1" Background="White" CornerRadius="6" Padding="10" Margin="0,0,8,0"
+                    AllowDrop="True" Tag="APrioriser"
+                    Drop="KanbanColumn_Drop" DragEnter="KanbanColumn_DragEnter" DragLeave="KanbanColumn_DragLeave">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.15" Color="#00915A"/>
+                </Border.Effect>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" Background="#E91E63" CornerRadius="4" Padding="8" Margin="0,0,0,6">
+                        <StackPanel>
+                            <TextBlock Text="⚡ A PRIORISER" FontWeight="Bold" FontSize="14" 
+                                       Foreground="White" HorizontalAlignment="Center"/>
+                            <TextBlock FontSize="18" FontWeight="Bold" Foreground="White" 
+                                       HorizontalAlignment="Center" Margin="0,5,0,0">
+                                <TextBlock.Text>
+                                    <Binding Path="ItemsAPrioriser.Count"/>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding ItemsAPrioriser}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Padding="8" Margin="0,0,0,6" CornerRadius="6" Background="White"
+                                            Cursor="Hand" 
+                                            PreviewMouseLeftButtonDown="KanbanCard_PreviewMouseLeftButtonDown"
+                                            PreviewMouseMove="KanbanCard_PreviewMouseMove"
+                                            MouseLeftButtonUp="KanbanCard_MouseLeftButtonUp">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="BorderThickness" Value="2"/>
+                                                <Setter Property="BorderBrush" Value="#E0E0E0"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding AlertLevel}" Value="URGENT">
+                                                        <Setter Property="BorderBrush" Value="#D32F2F"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding AlertLevel}" Value="ATTENTION">
+                                                        <Setter Property="BorderBrush" Value="#F57C00"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding AlertLevel}" Value="OK">
+                                                        <Setter Property="BorderBrush" Value="#00915A"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <Border.Effect>
+                                            <DropShadowEffect BlurRadius="4" ShadowDepth="1" Opacity="0.15" Color="Gray"/>
+                                        </Border.Effect>
+                                        <StackPanel>
+                                            <Grid Margin="0,0,0,5">
+                                                <TextBlock Text="{Binding Item.Titre}" FontWeight="SemiBold" 
+                                                           FontSize="12" TextWrapping="Wrap" Margin="0,0,26,0" LineHeight="15"/>
+                                                <Button Width="22" Height="22"
+                                                        HorizontalAlignment="Right" VerticalAlignment="Top"
+                                                        Background="#EF5350" Foreground="White" BorderThickness="0"
+                                                        Cursor="Hand" ToolTip="Supprimer" Padding="0"
+                                                        Click="DeleteTask_Click" Tag="{Binding Item}"
+                                                        Visibility="{Binding DataContext.PeutSupprimerTaches, 
+                                                                    RelativeSource={RelativeSource AncestorType=UserControl},
+                                                                    Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                    <Button.Content>
+                                                        <TextBlock Text="❌" FontSize="12" VerticalAlignment="Center"/>
+                                                    </Button.Content>
+                                                    <Button.Style>
+                                                        <Style TargetType="Button">
+                                                            <Setter Property="Template">
+                                                                <Setter.Value>
+                                                                    <ControlTemplate TargetType="Button">
+                                                                        <Border Background="{TemplateBinding Background}" 
+                                                                                CornerRadius="4">
+                                                                            <ContentPresenter HorizontalAlignment="Center" 
+                                                                                            VerticalAlignment="Center"/>
+                                                                        </Border>
+                                                                    </ControlTemplate>
+                                                                </Setter.Value>
+                                                            </Setter>
+                                                            <Style.Triggers>
+                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                    <Setter Property="Background" Value="#E53935"/>
+                                                                </Trigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Button.Style>
+                                                </Button>
+                                            </Grid>
+                                            
+                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                                <Border CornerRadius="4" Padding="4,2" Margin="0,0,4,0">
+                                                    <Border.Style>
+                                                        <Style TargetType="Border">
+                                                            <Setter Property="Background" Value="#FFC107"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Item.Priorite}" Value="Urgente">
+                                                                    <Setter Property="Background" Value="#D32F2F"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Item.Priorite}" Value="Haute">
+                                                                    <Setter Property="Background" Value="#F57C00"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Item.Priorite}" Value="Moyenne">
+                                                                    <Setter Property="Background" Value="#FFC107"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Item.Priorite}" Value="Basse">
+                                                                    <Setter Property="Background" Value="#4CAF50"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Border.Style>
+                                                    <TextBlock Text="{Binding Item.Priorite}" Foreground="White" 
+                                                               FontSize="9" FontWeight="Bold"/>
+                                                </Border>
+                                                
+                                                <Border Background="#00915A" CornerRadius="4" Padding="4,2">
+                                                    <TextBlock Text="{Binding Item.TypeDemande}" Foreground="White" 
+                                                               FontSize="9" FontWeight="Bold"/>
+                                                </Border>
+                                            </StackPanel>
+
+                                            <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                                                <TextBlock Text="👤 " FontSize="10"/>
+                                                <TextBlock Text="{Binding DevDisplayName}" FontSize="10" FontWeight="SemiBold" Foreground="#00915A"/>
+                                            </StackPanel>
+
+                                            <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                                                <TextBlock Text="📅 " FontSize="10"/>
+                                                <TextBlock Text="{Binding DaysRemaining}" FontSize="10" FontWeight="Bold">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Foreground" Value="#333"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding AlertLevel}" Value="URGENT">
+                                                                    <Setter Property="Foreground" Value="#D32F2F"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding AlertLevel}" Value="ATTENTION">
+                                                                    <Setter Property="Foreground" Value="#F57C00"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                                <TextBlock Text=" jour(s) restant(s)" FontSize="10" Margin="0"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+
+            <!-- A FAIRE Column -->
+            <Border Grid.Column="2" Background="White" CornerRadius="6" Padding="10" Margin="0,0,8,0"
+                    AllowDrop="True" Tag="AFaire"
+                    Drop="KanbanColumn_Drop" DragEnter="KanbanColumn_DragEnter" DragLeave="KanbanColumn_DragLeave">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.15" Color="#00915A"/>
+                </Border.Effect>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" Background="#9E9E9E" CornerRadius="4" Padding="8" Margin="0,0,0,6">
+                        <StackPanel>
+                            <TextBlock Text="📋 À FAIRE" FontWeight="Bold" FontSize="14" 
+                                       Foreground="White" HorizontalAlignment="Center"/>
+                            <TextBlock FontSize="18" FontWeight="Bold" Foreground="White" 
+                                       HorizontalAlignment="Center" Margin="0,5,0,0">
+                                <TextBlock.Text>
+                                    <Binding Path="ItemsAfaire.Count"/>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding ItemsAfaire}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Padding="8" Margin="0,0,0,6" CornerRadius="6" Background="White"
+                                            Cursor="Hand" 
+                                            PreviewMouseLeftButtonDown="KanbanCard_PreviewMouseLeftButtonDown"
+                                            PreviewMouseMove="KanbanCard_PreviewMouseMove"
+                                            MouseLeftButtonUp="KanbanCard_MouseLeftButtonUp">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="BorderThickness" Value="2"/>
+                                                <Setter Property="BorderBrush" Value="#E0E0E0"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding AlertLevel}" Value="URGENT">
+                                                        <Setter Property="BorderBrush" Value="#D32F2F"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding AlertLevel}" Value="ATTENTION">
+                                                        <Setter Property="BorderBrush" Value="#F57C00"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding AlertLevel}" Value="OK">
+                                                        <Setter Property="BorderBrush" Value="#00915A"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <Border.Effect>
+                                            <DropShadowEffect BlurRadius="4" ShadowDepth="1" Opacity="0.15" Color="Gray"/>
+                                        </Border.Effect>
+                                        <StackPanel>
+                                            <Grid Margin="0,0,0,5">
+                                                <TextBlock Text="{Binding Item.Titre}" FontWeight="SemiBold" 
+                                                           FontSize="12" TextWrapping="Wrap" Margin="0,0,26,0" LineHeight="15"/>
+                                                <Button Width="22" Height="22"
+                                                        HorizontalAlignment="Right" VerticalAlignment="Top"
+                                                        Background="#EF5350" Foreground="White" BorderThickness="0"
+                                                        Cursor="Hand" ToolTip="Supprimer" Padding="0"
+                                                        Click="DeleteTask_Click" Tag="{Binding Item}"
+                                                        Visibility="{Binding DataContext.PeutSupprimerTaches, 
+                                                                    RelativeSource={RelativeSource AncestorType=UserControl},
+                                                                    Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                    <Button.Content>
+                                                        <TextBlock Text="❌" FontSize="12" VerticalAlignment="Center"/>
+                                                    </Button.Content>
+                                                    <Button.Style>
+                                                        <Style TargetType="Button">
+                                                            <Setter Property="Template">
+                                                                <Setter.Value>
+                                                                    <ControlTemplate TargetType="Button">
+                                                                        <Border Background="{TemplateBinding Background}" 
+                                                                                CornerRadius="4">
+                                                                            <ContentPresenter HorizontalAlignment="Center" 
+                                                                                            VerticalAlignment="Center"/>
+                                                                        </Border>
+                                                                    </ControlTemplate>
+                                                                </Setter.Value>
+                                                            </Setter>
+                                                            <Style.Triggers>
+                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                    <Setter Property="Background" Value="#E53935"/>
+                                                                </Trigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Button.Style>
+                                                </Button>
+                                            </Grid>
+                                            
+                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                                <Border CornerRadius="4" Padding="4,2" Margin="0,0,4,0">
+                                                    <Border.Style>
+                                                        <Style TargetType="Border">
+                                                            <Setter Property="Background" Value="#FFC107"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Item.Priorite}" Value="Urgente">
+                                                                    <Setter Property="Background" Value="#D32F2F"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Item.Priorite}" Value="Haute">
+                                                                    <Setter Property="Background" Value="#F57C00"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Item.Priorite}" Value="Moyenne">
+                                                                    <Setter Property="Background" Value="#FFC107"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Item.Priorite}" Value="Basse">
+                                                                    <Setter Property="Background" Value="#4CAF50"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Border.Style>
+                                                    <TextBlock Text="{Binding Item.Priorite}" Foreground="White" 
+                                                               FontSize="9" FontWeight="Bold"/>
+                                                </Border>
+                                                
+                                                <Border Background="#00915A" CornerRadius="4" Padding="4,2">
+                                                    <TextBlock Text="{Binding Item.TypeDemande}" Foreground="White" 
+                                                               FontSize="9" FontWeight="Bold"/>
+                                                </Border>
+                                            </StackPanel>
+
+                                            <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                                                <TextBlock Text="👤 " FontSize="10"/>
+                                                <TextBlock Text="{Binding DevDisplayName}" FontSize="10" FontWeight="SemiBold" Foreground="#00915A"/>
+                                            </StackPanel>
+
+                                            <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                                                <TextBlock Text="📅 " FontSize="10"/>
+                                                <TextBlock Text="{Binding DaysRemaining}" FontSize="10" FontWeight="Bold">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Foreground" Value="#333"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding AlertLevel}" Value="URGENT">
+                                                                    <Setter Property="Foreground" Value="#D32F2F"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding AlertLevel}" Value="ATTENTION">
+                                                                    <Setter Property="Foreground" Value="#F57C00"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                                <TextBlock Text=" jour(s) restant(s)" FontSize="10" Margin="0"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+
+            <!-- EN COURS Column -->
+            <Border Grid.Column="3" Background="White" CornerRadius="6" Padding="10" Margin="0,0,8,0"
                     AllowDrop="True" Tag="EnCours"
                     Drop="KanbanColumn_Drop" DragEnter="KanbanColumn_DragEnter" DragLeave="KanbanColumn_DragLeave">
                 <Border.Effect>
@@ -497,7 +814,7 @@
             </Border>
 
             <!-- EN TEST Column -->
-            <Border Grid.Column="2" Background="White" CornerRadius="6" Padding="10" Margin="0,0,8,0"
+            <Border Grid.Column="4" Background="White" CornerRadius="6" Padding="10" Margin="0,0,8,0"
                     AllowDrop="True" Tag="EnTest"
                     Drop="KanbanColumn_Drop" DragEnter="KanbanColumn_DragEnter" DragLeave="KanbanColumn_DragLeave">
                 <Border.Effect>
@@ -693,7 +1010,7 @@
             </Border>
 
             <!-- TERMINÉ Column -->
-            <Border Grid.Column="3" Background="White" CornerRadius="6" Padding="10"
+            <Border Grid.Column="5" Background="White" CornerRadius="6" Padding="10"
                     AllowDrop="True" Tag="Termine"
                     Drop="KanbanColumn_Drop" DragEnter="KanbanColumn_DragEnter" DragLeave="KanbanColumn_DragLeave">
                 <Border.Effect>
@@ -844,7 +1161,8 @@
                     </ScrollViewer>
                 </Grid>
             </Border>
-        </Grid>
+            </Grid>
+        </ScrollViewer>
     </Grid>
 </UserControl>
 

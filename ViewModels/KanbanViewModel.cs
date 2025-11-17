@@ -154,7 +154,7 @@ namespace BacklogManager.ViewModels
             {
                 if (Item == null || !Item.ChiffrageHeures.HasValue) return "";
                 return string.Format("Prévu: {0:F1}j | Passé: {1:F1}j | Restant: {2:F1}j", 
-                    ChargePrevu, ChargeReelle, ChargeRestante / 7.0);
+                    ChargePrevu, ChargeReelle, ChargeRestante / 8.0); // 8h = 1j
             }
         }
 
@@ -169,9 +169,9 @@ namespace BacklogManager.ViewModels
 
             DaysSinceCreation = (DateTime.Now - Item.DateCreation).Days;
 
-            const double HEURES_PAR_JOUR = 7.0;
+            const double HEURES_PAR_JOUR = 8.0; // 1 jour = 8 heures
 
-            // Calcul de la charge en jours (7h = 1j)
+            // Calcul de la charge en jours (8h = 1j)
             if (Item.ChiffrageHeures.HasValue)
             {
                 ChargePrevu = Item.ChiffrageHeures.Value / HEURES_PAR_JOUR;
@@ -238,10 +238,13 @@ namespace BacklogManager.ViewModels
     {
         private readonly BacklogService _backlogService;
         private readonly PermissionService _permissionService;
+        private readonly CRAService _craService;
         private int? _selectedDevId;
         private int? _selectedProjetId;
         private bool _isLoading;
 
+        public ObservableCollection<KanbanItemViewModel> ItemsEnAttente { get; set; }
+        public ObservableCollection<KanbanItemViewModel> ItemsAPrioriser { get; set; }
         public ObservableCollection<KanbanItemViewModel> ItemsAfaire { get; set; }
         public ObservableCollection<KanbanItemViewModel> ItemsEnCours { get; set; }
         public ObservableCollection<KanbanItemViewModel> ItemsEnTest { get; set; }
@@ -250,6 +253,7 @@ namespace BacklogManager.ViewModels
         public ObservableCollection<Projet> Projets { get; set; }
 
         public bool PeutSupprimerTaches => _permissionService.PeutSupprimerTaches;
+        public bool EstAdministrateur => _permissionService.EstAdministrateur;
 
         public int? SelectedDevId
         {
@@ -287,13 +291,15 @@ namespace BacklogManager.ViewModels
         public ICommand MoveRightCommand { get; }
         public ICommand RefreshCommand { get; }
         public ICommand ClearFiltersCommand { get; }
+        public ICommand MettreEnAttenteCommand { get; }
+        public ICommand ReactiverTacheCommand { get; }
 
         // Événement pour notifier les changements de statut
         public event EventHandler TacheStatutChanged;
 
         public void OuvrirDetailsTache(BacklogItem tache)
         {
-            var editWindow = new Views.EditTacheWindow(tache, _backlogService, _permissionService);
+            var editWindow = new Views.EditTacheWindow(tache, _backlogService, _permissionService, _craService);
             
             var mainWindow = System.Windows.Application.Current.MainWindow;
             if (mainWindow != null && mainWindow != editWindow)
@@ -325,11 +331,14 @@ namespace BacklogManager.ViewModels
             }
         }
 
-        public KanbanViewModel(BacklogService backlogService, PermissionService permissionService = null)
+        public KanbanViewModel(BacklogService backlogService, PermissionService permissionService = null, CRAService craService = null)
         {
             _backlogService = backlogService;
             _permissionService = permissionService;
+            _craService = craService;
             
+            ItemsEnAttente = new ObservableCollection<KanbanItemViewModel>();
+            ItemsAPrioriser = new ObservableCollection<KanbanItemViewModel>();
             ItemsAfaire = new ObservableCollection<KanbanItemViewModel>();
             ItemsEnCours = new ObservableCollection<KanbanItemViewModel>();
             ItemsEnTest = new ObservableCollection<KanbanItemViewModel>();
@@ -341,6 +350,8 @@ namespace BacklogManager.ViewModels
             MoveRightCommand = new RelayCommand(item => MoveItemRight((item as KanbanItemViewModel)?.Item));
             RefreshCommand = new RelayCommand(_ => LoadItems());
             ClearFiltersCommand = new RelayCommand(_ => ClearFilters());
+            MettreEnAttenteCommand = new RelayCommand(item => MettreEnAttente((item as KanbanItemViewModel)?.Item));
+            ReactiverTacheCommand = new RelayCommand(item => ReactiverTache((item as KanbanItemViewModel)?.Item));
 
             LoadFilterLists(); // Charger les listes une seule fois
             LoadItems();
@@ -401,6 +412,8 @@ namespace BacklogManager.ViewModels
                 System.Diagnostics.Debug.WriteLine($"[KANBAN] Items après filtre Projet (incluant non-assignés): {allItems.Count}");
             }
 
+            ItemsEnAttente.Clear();
+            ItemsAPrioriser.Clear();
             ItemsAfaire.Clear();
             ItemsEnCours.Clear();
             ItemsEnTest.Clear();
@@ -409,6 +422,14 @@ namespace BacklogManager.ViewModels
             foreach (var item in allItems.OrderByDescending(i => i.Priorite).ThenBy(i => i.DateCreation))
             {
                 var dev = item.DevAssigneId.HasValue ? devs.FirstOrDefault(d => d.Id == item.DevAssigneId.Value) : null;
+                
+                // Calculer le temps réel depuis les CRA
+                if (_craService != null)
+                {
+                    double tempsReelHeures = _craService.GetTempsReelTache(item.Id);
+                    item.TempsReelHeures = tempsReelHeures;
+                }
+                
                 var viewModel = new KanbanItemViewModel
                 {
                     Item = item,
@@ -417,6 +438,12 @@ namespace BacklogManager.ViewModels
 
                 switch (item.Statut)
                 {
+                    case Statut.EnAttente:
+                        ItemsEnAttente.Add(viewModel);
+                        break;
+                    case Statut.APrioriser:
+                        ItemsAPrioriser.Add(viewModel);
+                        break;
                     case Statut.Afaire:
                         ItemsAfaire.Add(viewModel);
                         break;
@@ -440,6 +467,12 @@ namespace BacklogManager.ViewModels
             var newStatus = item.Statut;
             switch (item.Statut)
             {
+                case Statut.APrioriser:
+                    newStatus = Statut.EnAttente;
+                    break;
+                case Statut.Afaire:
+                    newStatus = Statut.APrioriser;
+                    break;
                 case Statut.EnCours:
                     newStatus = Statut.Afaire;
                     break;
@@ -465,6 +498,12 @@ namespace BacklogManager.ViewModels
             var newStatus = item.Statut;
             switch (item.Statut)
             {
+                case Statut.EnAttente:
+                    newStatus = Statut.APrioriser;
+                    break;
+                case Statut.APrioriser:
+                    newStatus = Statut.Afaire;
+                    break;
                 case Statut.Afaire:
                     newStatus = Statut.EnCours;
                     break;
@@ -487,6 +526,67 @@ namespace BacklogManager.ViewModels
         {
             SelectedDevId = 0;  // 0 = "Tous"
             SelectedProjetId = 0;  // 0 = "Tous"
+            LoadItems();
+        }
+
+        private void MettreEnAttente(BacklogItem item)
+        {
+            if (item == null) return;
+            
+            // Seul l'administrateur peut mettre une tâche en attente
+            if (!_permissionService.EstAdministrateur)
+            {
+                System.Windows.MessageBox.Show(
+                    "Seul l'administrateur peut mettre une tâche en attente.",
+                    "Accès refusé",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Warning);
+                return;
+            }
+
+            _backlogService.UpdateBacklogItemStatus(item.Id, Statut.EnAttente);
+            LoadItems();
+        }
+
+        private void ReactiverTache(BacklogItem item)
+        {
+            if (item == null) return;
+            
+            // Seul l'administrateur peut réactiver une tâche en attente ou à prioriser
+            if (!_permissionService.EstAdministrateur)
+            {
+                System.Windows.MessageBox.Show(
+                    "Seul l'administrateur peut réactiver cette tâche.",
+                    "Accès refusé",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Warning);
+                return;
+            }
+
+            // Déterminer le nouveau statut selon l'état actuel
+            Statut nouveauStatut = Statut.Afaire;
+            
+            if (item.Statut == Statut.EnAttente)
+            {
+                // Depuis "En attente", on peut aller vers "A prioriser" ou "A faire"
+                var result = System.Windows.MessageBox.Show(
+                    "Souhaitez-vous marquer cette tâche comme 'A prioriser' ?\n\nOui = A prioriser\nNon = A faire",
+                    "Réactivation de la tâche",
+                    System.Windows.MessageBoxButton.YesNoCancel,
+                    System.Windows.MessageBoxImage.Question);
+                
+                if (result == System.Windows.MessageBoxResult.Cancel)
+                    return;
+                
+                nouveauStatut = result == System.Windows.MessageBoxResult.Yes ? Statut.APrioriser : Statut.Afaire;
+            }
+            else if (item.Statut == Statut.APrioriser)
+            {
+                // Depuis "A prioriser", on va vers "A faire"
+                nouveauStatut = Statut.Afaire;
+            }
+
+            _backlogService.UpdateBacklogItemStatus(item.Id, nouveauStatut);
             LoadItems();
         }
 

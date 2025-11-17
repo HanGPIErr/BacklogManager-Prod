@@ -40,6 +40,11 @@ namespace BacklogManager.Services
         List<AuditLog> GetAuditLogs();
         void AddAuditLog(AuditLog auditLog);
         
+        // CRA
+        List<CRA> GetCRAs(int? backlogItemId = null, int? devId = null, System.DateTime? dateDebut = null, System.DateTime? dateFin = null);
+        void SaveCRA(CRA cra);
+        void DeleteCRA(int id);
+        
         // Notifications
         List<Notification> GetNotifications();
         void AddOrUpdateNotification(Notification notification);

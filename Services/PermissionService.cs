@@ -40,6 +40,7 @@ namespace BacklogManager.Services
 
         // Rôles spéciaux
         public bool IsAdmin => _currentRole?.Type == RoleType.Administrateur;
+        public bool EstAdministrateur => IsAdmin; // Alias pour compatibilité
         public bool IsChefDeProjet => _currentRole?.Type == RoleType.ChefDeProjet;
         public bool IsDeveloppeur => _currentRole?.Type == RoleType.Developpeur;
         public bool IsBusinessAnalyst => _currentRole?.Type == RoleType.BusinessAnalyst;
