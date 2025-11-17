@@ -392,12 +392,12 @@
                                                            Foreground="#333" TextWrapping="Wrap" Margin="0,0,0,4"/>
                                                 <TextBlock FontSize="11" Foreground="#666">
                                                     <Run Text="⏱️"/>
-                                                    <Run Text="{Binding Jours, StringFormat='{}{0:F1}j'}" FontWeight="Bold"/>
+                                                    <Run Text="{Binding Jours, StringFormat='{}{0:F1}j', Mode=OneWay}" FontWeight="Bold"/>
                                                     <Run Text="(" Foreground="#999"/>
-                                                    <Run Text="{Binding CRA.HeuresTravaillees, StringFormat='{}{0:F1}h'}" Foreground="#999"/>
+                                                    <Run Text="{Binding Heures, StringFormat='{}{0:F1}h', Mode=OneWay}" Foreground="#999"/>
                                                     <Run Text=")" Foreground="#999"/>
                                                 </TextBlock>
-                                                <TextBlock Text="{Binding CRA.Commentaire}" FontSize="11" 
+                                                <TextBlock Text="{Binding Commentaire, Mode=OneWay}" FontSize="11" 
                                                            Foreground="#888" FontStyle="Italic" TextWrapping="Wrap" Margin="0,4,0,0"/>
                                             </StackPanel>
                                         </Border>

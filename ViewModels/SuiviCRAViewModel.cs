@@ -38,7 +38,9 @@ namespace BacklogManager.ViewModels
     {
         public CRA CRA { get; set; }
         public string TacheNom { get; set; }
-        public double Jours => CRA.HeuresTravaillees / 8.0;
+        public double Jours => CRA?.HeuresTravaillees / 8.0 ?? 0;
+        public double Heures => CRA?.HeuresTravaillees ?? 0;
+        public string Commentaire => CRA?.Commentaire ?? "";
     }
 
     public class SuiviCRAViewModel : INotifyPropertyChanged

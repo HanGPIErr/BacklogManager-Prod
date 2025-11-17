@@ -133,3 +133,12 @@ Vérification directe - Admin: True, Chef: False, BA: False
 BtnNouvelleDemande.IsEnabled: True
 ==========================================
 PeutSupprimerDemandes: True
+=== VERIFICATION PERMISSIONS DEMANDES 00:50:36 ===
+User: Système (ID: 1)
+Role: Administrateur (ID: 1, Type: Administrateur)
+IsAdmin: True, IsChefDeProjet: False, IsBusinessAnalyst: False
+PeutCreerDemandes (DB): True
+Vérification directe - Admin: True, Chef: False, BA: False
+BtnNouvelleDemande.IsEnabled: True
+==========================================
+PeutSupprimerDemandes: True
