@@ -1,3 +1,4 @@
+using System;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
@@ -10,6 +11,9 @@ namespace BacklogManager.Views.Pages
     {
         private readonly BacklogService _backlogService;
         private readonly PermissionService _permissionService;
+
+        // Événement pour notifier qu'un projet a été cliqué
+        public event EventHandler<Projet> ProjetClicked;
 
         public ProjetsListPage(BacklogService backlogService, PermissionService permissionService = null)
         {
@@ -107,6 +111,18 @@ namespace BacklogManager.Views.Pages
         public void Refresh()
         {
             LoadProjets();
+        }
+
+        private void ProjetCard_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            var border = sender as System.Windows.Controls.Border;
+            var projet = border?.Tag as Projet;
+            
+            if (projet != null)
+            {
+                // Déclencher l'événement pour notifier BacklogView
+                ProjetClicked?.Invoke(this, projet);
+            }
         }
     }
 }

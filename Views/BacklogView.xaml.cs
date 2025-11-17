@@ -24,6 +24,20 @@ namespace BacklogManager.Views
                 _projetsPage = new Pages.ProjetsListPage(viewModel.BacklogService, viewModel.PermissionService);
                 // S'abonner à l'événement de création de projet
                 viewModel.ProjetCreated += OnProjetCreated;
+                // S'abonner à l'événement de clic sur un projet
+                _projetsPage.ProjetClicked += OnProjetClicked;
+            }
+        }
+
+        private void OnProjetClicked(object sender, Domain.Projet projet)
+        {
+            if (DataContext is BacklogViewModel viewModel)
+            {
+                // Définir le filtre de projet
+                viewModel.SelectedProjetId = projet.Id;
+                
+                // Basculer vers l'onglet Tâches
+                BtnVueTaches_Click(null, null);
             }
         }
 

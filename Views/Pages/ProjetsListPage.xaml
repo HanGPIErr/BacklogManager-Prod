@@ -8,7 +8,8 @@
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <Border Background="White" BorderBrush="#E0E0E0" BorderThickness="1" 
-                            CornerRadius="8" Padding="20" Margin="0,0,0,12" Cursor="Hand">
+                            CornerRadius="8" Padding="20" Margin="0,0,0,12" Cursor="Hand"
+                            MouseLeftButtonDown="ProjetCard_Click" Tag="{Binding}">
                         <Border.Style>
                             <Style TargetType="Border">
                                 <Style.Triggers>
