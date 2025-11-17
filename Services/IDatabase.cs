@@ -39,5 +39,13 @@ namespace BacklogManager.Services
         List<BacklogItem> GetBacklog();
         List<AuditLog> GetAuditLogs();
         void AddAuditLog(AuditLog auditLog);
+        
+        // Notifications
+        List<Notification> GetNotifications();
+        void AddOrUpdateNotification(Notification notification);
+        void DeleteNotification(int notificationId);
+        void DeleteNotificationsLues();
+        void MarquerNotificationCommeLue(int notificationId);
+        void MarquerToutesNotificationsCommeLues();
     }
 }

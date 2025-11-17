@@ -129,6 +129,14 @@ namespace BacklogManager.Services
             }
         }
 
+        // Notifications - Stubs pour JsonDatabase (non utilisé, SQLite uniquement)
+        public List<Notification> GetNotifications() { return new List<Notification>(); }
+        public void AddOrUpdateNotification(Notification notification) { }
+        public void DeleteNotification(int notificationId) { }
+        public void DeleteNotificationsLues() { }
+        public void MarquerNotificationCommeLue(int notificationId) { }
+        public void MarquerToutesNotificationsCommeLues() { }
+
         public BacklogItem AddOrUpdateBacklogItem(BacklogItem item)
         {
             lock (_lock)

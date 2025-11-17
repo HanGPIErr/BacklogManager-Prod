@@ -35,10 +35,7 @@ namespace BacklogManager
             var pokerService = new PokerService(_database, _backlogService);
             
             // Initialiser le NotificationService
-            _notificationService = new NotificationService(_backlogService);
-            
-            // Initialiser le NotificationService
-            _notificationService = new NotificationService(_backlogService);
+            _notificationService = new NotificationService(_backlogService, _database);
             
             // Initialiser les ViewModels avec PermissionService
             var projetsViewModel = new ProjetsViewModel(_backlogService, _permissionService);

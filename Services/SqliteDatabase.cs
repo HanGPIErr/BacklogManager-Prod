@@ -34,6 +34,15 @@ namespace BacklogManager.Services
                 SQLiteConnection.CreateFile(_databasePath);
                 CreateTables();
             }
+            else
+            {
+                // Appliquer les migrations sur base existante
+                using (var conn = GetConnection())
+                {
+                    conn.Open();
+                    MigrateDatabaseSchema(conn);
+                }
+            }
         }
 
         // Connexion standard
@@ -233,6 +242,17 @@ namespace BacklogManager.Services
                             Details TEXT,
                             FOREIGN KEY (UserId) REFERENCES Utilisateurs(Id)
                         );
+
+                        CREATE TABLE IF NOT EXISTS Notifications (
+                            Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            Titre TEXT NOT NULL,
+                            Message TEXT NOT NULL,
+                            Type INTEGER NOT NULL,
+                            DateCreation TEXT NOT NULL,
+                            EstLue INTEGER NOT NULL,
+                            TacheId INTEGER,
+                            FOREIGN KEY (TacheId) REFERENCES BacklogItems(Id)
+                        );
                     ";
                     cmd.ExecuteNonQuery();
                 }
@@ -246,6 +266,26 @@ namespace BacklogManager.Services
         {
             using (var cmd = conn.CreateCommand())
             {
+                // Vérifier et créer la table Notifications si elle n'existe pas
+                cmd.CommandText = @"SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='Notifications';";
+                var hasNotificationsTable = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                
+                if (!hasNotificationsTable)
+                {
+                    cmd.CommandText = @"
+                        CREATE TABLE IF NOT EXISTS Notifications (
+                            Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            Titre TEXT NOT NULL,
+                            Message TEXT NOT NULL,
+                            Type INTEGER NOT NULL,
+                            DateCreation TEXT NOT NULL,
+                            EstLue INTEGER NOT NULL,
+                            TacheId INTEGER,
+                            FOREIGN KEY (TacheId) REFERENCES BacklogItems(Id)
+                        );";
+                    cmd.ExecuteNonQuery();
+                }
+                
                 // Vérifier et ajouter PeutModifierTaches si manquant
                 cmd.CommandText = @"SELECT COUNT(*) FROM pragma_table_info('Roles') WHERE name='PeutModifierTaches';";
                 var hasPeutModifierTaches = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
@@ -1188,5 +1228,131 @@ namespace BacklogManager.Services
         public PokerSession AddOrUpdatePokerSession(PokerSession session) { return session; }
         public PokerVote AddPokerVote(PokerVote vote) { return vote; }
         public Disponibilite AddOrUpdateDisponibilite(Disponibilite disponibilite) { return disponibilite; }
+
+        // Notifications
+        public List<Notification> GetNotifications()
+        {
+            using (var conn = new SQLiteConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = "SELECT Id, Titre, Message, Type, DateCreation, EstLue, TacheId FROM Notifications ORDER BY DateCreation DESC";
+                    
+                    var notifications = new List<Notification>();
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            notifications.Add(new Notification
+                            {
+                                Id = reader.GetInt32(0),
+                                Titre = reader.GetString(1),
+                                Message = reader.GetString(2),
+                                Type = (NotificationType)reader.GetInt32(3),
+                                DateCreation = DateTime.Parse(reader.GetString(4)),
+                                EstLue = reader.GetInt32(5) == 1,
+                                TacheId = reader.IsDBNull(6) ? (int?)null : reader.GetInt32(6)
+                            });
+                        }
+                    }
+                    return notifications;
+                }
+            }
+        }
+
+        public void AddOrUpdateNotification(Notification notification)
+        {
+            using (var conn = new SQLiteConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    if (notification.Id == 0)
+                    {
+                        cmd.CommandText = @"
+                            INSERT INTO Notifications (Titre, Message, Type, DateCreation, EstLue, TacheId)
+                            VALUES (@Titre, @Message, @Type, @DateCreation, @EstLue, @TacheId)";
+                    }
+                    else
+                    {
+                        cmd.CommandText = @"
+                            UPDATE Notifications 
+                            SET Titre = @Titre, Message = @Message, Type = @Type, 
+                                DateCreation = @DateCreation, EstLue = @EstLue, TacheId = @TacheId
+                            WHERE Id = @Id";
+                        cmd.Parameters.AddWithValue("@Id", notification.Id);
+                    }
+                    
+                    cmd.Parameters.AddWithValue("@Titre", notification.Titre);
+                    cmd.Parameters.AddWithValue("@Message", notification.Message);
+                    cmd.Parameters.AddWithValue("@Type", (int)notification.Type);
+                    cmd.Parameters.AddWithValue("@DateCreation", notification.DateCreation.ToString("yyyy-MM-dd HH:mm:ss"));
+                    cmd.Parameters.AddWithValue("@EstLue", notification.EstLue ? 1 : 0);
+                    cmd.Parameters.AddWithValue("@TacheId", notification.TacheId.HasValue ? (object)notification.TacheId.Value : DBNull.Value);
+                    
+                    cmd.ExecuteNonQuery();
+                    
+                    if (notification.Id == 0)
+                    {
+                        notification.Id = (int)conn.LastInsertRowId;
+                    }
+                }
+            }
+        }
+
+        public void DeleteNotification(int notificationId)
+        {
+            using (var conn = new SQLiteConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = "DELETE FROM Notifications WHERE Id = @Id";
+                    cmd.Parameters.AddWithValue("@Id", notificationId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public void DeleteNotificationsLues()
+        {
+            using (var conn = new SQLiteConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = "DELETE FROM Notifications WHERE EstLue = 1";
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public void MarquerNotificationCommeLue(int notificationId)
+        {
+            using (var conn = new SQLiteConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = "UPDATE Notifications SET EstLue = 1 WHERE Id = @Id";
+                    cmd.Parameters.AddWithValue("@Id", notificationId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public void MarquerToutesNotificationsCommeLues()
+        {
+            using (var conn = new SQLiteConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = "UPDATE Notifications SET EstLue = 1";
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
     }
 }

@@ -131,35 +131,28 @@ namespace BacklogManager.Views
 
                 GridCompletionParProjet.ItemsSource = completionParProjet.OrderByDescending(c => c.TotalTaches);
 
-                // Temps moyen par complexité
+                // Temps moyen par complexité - Vue d'ensemble
                 var complexiteStats = new List<ComplexiteStats>();
-                var complexites = new[] { 1, 2, 3, 5, 8, 13, 21 };
+                var complexites = new[] { 1, 2, 3, 5, 8, 13, 21, 34 };
                 var maxTemps = 0.0;
 
                 foreach (var complexite in complexites)
                 {
                     var tachesComplexite = taches.Where(t => 
                         t.Complexite == complexite && 
-                        t.Statut == Statut.Termine &&
-                        t.DateCreation != default &&
-                        t.DateFinAttendue.HasValue).ToList();
+                        t.TempsReelHeures.HasValue &&
+                        t.TempsReelHeures.Value > 0).ToList();
 
                     if (tachesComplexite.Any())
                     {
-                        var tempsTotal = 0.0;
-                        foreach (var tache in tachesComplexite)
-                        {
-                            var duree = (tache.DateFinAttendue.Value - tache.DateCreation).TotalDays;
-                            if (duree > 0) tempsTotal += duree;
-                        }
-                        
-                        var tempsMoyen = tempsTotal / tachesComplexite.Count;
-                        if (tempsMoyen > maxTemps) maxTemps = tempsMoyen;
+                        var tempsMoyenHeures = tachesComplexite.Average(t => t.TempsReelHeures.Value);
+                        if (tempsMoyenHeures > maxTemps) maxTemps = tempsMoyenHeures;
 
                         complexiteStats.Add(new ComplexiteStats
                         {
                             Complexite = $"{complexite} pts",
-                            TempsJours = tempsMoyen,
+                            TempsHeures = tempsMoyenHeures,
+                            NbTaches = tachesComplexite.Count,
                             LargeurMaximale = 500
                         });
                     }
@@ -169,11 +162,64 @@ namespace BacklogManager.Views
                 {
                     foreach (var stat in complexiteStats)
                     {
-                        stat.LargeurBarre = (stat.TempsJours * 500.0 / maxTemps);
+                        stat.LargeurBarre = (stat.TempsHeures * 500.0 / maxTemps);
                     }
                 }
 
                 GraphiqueComplexite.ItemsSource = complexiteStats;
+
+                // Temps moyen par complexité - Par développeur
+                var devComplexiteStats = new List<DevComplexiteStats>();
+                var devsActifs = devs.Where(d => d.Actif).OrderBy(d => d.Nom).ToList();
+
+                foreach (var dev in devsActifs)
+                {
+                    var tachesDev = taches.Where(t => 
+                        t.DevAssigneId == dev.Id && 
+                        t.TempsReelHeures.HasValue &&
+                        t.TempsReelHeures.Value > 0).ToList();
+
+                    if (tachesDev.Any())
+                    {
+                        var statsParComplexite = new List<ComplexiteStats>();
+                        var maxTempsDev = 0.0;
+
+                        foreach (var complexite in complexites)
+                        {
+                            var tachesComplexite = tachesDev.Where(t => t.Complexite == complexite).ToList();
+
+                            if (tachesComplexite.Any())
+                            {
+                                var tempsMoyenHeures = tachesComplexite.Average(t => t.TempsReelHeures.Value);
+                                if (tempsMoyenHeures > maxTempsDev) maxTempsDev = tempsMoyenHeures;
+
+                                statsParComplexite.Add(new ComplexiteStats
+                                {
+                                    Complexite = $"{complexite} pts",
+                                    TempsHeures = tempsMoyenHeures,
+                                    NbTaches = tachesComplexite.Count,
+                                    LargeurMaximale = 400
+                                });
+                            }
+                        }
+
+                        if (maxTempsDev > 0)
+                        {
+                            foreach (var stat in statsParComplexite)
+                            {
+                                stat.LargeurBarre = (stat.TempsHeures * 400.0 / maxTempsDev);
+                            }
+                        }
+
+                        devComplexiteStats.Add(new DevComplexiteStats
+                        {
+                            DevNom = dev.Nom,
+                            Stats = statsParComplexite
+                        });
+                    }
+                }
+
+                GraphiqueComplexiteParDev.ItemsSource = devComplexiteStats;
             }
             catch (Exception ex)
             {
@@ -453,8 +499,15 @@ namespace BacklogManager.Views
     public class ComplexiteStats
     {
         public string Complexite { get; set; }
-        public double TempsJours { get; set; }
+        public double TempsHeures { get; set; }
+        public int NbTaches { get; set; }
         public double LargeurBarre { get; set; }
         public double LargeurMaximale { get; set; }
+    }
+
+    public class DevComplexiteStats
+    {
+        public string DevNom { get; set; }
+        public List<ComplexiteStats> Stats { get; set; }
     }
 }

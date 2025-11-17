@@ -64,57 +64,50 @@ namespace BacklogManager.Services
     public class NotificationService
     {
         private readonly BacklogService _backlogService;
-        private List<Notification> _notifications;
-        private int _nextId = 1;
+        private readonly IDatabase _database;
 
-        public NotificationService(BacklogService backlogService)
+        public NotificationService(BacklogService backlogService, IDatabase database)
         {
             _backlogService = backlogService;
-            _notifications = new List<Notification>();
+            _database = database;
         }
 
         public List<Notification> GetAllNotifications()
         {
-            return _notifications.OrderByDescending(n => n.DateCreation).ToList();
+            return _database.GetNotifications();
         }
 
         public List<Notification> GetNotificationsNonLues()
         {
-            return _notifications.Where(n => !n.EstLue)
-                                 .OrderByDescending(n => n.DateCreation)
-                                 .ToList();
+            return _database.GetNotifications()
+                            .Where(n => !n.EstLue)
+                            .OrderByDescending(n => n.DateCreation)
+                            .ToList();
         }
 
         public int GetCountNotificationsNonLues()
         {
-            return _notifications.Count(n => !n.EstLue);
+            return _database.GetNotifications().Count(n => !n.EstLue);
         }
 
         public void MarquerCommeLue(int notificationId)
         {
-            var notification = _notifications.FirstOrDefault(n => n.Id == notificationId);
-            if (notification != null)
-            {
-                notification.EstLue = true;
-            }
+            _database.MarquerNotificationCommeLue(notificationId);
         }
 
         public void MarquerToutesCommeLues()
         {
-            foreach (var notification in _notifications)
-            {
-                notification.EstLue = true;
-            }
+            _database.MarquerToutesNotificationsCommeLues();
         }
 
         public void SupprimerNotification(int notificationId)
         {
-            _notifications.RemoveAll(n => n.Id == notificationId);
+            _database.DeleteNotification(notificationId);
         }
 
         public void SupprimerToutesLues()
         {
-            _notifications.RemoveAll(n => n.EstLue);
+            _database.DeleteNotificationsLues();
         }
 
         /// <summary>
@@ -124,6 +117,7 @@ namespace BacklogManager.Services
         {
             var taches = _backlogService.GetAllBacklogItems();
             var aujourdhui = DateTime.Now;
+            var notificationsExistantes = _database.GetNotifications();
 
             foreach (var tache in taches)
             {
@@ -137,7 +131,7 @@ namespace BacklogManager.Services
                     int joursRetard = (aujourdhui.Date - tache.DateFinAttendue.Value.Date).Days;
                     
                     // Éviter les doublons: ne créer que si pas déjà notifié pour ce retard
-                    if (!_notifications.Any(n => n.TacheId == tache.Id && n.Type == NotificationType.Urgent && 
+                    if (!notificationsExistantes.Any(n => n.TacheId == tache.Id && n.Type == NotificationType.Urgent && 
                                                   n.DateCreation.Date == aujourdhui.Date))
                     {
                         AjouterNotification(new Notification
@@ -157,7 +151,7 @@ namespace BacklogManager.Services
                     
                     if (joursRestants >= 0 && joursRestants <= 2)
                     {
-                        if (!_notifications.Any(n => n.TacheId == tache.Id && n.Type == NotificationType.Attention &&
+                        if (!notificationsExistantes.Any(n => n.TacheId == tache.Id && n.Type == NotificationType.Attention &&
                                                       n.DateCreation.Date == aujourdhui.Date))
                         {
                             AjouterNotification(new Notification
@@ -175,7 +169,7 @@ namespace BacklogManager.Services
                 // INFO: Tâches urgentes non assignées
                 if (tache.Priorite == Priorite.Urgent && !tache.DevAssigneId.HasValue)
                 {
-                    if (!_notifications.Any(n => n.TacheId == tache.Id && n.Titre.Contains("non assignée")))
+                    if (!notificationsExistantes.Any(n => n.TacheId == tache.Id && n.Titre.Contains("non assignée")))
                     {
                         AjouterNotification(new Notification
                         {
@@ -197,7 +191,7 @@ namespace BacklogManager.Services
 
             foreach (var tache in tachesTermineesAujourdhui)
             {
-                if (!_notifications.Any(n => n.TacheId == tache.Id && n.Type == NotificationType.Success))
+                if (!notificationsExistantes.Any(n => n.TacheId == tache.Id && n.Type == NotificationType.Success))
                 {
                     AjouterNotification(new Notification
                     {
@@ -213,10 +207,9 @@ namespace BacklogManager.Services
 
         private void AjouterNotification(Notification notification)
         {
-            notification.Id = _nextId++;
             notification.DateCreation = DateTime.Now;
             notification.EstLue = false;
-            _notifications.Add(notification);
+            _database.AddOrUpdateNotification(notification);
         }
     }
 }

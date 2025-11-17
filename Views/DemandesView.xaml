@@ -20,44 +20,71 @@
                 <TextBlock Text="GESTION DES DEMANDES" FontSize="18" FontWeight="Bold" 
                           Foreground="White" Margin="0,0,0,10"/>
                 
-                <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-                    <Button x:Name="BtnNouvelleDemande" Content="➕ Nouvelle demande" 
-                           Width="150" Height="35" Margin="0,0,10,0"
-                           Background="White" Foreground="#00915A" FontWeight="Bold"
-                           BorderThickness="0" Cursor="Hand">
-                        <Button.Style>
-                            <Style TargetType="Button">
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="Button">
-                                            <Border Background="{TemplateBinding Background}" 
-                                                   CornerRadius="3" Padding="5">
-                                                <ContentPresenter HorizontalAlignment="Center" 
-                                                                VerticalAlignment="Center"/>
-                                            </Border>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                                <Style.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="#E0E0E0"/>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
+                <Grid Margin="0,5,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
                     
-                    <TextBlock Text="Filtrer:" VerticalAlignment="Center" Foreground="White" 
-                              FontWeight="Bold" Margin="20,0,10,0"/>
-                    <ComboBox x:Name="CmbFiltreStatut" Width="180" Height="30" Margin="0,0,10,0"
-                             SelectedIndex="0"/>
-                    <ComboBox x:Name="CmbFiltreCriticite" Width="150" Height="30" Margin="0,0,10,0"
-                             SelectedIndex="0"/>
+                    <StackPanel Grid.Row="0" Orientation="Horizontal">
+                        <Button x:Name="BtnNouvelleDemande" Content="➕ Nouvelle demande" 
+                               Width="150" Height="35" Margin="0,0,10,0"
+                               Background="White" Foreground="#00915A" FontWeight="Bold"
+                               BorderThickness="0" Cursor="Hand">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}" 
+                                                       CornerRadius="3" Padding="5">
+                                                    <ContentPresenter HorizontalAlignment="Center" 
+                                                                    VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#E0E0E0"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        
+                        <Button x:Name="BtnRefresh" Content="🔄" Width="40" Height="35" Margin="0,0,10,0"
+                               Background="White" Foreground="#00915A" FontWeight="Bold"
+                               BorderThickness="0" Cursor="Hand" ToolTip="Actualiser"/>
+                    </StackPanel>
                     
-                    <Button x:Name="BtnRefresh" Content="🔄" Width="40" Height="30" 
-                           Background="White" Foreground="#00915A" FontWeight="Bold"
-                           BorderThickness="0" Cursor="Hand" ToolTip="Actualiser"/>
-                </StackPanel>
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,8,0,0">
+                        <TextBlock Text="🔍 Filtres:" VerticalAlignment="Center" Foreground="White" 
+                                  FontWeight="Bold" Margin="0,0,10,0" FontSize="13"/>
+                        
+                        <TextBlock Text="Statut:" VerticalAlignment="Center" Foreground="White" 
+                                  Margin="0,0,5,0" FontSize="11"/>
+                        <ComboBox x:Name="CmbFiltreStatut" Width="180" Height="30" Margin="0,0,15,0"
+                                 SelectedIndex="0"/>
+                        
+                        <TextBlock Text="Criticité:" VerticalAlignment="Center" Foreground="White" 
+                                  Margin="0,0,5,0" FontSize="11"/>
+                        <ComboBox x:Name="CmbFiltreCriticite" Width="130" Height="30" Margin="0,0,15,0"
+                                 SelectedIndex="0"/>
+                        
+                        <TextBlock Text="📅 Date de:" VerticalAlignment="Center" Foreground="White" 
+                                  Margin="0,0,5,0" FontSize="11"/>
+                        <DatePicker x:Name="DpDateDebut" Width="120" Height="30" Margin="0,0,10,0"/>
+                        
+                        <TextBlock Text="Date à:" VerticalAlignment="Center" Foreground="White" 
+                                  Margin="0,0,5,0" FontSize="11"/>
+                        <DatePicker x:Name="DpDateFin" Width="120" Height="30" Margin="0,0,15,0"/>
+                        
+                        <Button x:Name="BtnEffacerFiltres" Content="✕ Réinitialiser" Width="110" Height="30" 
+                               Background="#666666" Foreground="White" FontWeight="SemiBold"
+                               BorderThickness="0" Cursor="Hand" FontSize="11" ToolTip="Effacer tous les filtres"/>
+                    </StackPanel>
+                </Grid>
             </StackPanel>
         </Border>
         
@@ -115,6 +142,7 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     
                                     <StackPanel Grid.Column="0">
@@ -130,6 +158,12 @@
                                     <StackPanel Grid.Column="2">
                                         <TextBlock Text="CHEF DE PROJET" FontSize="10" Foreground="#999999"/>
                                         <TextBlock Text="{Binding ChefProjet}" FontSize="12" FontWeight="Bold"/>
+                                    </StackPanel>
+                                    
+                                    <StackPanel Grid.Column="3" Margin="20,0,0,0">
+                                        <TextBlock Text="📅 DATE CRÉATION" FontSize="10" Foreground="#999999"/>
+                                        <TextBlock Text="{Binding DateCreation, StringFormat=dd/MM/yyyy}" 
+                                                  FontSize="12" FontWeight="Bold" Foreground="#00915A"/>
                                     </StackPanel>
                                 </Grid>
                                 

@@ -38,9 +38,12 @@ namespace BacklogManager.Views
 
         private void InitialiserFiltres()
         {
-            // Filtre statut
+            // Filtre statut - Utiliser les valeurs formatées
             var statutItems = new List<string> { "Tous" };
-            statutItems.AddRange(Enum.GetNames(typeof(StatutDemande)));
+            foreach (StatutDemande statut in Enum.GetValues(typeof(StatutDemande)))
+            {
+                statutItems.Add(FormatStatut(statut));
+            }
             CmbFiltreStatut.ItemsSource = statutItems;
             CmbFiltreStatut.SelectedIndex = 0;
             
@@ -49,6 +52,20 @@ namespace BacklogManager.Views
             criticiteItems.AddRange(Enum.GetNames(typeof(Criticite)));
             CmbFiltreCriticite.ItemsSource = criticiteItems;
             CmbFiltreCriticite.SelectedIndex = 0;
+            
+            // Configurer les DatePickers
+            DpDateDebut.SelectedDateChanged += (s, e) => AppliquerFiltres();
+            DpDateFin.SelectedDateChanged += (s, e) => AppliquerFiltres();
+            BtnEffacerFiltres.Click += (s, e) => EffacerFiltres();
+        }
+        
+        private void EffacerFiltres()
+        {
+            CmbFiltreStatut.SelectedIndex = 0;
+            CmbFiltreCriticite.SelectedIndex = 0;
+            DpDateDebut.SelectedDate = null;
+            DpDateFin.SelectedDate = null;
+            AppliquerFiltres();
         }
 
         private void VerifierPermissions()
@@ -155,11 +172,11 @@ namespace BacklogManager.Views
 
             var filtered = _toutesLesDemandes.AsEnumerable();
 
-            // Filtre statut
+            // Filtre statut - Comparer avec le statut formaté
             if (CmbFiltreStatut.SelectedIndex > 0)
             {
                 var statutSelectionne = CmbFiltreStatut.SelectedItem.ToString();
-                filtered = filtered.Where(d => d.Statut.Contains(statutSelectionne));
+                filtered = filtered.Where(d => d.Statut == statutSelectionne);
             }
 
             // Filtre criticité
@@ -167,6 +184,20 @@ namespace BacklogManager.Views
             {
                 var criticiteSelectionnee = CmbFiltreCriticite.SelectedItem.ToString();
                 filtered = filtered.Where(d => d.Criticite == criticiteSelectionnee);
+            }
+            
+            // Filtre date début
+            if (DpDateDebut.SelectedDate.HasValue)
+            {
+                var dateDebut = DpDateDebut.SelectedDate.Value.Date;
+                filtered = filtered.Where(d => d.DateCreation.Date >= dateDebut);
+            }
+            
+            // Filtre date fin
+            if (DpDateFin.SelectedDate.HasValue)
+            {
+                var dateFin = DpDateFin.SelectedDate.Value.Date;
+                filtered = filtered.Where(d => d.DateCreation.Date <= dateFin);
             }
 
             ListeDemandes.ItemsSource = filtered.ToList();

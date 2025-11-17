@@ -181,29 +181,97 @@
                     <StackPanel>
                         <TextBlock Text="⏱️ Temps moyen par complexité (Story Points)" 
                                    FontSize="16" FontWeight="Bold" Foreground="#1A1919" Margin="0,0,0,15"/>
-                        <ItemsControl x:Name="GraphiqueComplexite">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid Margin="0,8">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="100"/>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="150"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Text="{Binding Complexite}" Grid.Column="0" VerticalAlignment="Center" 
-                                                   FontWeight="Bold" FontSize="16" Foreground="#00915A"/>
-                                        <Border Grid.Column="1" Height="35" Background="#E0E0E0" CornerRadius="4" Margin="10,0">
-                                            <Border Background="#2196F3" CornerRadius="4" HorizontalAlignment="Left" 
-                                                    Width="{Binding LargeurBarre}"/>
-                                        </Border>
-                                        <TextBlock Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
-                                            <Run Text="{Binding TempsJours}" FontWeight="Bold" FontSize="14"/>
-                                            <Run Text=" jour(s) moy." Foreground="#666666"/>
-                                        </TextBlock>
-                                    </Grid>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                        
+                        <TabControl x:Name="TabComplexite" Background="White" BorderThickness="0">
+                            <TabItem Header="📊 Vue d'ensemble">
+                                <ScrollViewer MaxHeight="500" VerticalScrollBarVisibility="Auto" Margin="0,10">
+                                    <ItemsControl x:Name="GraphiqueComplexite">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid Margin="0,8">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="80"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="120"/>
+                                                        <ColumnDefinition Width="80"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Text="{Binding Complexite}" Grid.Column="0" VerticalAlignment="Center" 
+                                                               FontWeight="Bold" FontSize="14" Foreground="#00915A"/>
+                                                    <Border Grid.Column="1" Height="28" Background="#E0E0E0" CornerRadius="4" Margin="10,0">
+                                                        <Border Background="#2196F3" CornerRadius="4" HorizontalAlignment="Left" 
+                                                                Width="{Binding LargeurBarre}"/>
+                                                    </Border>
+                                                    <TextBlock Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
+                                                        <Run Text="{Binding TempsHeures, StringFormat={}{0:F1}}" FontWeight="Bold" FontSize="13"/>
+                                                        <Run Text=" h" Foreground="#666666" FontSize="11"/>
+                                                    </TextBlock>
+                                                    <TextBlock Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Right" 
+                                                               Foreground="#999999" FontSize="11" Margin="8,0,0,0">
+                                                        <Run Text="("/>
+                                                        <Run Text="{Binding NbTaches}"/>
+                                                        <Run Text=")"/>
+                                                    </TextBlock>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </TabItem>
+                            
+                            <TabItem Header="👥 Par développeur">
+                                <ScrollViewer MaxHeight="500" VerticalScrollBarVisibility="Auto" Margin="0,10">
+                                    <ItemsControl x:Name="GraphiqueComplexiteParDev">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Background="#F9F9F9" BorderBrush="#E0E0E0" BorderThickness="1" 
+                                                        CornerRadius="6" Margin="0,0,0,12" Padding="12">
+                                                    <StackPanel>
+                                                        <TextBlock Text="{Binding DevNom}" FontWeight="Bold" FontSize="14" 
+                                                                   Foreground="#00915A" Margin="0,0,0,10"/>
+                                                        <ItemsControl ItemsSource="{Binding Stats}">
+                                                            <ItemsControl.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <Grid Margin="0,4">
+                                                                        <Grid.ColumnDefinitions>
+                                                                            <ColumnDefinition Width="70"/>
+                                                                            <ColumnDefinition Width="*"/>
+                                                                            <ColumnDefinition Width="100"/>
+                                                                            <ColumnDefinition Width="70"/>
+                                                                        </Grid.ColumnDefinitions>
+                                                                        <TextBlock Text="{Binding Complexite}" Grid.Column="0" 
+                                                                                   VerticalAlignment="Center" FontSize="12" 
+                                                                                   Foreground="#666666" FontWeight="SemiBold"/>
+                                                                        <Border Grid.Column="1" Height="22" Background="#E8E8E8" 
+                                                                                CornerRadius="3" Margin="8,0">
+                                                                            <Border Background="#4CAF50" CornerRadius="3" 
+                                                                                    HorizontalAlignment="Left" 
+                                                                                    Width="{Binding LargeurBarre}"/>
+                                                                        </Border>
+                                                                        <TextBlock Grid.Column="2" VerticalAlignment="Center" 
+                                                                                   HorizontalAlignment="Right" FontSize="12">
+                                                                            <Run Text="{Binding TempsHeures, StringFormat={}{0:F1}}" 
+                                                                                 FontWeight="SemiBold"/>
+                                                                            <Run Text=" h" Foreground="#999999" FontSize="10"/>
+                                                                        </TextBlock>
+                                                                        <TextBlock Grid.Column="3" VerticalAlignment="Center" 
+                                                                                   HorizontalAlignment="Right" Foreground="#AAAAAA" 
+                                                                                   FontSize="10" Margin="6,0,0,0">
+                                                                            <Run Text="("/>
+                                                                            <Run Text="{Binding NbTaches}"/>
+                                                                            <Run Text=")"/>
+                                                                        </TextBlock>
+                                                                    </Grid>
+                                                                </DataTemplate>
+                                                            </ItemsControl.ItemTemplate>
+                                                        </ItemsControl>
+                                                    </StackPanel>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </TabItem>
+                        </TabControl>
                     </StackPanel>
                 </Border>
             </StackPanel>
