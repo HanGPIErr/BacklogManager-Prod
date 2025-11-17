@@ -1,19 +1,128 @@
-# BacklogManager - WPF Application
+# Backlog Manager - BNP Paribas
 
-A complete WPF application for managing backlogs with MVVM architecture, built with .NET Framework 4.8.
+Application de gestion de backlog et de suivi de projet développée pour BNP Paribas. Permet la gestion des tâches, le suivi en Kanban, la planification des sprints et l'analyse des KPI.
 
-## Features
+## Authentification
+- Connexion avec **code d'authentification BNP** (format: JXXXXX)
+- L'application identifie automatiquement l'utilisateur et ses permissions
 
-- **Backlog Management**: Create, edit, and search backlog items with filtering capabilities
-- **Kanban Board**: Visual workflow management with drag-and-drop between status columns
-- **Planning Poker**: Team-based complexity estimation with consensus voting
-- **JSON Storage**: All data stored in a single JSON file (no database required)
+## Rôles et Permissions
+
+### 👨‍💼 Administrateur
+- Accès complet à toutes les fonctionnalités
+- Gestion des utilisateurs et de l'équipe
+- Gestion des projets
+- Consultation des logs d'audit
+- Accès à l'administration complète
+
+### 📊 Chef de Projet (CP)
+- Création et gestion de projets
+- Priorisation des tâches
+- Assignation des développeurs aux tâches
+- Consultation des KPI et statistiques
+- Suivi du planning et des sprints
+
+### 🧑‍💻 Business Analyst (BA)
+- Création de demandes et user stories
+- Chiffrage de la complexité (story points)
+- Consultation du backlog
+- Suivi des tâches assignées
+
+### 💻 Développeur
+- Consultation du backlog
+- Mise à jour du statut des tâches assignées
+- Modification de l'avancement (pourcentage)
+- Vue Kanban pour le suivi quotidien
+- Saisie du temps passé
+
+## Fonctionnalités principales
+
+### 📋 Backlog
+- Liste complète des tâches et demandes
+- Filtres avancés (type, priorité, statut, développeur, projet)
+- Recherche par titre
+- Édition des détails d'une tâche (selon permissions)
+
+### 📊 Kanban Board
+- Vue en colonnes : À Faire → En Cours → En Test → Terminé
+- Drag & drop pour changer le statut
+- Alertes visuelles selon les délais (URGENT, ATTENTION, OK)
+- Filtres par développeur et projet
+- Cartes compactes affichant : titre, priorité, type, développeur, temps restant, progression
+
+### 📁 Projets
+- Création et gestion des projets
+- Association des tâches aux projets
+- Activation/désactivation des projets
+
+### ⏱️ Timeline / Planning
+- Vue Gantt du planning des tâches
+- Visualisation des sprints
+- Suivi des échéances
+
+### 📈 Statistiques & KPI
+- Vélocité de l'équipe
+- Taux de complétion
+- Répartition par priorité
+- Analyse des délais
+- Graphiques et métriques de performance
+
+### 🔔 Notifications
+- Alertes sur les tâches urgentes
+- Rappels de deadlines
+- Notifications des changements de statut
+
+### 🧑‍💼 Gestion d'équipe
+- Liste des membres de l'équipe
+- Attribution des rôles
+- Gestion des capacités (jours disponibles par sprint)
+- Activation/désactivation des utilisateurs
+
+### 📝 Audit
+- Traçabilité complète des actions
+- Logs avec : date, utilisateur, action, détails
+- Filtres par date, utilisateur et type d'action
+- Export des logs
+
+## Types de demandes
+- **User Story** : Fonctionnalité métier
+- **Bug** : Correction d'anomalie
+- **Amélioration** : Optimisation existante
+- **Technique** : Dette technique, refactoring
+
+## Niveaux de priorité
+- **Urgente** (rouge)
+- **Haute** (orange)
+- **Moyenne** (jaune)
+- **Basse** (vert)
+
+## Workflow des tâches
+1. **À Faire** : Tâche créée, en attente
+2. **En Cours** : Développement en cours
+3. **En Test** : En phase de validation
+4. **Terminé** : Tâche complétée
+
+## Chiffrage
+- Utilisation des **Story Points** (complexité)
+- Échelle : 1, 2, 3, 5, 8, 13, 21, 34
+- Le chiffrage est réservé aux BA et CP
+
+## Technologies
+- **Framework** : WPF (.NET Framework 4.8)
+- **Base de données** : SQLite
+- **Architecture** : MVVM (Model-View-ViewModel)
+- **Langage** : C# 8.0
+
+## Branding
+- Couleur principale : **BNP Green** (#00915A)
+- Interface sombre avec accents verts
+- Logo BNP Paribas en header
 
 ## Data Storage
 
-All data is stored in: `C:\Users\HanGP\BacklogManager\backlog-db.json`
+All data is stored in SQLite database: `backlog.db`
 
-The file is created automatically on first run.
+The database is created automatically on first run.
 
 ## Building the Application
 
