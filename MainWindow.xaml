@@ -77,38 +77,49 @@
                     </StackPanel>
                 </Border>
 
-                <!-- Utilisateur connecté -->
-                <Border Background="#2A2A2A" Padding="12" Margin="15,15,15,0">
+                <!-- Utilisateur connecté (compact) -->
+                <Border Background="#2A2A2A" Padding="12,10" Margin="15,15,15,0" CornerRadius="4">
                     <StackPanel>
-                        <TextBlock Text="👤 CONNECTÉ" FontSize="10" FontWeight="Bold" 
-                                   Foreground="#00915A" Margin="0,0,0,5"/>
-                        <TextBlock x:Name="TxtUtilisateurConnecte" Text="" 
-                                   Foreground="White" FontSize="11" TextWrapping="Wrap"/>
+                        <TextBlock x:Name="TxtUtilisateurConnecte" Text="👤 Han GP" 
+                                   Foreground="White" FontSize="13" FontWeight="SemiBold"/>
+                        <TextBlock x:Name="TxtRoleUtilisateur" Text="📊 Développeur" 
+                                   Foreground="#999999" FontSize="10" Margin="0,2,0,0"/>
                     </StackPanel>
                 </Border>
 
-                <!-- Menu Buttons -->
-                <Button Content="📊 Projets" Command="{Binding ShowProjetsCommand}"
-                        Style="{StaticResource MenuButtonStyle}" Margin="0,30,0,0"/>
+                <!-- SECTION : VUES -->
+                <TextBlock Text="VUES" FontSize="10" FontWeight="Bold" 
+                           Foreground="#666666" Margin="20,25,0,8" Opacity="0.7"/>
 
-                <Button Content="📋 Backlog" Command="{Binding ShowBacklogCommand}"
-                        Style="{StaticResource MenuButtonStyle}" Margin="0,8,0,0"/>
+                <Button Content="🏠 Dashboard" x:Name="BtnDashboard"
+                        Style="{StaticResource MenuButtonStyle}" Margin="0,0,0,0"
+                        Click="BtnDashboard_Click"/>
+
+                <Button x:Name="BtnBacklog" Content="📋 Backlog"
+                        Style="{StaticResource MenuButtonStyle}" Margin="0,4,0,0"
+                        Click="BtnBacklog_Click"/>
                 
-                <Button Content="🎯 Kanban Board" Command="{Binding ShowKanbanCommand}"
-                        Style="{StaticResource MenuButtonStyle}" Margin="0,8,0,0"/>
-                
+                <Button x:Name="BtnKanban" Content="🎯 Kanban"
+                        Style="{StaticResource MenuButtonStyle}" Margin="0,4,0,0"
+                        Click="BtnKanban_Click"/>
+
+                <Button x:Name="BtnTimeline" Content="📅 Timeline"
+                        Style="{StaticResource MenuButtonStyle}" Margin="0,4,0,0"
+                        Click="BtnTimeline_Click"/>
+
                 <Button Content="🃏 Planning Poker" Command="{Binding ShowPokerCommand}"
-                        Style="{StaticResource MenuButtonStyle}" Margin="0,8,0,0" Visibility="Collapsed"/>
+                        Style="{StaticResource MenuButtonStyle}" Margin="0,4,0,0" Visibility="Collapsed"/>
 
-                <Button Content="📅 Timeline" Command="{Binding ShowTimelineCommand}"
-                        Style="{StaticResource MenuButtonStyle}" Margin="0,8,0,0"/>
+                <!-- SECTION : ACTIONS -->
+                <TextBlock Text="ACTIONS" FontSize="10" FontWeight="Bold" 
+                           Foreground="#666666" Margin="20,20,0,8" Opacity="0.7"/>
 
                 <Button x:Name="BtnDemandes" Content="📝 Demandes" 
-                        Style="{StaticResource MenuButtonStyle}" Margin="0,8,0,0"
+                        Style="{StaticResource MenuButtonStyle}" Margin="0,0,0,0"
                         Click="BtnDemandes_Click"/>
 
                 <!-- Notifications avec badge -->
-                <Grid Margin="0,8,0,0">
+                <Grid Margin="0,4,0,0">
                     <Button x:Name="BtnNotifications" Content="🔔 Notifications" 
                             Style="{StaticResource MenuButtonStyle}"
                             Click="BtnNotifications_Click"/>
@@ -120,25 +131,23 @@
                     </Border>
                 </Grid>
 
-                <Separator Background="#444" Margin="15,20,15,20" Height="1"/>
+                <!-- SECTION : ADMINISTRATION -->
+                <TextBlock x:Name="TxtHeaderAdmin" Text="ADMINISTRATION" FontSize="10" FontWeight="Bold" 
+                           Foreground="#666666" Margin="20,20,0,8" Opacity="0.7"/>
 
-                <!-- Administration -->
                 <Button x:Name="BtnAdmin" Content="⚙️ Administration" 
                         Style="{StaticResource MenuButtonStyle}" Margin="0,0,0,0"
                         Click="BtnAdmin_Click"/>
                 
-                <!-- Statistiques KPI -->
-                <Button x:Name="BtnStatistiques" Content="📊 Statistiques KPI" 
-                        Style="{StaticResource MenuButtonStyle}" Margin="0,0,0,0"
+                <Button x:Name="BtnStatistiques" Content="📊 Statistiques" 
+                        Style="{StaticResource MenuButtonStyle}" Margin="0,4,0,0"
                         Click="BtnStatistiques_Click"/>
                 
-                <!-- Paramètres -->
                 <Button x:Name="BtnParametres" Content="⚙️ Paramètres" 
-                        Style="{StaticResource MenuButtonStyle}" Margin="0,0,0,0"
+                        Style="{StaticResource MenuButtonStyle}" Margin="0,4,0,0"
                         Click="BtnParametres_Click"/>
-                
 
-                <!-- Projets Info -->
+                <!-- Projets Info (en bas) -->
                 <Border Margin="15,40,15,0" Background="#2A2A2A" Padding="12" CornerRadius="4">
                     <StackPanel>
                         <Grid>
@@ -179,7 +188,7 @@
 
         <!-- Main Content Area -->
         <Border Grid.Column="1" Background="White">
-            <ContentControl Content="{Binding CurrentView}"/>
+            <ContentControl x:Name="MainContentControl" Content="{Binding CurrentView}"/>
         </Border>
     </Grid>
 </Window>

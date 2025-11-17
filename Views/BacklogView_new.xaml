@@ -1,0 +1,87 @@
+<UserControl x:Class="BacklogManager.Views.BacklogView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:BacklogManager.Domain"
+             Background="#F5F5F5">
+    <Grid Margin="20">
+        <!-- Main Content Area - Full Width -->
+        <Border Background="White" CornerRadius="8" Padding="0">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="15" ShadowDepth="2" Opacity="0.1" Color="Gray"/>
+            </Border.Effect>
+            
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                
+                <!-- Header with Tab-like Navigation -->
+                <Border Grid.Row="0" Background="#FAFAFA" BorderBrush="#E0E0E0" BorderThickness="0,0,0,1" Padding="20,15">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <!-- Navigation Tabs -->
+                        <StackPanel Grid.Column="0" Orientation="Horizontal">
+                            <Button x:Name="BtnVueTaches" Content="📋 Tâches" 
+                                    Background="#00915A" Foreground="White" 
+                                    FontSize="14" FontWeight="SemiBold" Padding="20,10"
+                                    Margin="0,0,8,0" BorderThickness="0" Cursor="Hand"
+                                    Click="BtnVueTaches_Click"/>
+                            
+                            <Button x:Name="BtnVueProjets" Content="📁 Projets" 
+                                    Background="#E0E0E0" Foreground="#6D6D6D" 
+                                    FontSize="14" FontWeight="Normal" Padding="20,10"
+                                    BorderThickness="0" Cursor="Hand"
+                                    Click="BtnVueProjets_Click"/>
+                        </StackPanel>
+                        
+                        <!-- Action Buttons -->
+                        <StackPanel Grid.Column="2" Orientation="Horizontal">
+                            <Button x:Name="BtnNouveauProjet" Content="➕ Nouveau Projet" 
+                                    Visibility="Collapsed"
+                                    Command="{Binding NewProjetCommand}"
+                                    Height="40" Margin="0,0,8,0" Background="#00915A" Foreground="White" BorderThickness="0"
+                                    FontSize="13" FontWeight="SemiBold" Cursor="Hand" Padding="15,0"/>
+                            
+                            <Button x:Name="BtnNouvelleTache" Content="➕ Nouvelle Tâche" 
+                                    Visibility="{Binding PeutCreerTachesVisibility}"
+                                    Command="{Binding NewCommand}"
+                                    Height="40" Background="#00915A" Foreground="White" BorderThickness="0"
+                                    FontSize="13" FontWeight="SemiBold" Cursor="Hand" Padding="15,0"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+                
+                <!-- Content Area -->
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="320"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <!-- Left Panel: Filters Sidebar -->
+                    <Border Grid.Column="0" Background="#FAFAFA" BorderBrush="#E0E0E0" BorderThickness="0,0,1,0" Padding="20">
+                        <TextBlock Text="Filters placeholder" FontSize="12" Foreground="#666"/>
+                    </Border>
+                    
+                    <!-- Right Panel: Content Views -->
+                    <Grid Grid.Column="1">
+                        <!-- Tâches View -->
+                        <ScrollViewer x:Name="TachesScrollViewer" VerticalScrollBarVisibility="Auto" Padding="20">
+                            <TextBlock Text="Tâches list placeholder" FontSize="14" Foreground="#333"/>
+                        </ScrollViewer>
+                        
+                        <!-- Projets View (Frame) -->
+                        <Frame x:Name="MainContentFrame" NavigationUIVisibility="Hidden" 
+                               Visibility="Collapsed" Background="Transparent"/>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

@@ -23,7 +23,7 @@
             </StackPanel>
         </Border>
 
-        <!-- Tabs Navigation -->
+        <!-- Tabs Navigation avec Regroupement Logique -->
         <TabControl Grid.Row="1" Background="Transparent" BorderThickness="0">
             <TabControl.Resources>
                 <Style TargetType="TabItem">
@@ -64,31 +64,61 @@
                 </Style>
             </TabControl.Resources>
 
-            <!-- Tab Utilisateurs -->
-            <TabItem Header="👥 Utilisateurs">
+            <!-- Tab Utilisateurs & Rôles (Regroupement logique) -->
+            <TabItem Header="👥 Utilisateurs &amp; Rôles">
                 <Border Background="White" CornerRadius="0,6,6,6" Padding="20">
-                    <Frame x:Name="FrameUtilisateurs" NavigationUIVisibility="Hidden"/>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        
+                        <!-- Sous-navigation -->
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,15">
+                            <Button x:Name="BtnSousOngletUtilisateurs" Content="👥 Utilisateurs" 
+                                    Background="#00915A" Foreground="White" 
+                                    FontSize="13" FontWeight="SemiBold" Padding="15,8"
+                                    Margin="0,0,10,0" BorderThickness="0" Cursor="Hand"
+                                    Click="BtnSousOngletUtilisateurs_Click"/>
+                            <Button x:Name="BtnSousOngletRoles" Content="🎭 Rôles" 
+                                    Background="#E0E0E0" Foreground="#6D6D6D" 
+                                    FontSize="13" FontWeight="Normal" Padding="15,8"
+                                    BorderThickness="0" Cursor="Hand"
+                                    Click="BtnSousOngletRoles_Click"/>
+                        </StackPanel>
+                        
+                        <!-- Contenu dynamique -->
+                        <Frame x:Name="FrameUtilisateursRoles" Grid.Row="1" NavigationUIVisibility="Hidden"/>
+                    </Grid>
                 </Border>
             </TabItem>
 
-            <!-- Tab Rôles -->
-            <TabItem Header="🎭 Rôles">
+            <!-- Tab Projets & Équipe (Regroupement logique) -->
+            <TabItem Header="📊 Projets &amp; Équipe">
                 <Border Background="White" CornerRadius="0,6,6,6" Padding="20">
-                    <Frame x:Name="FrameRoles" NavigationUIVisibility="Hidden"/>
-                </Border>
-            </TabItem>
-
-            <!-- Tab Projets -->
-            <TabItem Header="📊 Projets">
-                <Border Background="White" CornerRadius="0,6,6,6" Padding="20">
-                    <Frame x:Name="FrameProjets" NavigationUIVisibility="Hidden"/>
-                </Border>
-            </TabItem>
-
-            <!-- Tab Équipe -->
-            <TabItem Header="🧑‍💼 Équipe">
-                <Border Background="White" CornerRadius="0,6,6,6" Padding="20">
-                    <Frame x:Name="FrameEquipe" NavigationUIVisibility="Hidden"/>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        
+                        <!-- Sous-navigation -->
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,15">
+                            <Button x:Name="BtnSousOngletProjets" Content="📊 Projets" 
+                                    Background="#00915A" Foreground="White" 
+                                    FontSize="13" FontWeight="SemiBold" Padding="15,8"
+                                    Margin="0,0,10,0" BorderThickness="0" Cursor="Hand"
+                                    Click="BtnSousOngletProjets_Click"/>
+                            <Button x:Name="BtnSousOngletEquipe" Content="👥 Équipe" 
+                                    Background="#E0E0E0" Foreground="#6D6D6D" 
+                                    FontSize="13" FontWeight="Normal" Padding="15,8"
+                                    BorderThickness="0" Cursor="Hand"
+                                    Click="BtnSousOngletEquipe_Click"/>
+                        </StackPanel>
+                        
+                        <!-- Contenu dynamique -->
+                        <Frame x:Name="FrameProjetsEquipe" Grid.Row="1" NavigationUIVisibility="Hidden"/>
+                    </Grid>
                 </Border>
             </TabItem>
 

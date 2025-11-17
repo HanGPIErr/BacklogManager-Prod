@@ -1,0 +1,482 @@
+<UserControl x:Class="BacklogManager.Views.BacklogView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:BacklogManager.Domain"
+             Background="#F5F5F5">
+    <Grid Margin="20">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="320"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Left Panel: Search and List -->
+        <Border Grid.Column="0" Background="White" CornerRadius="8" Padding="20" Margin="0,0,20,0">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="15" ShadowDepth="2" Opacity="0.1" Color="#00915A"/>
+            </Border.Effect>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Header -->
+                <StackPanel Grid.Row="0" Margin="0,0,0,15">
+                    <TextBlock Text="📋 BACKLOG" FontSize="20" FontWeight="Bold" 
+                               Foreground="#00915A" Margin="0,0,0,3"/>
+                    <TextBlock Text="Gestion des tâches" FontSize="11" 
+                               Foreground="#999"/>
+                </StackPanel>
+
+                <!-- Search Bar -->
+                <Border Grid.Row="1" Background="#F9F9F9" CornerRadius="6" Padding="10,8" Margin="0,0,0,12">
+                    <Grid>
+                        <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" 
+                                 FontSize="13" BorderThickness="0" Background="Transparent"
+                                 VerticalContentAlignment="Center" Padding="22,0,0,0"/>
+                        <TextBlock Text="🔍  Rechercher..." IsHitTestVisible="False" 
+                                   Foreground="#999" FontSize="13" VerticalAlignment="Center" Margin="2,0,0,0">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SearchText}" Value="">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Grid>
+                </Border>
+
+                <!-- Filters Expander -->
+                <Expander Grid.Row="2" Header="🔧 Filtres" IsExpanded="False" Margin="0,0,0,12">
+                    <Expander.Style>
+                        <Style TargetType="Expander">
+                            <Setter Property="HeaderTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" FontWeight="SemiBold" FontSize="12" Foreground="#666"/>
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Expander.Style>
+                    <StackPanel Margin="0,8,0,0">
+                        <Grid Margin="0,0,0,8">
+                            <ComboBox ItemsSource="{Binding Source={x:Type local:TypeDemande}, Converter={StaticResource EnumToCollectionConverter}}"
+                                      SelectedItem="{Binding SelectedType}" 
+                                      Height="34" FontSize="12" BorderBrush="#DDD" BorderThickness="1" Padding="8,0">
+                                <ComboBox.Style>
+                                    <Style TargetType="ComboBox">
+                                        <Setter Property="Background" Value="White"/>
+                                    </Style>
+                                </ComboBox.Style>
+                            </ComboBox>
+                            <TextBlock Text="📝 Type" IsHitTestVisible="False" 
+                                       Foreground="#999" FontSize="11" Margin="10,0,0,0" VerticalAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedType}" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+                        
+                        <Grid Margin="0,0,0,8">
+                            <ComboBox ItemsSource="{Binding Source={x:Type local:Priorite}, Converter={StaticResource EnumToCollectionConverter}}"
+                                      SelectedItem="{Binding SelectedPriorite}" 
+                                      Height="34" FontSize="12" BorderBrush="#DDD" BorderThickness="1" Padding="8,0"/>
+                            <TextBlock Text="⚡ Priorité" IsHitTestVisible="False" 
+                                       Foreground="#999" FontSize="11" Margin="10,0,0,0" VerticalAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedPriorite}" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+                        
+                        <Grid Margin="0,0,0,8">
+                            <ComboBox ItemsSource="{Binding Source={x:Type local:Statut}, Converter={StaticResource EnumToCollectionConverter}}"
+                                      SelectedItem="{Binding SelectedStatut}" 
+                                      Height="34" FontSize="12" BorderBrush="#DDD" BorderThickness="1" Padding="8,0"/>
+                            <TextBlock Text="📊 Statut" IsHitTestVisible="False" 
+                                       Foreground="#999" FontSize="11" Margin="10,0,0,0" VerticalAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedStatut}" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+                        
+                        <Grid Margin="0,0,0,8">
+                            <ComboBox ItemsSource="{Binding Devs}" DisplayMemberPath="Nom"
+                                      SelectedValue="{Binding SelectedDevId}" SelectedValuePath="Id" 
+                                      Height="34" FontSize="12" BorderBrush="#DDD" BorderThickness="1" Padding="8,0"/>
+                            <TextBlock Text="👤 Développeur" IsHitTestVisible="False" 
+                                       Foreground="#999" FontSize="11" Margin="10,0,0,0" VerticalAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedDevId}" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+
+                        <Grid Margin="0,0,0,8">
+                            <ComboBox ItemsSource="{Binding Projets}" DisplayMemberPath="Nom"
+                                      SelectedValue="{Binding SelectedProjetId}" SelectedValuePath="Id" 
+                                      Height="34" FontSize="12" BorderBrush="#DDD" BorderThickness="1" Padding="8,0"/>
+                            <TextBlock Text="📁 Projet" IsHitTestVisible="False" 
+                                       Foreground="#999" FontSize="11" Margin="10,0,0,0" VerticalAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedProjetId}" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+
+                        <Button Content="🔄 Effacer" Command="{Binding ClearFiltersCommand}"
+                                Height="32" Margin="0,4,0,0" Background="#F5F5F5" BorderBrush="#DDD" BorderThickness="1"
+                                FontSize="11" Cursor="Hand" Foreground="#666">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}" 
+                                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                                        CornerRadius="5" Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#EEEEEE"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </StackPanel>
+                </Expander>
+
+                <!-- List -->
+                <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
+                    <ListBox ItemsSource="{Binding BacklogItems}" 
+                             SelectedItem="{Binding SelectedItem}"
+                             Background="Transparent" BorderThickness="0" 
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="White" BorderBrush="#E8E8E8" BorderThickness="1" 
+                                        CornerRadius="6" Padding="10" Margin="0,0,0,6">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="BorderBrush" Value="#00915A"/>
+                                                    <Setter Property="Background" Value="#FAFAFA"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        
+                                        <TextBlock Grid.Row="0" Text="{Binding Item.Titre}" 
+                                                   FontWeight="SemiBold" FontSize="13" TextWrapping="Wrap"
+                                                   Foreground="#1A1919" Margin="0,0,0,5"/>
+                                        
+                                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,5">
+                                            <Border Background="#FFF3E0" CornerRadius="3" Padding="5,2" Margin="0,0,4,0">
+                                                <TextBlock FontSize="9" FontWeight="Bold" Foreground="#F57C00">
+                                                    <Run Text="⚡"/>
+                                                    <Run Text="{Binding Item.Priorite}"/>
+                                                </TextBlock>
+                                            </Border>
+                                            <Border Background="#E8F5E9" CornerRadius="3" Padding="5,2">
+                                                <TextBlock FontSize="9" FontWeight="Bold" Foreground="#2E7D32">
+                                                    <Run Text="📊"/>
+                                                    <Run Text="{Binding Item.Statut}"/>
+                                                </TextBlock>
+                                            </Border>
+                                        </StackPanel>
+                                        
+                                        <StackPanel Grid.Row="2" Orientation="Horizontal">
+                                            <TextBlock FontSize="10" Foreground="#999" Margin="0,0,3,0">
+                                                <Run Text="👤"/>
+                                            </TextBlock>
+                                            <TextBlock Text="{Binding DevNom}" FontSize="10" 
+                                                       Foreground="#00915A" FontWeight="SemiBold"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </ScrollViewer>
+
+                <!-- Action Buttons -->
+                <StackPanel Grid.Row="4" Margin="0,10,0,0">
+                    <Button Content="➕ Nouveau Projet" Command="{Binding NewProjetCommand}"
+                            Visibility="{Binding PeutCreerProjetsVisibility}"
+                            Height="38" Margin="0,0,0,6" Background="#00915A" Foreground="White" BorderThickness="0"
+                            FontSize="12" FontWeight="Bold" Cursor="Hand">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="6" 
+                                                    Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#007A4A"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    
+                    <Button Content="➕ Nouvelle tâche" Command="{Binding NewCommand}"
+                            Visibility="{Binding PeutCreerTachesVisibility}"
+                            Height="38" Background="#00915A" Foreground="White"
+                            BorderThickness="0" FontSize="12" FontWeight="Bold" Cursor="Hand">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="6" 
+                                                    Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#007A4A"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    
+                    <!-- Footer Stats -->
+                    <Border Background="#F9F9F9" CornerRadius="6" Padding="8" Margin="0,10,0,0">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock FontSize="10" Foreground="#666">
+                                <Run Text="📊"/>
+                                <Run FontWeight="Bold" Text="{Binding BacklogItems.Count, Mode=OneWay}"/>
+                                <Run Text="tâche(s)"/>
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Right Panel: Details -->
+        <Border Grid.Column="1" Background="White" CornerRadius="8" Padding="25">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="15" ShadowDepth="2" Opacity="0.1" Color="Gray"/>
+            </Border.Effect>
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsEditMode}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+                        <TextBlock Text="📝" FontSize="24" Margin="0,0,10,0"/>
+                        <StackPanel>
+                            <TextBlock Text="Détails de la tâche" FontSize="20" FontWeight="Bold" Foreground="#1A1919"/>
+                            <TextBlock Text="Modifiez les informations de la tâche" FontSize="12" Foreground="#999"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <Border Background="#FAFAFA" CornerRadius="6" Padding="15" Margin="0,0,0,15">
+                        <StackPanel>
+                            <TextBlock Text="Titre de la tâche" FontWeight="SemiBold" FontSize="12" 
+                                       Foreground="#666" Margin="0,0,0,6"/>
+                            <TextBox Text="{Binding SelectedItem.Titre, UpdateSourceTrigger=PropertyChanged}" 
+                                     Height="42" Padding="12" FontSize="14" BorderBrush="#DDD" BorderThickness="1"
+                                     VerticalContentAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Background="#FAFAFA" CornerRadius="6" Padding="15" Margin="0,0,0,15">
+                        <StackPanel>
+                            <TextBlock Text="Description détaillée" FontWeight="SemiBold" FontSize="12" 
+                                       Foreground="#666" Margin="0,0,0,6"/>
+                            <TextBox Text="{Binding SelectedItem.Description, UpdateSourceTrigger=PropertyChanged}" 
+                                     Padding="12" FontSize="13" Height="120" TextWrapping="Wrap" 
+                                     AcceptsReturn="True" VerticalScrollBarVisibility="Auto"
+                                     BorderBrush="#DDD" BorderThickness="1"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="15"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <Border Grid.Column="0" Background="#FAFAFA" CornerRadius="6" Padding="15">
+                            <StackPanel>
+                                <TextBlock Text="📝 Type de demande" FontWeight="SemiBold" FontSize="12" 
+                                           Foreground="#666" Margin="0,0,0,6"/>
+                                <ComboBox ItemsSource="{Binding Source={x:Type local:TypeDemande}, Converter={StaticResource EnumToCollectionConverter}}"
+                                          SelectedItem="{Binding SelectedItem.TypeDemande}" 
+                                          Height="38" Padding="10" FontSize="13" BorderBrush="#DDD" BorderThickness="1"/>
+                            </StackPanel>
+                        </Border>
+                        
+                        <Border Grid.Column="2" Background="#FAFAFA" CornerRadius="6" Padding="15"
+                                Visibility="{Binding PeutPrioriserVisibility}">
+                            <StackPanel>
+                                <TextBlock Text="⚡ Priorité" FontWeight="SemiBold" FontSize="12" 
+                                           Foreground="#666" Margin="0,0,0,6"/>
+                                <ComboBox ItemsSource="{Binding Source={x:Type local:Priorite}, Converter={StaticResource EnumToCollectionConverter}}"
+                                          SelectedItem="{Binding SelectedItem.Priorite}" 
+                                          Height="38" Padding="10" FontSize="13" BorderBrush="#DDD" BorderThickness="1"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <Border Background="#FAFAFA" CornerRadius="6" Padding="15" Margin="0,15,0,15">
+                        <StackPanel>
+                            <TextBlock Text="📊 Statut" FontWeight="SemiBold" FontSize="12" 
+                                       Foreground="#666" Margin="0,0,0,6"/>
+                            <ComboBox ItemsSource="{Binding Source={x:Type local:Statut}, Converter={StaticResource EnumToCollectionConverter}}"
+                                      SelectedItem="{Binding SelectedItem.Statut}" 
+                                      Height="38" Padding="10" FontSize="13" BorderBrush="#DDD" BorderThickness="1"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Background="#FAFAFA" CornerRadius="6" Padding="15" Margin="0,0,0,15"
+                            Visibility="{Binding PeutAssignerDevVisibility}">
+                        <StackPanel>
+                            <TextBlock Text="👤 Développeur assigné" FontWeight="SemiBold" FontSize="12" 
+                                       Foreground="#666" Margin="0,0,0,6"/>
+                            <ComboBox ItemsSource="{Binding Devs}" DisplayMemberPath="Nom"
+                                      SelectedValue="{Binding SelectedItem.DevAssigneId}" SelectedValuePath="Id"
+                                      Height="38" Padding="10" FontSize="13" BorderBrush="#DDD" BorderThickness="1"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Background="#FAFAFA" CornerRadius="6" Padding="15" Margin="0,0,0,15">
+                        <StackPanel>
+                            <TextBlock Text="📁 Projet" FontWeight="SemiBold" FontSize="12" 
+                                       Foreground="#666" Margin="0,0,0,6"/>
+                            <ComboBox ItemsSource="{Binding Projets}" DisplayMemberPath="Nom"
+                                      SelectedValue="{Binding SelectedItem.ProjetId}" SelectedValuePath="Id" 
+                                      Height="38" Padding="10" FontSize="13" BorderBrush="#DDD" BorderThickness="1"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Background="#FAFAFA" CornerRadius="6" Padding="15" Margin="0,0,0,15"
+                            Visibility="{Binding PeutChiffrerVisibility}">
+                        <StackPanel>
+                            <TextBlock Text="🎯 Complexité (Story Points)" FontWeight="SemiBold" FontSize="12" 
+                                       Foreground="#666" Margin="0,0,0,6"/>
+                            <ComboBox ItemsSource="{Binding ComplexiteValues}"
+                                      SelectedValue="{Binding SelectedItem.Complexite, UpdateSourceTrigger=PropertyChanged}"
+                                      Height="38" Padding="10" FontSize="13" BorderBrush="#DDD" BorderThickness="1"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Background="#FAFAFA" CornerRadius="6" Padding="15" Margin="0,0,0,20">
+                        <StackPanel>
+                            <TextBlock Text="📅 Date de fin attendue" FontWeight="SemiBold" FontSize="12" 
+                                       Foreground="#666" Margin="0,0,0,6"/>
+                            <DatePicker SelectedDate="{Binding SelectedItem.DateFinAttendue, UpdateSourceTrigger=PropertyChanged}"
+                                        Height="38" Padding="10" FontSize="13" BorderBrush="#DDD" BorderThickness="1"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Button Content="💾 Enregistrer les modifications" Command="{Binding SaveCommand}"
+                            Visibility="{Binding PeutModifierTachesVisibility}"
+                            Height="45" Background="#00915A" Foreground="White"
+                            BorderThickness="0" FontSize="14" FontWeight="Bold" Cursor="Hand">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="6" 
+                                                    Padding="{TemplateBinding Padding}">
+                                                <Border.Effect>
+                                                    <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.2" Color="#00915A"/>
+                                                </Border.Effect>
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#007A4A"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+    </Grid>
+</UserControl>

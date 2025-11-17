@@ -122,6 +122,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\DashboardView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\BacklogView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -171,6 +175,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Pages\GestionEquipePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Pages\ProjetsListPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -259,6 +267,9 @@
     <Compile Include="Views\DevDetailsWindow.xaml.cs">
       <DependentUpon>DevDetailsWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\DashboardView.xaml.cs">
+      <DependentUpon>DashboardView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\BacklogView.xaml.cs">
       <DependentUpon>BacklogView.xaml</DependentUpon>
     </Compile>
@@ -298,6 +309,9 @@
     <Compile Include="Views\Pages\GestionEquipePage.xaml.cs">
       <DependentUpon>GestionEquipePage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Pages\ProjetsListPage.xaml.cs">
+      <DependentUpon>ProjetsListPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\GestionUtilisateursWindow.xaml.cs">
       <DependentUpon>GestionUtilisateursWindow.xaml</DependentUpon>
     </Compile>
@@ -329,6 +343,7 @@
       <DependentUpon>ParametresWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Shared\RelayCommand.cs" />
+    <Compile Include="Shared\BooleanToVisibilityConverter.cs" />
     <Compile Include="Shared\ProgressWidthConverter.cs" />
     <Compile Include="Shared\InverseBooleanToVisibilityConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -359,6 +374,16 @@
   <ItemGroup>
     <Resource Include="Images\logobnp.png" />
     <Resource Include="Images\backlogmanager.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages\System.Data.SQLite.Core.1.0.118\SQLite.Interop.dll">
+      <Link>x64\SQLite.Interop.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="packages\System.Data.SQLite.Core.1.0.118.x86\SQLite.Interop.dll">
+      <Link>x86\SQLite.Interop.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

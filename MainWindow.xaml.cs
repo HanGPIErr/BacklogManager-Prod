@@ -44,6 +44,10 @@ namespace BacklogManager
             var pokerViewModel = new PokerViewModel(_backlogService, pokerService);
             var timelineViewModel = new TimelineViewModel(_backlogService);
             
+            // Synchronisation bidirectionnelle Backlog ↔ Kanban
+            backlogViewModel.TacheCreated += (s, e) => kanbanViewModel.LoadItems();
+            kanbanViewModel.TacheStatutChanged += (s, e) => backlogViewModel.LoadData();
+            
             // Initialiser le MainViewModel
             var mainViewModel = new MainViewModel(projetsViewModel, backlogViewModel, kanbanViewModel, pokerViewModel, timelineViewModel);
             this.DataContext = mainViewModel;
@@ -55,6 +59,9 @@ namespace BacklogManager
                 AfficherUtilisateurConnecte();
                 VerifierPermissions();
                 InitialiserNotifications();
+                
+                // Afficher le Dashboard par défaut
+                BtnDashboard_Click(null, null);
             };
         }
 
@@ -91,20 +98,37 @@ namespace BacklogManager
 
         private void AfficherUtilisateurConnecte()
         {
-            if (_authService.EstConnecte)
+            if (_authService?.CurrentUser != null)
             {
                 var user = _authService.CurrentUser;
                 var role = _authService.GetCurrentUserRole();
-                TxtUtilisateurConnecte.Text = string.Format("{0} {1} - {2}", user.Nom, user.Prenom, role != null ? role.Nom : "");
+                
+                // Format: "👤 Prénom Nom"
+                TxtUtilisateurConnecte.Text = string.Format("👤 {0} {1}", user.Prenom, user.Nom);
+                
+                // Format: "📊 Rôle"
+                if (role != null)
+                {
+                    string iconeRole = role.Type == Domain.RoleType.Administrateur ? "👑" :
+                                       role.Type == Domain.RoleType.ChefDeProjet ? "📊" :
+                                       role.Type == Domain.RoleType.BusinessAnalyst ? "📋" :
+                                       "💻";
+                    TxtRoleUtilisateur.Text = string.Format("{0} {1}", iconeRole, role.Nom);
+                }
             }
         }
 
         private void VerifierPermissions()
         {
             // Afficher/masquer les boutons selon les permissions
-            BtnAdmin.Visibility = _permissionService.PeutAccederAdministration ? Visibility.Visible : Visibility.Collapsed;
+            var hasAdminAccess = _permissionService.PeutAccederAdministration;
+            
+            BtnAdmin.Visibility = hasAdminAccess ? Visibility.Visible : Visibility.Collapsed;
             BtnDemandes.Visibility = _permissionService.PeutCreerDemandes ? Visibility.Visible : Visibility.Collapsed;
             BtnStatistiques.Visibility = _permissionService.PeutVoirKPI ? Visibility.Visible : Visibility.Collapsed;
+            
+            // Masquer toute la section ADMINISTRATION si pas d'accès
+            TxtHeaderAdmin.Visibility = hasAdminAccess ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void ChargerInfoProjets()
@@ -236,6 +260,53 @@ namespace BacklogManager
             }
         }
 
+        private void BtnDashboard_Click(object sender, RoutedEventArgs e)
+        {
+            var dashboardView = new Views.DashboardView(_backlogService, _notificationService, _authService);
+            // Trouver le ContentControl dans le XAML et mettre à jour son contenu
+            var contentControl = (System.Windows.Controls.ContentControl)this.FindName("MainContentControl");
+            if (contentControl != null)
+            {
+                contentControl.Content = dashboardView;
+            }
+        }
+
+        private void BtnBacklog_Click(object sender, RoutedEventArgs e)
+        {
+            var backlogView = new Views.BacklogView();
+            var mainViewModel = (MainViewModel)this.DataContext;
+            backlogView.DataContext = mainViewModel.BacklogViewModel;
+            var contentControl = (System.Windows.Controls.ContentControl)this.FindName("MainContentControl");
+            if (contentControl != null)
+            {
+                contentControl.Content = backlogView;
+            }
+        }
+
+        private void BtnKanban_Click(object sender, RoutedEventArgs e)
+        {
+            var kanbanView = new Views.KanbanView();
+            var mainViewModel = (MainViewModel)this.DataContext;
+            kanbanView.DataContext = mainViewModel.KanbanViewModel;
+            var contentControl = (System.Windows.Controls.ContentControl)this.FindName("MainContentControl");
+            if (contentControl != null)
+            {
+                contentControl.Content = kanbanView;
+            }
+        }
+
+        private void BtnTimeline_Click(object sender, RoutedEventArgs e)
+        {
+            var timelineView = new Views.TimelineView();
+            var mainViewModel = (MainViewModel)this.DataContext;
+            timelineView.DataContext = mainViewModel.TimelineViewModel;
+            var contentControl = (System.Windows.Controls.ContentControl)this.FindName("MainContentControl");
+            if (contentControl != null)
+            {
+                contentControl.Content = timelineView;
+            }
+        }
+
         private void BtnDemandes_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -257,6 +328,16 @@ namespace BacklogManager
                 MessageBox.Show(string.Format("Erreur lors de l'ouverture des demandes: {0}", ex.Message), 
                     "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        public void AfficherBacklog()
+        {
+            BtnBacklog_Click(null, null);
+        }
+
+        public void AfficherNotifications()
+        {
+            BtnNotifications_Click(null, null);
         }
     }
 }

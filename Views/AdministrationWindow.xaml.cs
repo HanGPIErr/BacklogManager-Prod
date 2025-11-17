@@ -27,16 +27,89 @@ namespace BacklogManager.Views
         {
             try
             {
-                FrameUtilisateurs.Content = new GestionUtilisateursPage(_database, _auditLogService);
-                FrameRoles.Content = new GestionRolesPage(_database, _auditLogService);
-                FrameProjets.Content = new GestionProjetsPage(_database, _auditLogService);
-                FrameEquipe.Content = new GestionEquipePage(_database);
+                // Charger la première page de chaque groupe par défaut
+                FrameUtilisateursRoles.Content = new GestionUtilisateursPage(_database, _auditLogService);
+                FrameProjetsEquipe.Content = new GestionProjetsPage(_database, _auditLogService);
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Erreur lors du chargement des pages: {ex.Message}", 
                     "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        // Gestion des sous-onglets Utilisateurs & Rôles
+        private void BtnSousOngletUtilisateurs_Click(object sender, RoutedEventArgs e)
+        {
+            // Mettre à jour les styles des boutons
+            BtnSousOngletUtilisateurs.Background = new System.Windows.Media.SolidColorBrush(
+                (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#00915A"));
+            BtnSousOngletUtilisateurs.Foreground = System.Windows.Media.Brushes.White;
+            BtnSousOngletUtilisateurs.FontWeight = FontWeights.SemiBold;
+
+            BtnSousOngletRoles.Background = new System.Windows.Media.SolidColorBrush(
+                (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#E0E0E0"));
+            BtnSousOngletRoles.Foreground = new System.Windows.Media.SolidColorBrush(
+                (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#6D6D6D"));
+            BtnSousOngletRoles.FontWeight = FontWeights.Normal;
+
+            // Charger le contenu
+            FrameUtilisateursRoles.Content = new GestionUtilisateursPage(_database, _auditLogService);
+        }
+
+        private void BtnSousOngletRoles_Click(object sender, RoutedEventArgs e)
+        {
+            // Mettre à jour les styles des boutons
+            BtnSousOngletRoles.Background = new System.Windows.Media.SolidColorBrush(
+                (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#00915A"));
+            BtnSousOngletRoles.Foreground = System.Windows.Media.Brushes.White;
+            BtnSousOngletRoles.FontWeight = FontWeights.SemiBold;
+
+            BtnSousOngletUtilisateurs.Background = new System.Windows.Media.SolidColorBrush(
+                (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#E0E0E0"));
+            BtnSousOngletUtilisateurs.Foreground = new System.Windows.Media.SolidColorBrush(
+                (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#6D6D6D"));
+            BtnSousOngletUtilisateurs.FontWeight = FontWeights.Normal;
+
+            // Charger le contenu
+            FrameUtilisateursRoles.Content = new GestionRolesPage(_database, _auditLogService);
+        }
+
+        // Gestion des sous-onglets Projets & Équipe
+        private void BtnSousOngletProjets_Click(object sender, RoutedEventArgs e)
+        {
+            // Mettre à jour les styles des boutons
+            BtnSousOngletProjets.Background = new System.Windows.Media.SolidColorBrush(
+                (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#00915A"));
+            BtnSousOngletProjets.Foreground = System.Windows.Media.Brushes.White;
+            BtnSousOngletProjets.FontWeight = FontWeights.SemiBold;
+
+            BtnSousOngletEquipe.Background = new System.Windows.Media.SolidColorBrush(
+                (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#E0E0E0"));
+            BtnSousOngletEquipe.Foreground = new System.Windows.Media.SolidColorBrush(
+                (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#6D6D6D"));
+            BtnSousOngletEquipe.FontWeight = FontWeights.Normal;
+
+            // Charger le contenu
+            FrameProjetsEquipe.Content = new GestionProjetsPage(_database, _auditLogService);
+        }
+
+        private void BtnSousOngletEquipe_Click(object sender, RoutedEventArgs e)
+        {
+            // Mettre à jour les styles des boutons
+            BtnSousOngletEquipe.Background = new System.Windows.Media.SolidColorBrush(
+                (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#00915A"));
+            BtnSousOngletEquipe.Foreground = System.Windows.Media.Brushes.White;
+            BtnSousOngletEquipe.FontWeight = FontWeights.SemiBold;
+
+            BtnSousOngletProjets.Background = new System.Windows.Media.SolidColorBrush(
+                (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#E0E0E0"));
+            BtnSousOngletProjets.Foreground = new System.Windows.Media.SolidColorBrush(
+                (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#6D6D6D"));
+            BtnSousOngletProjets.FontWeight = FontWeights.Normal;
+
+            // Charger le contenu
+            FrameProjetsEquipe.Content = new GestionEquipePage(_database);
         }
 
         private void ChargerStatistiques()

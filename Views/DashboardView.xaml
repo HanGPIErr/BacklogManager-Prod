@@ -1,0 +1,184 @@
+<UserControl x:Class="BacklogManager.Views.DashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:shared="clr-namespace:BacklogManager.Shared"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="800"
+             Background="#F5F5F5">
+    <UserControl.Resources>
+        <shared:BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    </UserControl.Resources>
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="30">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header avec Bonjour + Date -->
+            <Border Grid.Row="0" Background="White" CornerRadius="8" Padding="25,20" Margin="0,0,0,20">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" FontSize="24" FontWeight="SemiBold" Foreground="#1A1919">
+                        <Run Text="👋 Bonjour "/>
+                        <Run Text="{Binding NomUtilisateur}" FontWeight="Bold"/>
+                    </TextBlock>
+                    <TextBlock Grid.Column="1" FontSize="16" Foreground="#666666" VerticalAlignment="Center">
+                        <Run Text="{Binding DateAujourdhui}"/>
+                    </TextBlock>
+                </Grid>
+            </Border>
+
+            <!-- MES TÂCHES URGENTES -->
+            <Border Grid.Row="1" Background="White" CornerRadius="8" Padding="25,20" Margin="0,0,0,20">
+                <StackPanel>
+                    <Grid Margin="0,0,0,15">
+                        <TextBlock FontSize="18" FontWeight="SemiBold" Foreground="#1A1919" VerticalAlignment="Center">
+                            <Run Text="⚡ MES TÂCHES URGENTES ("/>
+                            <Run Text="{Binding NbTachesUrgentes, Mode=OneWay}"/>
+                            <Run Text=")"/>
+                        </TextBlock>
+                        <Button Content="Voir tout →" HorizontalAlignment="Right" 
+                                Style="{StaticResource {x:Type Button}}"
+                                Background="Transparent" BorderThickness="0"
+                                Foreground="#00915A" FontWeight="SemiBold"
+                                Cursor="Hand" Click="VoirToutesUrgentes_Click"/>
+                    </Grid>
+
+                    <ItemsControl ItemsSource="{Binding TachesUrgentes}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Columns="2" HorizontalAlignment="Stretch"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="#FAFAFA" CornerRadius="6" Padding="15" Margin="0,0,10,10"
+                                        BorderBrush="#E0E0E0" BorderThickness="1" Cursor="Hand"
+                                        MouseLeftButtonDown="TacheUrgente_Click">
+                                    <StackPanel>
+                                        <TextBlock FontSize="14" FontWeight="SemiBold" Foreground="#1A1919" TextWrapping="Wrap">
+                                            <Run Text="⚡ "/>
+                                            <Run Text="{Binding Titre}"/>
+                                        </TextBlock>
+                                        <TextBlock FontSize="12" Foreground="#666666" Margin="0,5,0,0">
+                                            <Run Text="📅 "/>
+                                            <Run Text="{Binding DateFinAttendue, StringFormat='dd/MM/yyyy'}"/>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <!-- Message si aucune tâche urgente -->
+                    <TextBlock Text="✓ Aucune tâche urgente pour le moment" 
+                               FontSize="14" Foreground="#666666" TextAlignment="Center"
+                               Margin="0,10,0,0"
+                               Visibility="{Binding HasNoUrgentTasks, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                </StackPanel>
+            </Border>
+
+            <!-- NOTIFICATIONS RÉCENTES -->
+            <Border Grid.Row="2" Background="White" CornerRadius="8" Padding="25,20" Margin="0,0,0,20">
+                <StackPanel>
+                    <Grid Margin="0,0,0,15">
+                        <TextBlock FontSize="18" FontWeight="SemiBold" Foreground="#1A1919" VerticalAlignment="Center">
+                            <Run Text="🔔 NOTIFICATIONS ("/>
+                            <Run Text="{Binding NbNotifications, Mode=OneWay}"/>
+                            <Run Text=")"/>
+                        </TextBlock>
+                        <Button Content="Voir tout →" HorizontalAlignment="Right"
+                                Style="{StaticResource {x:Type Button}}"
+                                Background="Transparent" BorderThickness="0"
+                                Foreground="#00915A" FontWeight="SemiBold"
+                                Cursor="Hand" Click="VoirToutesNotifications_Click"/>
+                    </Grid>
+
+                    <ItemsControl ItemsSource="{Binding NotificationsRecentes}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="#FAFAFA" CornerRadius="6" Padding="12,10" Margin="0,0,0,8"
+                                        BorderBrush="#E0E0E0" BorderThickness="1">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" FontSize="16" Margin="0,0,10,0" VerticalAlignment="Top">
+                                            <Run Text="{Binding Icone}"/>
+                                        </TextBlock>
+                                        <StackPanel Grid.Column="1">
+                                            <TextBlock FontSize="13" FontWeight="SemiBold" Foreground="#1A1919" TextWrapping="Wrap">
+                                                <Run Text="{Binding Titre}"/>
+                                            </TextBlock>
+                                            <TextBlock FontSize="11" Foreground="#666666" TextWrapping="Wrap" Margin="0,2,0,0">
+                                                <Run Text="{Binding Message}"/>
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <!-- Message si aucune notification -->
+                    <TextBlock Text="✓ Aucune nouvelle notification" 
+                               FontSize="14" Foreground="#666666" TextAlignment="Center"
+                               Margin="0,10,0,0"
+                               Visibility="{Binding HasNoNotifications, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                </StackPanel>
+            </Border>
+
+            <!-- STATISTIQUES RAPIDES -->
+            <Border Grid.Row="3" Background="White" CornerRadius="8" Padding="25,20">
+                <StackPanel>
+                    <TextBlock Text="📊 STATISTIQUES RAPIDES" FontSize="18" FontWeight="SemiBold" 
+                               Foreground="#1A1919" Margin="0,0,0,20"/>
+                    
+                    <UniformGrid Columns="3" HorizontalAlignment="Stretch">
+                        <!-- Tâches terminées -->
+                        <Border Background="#E8F5E9" CornerRadius="8" Padding="20" Margin="0,0,10,0">
+                            <StackPanel HorizontalAlignment="Center">
+                                <TextBlock FontSize="32" FontWeight="Bold" Foreground="#4CAF50" TextAlignment="Center">
+                                    <Run Text="{Binding NbTachesTerminees}"/>
+                                    <Run Text=" / " FontSize="24" FontWeight="Normal"/>
+                                    <Run Text="{Binding NbTachesTotal}"/>
+                                </TextBlock>
+                                <TextBlock Text="Terminées" FontSize="14" Foreground="#666666" 
+                                           TextAlignment="Center" Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Tâches en cours -->
+                        <Border Background="#E3F2FD" CornerRadius="8" Padding="20" Margin="5,0,5,0">
+                            <StackPanel HorizontalAlignment="Center">
+                                <TextBlock Text="{Binding NbTachesEnCours}" FontSize="32" FontWeight="Bold" 
+                                           Foreground="#2196F3" TextAlignment="Center"/>
+                                <TextBlock Text="En cours" FontSize="14" Foreground="#666666" 
+                                           TextAlignment="Center" Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Projets actifs -->
+                        <Border Background="#FFF3E0" CornerRadius="8" Padding="20" Margin="10,0,0,0">
+                            <StackPanel HorizontalAlignment="Center">
+                                <TextBlock Text="{Binding NbProjetsActifs}" FontSize="32" FontWeight="Bold" 
+                                           Foreground="#FF9800" TextAlignment="Center"/>
+                                <TextBlock Text="Projets actifs" FontSize="14" Foreground="#666666" 
+                                           TextAlignment="Center" Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </UniformGrid>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

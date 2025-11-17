@@ -48,6 +48,10 @@ namespace BacklogManager.ViewModels
         private readonly BacklogService _backlogService;
         private readonly PermissionService _permissionService;
         private string _searchText;
+
+        // Expose services for view code-behind
+        public BacklogService BacklogService => _backlogService;
+        public PermissionService PermissionService => _permissionService;
         private TypeDemande? _selectedType;
         private Priorite? _selectedPriorite;
         private Statut? _selectedStatut;
@@ -62,10 +66,14 @@ namespace BacklogManager.ViewModels
         public ObservableCollection<Projet> Projets { get; set; }
         public List<int?> ComplexiteValues { get; set; }
 
-        // Propri\u00e9t\u00e9s de visibilit\u00e9 selon les permissions
+        // Propriétés de visibilité selon les permissions
         public Visibility PeutCreerTachesVisibility => _permissionService?.PeutCreerTaches == true ? Visibility.Visible : Visibility.Collapsed;
         public Visibility PeutModifierTachesVisibility => _permissionService?.PeutModifierTaches == true ? Visibility.Visible : Visibility.Collapsed;
         public Visibility PeutGererReferentielsVisibility => _permissionService?.PeutGererReferentiels == true ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility PeutCreerProjetsVisibility => _permissionService?.PeutGererReferentiels == true ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility PeutPrioriserVisibility => _permissionService?.PeutPrioriser == true ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility PeutAssignerDevVisibility => _permissionService?.PeutAssignerDev == true ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility PeutChiffrerVisibility => _permissionService?.PeutChiffrer == true ? Visibility.Visible : Visibility.Collapsed;
 
         public string SearchText
         {
@@ -160,6 +168,11 @@ namespace BacklogManager.ViewModels
         public ICommand NewCommand { get; }
         public ICommand ClearFiltersCommand { get; }
         public ICommand NewProjetCommand { get; }
+        public ICommand EditCommand { get; }
+
+        // Événements pour notifier les créations/modifications
+        public event EventHandler ProjetCreated;
+        public event EventHandler TacheCreated;
 
         public BacklogViewModel(BacklogService backlogService, PermissionService permissionService = null)
         {
@@ -175,6 +188,7 @@ namespace BacklogManager.ViewModels
             NewCommand = new RelayCommand(_ => CreateNewItem(), _ => CanCreateItem());
             ClearFiltersCommand = new RelayCommand(_ => ClearFilters());
             NewProjetCommand = new RelayCommand(_ => CreateNewProjet(), _ => CanCreateProjet());
+            EditCommand = new RelayCommand(item => EditItem(item));
 
             LoadData();
         }
@@ -296,6 +310,7 @@ namespace BacklogManager.ViewModels
             if (editWindow.ShowDialog() == true && editWindow.Saved)
             {
                 LoadData();
+                TacheCreated?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -328,6 +343,29 @@ namespace BacklogManager.ViewModels
 
             _backlogService.SaveProjet(nouveauProjet);
             LoadData();
+            ProjetCreated?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void EditItem(object parameter)
+        {
+            if (parameter is BacklogItemViewModel itemViewModel)
+            {
+                // Ouvrir la fenêtre d'édition
+                var editWindow = new Views.EditTacheWindow(itemViewModel.Item, _backlogService, _permissionService);
+                
+                // Trouver la fenêtre parente
+                var mainWindow = System.Windows.Application.Current.MainWindow;
+                if (mainWindow != null && mainWindow != editWindow)
+                {
+                    editWindow.Owner = mainWindow;
+                }
+                
+                if (editWindow.ShowDialog() == true && editWindow.Saved)
+                {
+                    LoadData();
+                    TacheCreated?.Invoke(this, EventArgs.Empty);
+                }
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

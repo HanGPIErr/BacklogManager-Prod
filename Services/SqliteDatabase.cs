@@ -266,6 +266,17 @@ namespace BacklogManager.Services
         {
             using (var cmd = conn.CreateCommand())
             {
+                // Vérifier si les tables de base existent, sinon les créer toutes
+                cmd.CommandText = @"SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='Roles';";
+                var hasRolesTable = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                
+                if (!hasRolesTable)
+                {
+                    // Si la table Roles n'existe pas, créer toutes les tables de base
+                    CreateTables();
+                    return; // Les tables sont créées, pas besoin de migrations supplémentaires
+                }
+                
                 // Vérifier et créer la table Notifications si elle n'existe pas
                 cmd.CommandText = @"SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='Notifications';";
                 var hasNotificationsTable = Convert.ToInt32(cmd.ExecuteScalar()) > 0;

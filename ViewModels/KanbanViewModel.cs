@@ -288,6 +288,9 @@ namespace BacklogManager.ViewModels
         public ICommand RefreshCommand { get; }
         public ICommand ClearFiltersCommand { get; }
 
+        // Événement pour notifier les changements de statut
+        public event EventHandler TacheStatutChanged;
+
         public void OuvrirDetailsTache(BacklogItem tache)
         {
             var editWindow = new Views.EditTacheWindow(tache, _backlogService, _permissionService);
@@ -316,6 +319,9 @@ namespace BacklogManager.ViewModels
                 
                 // Rafraîchir l'affichage
                 LoadItems();
+                
+                // Notifier les autres vues (Backlog)
+                TacheStatutChanged?.Invoke(this, System.EventArgs.Empty);
             }
         }
 
