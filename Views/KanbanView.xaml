@@ -35,7 +35,26 @@
                 <TextBlock Text="Dev:" FontSize="13" VerticalAlignment="Center" Margin="10,0,5,0"/>
                 <ComboBox ItemsSource="{Binding Devs}" DisplayMemberPath="Nom"
                           SelectedValue="{Binding SelectedDevId}" SelectedValuePath="Id" 
-                          Width="150" Padding="8,5" Margin="0,0,15,0"/>
+                          Width="150" Padding="8,5" Margin="0,0,15,0">
+                    <ComboBox.ItemContainerStyle>
+                        <Style TargetType="ComboBoxItem">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ComboBoxItem">
+                                        <Border Name="Border" Padding="8,5">
+                                            <ContentPresenter/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsHighlighted" Value="True">
+                                                <Setter TargetName="Border" Property="Background" Value="#E3F2FD"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ComboBox.ItemContainerStyle>
+                </ComboBox>
                 
                 <TextBlock Text="Projet:" FontSize="13" VerticalAlignment="Center" Margin="10,0,5,0"/>
                 <ComboBox ItemsSource="{Binding Projets}" DisplayMemberPath="Nom"

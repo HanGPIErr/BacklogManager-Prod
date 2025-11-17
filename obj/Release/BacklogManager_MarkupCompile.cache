@@ -4,16 +4,16 @@
 winexe
 C#
 .cs
-c:\Users\HanGP\BacklogManager\obj\Release\
+C:\Users\HanGP\BacklogManager\obj\Release\
 BacklogManager
 none
 false
 TRACE
-c:\Users\HanGP\BacklogManager\App.xaml
+C:\Users\HanGP\BacklogManager\App.xaml
 30-1396425193
 
 69-999115762
-23-377551202
+231920626423
 MainWindow.xaml;Views\ProjetsView.xaml;Views\EditTacheWindow.xaml;Views\ProjetDetailsWindow.xaml;Views\DevDetailsWindow.xaml;Views\DashboardView.xaml;Views\BacklogView.xaml;Views\KanbanView.xaml;Views\PokerView.xaml;Views\TimelineView.xaml;Views\GestionEquipeWindow.xaml;Views\GestionProjetsWindow.xaml;Views\AdministrationWindow.xaml;Views\EditProjetWindow.xaml;Views\EditUtilisateurWindow.xaml;Views\Pages\GestionUtilisateursPage.xaml;Views\Pages\GestionRolesPage.xaml;Views\Pages\GestionProjetsPage.xaml;Views\Pages\GestionEquipePage.xaml;Views\Pages\ProjetsListPage.xaml;Views\GestionUtilisateursWindow.xaml;Views\LoginWindow.xaml;Views\DemandesView.xaml;Views\EditionDemandeWindow.xaml;Views\DetailsDemandeWindow.xaml;Views\CommentairesWindow.xaml;Views\StatistiquesWindow.xaml;Views\AuditLogWindow.xaml;Views\NotificationsWindow.xaml;Views\ParametresWindow.xaml;
 
 False

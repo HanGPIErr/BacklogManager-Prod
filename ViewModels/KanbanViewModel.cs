@@ -342,7 +342,30 @@ namespace BacklogManager.ViewModels
             RefreshCommand = new RelayCommand(_ => LoadItems());
             ClearFiltersCommand = new RelayCommand(_ => ClearFilters());
 
+            LoadFilterLists(); // Charger les listes une seule fois
             LoadItems();
+        }
+
+        private void LoadFilterLists()
+        {
+            var devs = _backlogService.GetAllDevs();
+            var projets = _backlogService.GetAllProjets();
+
+            Devs.Clear();
+            // Ajouter une option "Tous" pour permettre de désélectionner
+            Devs.Add(new Dev { Id = 0, Nom = "-- Tous les développeurs --" });
+            foreach (var dev in devs)
+            {
+                Devs.Add(dev);
+            }
+
+            Projets.Clear();
+            // Ajouter une option "Tous" pour permettre de désélectionner
+            Projets.Add(new Projet { Id = 0, Nom = "-- Tous les projets --" });
+            foreach (var projet in projets)
+            {
+                Projets.Add(projet);
+            }
         }
 
         public void LoadItems()
@@ -351,28 +374,31 @@ namespace BacklogManager.ViewModels
             var devs = _backlogService.GetAllDevs();
             var projets = _backlogService.GetAllProjets();
 
-            Devs.Clear();
-            foreach (var dev in devs)
+            // Debug: afficher les données avant filtre
+            System.Diagnostics.Debug.WriteLine($"[KANBAN] Items avant filtre: {allItems.Count}");
+            System.Diagnostics.Debug.WriteLine($"[KANBAN] SelectedDevId: {_selectedDevId}");
+            System.Diagnostics.Debug.WriteLine($"[KANBAN] SelectedProjetId: {_selectedProjetId}");
+            
+            // Debug: afficher combien de tâches ont un dev assigné
+            var itemsAvecDev = allItems.Count(i => i.DevAssigneId.HasValue);
+            var itemsAvecProjet = allItems.Count(i => i.ProjetId.HasValue);
+            System.Diagnostics.Debug.WriteLine($"[KANBAN] Items avec DevAssigneId: {itemsAvecDev}/{allItems.Count}");
+            System.Diagnostics.Debug.WriteLine($"[KANBAN] Items avec ProjetId: {itemsAvecProjet}/{allItems.Count}");
+
+            // Filter by dev if selected (ignore 0 = "Tous")
+            // IMPORTANT: On inclut aussi les tâches SANS dev assigné pour permettre de les voir et de les assigner
+            if (_selectedDevId.HasValue && _selectedDevId.Value > 0)
             {
-                Devs.Add(dev);
+                allItems = allItems.Where(i => !i.DevAssigneId.HasValue || i.DevAssigneId == _selectedDevId.Value).ToList();
+                System.Diagnostics.Debug.WriteLine($"[KANBAN] Items après filtre Dev (incluant non-assignés): {allItems.Count}");
             }
 
-            Projets.Clear();
-            foreach (var projet in projets)
+            // Filter by project if selected (ignore 0 = "Tous")
+            // IMPORTANT: On inclut aussi les tâches SANS projet assigné pour permettre de les voir et de les assigner
+            if (_selectedProjetId.HasValue && _selectedProjetId.Value > 0)
             {
-                Projets.Add(projet);
-            }
-
-            // Filter by dev if selected
-            if (_selectedDevId.HasValue)
-            {
-                allItems = allItems.Where(i => i.DevAssigneId == _selectedDevId.Value).ToList();
-            }
-
-            // Filter by project if selected
-            if (_selectedProjetId.HasValue)
-            {
-                allItems = allItems.Where(i => i.ProjetId == _selectedProjetId.Value).ToList();
+                allItems = allItems.Where(i => !i.ProjetId.HasValue || i.ProjetId == _selectedProjetId.Value).ToList();
+                System.Diagnostics.Debug.WriteLine($"[KANBAN] Items après filtre Projet (incluant non-assignés): {allItems.Count}");
             }
 
             ItemsAfaire.Clear();
@@ -459,8 +485,8 @@ namespace BacklogManager.ViewModels
 
         private void ClearFilters()
         {
-            SelectedDevId = null;
-            SelectedProjetId = null;
+            SelectedDevId = 0;  // 0 = "Tous"
+            SelectedProjetId = 0;  // 0 = "Tous"
             LoadItems();
         }
 
