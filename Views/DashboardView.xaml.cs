@@ -228,6 +228,58 @@ namespace BacklogManager.Views
             mainWindow?.AfficherTimeline();
         }
 
+        private void BtnVoirGuide_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var guideWindow = new Views.GuideUtilisateurWindow(_authService)
+                {
+                    Owner = Window.GetWindow(this)
+                };
+
+                if (guideWindow.ShowDialog() == true && guideWindow.Tag is string cible)
+                {
+                    // Naviguer vers la section demandée
+                    var mainWindow = Window.GetWindow(this) as MainWindow;
+                    
+                    switch (cible)
+                    {
+                        case "Dashboard":
+                            // Call the button click method to navigate to dashboard
+                            var btnDashboard = mainWindow?.FindName("BtnDashboard") as System.Windows.Controls.Button;
+                            btnDashboard?.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));
+                            break;
+                        case "Backlog":
+                            mainWindow?.AfficherBacklog();
+                            break;
+                        case "Kanban":
+                            mainWindow?.AfficherKanban();
+                            break;
+                        case "CRA":
+                            // Call the button click method to navigate to CRA
+                            var btnCRA = mainWindow?.FindName("BtnSaisirCRA") as System.Windows.Controls.Button;
+                            btnCRA?.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));
+                            break;
+                        case "Demandes":
+                            // Call the button click method to navigate to demandes
+                            var btnDemandes = mainWindow?.FindName("BtnDemandes") as System.Windows.Controls.Button;
+                            btnDemandes?.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));
+                            break;
+                        case "Administration":
+                            // Call the button click method to navigate to admin
+                            var btnAdmin = mainWindow?.FindName("BtnAdmin") as System.Windows.Controls.Button;
+                            btnAdmin?.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));
+                            break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erreur lors de l'ouverture du guide : {ex.Message}",
+                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

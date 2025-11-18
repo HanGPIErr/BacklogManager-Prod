@@ -84,19 +84,50 @@
                         </TextBlock>
                     </StackPanel>
                     
-                    <!-- Quick stats badge -->
-                    <Border Grid.Column="2" Background="#E8F5E9" CornerRadius="8" 
-                            Padding="15,10" VerticalAlignment="Center">
-                        <StackPanel>
-                            <TextBlock Text="Productivité du jour" FontSize="11" 
-                                       Foreground="#00915A" FontWeight="SemiBold"/>
-                            <TextBlock FontSize="20" FontWeight="Bold" Foreground="#00915A" 
-                                       Margin="0,3,0,0" HorizontalAlignment="Center">
-                                <Run Text="{Binding TauxProductivite, Mode=OneWay}"/>
-                                <Run Text="%" FontSize="14"/>
-                            </TextBlock>
-                        </StackPanel>
-                    </Border>
+                    <!-- Bouton Guide + Quick stats -->
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button x:Name="BtnVoirGuide" Content="📖 Voir le guide" 
+                                Height="38" Padding="18,0" Margin="0,0,15,0"
+                                Background="#0078D7" Foreground="White" FontWeight="SemiBold"
+                                BorderThickness="0" Cursor="Hand" FontSize="13"
+                                Click="BtnVoirGuide_Click">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}" 
+                                                       CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                                    <Border.Effect>
+                                                        <DropShadowEffect BlurRadius="8" ShadowDepth="0" Opacity="0.3" Color="#0078D7"/>
+                                                    </Border.Effect>
+                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#005A9E"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        
+                        <Border Background="#E8F5E9" CornerRadius="8" 
+                                Padding="15,10">
+                            <StackPanel>
+                                <TextBlock Text="Productivité du jour" FontSize="11" 
+                                           Foreground="#00915A" FontWeight="SemiBold"/>
+                                <TextBlock FontSize="20" FontWeight="Bold" Foreground="#00915A" 
+                                           Margin="0,3,0,0" HorizontalAlignment="Center">
+                                    <Run Text="{Binding TauxProductivite, Mode=OneWay}"/>
+                                    <Run Text="%" FontSize="14"/>
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
                 </Grid>
             </Border>
 
