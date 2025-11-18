@@ -22,6 +22,7 @@ namespace BacklogManager.ViewModels
         private double _chargePrevu;
         private double _chargeReelle;
         private double _avancement;
+        private string _projetCouleur;
 
         public BacklogItem Item
         {
@@ -38,6 +39,12 @@ namespace BacklogManager.ViewModels
         {
             get { return _assignedDevName; }
             set { _assignedDevName = value; OnPropertyChanged(); }
+        }
+
+        public string ProjetCouleur
+        {
+            get { return _projetCouleur; }
+            set { _projetCouleur = value; OnPropertyChanged(); }
         }
 
         public int DaysRemaining
@@ -252,6 +259,46 @@ namespace BacklogManager.ViewModels
         public ObservableCollection<Dev> Devs { get; set; }
         public ObservableCollection<Projet> Projets { get; set; }
 
+        // Limites WIP (Work In Progress)
+        private const int LIMITE_WIP_ENCOURS = 5;
+        private const int LIMITE_WIP_ENTEST = 3;
+
+        // Compteurs WIP avec alertes
+        private int _countEnCours;
+        public int CountEnCours
+        {
+            get { return _countEnCours; }
+            set { _countEnCours = value; OnPropertyChanged(); OnPropertyChanged(nameof(AlerteWipEnCours)); }
+        }
+
+        private int _countEnTest;
+        public int CountEnTest
+        {
+            get { return _countEnTest; }
+            set { _countEnTest = value; OnPropertyChanged(); OnPropertyChanged(nameof(AlerteWipEnTest)); }
+        }
+
+        public bool AlerteWipEnCours => CountEnCours > LIMITE_WIP_ENCOURS;
+        public bool AlerteWipEnTest => CountEnTest > LIMITE_WIP_ENTEST;
+
+        // Recherche
+        private string _rechercheTexte;
+        public string RechercheTexte
+        {
+            get { return _rechercheTexte; }
+            set
+            {
+                if (_rechercheTexte != value)
+                {
+                    _rechercheTexte = value;
+                    OnPropertyChanged();
+                    System.Windows.Application.Current.Dispatcher.BeginInvoke(
+                        DispatcherPriority.Background,
+                        new Action(() => LoadItems()));
+                }
+            }
+        }
+
         public bool PeutSupprimerTaches => _permissionService.PeutSupprimerTaches;
         public bool EstAdministrateur => _permissionService.EstAdministrateur;
 
@@ -416,6 +463,17 @@ namespace BacklogManager.ViewModels
                 System.Diagnostics.Debug.WriteLine($"[KANBAN] Items après filtre Projet (incluant non-assignés): {allItems.Count}");
             }
 
+            // Filter by search text
+            if (!string.IsNullOrWhiteSpace(_rechercheTexte))
+            {
+                string rechercheLower = _rechercheTexte.ToLower();
+                allItems = allItems.Where(i => 
+                    (i.Titre != null && i.Titre.ToLower().Contains(rechercheLower)) ||
+                    (i.Description != null && i.Description.ToLower().Contains(rechercheLower))
+                ).ToList();
+                System.Diagnostics.Debug.WriteLine($"[KANBAN] Items après recherche '{_rechercheTexte}': {allItems.Count}");
+            }
+
             ItemsEnAttente.Clear();
             ItemsAPrioriser.Clear();
             ItemsAfaire.Clear();
@@ -433,11 +491,16 @@ namespace BacklogManager.ViewModels
                     double tempsReelHeures = _craService.GetTempsReelTache(item.Id);
                     item.TempsReelHeures = tempsReelHeures;
                 }
+
+                // Récupérer la couleur du projet
+                var projet = Projets.FirstOrDefault(p => p.Id == item.ProjetId);
+                string couleurProjet = projet?.CouleurHex ?? "#E0E0E0"; // Gris par défaut
                 
                 var viewModel = new KanbanItemViewModel
                 {
                     Item = item,
-                    AssignedDevName = dev?.Nom
+                    AssignedDevName = dev?.Nom,
+                    ProjetCouleur = couleurProjet
                 };
 
                 switch (item.Statut)
@@ -462,6 +525,10 @@ namespace BacklogManager.ViewModels
                         break;
                 }
             }
+
+            // Mettre à jour les compteurs WIP
+            CountEnCours = ItemsEnCours.Count;
+            CountEnTest = ItemsEnTest.Count;
         }
 
         private void MoveItemLeft(BacklogItem item)

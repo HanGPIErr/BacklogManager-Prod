@@ -264,6 +264,26 @@
                           SelectedValue="{Binding SelectedProjetId}" SelectedValuePath="Id" 
                           Width="150" Padding="8,5" Margin="0,0,15,0"/>
                 
+                <!-- Recherche rapide -->
+                <TextBlock Text="🔎 Recherche:" FontSize="13" VerticalAlignment="Center" Margin="10,0,5,0"/>
+                <TextBox Text="{Binding RechercheTexte, UpdateSourceTrigger=PropertyChanged}" 
+                         Width="200" Padding="8,5" Margin="0,0,15,0"
+                         FontSize="13" VerticalAlignment="Center">
+                    <TextBox.Style>
+                        <Style TargetType="TextBox">
+                            <Setter Property="Background" Value="White"/>
+                            <Setter Property="BorderBrush" Value="#BDBDBD"/>
+                            <Setter Property="BorderThickness" Value="1"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsFocused" Value="True">
+                                    <Setter Property="BorderBrush" Value="#00915A"/>
+                                    <Setter Property="BorderThickness" Value="2"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBox.Style>
+                </TextBox>
+                
                 <Button Content="🔄 Actualiser" Command="{Binding RefreshCommand}"
                         Padding="10,5" Margin="0,0,10,0" Background="#00915A" Foreground="White" 
                         BorderThickness="0" FontSize="12" FontWeight="SemiBold" Cursor="Hand">
@@ -362,24 +382,9 @@
                                             Cursor="Hand" 
                                             PreviewMouseLeftButtonDown="KanbanCard_PreviewMouseLeftButtonDown"
                                             PreviewMouseMove="KanbanCard_PreviewMouseMove"
-                                            MouseLeftButtonUp="KanbanCard_MouseLeftButtonUp">
-                                        <Border.Style>
-                                            <Style TargetType="Border">
-                                                <Setter Property="BorderThickness" Value="2"/>
-                                                <Setter Property="BorderBrush" Value="#E0E0E0"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding AlertLevel}" Value="URGENT">
-                                                        <Setter Property="BorderBrush" Value="#D32F2F"/>
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding AlertLevel}" Value="ATTENTION">
-                                                        <Setter Property="BorderBrush" Value="#F57C00"/>
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding AlertLevel}" Value="OK">
-                                                        <Setter Property="BorderBrush" Value="#00915A"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Border.Style>
+                                            MouseLeftButtonUp="KanbanCard_MouseLeftButtonUp"
+                                            BorderThickness="4,2,2,2"
+                                            BorderBrush="{Binding ProjetCouleur}">
                                         <Border.Effect>
                                             <DropShadowEffect BlurRadius="4" ShadowDepth="1" Opacity="0.15" Color="Gray"/>
                                         </Border.Effect>
@@ -587,24 +592,9 @@
                                             Cursor="Hand" 
                                             PreviewMouseLeftButtonDown="KanbanCard_PreviewMouseLeftButtonDown"
                                             PreviewMouseMove="KanbanCard_PreviewMouseMove"
-                                            MouseLeftButtonUp="KanbanCard_MouseLeftButtonUp">
-                                        <Border.Style>
-                                            <Style TargetType="Border">
-                                                <Setter Property="BorderThickness" Value="2"/>
-                                                <Setter Property="BorderBrush" Value="#E0E0E0"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding AlertLevel}" Value="URGENT">
-                                                        <Setter Property="BorderBrush" Value="#D32F2F"/>
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding AlertLevel}" Value="ATTENTION">
-                                                        <Setter Property="BorderBrush" Value="#F57C00"/>
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding AlertLevel}" Value="OK">
-                                                        <Setter Property="BorderBrush" Value="#00915A"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Border.Style>
+                                            MouseLeftButtonUp="KanbanCard_MouseLeftButtonUp"
+                                            BorderThickness="4,2,2,2"
+                                            BorderBrush="{Binding ProjetCouleur}">
                                         <Border.Effect>
                                             <DropShadowEffect BlurRadius="4" ShadowDepth="1" Opacity="0.15" Color="Gray"/>
                                         </Border.Effect>
@@ -812,24 +802,9 @@
                                             Cursor="Hand" 
                                             PreviewMouseLeftButtonDown="KanbanCard_PreviewMouseLeftButtonDown"
                                             PreviewMouseMove="KanbanCard_PreviewMouseMove"
-                                            MouseLeftButtonUp="KanbanCard_MouseLeftButtonUp">
-                                        <Border.Style>
-                                            <Style TargetType="Border">
-                                                <Setter Property="BorderThickness" Value="2"/>
-                                                <Setter Property="BorderBrush" Value="#E0E0E0"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding AlertLevel}" Value="URGENT">
-                                                        <Setter Property="BorderBrush" Value="#D32F2F"/>
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding AlertLevel}" Value="ATTENTION">
-                                                        <Setter Property="BorderBrush" Value="#F57C00"/>
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding AlertLevel}" Value="OK">
-                                                        <Setter Property="BorderBrush" Value="#00915A"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Border.Style>
+                                            MouseLeftButtonUp="KanbanCard_MouseLeftButtonUp"
+                                            BorderThickness="4,2,2,2"
+                                            BorderBrush="{Binding ProjetCouleur}">
                                         <Border.Effect>
                                             <DropShadowEffect BlurRadius="4" ShadowDepth="1" Opacity="0.15" Color="Gray"/>
                                         </Border.Effect>
@@ -1034,11 +1009,12 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Border Padding="8" Margin="0,0,0,6" CornerRadius="6" Background="White"
-                                            BorderBrush="#00915A" BorderThickness="2"
                                             Cursor="Hand" 
                                             PreviewMouseLeftButtonDown="KanbanCard_PreviewMouseLeftButtonDown"
                                             PreviewMouseMove="KanbanCard_PreviewMouseMove"
-                                            MouseLeftButtonUp="KanbanCard_MouseLeftButtonUp">
+                                            MouseLeftButtonUp="KanbanCard_MouseLeftButtonUp"
+                                            BorderThickness="4,2,2,2"
+                                            BorderBrush="{Binding ProjetCouleur}">
                                         <Border.Effect>
                                             <DropShadowEffect BlurRadius="4" ShadowDepth="1" Opacity="0.15" Color="Gray"/>
                                         </Border.Effect>
