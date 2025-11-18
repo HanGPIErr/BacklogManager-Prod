@@ -108,3 +108,7 @@ c:\Users\HanGP\BacklogManager\obj\Release\Views\TacheSpecialeWindow.g.cs
 c:\Users\HanGP\BacklogManager\obj\Release\Views\TacheSpecialeWindow.baml
 c:\Users\HanGP\BacklogManager\obj\Release\Views\ArchivesView.baml
 c:\Users\HanGP\BacklogManager\obj\Release\Views\ArchivesView.g.cs
+c:\Users\HanGP\BacklogManager\obj\Release\Views\AdministrationView.baml
+c:\Users\HanGP\BacklogManager\obj\Release\Views\AdministrationView.g.cs
+C:\Users\HanGP\BacklogManager\obj\Release\Views\Pages\AuditLogPage.baml
+C:\Users\HanGP\BacklogManager\obj\Release\Views\Pages\AuditLogPage.g.cs

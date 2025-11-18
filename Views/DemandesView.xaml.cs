@@ -16,6 +16,7 @@ namespace BacklogManager.Views
         private readonly AuthenticationService _authService;
         private readonly PermissionService _permissionService;
         private List<DemandeViewModel> _toutesLesDemandes;
+        private bool _afficherArchives = false;
 
         public DemandesView(AuthenticationService authService, PermissionService permissionService)
         {
@@ -111,12 +112,15 @@ namespace BacklogManager.Views
                     
                     // Configurer le DataContext pour les bindings
                     bool peutSupprimer = isAdminDirect || isChefProjetDirect;
+                    bool peutArchiver = isAdminDirect; // Seuls les admins peuvent archiver
                     this.DataContext = new
                     {
-                        PeutSupprimerDemandes = peutSupprimer
+                        PeutSupprimerDemandes = peutSupprimer,
+                        PeutArchiverDemandes = peutArchiver
                     };
                     
                     writer.WriteLine(string.Format("PeutSupprimerDemandes: {0}", peutSupprimer));
+                    writer.WriteLine(string.Format("PeutArchiverDemandes: {0}", peutArchiver));
                 }
                 
                 System.Diagnostics.Debug.WriteLine("=== VERIFICATION PERMISSIONS DEMANDES ===");
@@ -157,7 +161,8 @@ namespace BacklogManager.Views
                     ChefProjet = ObtenirNomUtilisateur(d.ChefProjetId, utilisateurs),
                     ProjetNom = d.ProjetId.HasValue ? projets.FirstOrDefault(p => p.Id == d.ProjetId.Value)?.Nom ?? "-" : "-",
                     DateCreation = d.DateCreation,
-                    EstAcceptee = d.Statut == StatutDemande.Acceptee
+                    EstAcceptee = d.Statut == StatutDemande.Acceptee,
+                    EstArchivee = d.EstArchivee
                 }).OrderByDescending(d => d.DateCreation).ToList();
 
                 AppliquerFiltres();
@@ -174,6 +179,9 @@ namespace BacklogManager.Views
             if (_toutesLesDemandes == null) return;
 
             var filtered = _toutesLesDemandes.AsEnumerable();
+
+            // Filtre archives/actives
+            filtered = filtered.Where(d => d.EstArchivee == _afficherArchives);
 
             // Filtre statut - Comparer avec le statut formaté
             if (CmbFiltreStatut.SelectedIndex > 0)
@@ -460,6 +468,111 @@ namespace BacklogManager.Views
                     "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+        
+        private void BtnOngletActives_Click(object sender, RoutedEventArgs e)
+        {
+            _afficherArchives = false;
+            
+            // Changer les styles des boutons
+            BtnOngletActives.Background = new SolidColorBrush(Color.FromRgb(0, 145, 90));
+            BtnOngletActives.Foreground = Brushes.White;
+            BtnOngletActives.FontWeight = FontWeights.Bold;
+            
+            BtnOngletArchives.Background = Brushes.Transparent;
+            BtnOngletArchives.Foreground = new SolidColorBrush(Color.FromRgb(102, 102, 102));
+            BtnOngletArchives.FontWeight = FontWeights.SemiBold;
+            
+            AppliquerFiltres();
+        }
+        
+        private void BtnOngletArchives_Click(object sender, RoutedEventArgs e)
+        {
+            _afficherArchives = true;
+            
+            // Changer les styles des boutons
+            BtnOngletArchives.Background = new SolidColorBrush(Color.FromRgb(0, 145, 90));
+            BtnOngletArchives.Foreground = Brushes.White;
+            BtnOngletArchives.FontWeight = FontWeights.Bold;
+            
+            BtnOngletActives.Background = Brushes.Transparent;
+            BtnOngletActives.Foreground = new SolidColorBrush(Color.FromRgb(102, 102, 102));
+            BtnOngletActives.FontWeight = FontWeights.SemiBold;
+            
+            AppliquerFiltres();
+        }
+        
+        private void BtnArchiverClick(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            if (button?.Tag is int demandeId)
+            {
+                ArchiverDemande(demandeId);
+            }
+        }
+        
+        private void ArchiverDemande(int demandeId)
+        {
+            try
+            {
+                // Vérifier les permissions
+                if (!_permissionService.IsAdmin)
+                {
+                    MessageBox.Show("Seuls les administrateurs peuvent archiver des demandes.",
+                        "Accès refusé", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Récupérer la demande
+                var demande = _database.GetDemandes().FirstOrDefault(d => d.Id == demandeId);
+                if (demande == null)
+                {
+                    MessageBox.Show("Demande introuvable.", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+                
+                string action = demande.EstArchivee ? "désarchiver" : "archiver";
+                string actionPasse = demande.EstArchivee ? "désarchivée" : "archivée";
+                
+                // Confirmation
+                var result = MessageBox.Show(
+                    string.Format("Êtes-vous sûr de vouloir {0} cette demande ?\n\nTitre : {1}\nStatut : {2}",
+                        action, demande.Titre, FormatStatut(demande.Statut)),
+                    "Confirmation",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question,
+                    MessageBoxResult.No);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    // Basculer le statut archivé
+                    bool nouvelEtatArchive = !demande.EstArchivee;
+                    demande.EstArchivee = nouvelEtatArchive;
+                    _database.AddOrUpdateDemande(demande);
+                    
+                    MessageBox.Show(string.Format("Demande {0} avec succès.", actionPasse), 
+                        "Succès", MessageBoxButton.OK, MessageBoxImage.Information);
+                    
+                    // Recharger et basculer automatiquement vers l'onglet approprié
+                    ChargerDemandes();
+                    
+                    // Si on vient d'archiver, basculer vers les archives
+                    if (nouvelEtatArchive)
+                    {
+                        BtnOngletArchives_Click(null, null);
+                    }
+                    else
+                    {
+                        // Si on vient de désarchiver, rester sur actives
+                        BtnOngletActives_Click(null, null);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("Erreur lors de l'archivage de la demande : {0}", ex.Message),
+                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
     }
 
     public class DemandeViewModel
@@ -476,6 +589,7 @@ namespace BacklogManager.Views
         public string ProjetNom { get; set; }
         public DateTime DateCreation { get; set; }
         public bool EstAcceptee { get; set; }
+        public bool EstArchivee { get; set; }
     }
 
     // Convertisseur pour les couleurs de statut

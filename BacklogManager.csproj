@@ -139,6 +139,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\AdministrationView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\CRACalendrierView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -204,6 +208,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Pages\GestionEquipePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Pages\AuditLogPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -327,6 +335,9 @@
     <Compile Include="Views\DashboardView.xaml.cs">
       <DependentUpon>DashboardView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\AdministrationView.xaml.cs">
+      <DependentUpon>AdministrationView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\CRASaisieWindow.xaml.cs">
       <DependentUpon>CRASaisieWindow.xaml</DependentUpon>
     </Compile>
@@ -368,6 +379,9 @@
     </Compile>
     <Compile Include="Views\Pages\GestionEquipePage.xaml.cs">
       <DependentUpon>GestionEquipePage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Pages\AuditLogPage.xaml.cs">
+      <DependentUpon>AuditLogPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Pages\ProjetsListPage.xaml.cs">
       <DependentUpon>ProjetsListPage.xaml</DependentUpon>

@@ -514,7 +514,7 @@ namespace BacklogManager.Services
                     DemandeurId, BusinessAnalystId, ChefProjetId, DevChiffreurId, ProjetId, Type, Criticite, Statut, DateCreation,
                     DateValidationChiffrage, DateAcceptation, DateLivraison, ChiffrageEstimeJours, 
                     ChiffrageReelJours, DatePrevisionnelleImplementation, JustificationRefus, EstArchivee 
-                    FROM Demandes WHERE EstArchivee = 0", conn))
+                    FROM Demandes", conn))
                 using (var reader = cmd.ExecuteReader())
             {
                 while (reader.Read())

@@ -32,10 +32,21 @@ namespace BacklogManager.Views.Pages
                 var utilisateurs = _database.GetUtilisateurs().FindAll(u => u.Actif);
                 var roles = _database.GetRoles().Where(r => r.Actif).ToList();
                 
-                // Grouper par rôle dynamiquement
+                // Grouper par rôle avec ordre spécifique
                 _tousLesGroupes = new List<EquipeGroupeViewModel>();
                 
-                foreach (var role in roles)
+                // Ordre prédéfini : Administrateurs, Chefs de Projet, Développeurs, Business Analysts
+                var ordreRoles = new[] { "Administrateur", "Chef de Projet", "Développeur", "Business Analyst" };
+                var rolesOrdonnes = ordreRoles
+                    .Select(nomRole => roles.FirstOrDefault(r => r.Nom == nomRole))
+                    .Where(r => r != null)
+                    .ToList();
+                
+                // Ajouter les rôles non listés à la fin
+                var autresRoles = roles.Where(r => !ordreRoles.Contains(r.Nom)).ToList();
+                rolesOrdonnes.AddRange(autresRoles);
+                
+                foreach (var role in rolesOrdonnes)
                 {
                     var membresRole = utilisateurs.Where(u => u.RoleId == role.Id)
                         .Select(u => new UtilisateurViewModel 

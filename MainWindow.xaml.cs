@@ -194,9 +194,12 @@ namespace BacklogManager
                 }
 
                 var auditLogService = _authService.GetAuditLogService();
-                var window = new AdministrationWindow(_database, auditLogService);
-                window.Owner = this;
-                window.ShowDialog();
+                var adminView = new AdministrationView(_database, auditLogService);
+                var contentControl = (System.Windows.Controls.ContentControl)this.FindName("MainContentControl");
+                if (contentControl != null)
+                {
+                    contentControl.Content = adminView;
+                }
             }
             catch (System.Exception ex)
             {
@@ -340,16 +343,7 @@ namespace BacklogManager
             try
             {
                 var demandesView = new DemandesView(_authService, _permissionService);
-                var window = new Window
-                {
-                    Title = "Gestion des demandes",
-                    Content = demandesView,
-                    Width = 1200,
-                    Height = 800,
-                    WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                    Owner = this
-                };
-                window.ShowDialog();
+                MainContentControl.Content = demandesView;
             }
             catch (System.Exception ex)
             {
