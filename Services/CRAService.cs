@@ -70,7 +70,9 @@ namespace BacklogManager.Services
         public double GetTempsReelTache(int backlogItemId)
         {
             var cras = GetCRAsByBacklogItem(backlogItemId);
-            return cras.Sum(c => c.HeuresTravaillees);
+            // Exclure les CRA prévisionnels (dates futures) du calcul du temps réel
+            var aujourdhui = DateTime.Now.Date;
+            return cras.Where(c => c.Date <= aujourdhui && !c.EstPrevisionnel).Sum(c => c.HeuresTravaillees);
         }
 
         /// <summary>

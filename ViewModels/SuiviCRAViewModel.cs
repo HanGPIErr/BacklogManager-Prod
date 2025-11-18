@@ -20,6 +20,7 @@ namespace BacklogManager.ViewModels
         public bool EstWeekend { get; set; }
         public bool EstJourFerie { get; set; }
         public string NomJourFerie { get; set; }
+        public string IconeJourFerie { get; set; }
         public double TotalHeuresDev { get; set; }
         public string TotalJoursAffiche => TotalHeuresDev > 0 ? $"{TotalHeuresDev / 8.0:F1}j" : "";
     }
@@ -297,6 +298,9 @@ namespace BacklogManager.ViewModels
                 var date = dateDebut.AddDays(i);
                 var totalHeures = cras.Where(c => c.Date.Date == date.Date).Sum(c => c.HeuresTravaillees);
 
+                var estJourFerie = JoursFeriesService.EstJourFerie(date);
+                var nomJourFerie = JoursFeriesService.GetNomJourFerie(date);
+
                 var jourVM = new JourCRAViewModel
                 {
                     Date = date,
@@ -304,8 +308,9 @@ namespace BacklogManager.ViewModels
                     EstDansMois = date.Month == MoisCourant.Month,
                     EstAujourdhui = date.Date == DateTime.Now.Date,
                     EstWeekend = JoursFeriesService.EstWeekend(date),
-                    EstJourFerie = JoursFeriesService.EstJourFerie(date),
-                    NomJourFerie = JoursFeriesService.GetNomJourFerie(date),
+                    EstJourFerie = estJourFerie,
+                    NomJourFerie = nomJourFerie,
+                    IconeJourFerie = estJourFerie ? "/Images/jour-ferie.png" : null,
                     TotalHeuresDev = totalHeures
                 };
 
@@ -365,7 +370,7 @@ namespace BacklogManager.ViewModels
                 ? _craService.GetCRAsByDev(devId.Value, JourSelectionne.Date, JourSelectionne.Date)
                 : _craService.GetCRAsByPeriod(JourSelectionne.Date, JourSelectionne.Date);
 
-            var taches = _backlogService.GetAllBacklogItems();
+            var taches = _backlogService.GetAllBacklogItemsIncludingArchived();
             var users = _backlogService.GetAllUtilisateurs();
 
             foreach (var cra in cras.OrderBy(c => c.DevId).ThenBy(c => c.DateCreation))

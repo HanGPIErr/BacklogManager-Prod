@@ -456,6 +456,7 @@
     <Resource Include="Images\logobnp.png" />
     <Resource Include="Images\backlogmanager.ico" />
     <Resource Include="Images\conges-icon.png" />
+    <Resource Include="Images\jour-ferie.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages\System.Data.SQLite.Core.1.0.118\SQLite.Interop.dll">

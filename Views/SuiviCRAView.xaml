@@ -289,8 +289,11 @@
                                                                 <TextBlock Grid.Row="0" Text="{Binding Jour}" FontSize="16" FontWeight="Bold" 
                                                                            HorizontalAlignment="Center" Foreground="#333"/>
 
-                                                                <TextBlock Grid.Row="1" Text="🎊" FontSize="14" HorizontalAlignment="Center" Margin="0,2,0,0"
-                                                                           Visibility="{Binding EstJourFerie, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                                                <!-- Icône jour férié personnalisée -->
+                                                                <Image Grid.Row="1" Source="{Binding IconeJourFerie}" Width="24" Height="24" 
+                                                                       Margin="0,2,0,0" HorizontalAlignment="Center" Stretch="Uniform"
+                                                                       ToolTip="{Binding NomJourFerie}"
+                                                                       Visibility="{Binding EstJourFerie, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
                                                                 <Border Grid.Row="3" Background="#00915A" CornerRadius="3" Padding="6,3" Margin="0,4,0,0">
                                                                     <TextBlock Text="{Binding TotalJoursAffiche}" FontSize="11" FontWeight="Bold" 
@@ -321,6 +324,11 @@
                                                             </DataTrigger>
                                                             <DataTrigger Binding="{Binding EstJourFerie}" Value="True">
                                                                 <Setter Property="Background" Value="#FFF3E0"/>
+                                                            </DataTrigger>
+                                                            <!-- Distinction futur vs passé pour CRA prévisionnels -->
+                                                            <DataTrigger Binding="{Binding EstDansFutur}" Value="True">
+                                                                <Setter Property="Background" Value="#E3F2FD"/>
+                                                                <Setter Property="Opacity" Value="0.7"/>
                                                             </DataTrigger>
                                                         </ControlTemplate.Triggers>
                                                     </ControlTemplate>

@@ -266,6 +266,7 @@ namespace BacklogManager.Services
                             HeuresTravaillees REAL NOT NULL,
                             Commentaire TEXT,
                             DateCreation TEXT NOT NULL,
+                            EstPrevisionnel INTEGER DEFAULT 0,
                             FOREIGN KEY (BacklogItemId) REFERENCES BacklogItems(Id) ON DELETE CASCADE,
                             FOREIGN KEY (DevId) REFERENCES Utilisateurs(Id)
                         );
@@ -407,6 +408,7 @@ namespace BacklogManager.Services
                             HeuresTravaillees REAL NOT NULL,
                             Commentaire TEXT,
                             DateCreation TEXT NOT NULL,
+                            EstPrevisionnel INTEGER DEFAULT 0,
                             FOREIGN KEY (BacklogItemId) REFERENCES BacklogItems(Id) ON DELETE CASCADE,
                             FOREIGN KEY (DevId) REFERENCES Utilisateurs(Id)
                         );
@@ -435,6 +437,16 @@ namespace BacklogManager.Services
                 if (!hasTacheSupportee)
                 {
                     cmd.CommandText = @"ALTER TABLE BacklogItems ADD COLUMN TacheSupportee INTEGER REFERENCES BacklogItems(Id);";
+                    cmd.ExecuteNonQuery();
+                }
+
+                // Vérifier et ajouter EstPrevisionnel si manquant dans CRA
+                cmd.CommandText = @"SELECT COUNT(*) FROM pragma_table_info('CRA') WHERE name='EstPrevisionnel';";
+                var hasEstPrevisionnel = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                
+                if (!hasEstPrevisionnel)
+                {
+                    cmd.CommandText = @"ALTER TABLE CRA ADD COLUMN EstPrevisionnel INTEGER DEFAULT 0;";
                     cmd.ExecuteNonQuery();
                 }
             }
@@ -1554,7 +1566,8 @@ namespace BacklogManager.Services
                                 Date = DateTime.Parse(reader.GetString(3)),
                                 HeuresTravaillees = reader.GetDouble(4),
                                 Commentaire = reader.IsDBNull(5) ? null : reader.GetString(5),
-                                DateCreation = DateTime.Parse(reader.GetString(6))
+                                DateCreation = DateTime.Parse(reader.GetString(6)),
+                                EstPrevisionnel = !reader.IsDBNull(7) && reader.GetInt32(7) == 1
                             });
                         }
                     }
@@ -1575,8 +1588,8 @@ namespace BacklogManager.Services
                     {
                         // Insert
                         cmd.CommandText = @"
-                            INSERT INTO CRA (BacklogItemId, DevId, Date, HeuresTravaillees, Commentaire, DateCreation)
-                            VALUES (@BacklogItemId, @DevId, @Date, @HeuresTravaillees, @Commentaire, @DateCreation);
+                            INSERT INTO CRA (BacklogItemId, DevId, Date, HeuresTravaillees, Commentaire, DateCreation, EstPrevisionnel)
+                            VALUES (@BacklogItemId, @DevId, @Date, @HeuresTravaillees, @Commentaire, @DateCreation, @EstPrevisionnel);
                             SELECT last_insert_rowid();
                         ";
                         cmd.Parameters.AddWithValue("@BacklogItemId", cra.BacklogItemId);
@@ -1585,6 +1598,7 @@ namespace BacklogManager.Services
                         cmd.Parameters.AddWithValue("@HeuresTravaillees", cra.HeuresTravaillees);
                         cmd.Parameters.AddWithValue("@Commentaire", (object)cra.Commentaire ?? DBNull.Value);
                         cmd.Parameters.AddWithValue("@DateCreation", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                        cmd.Parameters.AddWithValue("@EstPrevisionnel", cra.EstPrevisionnel ? 1 : 0);
 
                         cra.Id = Convert.ToInt32(cmd.ExecuteScalar());
                     }
@@ -1597,7 +1611,8 @@ namespace BacklogManager.Services
                                 DevId = @DevId,
                                 Date = @Date,
                                 HeuresTravaillees = @HeuresTravaillees,
-                                Commentaire = @Commentaire
+                                Commentaire = @Commentaire,
+                                EstPrevisionnel = @EstPrevisionnel
                             WHERE Id = @Id
                         ";
                         cmd.Parameters.AddWithValue("@Id", cra.Id);
@@ -1606,6 +1621,7 @@ namespace BacklogManager.Services
                         cmd.Parameters.AddWithValue("@Date", cra.Date.ToString("yyyy-MM-dd"));
                         cmd.Parameters.AddWithValue("@HeuresTravaillees", cra.HeuresTravaillees);
                         cmd.Parameters.AddWithValue("@Commentaire", (object)cra.Commentaire ?? DBNull.Value);
+                        cmd.Parameters.AddWithValue("@EstPrevisionnel", cra.EstPrevisionnel ? 1 : 0);
 
                         cmd.ExecuteNonQuery();
                     }

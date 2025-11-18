@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -40,8 +41,15 @@ namespace BacklogManager.ViewModels
         public bool EstWeekend { get; set; }
         public bool EstJourFerie { get; set; }
         public string NomJourFerie { get; set; }
+        public string IconeJourFerie { get; set; } // Chemin vers l'icône personnalisée
         public double TotalHeuresSaisies { get; set; }
+        public double TotalHeuresPrevisionnelles { get; set; } // CRA futurs
         public bool ADesCRAs => TotalHeuresSaisies > 0;
+        public bool ADesCRAsPrevisionnels => TotalHeuresPrevisionnelles > 0;
+        
+        // Distinction temporelle pour couleurs
+        public bool EstDansPasse { get; set; }
+        public bool EstDansFutur { get; set; }
         
         // Nouveaux indicateurs pour tâches spéciales
         public bool EstConges { get; set; }
@@ -144,6 +152,9 @@ namespace BacklogManager.ViewModels
             {
                 _tacheSelectionnee = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(JoursRestants));
+                OnPropertyChanged(nameof(AfficherAllocationAuto));
+                OnPropertyChanged(nameof(ProposeAutoAllocation));
             }
         }
 
@@ -211,6 +222,51 @@ namespace BacklogManager.ViewModels
             }
         }
 
+        /// <summary>
+        /// Calcule le nombre de jours restants à allouer pour la tâche sélectionnée
+        /// </summary>
+        public double JoursRestants
+        {
+            get
+            {
+                if (TacheSelectionnee == null || !TacheSelectionnee.ChiffrageJours.HasValue)
+                    return 0;
+
+                var tempsReelHeures = _craService.GetTempsReelTache(TacheSelectionnee.Id);
+                var tempsReelJours = tempsReelHeures / 8.0;
+                var restant = TacheSelectionnee.ChiffrageJours.Value - tempsReelJours;
+                return Math.Max(0, restant); // Ne pas retourner de valeur négative
+            }
+        }
+
+        /// <summary>
+        /// Indique si on doit afficher le bouton d'allocation automatique
+        /// </summary>
+        public bool AfficherAllocationAuto => TacheSelectionnee != null && 
+                                               TacheSelectionnee.ChiffrageJours.HasValue && 
+                                               JoursRestants > 0 &&
+                                               JourSelectionne != null &&
+                                               DevSelectionne != null;
+
+        /// <summary>
+        /// Message proposant l'allocation automatique
+        /// </summary>
+        public string ProposeAutoAllocation
+        {
+            get
+            {
+                if (!AfficherAllocationAuto)
+                    return string.Empty;
+
+                var message = $"💡 {JoursRestants:F1} jour(s) restant(s) à allouer";
+                if (TacheSelectionnee.DateFinAttendue.HasValue)
+                {
+                    message += $" (cible: {TacheSelectionnee.DateFinAttendue.Value:dd/MM/yyyy})";
+                }
+                return message;
+            }
+        }
+
         public ICommand MoisPrecedentCommand { get; }
         public ICommand MoisSuivantCommand { get; }
         public ICommand AujourdhuiCommand { get; }
@@ -218,6 +274,7 @@ namespace BacklogManager.ViewModels
         public ICommand SupprimerCRACommand { get; }
         public ICommand SetJoursRapideCommand { get; }
         public ICommand JourSelectionnCommand { get; }
+        public ICommand AllocationAutomatiqueCommand { get; }
 
         public CRACalendrierViewModel(CRAService craService, BacklogService backlogService, 
             AuthenticationService authService, PermissionService permissionService)
@@ -243,8 +300,9 @@ namespace BacklogManager.ViewModels
             AujourdhuiCommand = new RelayCommand(_ => MoisCourant = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1));
             SaisirCRACommand = new RelayCommand(_ => SaisirCRA(), _ => PeutSaisirCRA());
             SupprimerCRACommand = new RelayCommand(param => SupprimerCRA((CRADisplayViewModel)param));
-            SetJoursRapideCommand = new RelayCommand(param => JoursASaisir = double.Parse(param.ToString()));
+            SetJoursRapideCommand = new RelayCommand(param => JoursASaisir = double.Parse(param.ToString(), System.Globalization.CultureInfo.InvariantCulture));
             JourSelectionnCommand = new RelayCommand(param => JourSelectionne = (JourCalendrierViewModel)param);
+            AllocationAutomatiqueCommand = new RelayCommand(_ => AllouerAutomatiquement(), _ => AfficherAllocationAuto);
 
             ChargerDevs();
             ChargerTachesDisponibles();
@@ -281,6 +339,7 @@ namespace BacklogManager.ViewModels
             
             if (DevSelectionne == null) return;
 
+            // Pour la saisie CRA, seulement les tâches non-archivées
             var taches = _backlogService.GetAllBacklogItems();
 
             // Séparer les tâches normales et spéciales
@@ -331,8 +390,8 @@ namespace BacklogManager.ViewModels
                 _craService.GetCRAsByDev(DevSelectionne.Id, premierJour, dernierJour) : 
                 new System.Collections.Generic.List<CRA>();
 
-            // Charger toutes les tâches pour détecter les types spéciaux
-            var toutesLesTaches = _backlogService.GetAllBacklogItems();
+            // Charger toutes les tâches pour détecter les types spéciaux (y compris archivées)
+            var toutesLesTaches = _backlogService.GetAllBacklogItemsIncludingArchived();
 
             // Ajouter les jours du mois précédent pour compléter la première semaine
             var jourDebut = premierJour.AddDays(-premierJourSemaine);
@@ -378,16 +437,24 @@ namespace BacklogManager.ViewModels
                     }
                 }
 
+                var aujourdhui = DateTime.Now.Date;
+                var estJourFerie = JoursFeriesService.EstJourFerie(date);
+                var nomJourFerie = JoursFeriesService.GetNomJourFerie(date);
+                
                 var jourVM = new JourCalendrierViewModel
                 {
                     Date = date,
                     Jour = date.Day,
                     EstDansMois = date.Month == MoisCourant.Month,
-                    EstAujourdhui = date.Date == DateTime.Now.Date,
+                    EstAujourdhui = date.Date == aujourdhui,
                     EstWeekend = JoursFeriesService.EstWeekend(date),
-                    EstJourFerie = JoursFeriesService.EstJourFerie(date),
-                    NomJourFerie = JoursFeriesService.GetNomJourFerie(date),
+                    EstJourFerie = estJourFerie,
+                    NomJourFerie = nomJourFerie,
+                    IconeJourFerie = estJourFerie ? GetIconeJourFerie(nomJourFerie) : null,
+                    EstDansPasse = date < aujourdhui,
+                    EstDansFutur = date > aujourdhui,
                     TotalHeuresSaisies = totalHeures,
+                    TotalHeuresPrevisionnelles = 0, // Sera calculé séparément
                     EstConges = estConges,
                     EstNonTravaille = estNonTravaille,
                     TachesDuJour = tachesDuJour
@@ -404,7 +471,7 @@ namespace BacklogManager.ViewModels
             if (JourSelectionne == null || DevSelectionne == null) return;
 
             var cras = _craService.GetCRAsByDev(DevSelectionne.Id, JourSelectionne.Date, JourSelectionne.Date);
-            var taches = _backlogService.GetAllBacklogItems();
+            var taches = _backlogService.GetAllBacklogItemsIncludingArchived();
             
             foreach (var cra in cras.OrderBy(c => c.DateCreation))
             {
@@ -437,14 +504,8 @@ namespace BacklogManager.ViewModels
                 return;
             }
 
-            if (SaisirSurPeriode)
-            {
-                SaisirCRAPeriode();
-            }
-            else
-            {
-                SaisirCRAJournalier();
-            }
+            // Toujours saisir en mode journalier (la saisie sur période a été remplacée par l'allocation auto)
+            SaisirCRAJournalier();
         }
 
         private void SaisirCRAJournalier()
@@ -549,41 +610,66 @@ namespace BacklogManager.ViewModels
                 return;
             }
 
-            if (dateFin > DateTime.Now.Date)
-            {
-                var resultFutur = System.Windows.MessageBox.Show(
-                    "Certaines dates de la période sont dans le futur.\n\nVoulez-vous quand même continuer ?",
-                    "Dates futures",
-                    System.Windows.MessageBoxButton.YesNo,
-                    System.Windows.MessageBoxImage.Question);
-                
-                if (resultFutur != System.Windows.MessageBoxResult.Yes)
-                    return;
-            }
+            // Calculer le nombre de jours à saisir
+            var heuresParJour = JoursASaisir * 8.0;
+            int joursADistribuer = (int)Math.Ceiling(JoursASaisir);
 
-            // Compter les jours ouvrés
-            var joursOuvres = JoursFeriesService.GetJoursOuvres(dateDebut, dateFin);
+            // Trouver les jours disponibles avec décalage automatique
+            var joursDisponibles = TrouverJoursDisponibles(dateDebut, dateFin, DevSelectionne.Id, heuresParJour, joursADistribuer);
 
-            if (joursOuvres.Count == 0)
+            if (joursDisponibles.Count == 0)
             {
                 System.Windows.MessageBox.Show(
-                    "Aucun jour ouvré trouvé sur cette période (uniquement des week-ends et jours fériés).",
+                    "Aucun jour disponible trouvé sur cette période.\n\n" +
+                    "Tous les jours sont soit:\n" +
+                    "- Week-ends ou jours fériés\n" +
+                    "- Déjà chargés à 100% (1j = 8h max/jour)",
                     "Validation",
                     System.Windows.MessageBoxButton.OK,
                     System.Windows.MessageBoxImage.Warning);
                 return;
             }
 
-            // Confirmation
-            var heuresParJour = JoursASaisir * 8.0;
-            var totalJours = JoursASaisir * joursOuvres.Count;
-            var totalHeures = heuresParJour * joursOuvres.Count;
+            // Séparer jours passés et futurs
+            var aujourdhui = DateTime.Now.Date;
+            var joursPassesEtPresent = joursDisponibles.Where(j => j <= aujourdhui).ToList();
+            var joursFuturs = joursDisponibles.Where(j => j > aujourdhui).ToList();
+
+            // Message de confirmation avec détails
+            var totalJours = joursDisponibles.Count;
+            var totalHeures = heuresParJour * totalJours;
+            var premierJour = joursDisponibles.First();
+            var dernierJour = joursDisponibles.Last();
+
+            string message = $"💾 Saisie CRA sur {totalJours} jour(s) disponible(s)\n\n";
+            message += $"📅 Période effective : {premierJour:dd/MM/yyyy} → {dernierJour:dd/MM/yyyy}\n";
+            message += $"⏱️ Charge : {JoursASaisir:F1}j ({heuresParJour:F1}h) par jour\n";
+            message += $"📊 Total : {totalJours * JoursASaisir:F1}j ({totalHeures:F1}h)\n\n";
+
+            if (joursPassesEtPresent.Count > 0)
+            {
+                message += $"✅ Jours passés/actuels : {joursPassesEtPresent.Count} jour(s)\n";
+                message += "   → Comptés immédiatement dans l'avancement\n\n";
+            }
+
+            if (joursFuturs.Count > 0)
+            {
+                message += $"📆 Jours futurs (prévisionnel) : {joursFuturs.Count} jour(s)\n";
+                message += "   → Ne seront PAS comptés dans l'avancement actuel\n";
+                message += "   → S'ajouteront automatiquement au fur et à mesure\n\n";
+            }
+
+            if (dernierJour > dateFin)
+            {
+                message += $"⚠️ Décalage appliqué jusqu'au {dernierJour:dd/MM/yyyy}\n";
+                message += $"   (certains jours entre {dateDebut:dd/MM/yyyy} et {dateFin:dd/MM/yyyy} n'étaient pas disponibles)\n\n";
+            }
+
+            message += "Continuer ?";
 
             var result = System.Windows.MessageBox.Show(
-                $"Voulez-vous saisir {JoursASaisir:F1}j ({heuresParJour:F1}h) par jour ouvré sur {joursOuvres.Count} jour(s) ?\\n\\n" +
-                $"Période : {dateDebut:dd/MM/yyyy} → {dateFin:dd/MM/yyyy}\\n" +
-                $"Total : {totalJours:F1}j ({totalHeures:F1}h)",
-                "Confirmation",
+                message,
+                "Confirmation saisie CRA",
                 System.Windows.MessageBoxButton.YesNo,
                 System.Windows.MessageBoxImage.Question);
 
@@ -594,25 +680,8 @@ namespace BacklogManager.ViewModels
             {
                 int nombreCRAsCrees = 0;
 
-                foreach (var jour in joursOuvres)
+                foreach (var jour in joursDisponibles)
                 {
-                    // Vérification charge quotidienne
-                    var chargeJour = _craService.GetChargeParJour(DevSelectionne.Id, jour);
-
-                    if (chargeJour + heuresParJour > 24)
-                    {
-                        var resultDepasse = System.Windows.MessageBox.Show(
-                            $"Le {jour:dd/MM/yyyy} dépasserait 24h ({chargeJour:F1}h déjà saisi).\\n\\nIgnorer ce jour et continuer ?",
-                            "Dépassement",
-                            System.Windows.MessageBoxButton.YesNo,
-                            System.Windows.MessageBoxImage.Warning);
-
-                        if (resultDepasse == System.Windows.MessageBoxResult.Yes)
-                            continue;
-                        else
-                            break;
-                    }
-
                     var cra = new CRA
                     {
                         DevId = DevSelectionne.Id,
@@ -620,7 +689,8 @@ namespace BacklogManager.ViewModels
                         Date = jour,
                         HeuresTravaillees = heuresParJour,
                         Commentaire = Commentaire,
-                        DateCreation = DateTime.Now
+                        DateCreation = DateTime.Now,
+                        EstPrevisionnel = jour > aujourdhui // Marquer comme prévisionnel si futur
                     };
 
                     _craService.SaveCRA(cra);
@@ -632,12 +702,23 @@ namespace BacklogManager.ViewModels
                 JoursASaisir = 0;
                 Commentaire = string.Empty;
                 SaisirSurPeriode = false;
+                DateFinPeriode = null;
                 
                 ChargerCalendrier();
                 ChargerCRAsJour();
 
+                string messageSucces = $"✅ {nombreCRAsCrees} CRA(s) enregistré(s) !\n\n";
+                if (joursPassesEtPresent.Count > 0)
+                {
+                    messageSucces += $"📊 {joursPassesEtPresent.Count} jour(s) comptés dans l'avancement\n";
+                }
+                if (joursFuturs.Count > 0)
+                {
+                    messageSucces += $"📆 {joursFuturs.Count} jour(s) en prévisionnel (ajoutés au fur et à mesure)";
+                }
+
                 System.Windows.MessageBox.Show(
-                    $"{nombreCRAsCrees} CRA(s) enregistré(s) avec succès !",
+                    messageSucces,
                     "Succès",
                     System.Windows.MessageBoxButton.OK,
                     System.Windows.MessageBoxImage.Information);
@@ -650,6 +731,42 @@ namespace BacklogManager.ViewModels
                     System.Windows.MessageBoxButton.OK,
                     System.Windows.MessageBoxImage.Error);
             }
+        }
+
+        /// <summary>
+        /// Trouve les jours disponibles avec décalage automatique si nécessaire
+        /// </summary>
+        private System.Collections.Generic.List<DateTime> TrouverJoursDisponibles(
+            DateTime dateDebut, 
+            DateTime dateFin, 
+            int devId, 
+            double heuresParJour, 
+            int nombreJoursNecessaires)
+        {
+            var joursDisponibles = new System.Collections.Generic.List<DateTime>();
+            var dateActuelle = dateDebut;
+            var maxRecherche = dateFin.AddMonths(3); // Limite de recherche : 3 mois après dateFin
+
+            while (joursDisponibles.Count < nombreJoursNecessaires && dateActuelle <= maxRecherche)
+            {
+                // Vérifier si le jour est ouvré (pas weekend, pas férié)
+                if (!JoursFeriesService.EstWeekend(dateActuelle) && 
+                    !JoursFeriesService.EstJourFerie(dateActuelle))
+                {
+                    // Vérifier la charge déjà saisie
+                    var chargeJour = _craService.GetChargeParJour(devId, dateActuelle);
+
+                    // Vérifier s'il reste de la capacité (max 8h/jour = 1j)
+                    if (chargeJour + heuresParJour <= 8.0)
+                    {
+                        joursDisponibles.Add(dateActuelle);
+                    }
+                }
+
+                dateActuelle = dateActuelle.AddDays(1);
+            }
+
+            return joursDisponibles;
         }
 
         private void SupprimerCRA(CRADisplayViewModel craVM)
@@ -685,6 +802,180 @@ namespace BacklogManager.ViewModels
                         System.Windows.MessageBoxImage.Error);
                 }
             }
+        }
+
+        /// <summary>
+        /// Alloue automatiquement le temps restant de la tâche sur les jours disponibles
+        /// </summary>
+        private void AllouerAutomatiquement()
+        {
+            if (JourSelectionne == null || TacheSelectionnee == null || DevSelectionne == null)
+                return;
+
+            var joursRestants = JoursRestants;
+            if (joursRestants <= 0)
+            {
+                System.Windows.MessageBox.Show(
+                    "Cette tâche n'a plus de temps restant à allouer.",
+                    "Information",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Information);
+                return;
+            }
+
+            // Calculer la date de début (le jour sélectionné)
+            var dateDebut = JourSelectionne.Date;
+            var heuresParJour = 8.0; // 1 jour complet par défaut
+            var nombreJoursNecessaires = (int)Math.Ceiling(joursRestants);
+
+            // Utiliser la date de livraison attendue si disponible, sinon 3 mois
+            var dateFin = TacheSelectionnee.DateFinAttendue ?? dateDebut.AddMonths(3);
+            
+            // Si la date de fin est avant la date de début, étendre la recherche
+            if (dateFin < dateDebut)
+            {
+                dateFin = dateDebut.AddMonths(3);
+            }
+
+            // Trouver les jours disponibles
+            var joursDisponibles = TrouverJoursDisponibles(
+                dateDebut, 
+                dateFin, 
+                DevSelectionne.Id, 
+                heuresParJour, 
+                nombreJoursNecessaires);
+
+            if (joursDisponibles.Count == 0)
+            {
+                System.Windows.MessageBox.Show(
+                    "Aucun jour disponible trouvé dans les 3 prochains mois.\n\n" +
+                    "Tous les jours sont soit:\n" +
+                    "- Week-ends ou jours fériés\n" +
+                    "- Déjà chargés à 100% (1j = 8h max/jour)",
+                    "Allocation impossible",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Warning);
+                return;
+            }
+
+            // Calculer la répartition intelligente
+            var heuresRestantes = joursRestants * 8.0;
+            var joursAUtiliser = Math.Min(joursDisponibles.Count, nombreJoursNecessaires);
+            
+            // Séparer jours passés/présents et futurs
+            var aujourdhui = DateTime.Now.Date;
+            var joursPassesEtPresent = joursDisponibles.Where(j => j <= aujourdhui).Take(joursAUtiliser).ToList();
+            var joursFuturs = joursDisponibles.Where(j => j > aujourdhui).Take(Math.Max(0, joursAUtiliser - joursPassesEtPresent.Count)).ToList();
+            var tousLesJours = joursPassesEtPresent.Concat(joursFuturs).Take(joursAUtiliser).ToList();
+
+            // Préparer le message de confirmation
+            var premierJour = tousLesJours.First();
+            var dernierJour = tousLesJours.Last();
+            var totalHeures = Math.Min(heuresRestantes, tousLesJours.Count * 8.0);
+            var totalJours = totalHeures / 8.0;
+
+            string message = $"🤖 ALLOCATION AUTOMATIQUE\n\n";
+            message += $"📋 Tâche : {TacheSelectionnee.Titre}\n";
+            message += $"⏱️ Temps restant : {joursRestants:F1} jour(s)\n";
+            if (TacheSelectionnee.DateFinAttendue.HasValue)
+            {
+                message += $"🎯 Livraison cible : {TacheSelectionnee.DateFinAttendue.Value:dd/MM/yyyy}\n";
+            }
+            message += $"📅 Période planifiée : {premierJour:dd/MM/yyyy} → {dernierJour:dd/MM/yyyy}\n";
+            message += $"📊 Distribution : {totalJours:F1}j sur {tousLesJours.Count} jour(s) ouvré(s)\n\n";
+
+            if (joursPassesEtPresent.Count > 0)
+            {
+                message += $"✅ {joursPassesEtPresent.Count} jour(s) comptabilisés (passé/présent)\n";
+            }
+            if (joursFuturs.Count > 0)
+            {
+                message += $"📆 {joursFuturs.Count} jour(s) en prévisionnel (futur)\n";
+            }
+
+            message += $"\n💡 Le système a trouvé les premiers jours disponibles\nen sautant les week-ends, jours fériés et jours pleins.\n\n";
+            message += "Voulez-vous créer ces CRA automatiquement ?";
+
+            var resultat = System.Windows.MessageBox.Show(
+                message,
+                "Confirmer l'allocation automatique",
+                System.Windows.MessageBoxButton.YesNo,
+                System.Windows.MessageBoxImage.Question);
+
+            if (resultat != System.Windows.MessageBoxResult.Yes)
+                return;
+
+            // Créer les CRA automatiquement
+            try
+            {
+                int nombreCRAsCrees = 0;
+                double heuresAllouees = 0;
+
+                foreach (var jour in tousLesJours)
+                {
+                    // Calculer les heures à allouer ce jour
+                    double heuresAAllouer = Math.Min(8.0, heuresRestantes - heuresAllouees);
+                    
+                    if (heuresAAllouer <= 0)
+                        break;
+
+                    var cra = new CRA
+                    {
+                        DevId = DevSelectionne.Id,
+                        BacklogItemId = TacheSelectionnee.Id,
+                        Date = jour,
+                        HeuresTravaillees = heuresAAllouer,
+                        Commentaire = "Allocation automatique",
+                        DateCreation = DateTime.Now,
+                        EstPrevisionnel = jour > aujourdhui
+                    };
+
+                    _craService.SaveCRA(cra);
+                    nombreCRAsCrees++;
+                    heuresAllouees += heuresAAllouer;
+                }
+
+                // Réinitialiser le formulaire
+                TacheSelectionnee = null;
+                JoursASaisir = 0;
+                Commentaire = string.Empty;
+
+                ChargerCalendrier();
+                ChargerCRAsJour();
+
+                string messageSucces = $"✅ {nombreCRAsCrees} CRA(s) créé(s) automatiquement !\n\n";
+                messageSucces += $"⏱️ Total alloué : {heuresAllouees / 8.0:F1} jour(s)\n";
+                if (joursPassesEtPresent.Count > 0)
+                {
+                    messageSucces += $"📊 {joursPassesEtPresent.Count} jour(s) comptabilisés\n";
+                }
+                if (joursFuturs.Count > 0)
+                {
+                    messageSucces += $"📆 {joursFuturs.Count} jour(s) en prévisionnel";
+                }
+
+                System.Windows.MessageBox.Show(
+                    messageSucces,
+                    "Allocation réussie",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show(
+                    $"Erreur lors de l'allocation automatique : {ex.Message}",
+                    "Erreur",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Error);
+            }
+        }
+
+        private string GetIconeJourFerie(string nomJourFerie)
+        {
+            if (string.IsNullOrEmpty(nomJourFerie)) return null;
+
+            // Icône unique pour tous les jours fériés
+            return "/Images/jour-ferie.png";
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

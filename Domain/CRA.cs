@@ -11,11 +11,13 @@ namespace BacklogManager.Domain
         public double HeuresTravaillees { get; set; }
         public string Commentaire { get; set; }
         public DateTime DateCreation { get; set; }
+        public bool EstPrevisionnel { get; set; } // True si CRA pour date future (prévisionnel)
 
         public CRA()
         {
             DateCreation = DateTime.Now;
             Date = DateTime.Today;
+            EstPrevisionnel = false;
         }
     }
 }
