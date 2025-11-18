@@ -24,6 +24,9 @@
         <DataTemplate DataType="{x:Type vm:TimelineViewModel}">
             <views:TimelineView/>
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:ArchivesViewModel}">
+            <views:ArchivesView/>
+        </DataTemplate>
         
         <Style x:Key="MenuButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>

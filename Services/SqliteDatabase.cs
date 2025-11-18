@@ -130,10 +130,14 @@ namespace BacklogManager.Services
                             EstArchive INTEGER NOT NULL,
                             SprintId INTEGER,
                             DemandeId INTEGER,
+                            DevSupporte INTEGER,
+                            TacheSupportee INTEGER,
                             FOREIGN KEY (ProjetId) REFERENCES Projets(Id),
                             FOREIGN KEY (DevId) REFERENCES Utilisateurs(Id),
                             FOREIGN KEY (SprintId) REFERENCES Sprints(Id),
-                            FOREIGN KEY (DemandeId) REFERENCES Demandes(Id)
+                            FOREIGN KEY (DemandeId) REFERENCES Demandes(Id),
+                            FOREIGN KEY (DevSupporte) REFERENCES Utilisateurs(Id),
+                            FOREIGN KEY (TacheSupportee) REFERENCES BacklogItems(Id)
                         );
 
                         CREATE TABLE IF NOT EXISTS Demandes (
@@ -411,6 +415,26 @@ namespace BacklogManager.Services
                         CREATE INDEX IF NOT EXISTS idx_cra_dev ON CRA(DevId);
                         CREATE INDEX IF NOT EXISTS idx_cra_date ON CRA(Date);
                     ";
+                    cmd.ExecuteNonQuery();
+                }
+                
+                // Vérifier et ajouter DevSupporte si manquant dans BacklogItems
+                cmd.CommandText = @"SELECT COUNT(*) FROM pragma_table_info('BacklogItems') WHERE name='DevSupporte';";
+                var hasDevSupporte = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                
+                if (!hasDevSupporte)
+                {
+                    cmd.CommandText = @"ALTER TABLE BacklogItems ADD COLUMN DevSupporte INTEGER REFERENCES Utilisateurs(Id);";
+                    cmd.ExecuteNonQuery();
+                }
+                
+                // Vérifier et ajouter TacheSupportee si manquant dans BacklogItems
+                cmd.CommandText = @"SELECT COUNT(*) FROM pragma_table_info('BacklogItems') WHERE name='TacheSupportee';";
+                var hasTacheSupportee = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                
+                if (!hasTacheSupportee)
+                {
+                    cmd.CommandText = @"ALTER TABLE BacklogItems ADD COLUMN TacheSupportee INTEGER REFERENCES BacklogItems(Id);";
                     cmd.ExecuteNonQuery();
                 }
             }
@@ -822,7 +846,10 @@ namespace BacklogManager.Services
             using (var conn = GetConnection())
             {
                 conn.Open();
-                using (var cmd = new SQLiteCommand("SELECT * FROM BacklogItems WHERE EstArchive = 0", conn))
+                using (var cmd = new SQLiteCommand(@"SELECT Id, Titre, Description, ProjetId, DevId, Type, Priorite, Statut,
+                    Points, ChiffrageHeures, TempsReelHeures, DateFinAttendue, DateDebut, DateFin, 
+                    DateCreation, DateDerniereMaj, EstArchive, SprintId, DemandeId, DevSupporte, TacheSupportee 
+                    FROM BacklogItems WHERE EstArchive = 0", conn))
                 using (var reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
@@ -847,7 +874,9 @@ namespace BacklogManager.Services
                             DateDerniereMaj = DateTime.Parse(reader.GetString(15)),
                             EstArchive = reader.GetInt32(16) == 1,
                             SprintId = reader.IsDBNull(17) ? (int?)null : reader.GetInt32(17),
-                            DemandeId = reader.IsDBNull(18) ? (int?)null : reader.GetInt32(18)
+                            DemandeId = reader.IsDBNull(18) ? (int?)null : reader.GetInt32(18),
+                            DevSupporte = reader.IsDBNull(19) ? (int?)null : reader.GetInt32(19),
+                            TacheSupportee = reader.IsDBNull(20) ? (int?)null : reader.GetInt32(20)
                         });
                     }
                 }
@@ -856,6 +885,50 @@ namespace BacklogManager.Services
         }
         
         public List<BacklogItem> GetBacklog() { return GetBacklogItems(); }
+        
+        public List<BacklogItem> GetAllBacklogItemsIncludingArchived()
+        {
+            var items = new List<BacklogItem>();
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = new SQLiteCommand(@"SELECT Id, Titre, Description, ProjetId, DevId, Type, Priorite, Statut,
+                    Points, ChiffrageHeures, TempsReelHeures, DateFinAttendue, DateDebut, DateFin, 
+                    DateCreation, DateDerniereMaj, EstArchive, SprintId, DemandeId, DevSupporte, TacheSupportee 
+                    FROM BacklogItems", conn))
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        items.Add(new BacklogItem
+                        {
+                            Id = reader.GetInt32(0),
+                            Titre = reader.GetString(1),
+                            Description = reader.IsDBNull(2) ? null : reader.GetString(2),
+                            ProjetId = reader.IsDBNull(3) ? (int?)null : reader.GetInt32(3),
+                            DevAssigneId = reader.IsDBNull(4) ? (int?)null : reader.GetInt32(4),
+                            TypeDemande = (TypeDemande)reader.GetInt32(5),
+                            Priorite = (Priorite)reader.GetInt32(6),
+                            Statut = (Statut)reader.GetInt32(7),
+                            Complexite = reader.IsDBNull(8) ? (int?)null : reader.GetInt32(8),
+                            ChiffrageHeures = reader.IsDBNull(9) ? (double?)null : reader.GetDouble(9),
+                            TempsReelHeures = reader.IsDBNull(10) ? (double?)null : reader.GetDouble(10),
+                            DateFinAttendue = reader.IsDBNull(11) ? (DateTime?)null : DateTime.Parse(reader.GetString(11)),
+                            DateDebut = reader.IsDBNull(12) ? (DateTime?)null : DateTime.Parse(reader.GetString(12)),
+                            DateFin = reader.IsDBNull(13) ? (DateTime?)null : DateTime.Parse(reader.GetString(13)),
+                            DateCreation = DateTime.Parse(reader.GetString(14)),
+                            DateDerniereMaj = DateTime.Parse(reader.GetString(15)),
+                            EstArchive = reader.GetInt32(16) == 1,
+                            SprintId = reader.IsDBNull(17) ? (int?)null : reader.GetInt32(17),
+                            DemandeId = reader.IsDBNull(18) ? (int?)null : reader.GetInt32(18),
+                            DevSupporte = reader.IsDBNull(19) ? (int?)null : reader.GetInt32(19),
+                            TacheSupportee = reader.IsDBNull(20) ? (int?)null : reader.GetInt32(20)
+                        });
+                    }
+                }
+            }
+            return items;
+        }
         
         public List<AuditLog> GetAuditLogs()
         {
@@ -1054,10 +1127,10 @@ namespace BacklogManager.Services
                             {
                                 cmd.CommandText = @"INSERT INTO BacklogItems (Titre, Description, ProjetId, DevId, Type, Priorite, Statut, 
                                     Points, ChiffrageHeures, TempsReelHeures, DateFinAttendue, DateDebut, DateFin, 
-                                    DateCreation, DateDerniereMaj, EstArchive, SprintId, DemandeId) 
+                                    DateCreation, DateDerniereMaj, EstArchive, SprintId, DemandeId, DevSupporte, TacheSupportee) 
                                     VALUES (@Titre, @Description, @ProjetId, @DevId, @Type, @Priorite, @Statut, 
                                     @Points, @ChiffrageHeures, @TempsReelHeures, @DateFinAttendue, @DateDebut, @DateFin, 
-                                    @DateCreation, @DateDerniereMaj, @EstArchive, @SprintId, @DemandeId);
+                                    @DateCreation, @DateDerniereMaj, @EstArchive, @SprintId, @DemandeId, @DevSupporte, @TacheSupportee);
                                     SELECT last_insert_rowid();";
                             }
                             else
@@ -1066,7 +1139,8 @@ namespace BacklogManager.Services
                                     ProjetId = @ProjetId, DevId = @DevId, Type = @Type, Priorite = @Priorite, Statut = @Statut, 
                                     Points = @Points, ChiffrageHeures = @ChiffrageHeures, TempsReelHeures = @TempsReelHeures, 
                                     DateFinAttendue = @DateFinAttendue, DateDebut = @DateDebut, DateFin = @DateFin, 
-                                    DateDerniereMaj = @DateDerniereMaj, EstArchive = @EstArchive, SprintId = @SprintId, DemandeId = @DemandeId 
+                                    DateDerniereMaj = @DateDerniereMaj, EstArchive = @EstArchive, SprintId = @SprintId, DemandeId = @DemandeId,
+                                    DevSupporte = @DevSupporte, TacheSupportee = @TacheSupportee 
                                     WHERE Id = @Id";
                                 cmd.Parameters.AddWithValue("@Id", item.Id);
                             }
@@ -1089,6 +1163,8 @@ namespace BacklogManager.Services
                             cmd.Parameters.AddWithValue("@EstArchive", item.EstArchive ? 1 : 0);
                             cmd.Parameters.AddWithValue("@SprintId", (object)item.SprintId ?? DBNull.Value);
                             cmd.Parameters.AddWithValue("@DemandeId", (object)item.DemandeId ?? DBNull.Value);
+                            cmd.Parameters.AddWithValue("@DevSupporte", (object)item.DevSupporte ?? DBNull.Value);
+                            cmd.Parameters.AddWithValue("@TacheSupportee", (object)item.TacheSupportee ?? DBNull.Value);
 
                             if (item.Id == 0)
                             {

@@ -6,50 +6,205 @@
              xmlns:shared="clr-namespace:BacklogManager.Shared"
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="800"
-             Background="#F5F5F5">
+             Background="#F0F2F5">
     <UserControl.Resources>
         <shared:BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        
+        <!-- Style pour les cartes principales -->
+        <Style x:Key="MainCard" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="30,25"/>
+            <Setter Property="Margin" Value="0,0,0,20"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="#E0E0E0" BlurRadius="15" ShadowDepth="2" Opacity="0.3" Direction="270"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <!-- Style pour les boutons "Voir tout" -->
+        <Style x:Key="ViewAllButton" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="#00915A"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#E8F5E9"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </UserControl.Resources>
+    
     <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <Grid Margin="30">
+        <Grid Margin="35,25">
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <!-- Header avec Bonjour + Date -->
-            <Border Grid.Row="0" Background="White" CornerRadius="8" Padding="25,20" Margin="0,0,0,20">
+            <!-- Header avec Bonjour + Date + BNP Branding -->
+            <Border Grid.Row="0" Style="{StaticResource MainCard}">
                 <Grid>
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" FontSize="24" FontWeight="SemiBold" Foreground="#1A1919">
-                        <Run Text="👋 Bonjour "/>
-                        <Run Text="{Binding NomUtilisateur}" FontWeight="Bold"/>
-                    </TextBlock>
-                    <TextBlock Grid.Column="1" FontSize="16" Foreground="#666666" VerticalAlignment="Center">
-                        <Run Text="{Binding DateAujourdhui}"/>
-                    </TextBlock>
+                    
+                    <!-- Logo/Accent BNP -->
+                    <Border Grid.Column="0" Background="#00915A" Width="5" CornerRadius="2" 
+                            Margin="0,0,20,0" VerticalAlignment="Stretch"/>
+                    
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock FontSize="28" FontWeight="Bold" Foreground="#1A1919">
+                            <Run Text="👋 Bonjour, "/>
+                            <Run Text="{Binding NomUtilisateur}" Foreground="#00915A"/>
+                        </TextBlock>
+                        <TextBlock FontSize="14" Foreground="#666666" Margin="0,5,0,0">
+                            <Run Text="📅 "/>
+                            <Run Text="{Binding DateAujourdhui}"/>
+                        </TextBlock>
+                    </StackPanel>
+                    
+                    <!-- Quick stats badge -->
+                    <Border Grid.Column="2" Background="#E8F5E9" CornerRadius="8" 
+                            Padding="15,10" VerticalAlignment="Center">
+                        <StackPanel>
+                            <TextBlock Text="Productivité du jour" FontSize="11" 
+                                       Foreground="#00915A" FontWeight="SemiBold"/>
+                            <TextBlock FontSize="20" FontWeight="Bold" Foreground="#00915A" 
+                                       Margin="0,3,0,0" HorizontalAlignment="Center">
+                                <Run Text="{Binding TauxProductivite, Mode=OneWay}"/>
+                                <Run Text="%" FontSize="14"/>
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
                 </Grid>
             </Border>
 
+            <!-- STATISTIQUES EN CARTES (KPI) -->
+            <Grid Grid.Row="1" Margin="0,0,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- Tâches terminées -->
+                <Border Grid.Column="0" Style="{StaticResource MainCard}" Margin="0,0,10,0" Padding="20,18">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Text="✅ Terminées" FontSize="13" 
+                                   Foreground="#666666" Margin="0,0,0,8"/>
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" FontSize="32" FontWeight="Bold" 
+                                       Foreground="#00915A" VerticalAlignment="Center">
+                                <Run Text="{Binding NbTachesTerminees, Mode=OneWay}"/>
+                            </TextBlock>
+                            <TextBlock Grid.Column="1" FontSize="14" Foreground="#999999" 
+                                       VerticalAlignment="Bottom" Margin="5,0,0,5">
+                                <Run Text="/ "/>
+                                <Run Text="{Binding NbTachesTotal, Mode=OneWay}"/>
+                            </TextBlock>
+                        </Grid>
+                    </Grid>
+                </Border>
+                
+                <!-- Tâches en cours -->
+                <Border Grid.Column="1" Style="{StaticResource MainCard}" Margin="5,0,5,0" Padding="20,18">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Text="🔄 En cours" FontSize="13" 
+                                   Foreground="#666666" Margin="0,0,0,8"/>
+                        <TextBlock Grid.Row="1" Text="{Binding NbTachesEnCours, Mode=OneWay}" 
+                                   FontSize="32" FontWeight="Bold" Foreground="#2196F3"/>
+                    </Grid>
+                </Border>
+                
+                <!-- Tâches urgentes -->
+                <Border Grid.Column="2" Style="{StaticResource MainCard}" Margin="5,0,5,0" Padding="20,18">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Text="⚡ Urgentes" FontSize="13" 
+                                   Foreground="#666666" Margin="0,0,0,8"/>
+                        <TextBlock Grid.Row="1" Text="{Binding NbTachesUrgentes, Mode=OneWay}" 
+                                   FontSize="32" FontWeight="Bold" Foreground="#FF5722"/>
+                    </Grid>
+                </Border>
+                
+                <!-- Projets actifs -->
+                <Border Grid.Column="3" Style="{StaticResource MainCard}" Margin="10,0,0,0" Padding="20,18">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Text="📁 Projets" FontSize="13" 
+                                   Foreground="#666666" Margin="0,0,0,8"/>
+                        <TextBlock Grid.Row="1" Text="{Binding NbProjetsActifs, Mode=OneWay}" 
+                                   FontSize="32" FontWeight="Bold" Foreground="#FF9800"/>
+                    </Grid>
+                </Border>
+            </Grid>
+            
             <!-- MES TÂCHES URGENTES -->
-            <Border Grid.Row="1" Background="White" CornerRadius="8" Padding="25,20" Margin="0,0,0,20">
+            <Border Grid.Row="2" Style="{StaticResource MainCard}">
                 <StackPanel>
-                    <Grid Margin="0,0,0,15">
-                        <TextBlock FontSize="18" FontWeight="SemiBold" Foreground="#1A1919" VerticalAlignment="Center">
-                            <Run Text="⚡ MES TÂCHES URGENTES ("/>
-                            <Run Text="{Binding NbTachesUrgentes, Mode=OneWay}"/>
-                            <Run Text=")"/>
+                    <Grid Margin="0,0,0,18">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <Border Grid.Column="0" Background="#FFEBEE" CornerRadius="6" 
+                                Padding="8,5" Margin="0,0,10,0">
+                            <TextBlock FontSize="14" FontWeight="Bold" Foreground="#FF5722">
+                                <Run Text="⚡ "/>
+                                <Run Text="{Binding NbTachesUrgentes, Mode=OneWay}"/>
+                            </TextBlock>
+                        </Border>
+                        
+                        <TextBlock Grid.Column="1" FontSize="20" FontWeight="Bold" 
+                                   Foreground="#1A1919" VerticalAlignment="Center">
+                            <Run Text="MES TÂCHES URGENTES"/>
                         </TextBlock>
-                        <Button Content="Voir tout →" HorizontalAlignment="Right" 
-                                Style="{StaticResource {x:Type Button}}"
-                                Background="Transparent" BorderThickness="0"
-                                Foreground="#00915A" FontWeight="SemiBold"
-                                Cursor="Hand" Click="VoirToutesUrgentes_Click"/>
+                        
+                        <Button Grid.Column="2" Content="Voir tout →" 
+                                Style="{StaticResource ViewAllButton}"
+                                Click="VoirToutesUrgentes_Click"/>
                     </Grid>
 
                     <ItemsControl ItemsSource="{Binding TachesUrgentes}">
@@ -60,18 +215,39 @@
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border Background="#FAFAFA" CornerRadius="6" Padding="15" Margin="0,0,10,10"
-                                        BorderBrush="#E0E0E0" BorderThickness="1" Cursor="Hand"
-                                        MouseLeftButtonDown="TacheUrgente_Click">
+                                <Border Background="#FAFAFA" CornerRadius="8" Padding="18,15" 
+                                        Margin="0,0,15,12" BorderBrush="#FFE0E0" BorderThickness="2" 
+                                        Cursor="Hand" MouseLeftButtonDown="TacheUrgente_Click">
+                                    <Border.Effect>
+                                        <DropShadowEffect Color="#FFE0E0" BlurRadius="8" 
+                                                          ShadowDepth="1" Opacity="0.4" Direction="270"/>
+                                    </Border.Effect>
                                     <StackPanel>
-                                        <TextBlock FontSize="14" FontWeight="SemiBold" Foreground="#1A1919" TextWrapping="Wrap">
-                                            <Run Text="⚡ "/>
-                                            <Run Text="{Binding Titre}"/>
-                                        </TextBlock>
-                                        <TextBlock FontSize="12" Foreground="#666666" Margin="0,5,0,0">
-                                            <Run Text="📅 "/>
-                                            <Run Text="{Binding DateFinAttendue, StringFormat='dd/MM/yyyy'}"/>
-                                        </TextBlock>
+                                        <Grid>
+                                            <TextBlock FontSize="15" FontWeight="SemiBold" 
+                                                       Foreground="#1A1919" TextWrapping="Wrap">
+                                                <Run Text="{Binding Titre}"/>
+                                            </TextBlock>
+                                            <Border Background="#FF5722" CornerRadius="4" 
+                                                    Padding="6,3" HorizontalAlignment="Right" 
+                                                    VerticalAlignment="Top">
+                                                <TextBlock Text="⚡" FontSize="12"/>
+                                            </Border>
+                                        </Grid>
+                                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                            <Border Background="#FFF3E0" CornerRadius="4" Padding="8,4" 
+                                                    Margin="0,0,8,0">
+                                                <TextBlock FontSize="12" Foreground="#FF9800" FontWeight="SemiBold">
+                                                    <Run Text="📅 "/>
+                                                    <Run Text="{Binding DateFinAttendue, StringFormat='dd/MM'}"/>
+                                                </TextBlock>
+                                            </Border>
+                                            <Border Background="#E3F2FD" CornerRadius="4" Padding="8,4">
+                                                <TextBlock FontSize="12" Foreground="#2196F3" FontWeight="SemiBold">
+                                                    <Run Text="{Binding ProjetNom}"/>
+                                                </TextBlock>
+                                            </Border>
+                                        </StackPanel>
                                     </StackPanel>
                                 </Border>
                             </DataTemplate>
@@ -79,50 +255,82 @@
                     </ItemsControl>
 
                     <!-- Message si aucune tâche urgente -->
-                    <TextBlock Text="✓ Aucune tâche urgente pour le moment" 
-                               FontSize="14" Foreground="#666666" TextAlignment="Center"
-                               Margin="0,10,0,0"
-                               Visibility="{Binding HasNoUrgentTasks, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                    <Border Background="#E8F5E9" CornerRadius="8" Padding="20" 
+                            Visibility="{Binding HasNoUrgentTasks, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="✅" FontSize="32" TextAlignment="Center" Margin="0,0,0,8"/>
+                            <TextBlock Text="Aucune tâche urgente pour le moment" 
+                                       FontSize="14" Foreground="#00915A" TextAlignment="Center" FontWeight="SemiBold"/>
+                            <TextBlock Text="Excellent travail ! Toutes vos priorités sont à jour." 
+                                       FontSize="12" Foreground="#666666" TextAlignment="Center" Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </Border>
                 </StackPanel>
             </Border>
 
             <!-- NOTIFICATIONS RÉCENTES -->
-            <Border Grid.Row="2" Background="White" CornerRadius="8" Padding="25,20" Margin="0,0,0,20">
+            <Border Grid.Row="3" Style="{StaticResource MainCard}">
                 <StackPanel>
-                    <Grid Margin="0,0,0,15">
-                        <TextBlock FontSize="18" FontWeight="SemiBold" Foreground="#1A1919" VerticalAlignment="Center">
-                            <Run Text="🔔 NOTIFICATIONS ("/>
-                            <Run Text="{Binding NbNotifications, Mode=OneWay}"/>
-                            <Run Text=")"/>
+                    <Grid Margin="0,0,0,18">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <Border Grid.Column="0" Background="#E3F2FD" CornerRadius="6" 
+                                Padding="8,5" Margin="0,0,10,0">
+                            <TextBlock FontSize="14" FontWeight="Bold" Foreground="#2196F3">
+                                <Run Text="🔔 "/>
+                                <Run Text="{Binding NbNotifications, Mode=OneWay}"/>
+                            </TextBlock>
+                        </Border>
+                        
+                        <TextBlock Grid.Column="1" FontSize="20" FontWeight="Bold" 
+                                   Foreground="#1A1919" VerticalAlignment="Center">
+                            <Run Text="NOTIFICATIONS RÉCENTES"/>
                         </TextBlock>
-                        <Button Content="Voir tout →" HorizontalAlignment="Right"
-                                Style="{StaticResource {x:Type Button}}"
-                                Background="Transparent" BorderThickness="0"
-                                Foreground="#00915A" FontWeight="SemiBold"
-                                Cursor="Hand" Click="VoirToutesNotifications_Click"/>
+                        
+                        <Button Grid.Column="2" Content="Voir tout →" 
+                                Style="{StaticResource ViewAllButton}"
+                                Click="VoirToutesNotifications_Click"/>
                     </Grid>
 
                     <ItemsControl ItemsSource="{Binding NotificationsRecentes}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border Background="#FAFAFA" CornerRadius="6" Padding="12,10" Margin="0,0,0,8"
-                                        BorderBrush="#E0E0E0" BorderThickness="1">
+                                <Border Background="#FAFAFA" CornerRadius="8" Padding="15,12" 
+                                        Margin="0,0,0,10" BorderBrush="#E8E8E8" BorderThickness="1">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" FontSize="16" Margin="0,0,10,0" VerticalAlignment="Top">
-                                            <Run Text="{Binding Icone}"/>
-                                        </TextBlock>
-                                        <StackPanel Grid.Column="1">
-                                            <TextBlock FontSize="13" FontWeight="SemiBold" Foreground="#1A1919" TextWrapping="Wrap">
+                                        
+                                        <Border Grid.Column="0" Background="#E3F2FD" 
+                                                Width="36" Height="36" CornerRadius="18" 
+                                                Margin="0,0,12,0" VerticalAlignment="Top">
+                                            <TextBlock FontSize="18" VerticalAlignment="Center" 
+                                                       HorizontalAlignment="Center">
+                                                <Run Text="{Binding Icone}"/>
+                                            </TextBlock>
+                                        </Border>
+                                        
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                            <TextBlock FontSize="14" FontWeight="SemiBold" 
+                                                       Foreground="#1A1919" TextWrapping="Wrap">
                                                 <Run Text="{Binding Titre}"/>
                                             </TextBlock>
-                                            <TextBlock FontSize="11" Foreground="#666666" TextWrapping="Wrap" Margin="0,2,0,0">
+                                            <TextBlock FontSize="12" Foreground="#666666" 
+                                                       TextWrapping="Wrap" Margin="0,3,0,0">
                                                 <Run Text="{Binding Message}"/>
                                             </TextBlock>
                                         </StackPanel>
+                                        
+                                        <Border Grid.Column="2" Background="#00915A" CornerRadius="12" 
+                                                Width="8" Height="8" VerticalAlignment="Top" Margin="10,5,0,0"
+                                                Visibility="{Binding EstNonLue, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                     </Grid>
                                 </Border>
                             </DataTemplate>
@@ -130,55 +338,139 @@
                     </ItemsControl>
 
                     <!-- Message si aucune notification -->
-                    <TextBlock Text="✓ Aucune nouvelle notification" 
-                               FontSize="14" Foreground="#666666" TextAlignment="Center"
-                               Margin="0,10,0,0"
-                               Visibility="{Binding HasNoNotifications, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                    <Border Background="#E8F5E9" CornerRadius="8" Padding="20" 
+                            Visibility="{Binding HasNoNotifications, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="🔕" FontSize="32" TextAlignment="Center" Margin="0,0,0,8"/>
+                            <TextBlock Text="Aucune nouvelle notification" 
+                                       FontSize="14" Foreground="#00915A" TextAlignment="Center" FontWeight="SemiBold"/>
+                            <TextBlock Text="Vous êtes à jour avec toutes les actualités." 
+                                       FontSize="12" Foreground="#666666" TextAlignment="Center" Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </Border>
                 </StackPanel>
             </Border>
 
-            <!-- STATISTIQUES RAPIDES -->
-            <Border Grid.Row="3" Background="White" CornerRadius="8" Padding="25,20">
-                <StackPanel>
-                    <TextBlock Text="📊 STATISTIQUES RAPIDES" FontSize="18" FontWeight="SemiBold" 
-                               Foreground="#1A1919" Margin="0,0,0,20"/>
-                    
-                    <UniformGrid Columns="3" HorizontalAlignment="Stretch">
-                        <!-- Tâches terminées -->
-                        <Border Background="#E8F5E9" CornerRadius="8" Padding="20" Margin="0,0,10,0">
-                            <StackPanel HorizontalAlignment="Center">
-                                <TextBlock FontSize="32" FontWeight="Bold" Foreground="#4CAF50" TextAlignment="Center">
-                                    <Run Text="{Binding NbTachesTerminees}"/>
-                                    <Run Text=" / " FontSize="24" FontWeight="Normal"/>
-                                    <Run Text="{Binding NbTachesTotal}"/>
-                                </TextBlock>
-                                <TextBlock Text="Terminées" FontSize="14" Foreground="#666666" 
-                                           TextAlignment="Center" Margin="0,5,0,0"/>
-                            </StackPanel>
-                        </Border>
-
-                        <!-- Tâches en cours -->
-                        <Border Background="#E3F2FD" CornerRadius="8" Padding="20" Margin="5,0,5,0">
-                            <StackPanel HorizontalAlignment="Center">
-                                <TextBlock Text="{Binding NbTachesEnCours}" FontSize="32" FontWeight="Bold" 
-                                           Foreground="#2196F3" TextAlignment="Center"/>
-                                <TextBlock Text="En cours" FontSize="14" Foreground="#666666" 
-                                           TextAlignment="Center" Margin="0,5,0,0"/>
-                            </StackPanel>
-                        </Border>
-
-                        <!-- Projets actifs -->
-                        <Border Background="#FFF3E0" CornerRadius="8" Padding="20" Margin="10,0,0,0">
-                            <StackPanel HorizontalAlignment="Center">
-                                <TextBlock Text="{Binding NbProjetsActifs}" FontSize="32" FontWeight="Bold" 
-                                           Foreground="#FF9800" TextAlignment="Center"/>
-                                <TextBlock Text="Projets actifs" FontSize="14" Foreground="#666666" 
-                                           TextAlignment="Center" Margin="0,5,0,0"/>
-                            </StackPanel>
-                        </Border>
-                    </UniformGrid>
-                </StackPanel>
-            </Border>
+            <!-- ACTIVITÉ RÉCENTE & QUICK ACTIONS -->
+            <Grid Grid.Row="4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- ACTIVITÉ RÉCENTE -->
+                <Border Grid.Column="0" Style="{StaticResource MainCard}" Margin="0,0,10,0">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,18">
+                            <TextBlock FontSize="20" FontWeight="Bold" Foreground="#1A1919">
+                                <Run Text="📊 ACTIVITÉ RÉCENTE"/>
+                            </TextBlock>
+                        </Grid>
+                        
+                        <ItemsControl ItemsSource="{Binding ActivitesRecentes}" MaxHeight="300">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="#FAFAFA" CornerRadius="6" Padding="12,10" Margin="0,0,0,8">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            
+                                            <Border Grid.Column="0" Width="4" CornerRadius="2" 
+                                                    Margin="0,0,12,0" Background="#00915A"/>
+                                            
+                                            <StackPanel Grid.Column="1">
+                                                <TextBlock FontSize="13" FontWeight="SemiBold" 
+                                                           Foreground="#1A1919" TextWrapping="Wrap">
+                                                    <Run Text="{Binding Action}"/>
+                                                </TextBlock>
+                                                <TextBlock FontSize="11" Foreground="#666666" Margin="0,2,0,0">
+                                                    <Run Text="{Binding Details}"/>
+                                                </TextBlock>
+                                            </StackPanel>
+                                            
+                                            <TextBlock Grid.Column="2" FontSize="11" Foreground="#999999" 
+                                                       VerticalAlignment="Top">
+                                                <Run Text="{Binding Temps}"/>
+                                            </TextBlock>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+                
+                <!-- ACTIONS RAPIDES -->
+                <Border Grid.Column="1" Style="{StaticResource MainCard}" Margin="10,0,0,0">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,18">
+                            <TextBlock FontSize="20" FontWeight="Bold" Foreground="#1A1919">
+                                <Run Text="⚡ ACTIONS"/>
+                            </TextBlock>
+                        </Grid>
+                        
+                        <StackPanel>
+                            <!-- Nouvelle tâche -->
+                            <Button Background="#00915A" BorderThickness="0" 
+                                    Padding="15,12" Margin="0,0,0,10" Cursor="Hand"
+                                    Click="NouvelleTache_Click">
+                                <Button.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="8"/>
+                                    </Style>
+                                </Button.Resources>
+                                <Button.Effect>
+                                    <DropShadowEffect Color="#00915A" BlurRadius="10" 
+                                                      ShadowDepth="2" Opacity="0.3" Direction="270"/>
+                                </Button.Effect>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="➕" FontSize="16" Foreground="White" 
+                                               Margin="0,0,8,0"/>
+                                    <TextBlock Text="Nouvelle tâche" FontSize="14" 
+                                               FontWeight="SemiBold" Foreground="White"/>
+                                </StackPanel>
+                            </Button>
+                            
+                            <!-- Voir Kanban -->
+                            <Button Background="White" BorderBrush="#E0E0E0" BorderThickness="1" 
+                                    Padding="15,12" Margin="0,0,0,10" 
+                                    Cursor="Hand" Click="VoirKanban_Click">
+                                <Button.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="8"/>
+                                    </Style>
+                                </Button.Resources>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="📋" FontSize="16" Foreground="#00915A" 
+                                               Margin="0,0,8,0"/>
+                                    <TextBlock Text="Voir Kanban" FontSize="14" 
+                                               FontWeight="SemiBold" Foreground="#1A1919"/>
+                                </StackPanel>
+                            </Button>
+                            
+                            <!-- Timeline -->
+                            <Button Background="White" BorderBrush="#E0E0E0" BorderThickness="1" 
+                                    Padding="15,12" Cursor="Hand" 
+                                    Click="VoirTimeline_Click">
+                                <Button.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="8"/>
+                                    </Style>
+                                </Button.Resources>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="📅" FontSize="16" Foreground="#00915A" 
+                                               Margin="0,0,8,0"/>
+                                    <TextBlock Text="Timeline projet" FontSize="14" 
+                                               FontWeight="SemiBold" Foreground="#1A1919"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
         </Grid>
     </ScrollViewer>
 </UserControl>

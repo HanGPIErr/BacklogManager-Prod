@@ -24,9 +24,18 @@ namespace BacklogManager.Domain
         public DateTime DateDerniereMaj { get; set; }
         public bool EstArchive { get; set; }
 
+        // Support : si TypeDemande == Support
+        public int? DevSupporte { get; set; } // ID du dev qu'on aide
+        public int? TacheSupportee { get; set; } // ID de la tâche sur laquelle on aide
+
         // Propriétés calculées pour affichage en jours (1j = 8h)
         public double? ChiffrageJours => ChiffrageHeures.HasValue ? ChiffrageHeures.Value / 8.0 : (double?)null;
         public double? TempsReelJours => TempsReelHeures.HasValue ? TempsReelHeures.Value / 8.0 : (double?)null;
+
+        // Indique si la tâche doit être visible dans le Kanban
+        public bool EstVisibleDansKanban => TypeDemande != TypeDemande.Conges && 
+                                            TypeDemande != TypeDemande.NonTravaille && 
+                                            TypeDemande != TypeDemande.Support;
 
         public BacklogItem()
         {

@@ -125,6 +125,12 @@ namespace BacklogManager.Services
                 if (tache.Statut == Statut.Termine)
                     continue;
 
+                // Ignorer les tâches spéciales (Congés, Non travaillé, Support)
+                if (tache.TypeDemande == TypeDemande.Conges || 
+                    tache.TypeDemande == TypeDemande.NonTravaille || 
+                    tache.TypeDemande == TypeDemande.Support)
+                    continue;
+
                 // URGENT: Tâches avec date limite dépassée
                 if (tache.DateFinAttendue.HasValue && tache.DateFinAttendue.Value.Date < aujourdhui.Date)
                 {
@@ -183,10 +189,13 @@ namespace BacklogManager.Services
                 }
             }
 
-            // SUCCESS: Tâches terminées récemment (aujourd'hui)
+            // SUCCESS: Tâches terminées récemment (aujourd'hui) - exclure tâches spéciales
             var tachesTermineesAujourdhui = taches.Where(t => t.Statut == Statut.Termine &&
                                                                 t.DateDerniereMaj != null &&
-                                                                t.DateDerniereMaj.Date == aujourdhui.Date)
+                                                                t.DateDerniereMaj.Date == aujourdhui.Date &&
+                                                                t.TypeDemande != TypeDemande.Conges &&
+                                                                t.TypeDemande != TypeDemande.NonTravaille &&
+                                                                t.TypeDemande != TypeDemande.Support)
                                                    .ToList();
 
             foreach (var tache in tachesTermineesAujourdhui)

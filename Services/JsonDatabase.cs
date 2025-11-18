@@ -85,7 +85,12 @@ namespace BacklogManager.Services
             {
                 try
                 {
-                    var options = new JsonSerializerOptions { WriteIndented = true };
+                    var options = new JsonSerializerOptions 
+                    { 
+                        WriteIndented = true,
+                        PropertyNamingPolicy = null, // Garder les noms de propriété tels quels
+                        IncludeFields = false
+                    };
                     string json = JsonSerializer.Serialize(_data, options);
                     
                     string directory = Path.GetDirectoryName(FilePath);
@@ -104,6 +109,14 @@ namespace BacklogManager.Services
         }
 
         public List<BacklogItem> GetBacklog()
+        {
+            lock (_lock)
+            {
+                return new List<BacklogItem>(_data.BacklogItems);
+            }
+        }
+
+        public List<BacklogItem> GetAllBacklogItemsIncludingArchived()
         {
             lock (_lock)
             {
@@ -147,16 +160,23 @@ namespace BacklogManager.Services
                 var existing = _data.BacklogItems.Find(x => x.Id == item.Id);
                 if (existing != null)
                 {
+                    System.Diagnostics.Debug.WriteLine($"[AddOrUpdateBacklogItem] Mise à jour tâche #{item.Id} - EstArchive: {item.EstArchive}");
                     _data.BacklogItems.Remove(existing);
                 }
                 else
                 {
                     item.Id = GetNextId(_data.BacklogItems);
+                    System.Diagnostics.Debug.WriteLine($"[AddOrUpdateBacklogItem] Nouvelle tâche #{item.Id} - EstArchive: {item.EstArchive}");
                 }
                 
                 item.DateDerniereMaj = DateTime.Now;
                 _data.BacklogItems.Add(item);
                 Save();
+                
+                // Vérifier que c'est bien sauvegardé
+                var saved = _data.BacklogItems.Find(x => x.Id == item.Id);
+                System.Diagnostics.Debug.WriteLine($"[AddOrUpdateBacklogItem] Après sauvegarde, EstArchive = {saved?.EstArchive}");
+                
                 return item;
             }
         }

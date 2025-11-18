@@ -217,9 +217,20 @@ namespace BacklogManager
                     return;
                 }
 
-                var window = new StatistiquesWindow(_backlogService, _database);
-                window.Owner = this;
-                window.ShowDialog();
+                // Créer le ViewModel avec les services nécessaires
+                var craService = new CRAService(_database);
+                var statistiquesViewModel = new StatistiquesViewModel(_backlogService, craService, _database);
+
+                // Créer la vue et lier le ViewModel
+                var statistiquesView = new Views.StatistiquesView();
+                statistiquesView.DataContext = statistiquesViewModel;
+
+                // Afficher dans le ContentControl principal
+                var contentControl = (System.Windows.Controls.ContentControl)this.FindName("MainContentControl");
+                if (contentControl != null)
+                {
+                    contentControl.Content = statistiquesView;
+                }
             }
             catch (System.Exception ex)
             {
@@ -411,6 +422,16 @@ namespace BacklogManager
         public void AfficherNotifications()
         {
             BtnNotifications_Click(null, null);
+        }
+
+        public void AfficherKanban()
+        {
+            BtnKanban_Click(null, null);
+        }
+
+        public void AfficherTimeline()
+        {
+            BtnTimeline_Click(null, null);
         }
     }
 }

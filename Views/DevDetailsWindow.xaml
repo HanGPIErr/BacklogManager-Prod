@@ -30,12 +30,61 @@
                     <StackPanel VerticalAlignment="Center">
                         <TextBlock x:Name="TxtNomDev" FontSize="28" FontWeight="Bold" Foreground="#1A1919"/>
                         <TextBlock x:Name="TxtRole" FontSize="14" Foreground="#00915A" FontWeight="SemiBold" Margin="0,3,0,0"/>
+                        <!-- Filtres de période -->
+                        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                            <TextBlock Text="🗓" VerticalAlignment="Center" Margin="0,0,5,0" FontSize="10"/>
+                            <ComboBox x:Name="CboPeriodeDev" Width="160" VerticalAlignment="Center"
+                                      SelectionChanged="CboPeriodeDev_SelectionChanged" FontSize="11">
+                                <ComboBoxItem Content="Année en cours"/>
+                                <ComboBoxItem Content="6 derniers mois"/>
+                                <ComboBoxItem Content="Mois en cours"/>
+                                <ComboBoxItem Content="3 derniers mois"/>
+                                <ComboBoxItem Content="Période perso"/>
+                                <ComboBoxItem Content="Tout afficher" IsSelected="True"/>
+                            </ComboBox>
+                            <StackPanel x:Name="PanelDatesDevCustom" Orientation="Horizontal" Margin="10,0,0,0" Visibility="Collapsed">
+                                <DatePicker x:Name="DateDebutDev" Width="100" FontSize="10"/>
+                                <DatePicker x:Name="DateFinDev" Width="100" Margin="5,0,0,0" FontSize="10"/>
+                                <Button Content="✓" Padding="5,3" Margin="5,0,0,0" 
+                                        Background="#00915A" Foreground="White" BorderThickness="0"
+                                        Click="BtnAppliquerPeriodeDev_Click" FontSize="10"/>
+                            </StackPanel>
+                        </StackPanel>
                     </StackPanel>
+                    <Button Content="📄 Exporter PDF" Click="ExporterPDF_Click"
+                            Background="#FF6F00" Foreground="White" 
+                            Padding="12,8" FontWeight="SemiBold" FontSize="12"
+                            BorderThickness="0" Cursor="Hand" VerticalAlignment="Center"
+                            Margin="30,0,0,0">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background" Value="#FF6F00"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" 
+                                                    BorderThickness="0" 
+                                                    CornerRadius="6" 
+                                                    Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#E66300"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
                 </StackPanel>
 
                 <!-- Métriques clés -->
                 <Grid Grid.Row="1" Margin="0,20,0,0">
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
@@ -86,7 +135,7 @@
                     </Border>
 
                     <!-- Temps réel -->
-                    <Border Grid.Column="4" Background="#FCE4EC" CornerRadius="6" Padding="12">
+                    <Border Grid.Column="4" Background="#FCE4EC" CornerRadius="6" Padding="12" Margin="0,0,8,0">
                         <StackPanel>
                             <TextBlock Text="⚡ Réalisé" FontSize="11" Foreground="#C2185B" FontWeight="SemiBold"/>
                             <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
@@ -94,6 +143,16 @@
                                 <TextBlock Text="h" FontSize="14" Foreground="#E91E63" VerticalAlignment="Bottom" Margin="2,0,0,4"/>
                             </StackPanel>
                             <TextBlock Text="passées" FontSize="9" Foreground="#C2185B"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Taux de réalisation -->
+                    <Border Grid.Column="5" Background="#FFF9C4" CornerRadius="6" Padding="12">
+                        <StackPanel>
+                            <TextBlock Text="🎯 Taux réal." FontSize="11" Foreground="#F57F17" FontWeight="SemiBold"/>
+                            <TextBlock x:Name="TxtTauxRealisation" FontSize="26" FontWeight="Bold" 
+                                       Foreground="#FBC02D" Margin="0,4,0,0"/>
+                            <TextBlock Text="prévu/réel" FontSize="9" Foreground="#F57F17"/>
                         </StackPanel>
                     </Border>
                 </Grid>

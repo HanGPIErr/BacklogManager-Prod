@@ -115,6 +115,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\TacheSpecialeWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\ProjetDetailsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -131,11 +135,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\ArchivesView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\CRACalendrierView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\SuiviCRAView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\StatistiquesView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -257,6 +269,7 @@
     <Compile Include="Domain\HistoriqueModification.cs" />
     <Compile Include="Domain\AuditLog.cs" />
     <Compile Include="Converters\TimelineBarMarginConverter.cs" />
+    <Compile Include="Converters\PercentageToHeightConverter.cs" />
     <Compile Include="Services\IDatabase.cs" />
     <Compile Include="Services\JsonDatabase.cs" />
     <Compile Include="Services\SqliteDatabase.cs" />
@@ -272,15 +285,23 @@
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\ProjetsViewModel.cs" />
     <Compile Include="ViewModels\BacklogViewModel.cs" />
+    <Compile Include="ViewModels\ArchivesViewModel.cs" />
     <Compile Include="ViewModels\CRAHistoriqueViewModel.cs" />
     <Compile Include="ViewModels\CRAViewModel.cs" />
     <Compile Include="ViewModels\CRACalendrierViewModel.cs" />
     <Compile Include="ViewModels\SuiviCRAViewModel.cs" />
+    <Compile Include="ViewModels\StatistiquesViewModel.cs" />
     <Compile Include="ViewModels\KanbanViewModel.cs" />
     <Compile Include="ViewModels\PokerViewModel.cs" />
     <Compile Include="ViewModels\TimelineViewModel.cs" />
     <Compile Include="Views\ProjetsView.xaml.cs">
       <DependentUpon>ProjetsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\BacklogView.xaml.cs">
+      <DependentUpon>BacklogView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ArchivesView.xaml.cs">
+      <DependentUpon>ArchivesView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\CRACalendrierView.xaml.cs">
       <DependentUpon>CRACalendrierView.xaml</DependentUpon>
@@ -288,8 +309,14 @@
     <Compile Include="Views\SuiviCRAView.xaml.cs">
       <DependentUpon>SuiviCRAView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\StatistiquesView.xaml.cs">
+      <DependentUpon>StatistiquesView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\EditTacheWindow.xaml.cs">
       <DependentUpon>EditTacheWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\TacheSpecialeWindow.xaml.cs">
+      <DependentUpon>TacheSpecialeWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\ProjetDetailsWindow.xaml.cs">
       <DependentUpon>ProjetDetailsWindow.xaml</DependentUpon>
@@ -299,9 +326,6 @@
     </Compile>
     <Compile Include="Views\DashboardView.xaml.cs">
       <DependentUpon>DashboardView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\BacklogView.xaml.cs">
-      <DependentUpon>BacklogView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\CRASaisieWindow.xaml.cs">
       <DependentUpon>CRASaisieWindow.xaml</DependentUpon>
@@ -410,6 +434,7 @@
   <ItemGroup>
     <Resource Include="Images\logobnp.png" />
     <Resource Include="Images\backlogmanager.ico" />
+    <Resource Include="Images\conges-icon.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages\System.Data.SQLite.Core.1.0.118\SQLite.Interop.dll">

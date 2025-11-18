@@ -102,3 +102,9 @@ C:\Users\HanGP\BacklogManager\obj\Release\Views\CRACalendrierView.g.cs
 C:\Users\HanGP\BacklogManager\obj\Release\Views\CRACalendrierView.baml
 C:\Users\HanGP\BacklogManager\obj\Release\Views\SuiviCRAView.g.cs
 C:\Users\HanGP\BacklogManager\obj\Release\Views\SuiviCRAView.baml
+c:\Users\HanGP\BacklogManager\obj\Release\Views\StatistiquesView.baml
+c:\Users\HanGP\BacklogManager\obj\Release\Views\StatistiquesView.g.cs
+c:\Users\HanGP\BacklogManager\obj\Release\Views\TacheSpecialeWindow.g.cs
+c:\Users\HanGP\BacklogManager\obj\Release\Views\TacheSpecialeWindow.baml
+c:\Users\HanGP\BacklogManager\obj\Release\Views\ArchivesView.baml
+c:\Users\HanGP\BacklogManager\obj\Release\Views\ArchivesView.g.cs

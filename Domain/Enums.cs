@@ -9,7 +9,11 @@ namespace BacklogManager.Domain
     public enum TypeDemande
     {
         Run,
-        Dev
+        Dev,
+        Autre,
+        Conges,
+        NonTravaille,
+        Support
     }
 
     public enum Statut

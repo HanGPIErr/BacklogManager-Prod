@@ -17,6 +17,8 @@ namespace BacklogManager.Services
         {
             InitializeRoles();
             InitializeUsers();
+            InitializeDefaultProjet();
+            InitializeDefaultTasks();
         }
 
         private void InitializeRoles()
@@ -198,6 +200,32 @@ namespace BacklogManager.Services
                     DateCreation = DateTime.Now
                 });
             }
+        }
+
+        private void InitializeDefaultProjet()
+        {
+            var projets = _database.GetProjets();
+            
+            // Créer le projet "Tâches administratives" s'il n'existe pas
+            bool hasProjetAdmin = projets.Any(p => p.Nom == "Tâches administratives");
+            
+            if (!hasProjetAdmin)
+            {
+                _database.AddOrUpdateProjet(new Projet
+                {
+                    Nom = "Tâches administratives",
+                    Description = "Projet générique pour les congés, absences et autres tâches administratives",
+                    DateCreation = DateTime.Now,
+                    Actif = true
+                });
+            }
+        }
+
+        private void InitializeDefaultTasks()
+        {
+            // Ne plus créer de tâches génériques partagées
+            // Les devs créeront leurs propres instances de congés/support/etc.
+            // Le système auto-assignera le projet "Tâches administratives" selon le type
         }
     }
 }

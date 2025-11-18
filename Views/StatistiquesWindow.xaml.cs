@@ -13,13 +13,15 @@ namespace BacklogManager.Views
     public partial class StatistiquesWindow : Window
     {
         private readonly BacklogService _backlogService;
+        private readonly CRAService _craService;
         private readonly IDatabase _database;
 
-        public StatistiquesWindow(BacklogService backlogService, IDatabase database)
+        public StatistiquesWindow(BacklogService backlogService, IDatabase database, CRAService craService)
         {
             InitializeComponent();
             _backlogService = backlogService;
             _database = database;
+            _craService = craService;
             ChargerStatistiques();
         }
 
@@ -451,7 +453,7 @@ namespace BacklogManager.Views
         {
             if (GridChargeParDev.SelectedItem is ChargeDevStats devStats && devStats.Dev != null)
             {
-                var detailsWindow = new DevDetailsWindow(devStats.Dev, _backlogService);
+                var detailsWindow = new DevDetailsWindow(devStats.Dev, _backlogService, _craService);
                 detailsWindow.ShowDialog();
             }
         }

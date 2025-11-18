@@ -44,7 +44,25 @@ namespace BacklogManager.Views
             // Charger les projets
             var projets = _backlogService.GetAllProjets();
             ProjetComboBox.ItemsSource = projets;
-            ProjetComboBox.SelectedValue = _tache.ProjetId;
+            
+            // Auto-sélectionner le projet selon le type de tâche
+            if (_tache.TypeDemande == TypeDemande.Conges || 
+                _tache.TypeDemande == TypeDemande.NonTravaille || 
+                _tache.TypeDemande == TypeDemande.Support)
+            {
+                var projetAdmin = projets.FirstOrDefault(p => p.Nom == "Tâches administratives");
+                if (projetAdmin != null && _tache.ProjetId == null)
+                {
+                    // Si pas de projet déjà assigné, auto-sélectionner "Tâches administratives"
+                    _tache.ProjetId = projetAdmin.Id;
+                }
+                ProjetComboBox.SelectedValue = _tache.ProjetId;
+                ProjetComboBox.IsEnabled = false; // Désactiver pour ces types
+            }
+            else
+            {
+                ProjetComboBox.SelectedValue = _tache.ProjetId;
+            }
 
             // Chiffrage (en jours: 1j = 8h)
             ChiffrageTextBox.Text = _tache.ChiffrageHeures.HasValue ? (_tache.ChiffrageHeures.Value / 8.0).ToString("0.#") : "";
@@ -81,6 +99,36 @@ namespace BacklogManager.Views
 
             // Date fin attendue
             DateFinDatePicker.SelectedDate = _tache.DateFinAttendue;
+            
+            // Event pour auto-assigner le projet selon le type de tâche
+            TypeDemandeComboBox.SelectionChanged += TypeDemandeComboBox_SelectionChanged;
+        }
+        
+        private void TypeDemandeComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            if (TypeDemandeComboBox.SelectedItem == null) return;
+            
+            var typeDemande = (TypeDemande)TypeDemandeComboBox.SelectedItem;
+            
+            // Pour Congés, Non travaillé et Support : auto-sélectionner le projet "Tâches administratives"
+            if (typeDemande == TypeDemande.Conges || 
+                typeDemande == TypeDemande.NonTravaille || 
+                typeDemande == TypeDemande.Support)
+            {
+                var projetAdmin = _backlogService.GetAllProjets()
+                    .FirstOrDefault(p => p.Nom == "Tâches administratives");
+                
+                if (projetAdmin != null)
+                {
+                    ProjetComboBox.SelectedValue = projetAdmin.Id;
+                    ProjetComboBox.IsEnabled = false; // Désactiver la modification pour ces types
+                }
+            }
+            else
+            {
+                // Pour les autres types, réactiver le choix du projet
+                ProjetComboBox.IsEnabled = _permissionService == null || _permissionService.PeutModifierTache(_tache);
+            }
         }
 
         private void ApplyPermissions()

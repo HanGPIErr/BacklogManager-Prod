@@ -9,6 +9,8 @@ namespace BacklogManager.Services
     {
         private readonly IDatabase _database;
         private readonly AuditLogService _auditLogService;
+        
+        public IDatabase Database => _database;
 
         public BacklogService(IDatabase database, AuditLogService auditLogService = null)
         {
@@ -19,6 +21,11 @@ namespace BacklogManager.Services
         public List<BacklogItem> GetAllBacklogItems()
         {
             return _database.GetBacklog().Where(x => !x.EstArchive).ToList();
+        }
+
+        public List<BacklogItem> GetAllBacklogItemsIncludingArchived()
+        {
+            return _database.GetAllBacklogItemsIncludingArchived();
         }
 
         public BacklogItem GetBacklogItemById(int id)

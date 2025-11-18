@@ -37,6 +37,7 @@ namespace BacklogManager.Services
         List<Disponibilite> GetDisponibilites();
         Disponibilite AddOrUpdateDisponibilite(Disponibilite disponibilite);
         List<BacklogItem> GetBacklog();
+        List<BacklogItem> GetAllBacklogItemsIncludingArchived();
         List<AuditLog> GetAuditLogs();
         void AddAuditLog(AuditLog auditLog);
         

@@ -23,6 +23,14 @@ namespace BacklogManager.ViewModels
         }
     }
 
+    public class TacheJourViewModel
+    {
+        public string NomTache { get; set; }
+        public double Heures { get; set; }
+        public string Couleur { get; set; }
+        public double Pourcentage { get; set; } // Pour le dégradé visuel
+    }
+
     public class JourCalendrierViewModel : INotifyPropertyChanged
     {
         public DateTime Date { get; set; }
@@ -35,7 +43,22 @@ namespace BacklogManager.ViewModels
         public double TotalHeuresSaisies { get; set; }
         public bool ADesCRAs => TotalHeuresSaisies > 0;
         
+        // Nouveaux indicateurs pour tâches spéciales
+        public bool EstConges { get; set; }
+        public bool EstNonTravaille { get; set; }
+        
+        // Liste des tâches travaillées ce jour (pour affichage détaillé)
+        public ObservableCollection<TacheJourViewModel> TachesDuJour { get; set; }
+        
+        // Afficher les détails des tâches normales (pas congés/non travaillé)
+        public bool AfficherDetailsTaches => TachesDuJour != null && TachesDuJour.Count > 0 && !EstConges && !EstNonTravaille;
+        
         public string TotalJoursAffiche => TotalHeuresSaisies > 0 ? $"{TotalHeuresSaisies / 8.0:F1}j" : "";
+
+        public JourCalendrierViewModel()
+        {
+            TachesDuJour = new ObservableCollection<TacheJourViewModel>();
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
@@ -167,6 +190,8 @@ namespace BacklogManager.ViewModels
         }
 
         public bool AfficherDateFin => SaisirSurPeriode;
+        
+        public bool AfficherSelecteurDev => Devs.Count > 1; // Afficher uniquement si plusieurs devs (admin)
 
         public string NombreJoursOuvresPeriode
         {
@@ -229,15 +254,25 @@ namespace BacklogManager.ViewModels
         private void ChargerDevs()
         {
             Devs.Clear();
-            var users = _backlogService.GetAllUtilisateurs();
             
-            foreach (var user in users)
+            // Si l'utilisateur est admin, montrer tous les devs, sinon seulement lui-même
+            if (_permissionService.EstAdministrateur)
             {
-                Devs.Add(user);
+                var users = _backlogService.GetAllUtilisateurs();
+                foreach (var user in users)
+                {
+                    Devs.Add(user);
+                }
+            }
+            else
+            {
+                // Pour un dev normal, ajouter uniquement lui-même
+                Devs.Add(_authService.CurrentUser);
             }
 
             // Sélectionner l'utilisateur connecté par défaut
             DevSelectionne = Devs.FirstOrDefault(d => d.Id == _authService.CurrentUser.Id);
+            OnPropertyChanged(nameof(AfficherSelecteurDev));
         }
 
         private void ChargerTachesDisponibles()
@@ -248,16 +283,26 @@ namespace BacklogManager.ViewModels
 
             var taches = _backlogService.GetAllBacklogItems();
 
+            // Séparer les tâches normales et spéciales
+            var tachesSpeciales = taches.Where(t => 
+                t.TypeDemande == TypeDemande.Conges || 
+                t.TypeDemande == TypeDemande.NonTravaille || 
+                t.TypeDemande == TypeDemande.Support || 
+                t.TypeDemande == TypeDemande.Run).ToList();
+
             if (_afficherToutesLesTaches)
             {
-                // Toutes les tâches de "À faire" à "En test" (pas terminées)
-                taches = taches.Where(t => t.Statut >= Statut.Afaire && t.Statut < Statut.Termine).ToList();
+                // Toutes les tâches de "À faire" à "En test" (pas terminées) + tâches spéciales
+                var tachesNormales = taches.Where(t => t.Statut >= Statut.Afaire && t.Statut < Statut.Termine).ToList();
+                taches = tachesNormales.Concat(tachesSpeciales).ToList();
             }
             else
             {
-                // Seulement les tâches assignées au dev et en cours/test
-                taches = taches.Where(t => t.DevAssigneId == DevSelectionne.Id && 
+                // Tâches assignées au dev (en cours/test) + ses tâches spéciales
+                var tachesNormales = taches.Where(t => t.DevAssigneId == DevSelectionne.Id && 
                                           (t.Statut == Statut.EnCours || t.Statut == Statut.Test)).ToList();
+                var mesTachesSpeciales = tachesSpeciales.Where(t => t.DevAssigneId == DevSelectionne.Id).ToList();
+                taches = tachesNormales.Concat(mesTachesSpeciales).ToList();
             }
 
             foreach (var tache in taches.OrderByDescending(t => t.Priorite).ThenBy(t => t.Titre))
@@ -286,6 +331,9 @@ namespace BacklogManager.ViewModels
                 _craService.GetCRAsByDev(DevSelectionne.Id, premierJour, dernierJour) : 
                 new System.Collections.Generic.List<CRA>();
 
+            // Charger toutes les tâches pour détecter les types spéciaux
+            var toutesLesTaches = _backlogService.GetAllBacklogItems();
+
             // Ajouter les jours du mois précédent pour compléter la première semaine
             var jourDebut = premierJour.AddDays(-premierJourSemaine);
             
@@ -293,7 +341,42 @@ namespace BacklogManager.ViewModels
             for (int i = 0; i < 42; i++)
             {
                 var date = jourDebut.AddDays(i);
-                var totalHeures = cras.Where(c => c.Date.Date == date.Date).Sum(c => c.HeuresTravaillees);
+                var crasDuJour = cras.Where(c => c.Date.Date == date.Date).ToList();
+                var totalHeures = crasDuJour.Sum(c => c.HeuresTravaillees);
+
+                // Détecter si le jour contient des tâches spéciales et créer la liste des tâches
+                var estConges = false;
+                var estNonTravaille = false;
+                var tachesDuJour = new ObservableCollection<TacheJourViewModel>();
+                
+                // Palette de couleurs pour différencier les tâches
+                var couleurs = new[] { "#00915A", "#1976D2", "#7B1FA2", "#D32F2F", "#F57C00", "#388E3C", "#0097A7", "#C2185B" };
+                int indexCouleur = 0;
+                
+                foreach (var cra in crasDuJour.OrderByDescending(c => c.HeuresTravaillees))
+                {
+                    var tache = toutesLesTaches.FirstOrDefault(t => t.Id == cra.BacklogItemId);
+                    if (tache != null)
+                    {
+                        if (tache.TypeDemande == TypeDemande.Conges)
+                            estConges = true;
+                        else if (tache.TypeDemande == TypeDemande.NonTravaille)
+                            estNonTravaille = true;
+                        else
+                        {
+                            // Tâche normale : ajouter à la liste avec une couleur
+                            var pourcentage = totalHeures > 0 ? (cra.HeuresTravaillees / totalHeures) * 100 : 0;
+                            tachesDuJour.Add(new TacheJourViewModel
+                            {
+                                NomTache = tache.Titre.Length > 25 ? tache.Titre.Substring(0, 22) + "..." : tache.Titre,
+                                Heures = cra.HeuresTravaillees,
+                                Couleur = couleurs[indexCouleur % couleurs.Length],
+                                Pourcentage = pourcentage
+                            });
+                            indexCouleur++;
+                        }
+                    }
+                }
 
                 var jourVM = new JourCalendrierViewModel
                 {
@@ -304,7 +387,10 @@ namespace BacklogManager.ViewModels
                     EstWeekend = JoursFeriesService.EstWeekend(date),
                     EstJourFerie = JoursFeriesService.EstJourFerie(date),
                     NomJourFerie = JoursFeriesService.GetNomJourFerie(date),
-                    TotalHeuresSaisies = totalHeures
+                    TotalHeuresSaisies = totalHeures,
+                    EstConges = estConges,
+                    EstNonTravaille = estNonTravaille,
+                    TachesDuJour = tachesDuJour
                 };
 
                 JoursCalendrier.Add(jourVM);

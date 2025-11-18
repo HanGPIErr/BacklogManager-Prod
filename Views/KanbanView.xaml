@@ -13,26 +13,50 @@
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="White" CornerRadius="6" Padding="15" Margin="0,0,0,15">
+        <Border Grid.Row="0" Background="White" CornerRadius="8" Padding="20,18" Margin="0,0,0,18">
             <Border.Effect>
-                <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.15" Color="#00915A"/>
+                <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.2" Color="#00915A"/>
             </Border.Effect>
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="📊 KANBAN BOARD" FontSize="22" FontWeight="Bold" Foreground="#1A1919"/>
-                <TextBlock Text="BNP Paribas" FontSize="16" Foreground="#00915A" 
-                           VerticalAlignment="Center" Margin="15,0,0,0" FontWeight="Medium"/>
-            </StackPanel>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <TextBlock Text="📊" FontSize="26" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBlock Text="KANBAN BOARD" FontSize="24" FontWeight="Bold" Foreground="#1A1919" VerticalAlignment="Center"/>
+                    <Border Background="#E0E0E0" Width="1" Height="30" Margin="18,0,18,0"/>
+                    <TextBlock Text="BNP Paribas" FontSize="16" Foreground="#00915A" 
+                               VerticalAlignment="Center" FontWeight="Bold"/>
+                </StackPanel>
+                
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Border Background="#E8F5E9" CornerRadius="6" Padding="12,8" Margin="0,0,10,0">
+                        <TextBlock FontSize="13" Foreground="#00915A" FontWeight="Bold">
+                            <Run Text="✓"/>
+                            <Run Text="Vue Temps Réel"/>
+                        </TextBlock>
+                    </Border>
+                </StackPanel>
+            </Grid>
         </Border>
 
         <!-- Admin Section: Tâches en attente et à prioriser -->
-        <Border Grid.Row="1" Background="#FFF3E0" CornerRadius="6" Padding="15" Margin="0,0,0,15"
+        <Border Grid.Row="1" Background="#FFF8E1" CornerRadius="8" Padding="20,18" Margin="0,0,0,18"
                 Visibility="{Binding EstAdministrateur, Converter={StaticResource BooleanToVisibilityConverter}}">
             <Border.Effect>
-                <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.15" Color="#FF9800"/>
+                <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.25" Color="#FF9800"/>
             </Border.Effect>
             <StackPanel>
-                <TextBlock Text="🔐 ZONE ADMINISTRATEUR" FontSize="16" FontWeight="Bold" 
-                           Foreground="#E65100" Margin="0,0,0,10"/>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
+                    <TextBlock Text="🔐" FontSize="20" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <TextBlock Text="ZONE ADMINISTRATEUR" FontSize="18" FontWeight="Bold" 
+                               Foreground="#E65100" VerticalAlignment="Center"/>
+                    <Border Background="#FFB800" CornerRadius="4" Padding="8,3" Margin="12,0,0,0">
+                        <TextBlock Text="Accès restreint" FontSize="10" FontWeight="Bold" Foreground="White"/>
+                    </Border>
+                </StackPanel>
                 
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -41,13 +65,20 @@
                     </Grid.ColumnDefinitions>
 
                     <!-- Tâches EN ATTENTE -->
-                    <Border Grid.Column="0" Background="White" CornerRadius="6" Padding="10" Margin="0,0,8,0">
+                    <Border Grid.Column="0" Background="White" CornerRadius="8" Padding="12" Margin="0,0,10,0">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="8" ShadowDepth="0" Opacity="0.15" Color="#9C27B0"/>
+                        </Border.Effect>
                         <StackPanel>
-                            <Border Background="#9C27B0" CornerRadius="4" Padding="6" Margin="0,0,0,8">
+                            <Border Background="#9C27B0" CornerRadius="6" Padding="10,8" Margin="0,0,0,10">
+                                <Border.Effect>
+                                    <DropShadowEffect BlurRadius="6" ShadowDepth="0" Opacity="0.3" Color="#9C27B0"/>
+                                </Border.Effect>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <TextBlock Text="⏸ EN ATTENTE (" Foreground="White" FontSize="13" FontWeight="Bold"/>
-                                    <TextBlock Text="{Binding ItemsEnAttente.Count}" Foreground="White" FontSize="13" FontWeight="Bold"/>
-                                    <TextBlock Text=")" Foreground="White" FontSize="13" FontWeight="Bold"/>
+                                    <TextBlock Text="⏸ EN ATTENTE" Foreground="White" FontSize="13" FontWeight="Bold" Margin="0,0,8,0"/>
+                                    <Border Background="White" CornerRadius="10" Padding="8,2" MinWidth="24">
+                                        <TextBlock Text="{Binding ItemsEnAttente.Count}" Foreground="#9C27B0" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                    </Border>
                                 </StackPanel>
                             </Border>
                             
@@ -55,8 +86,11 @@
                                 <ItemsControl ItemsSource="{Binding ItemsEnAttente}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Border Background="#F3E5F5" BorderBrush="#9C27B0" BorderThickness="1" 
-                                                    CornerRadius="4" Padding="8" Margin="0,0,0,6">
+                                            <Border Background="#F3E5F5" BorderBrush="#9C27B0" BorderThickness="2" 
+                                                    CornerRadius="6" Padding="10" Margin="0,0,0,8">
+                                                <Border.Effect>
+                                                    <DropShadowEffect BlurRadius="4" ShadowDepth="0" Opacity="0.15" Color="#9C27B0"/>
+                                                </Border.Effect>
                                                 <Grid>
                                                     <Grid.RowDefinitions>
                                                         <RowDefinition Height="Auto"/>
@@ -74,7 +108,7 @@
                                                         
                                                         <Button Content="🔄 Réactiver" 
                                                                 Command="{Binding DataContext.ReactiverTacheCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                                CommandParameter="{Binding}"
+                                                                CommandParameter="{Binding Item}"
                                                                 Padding="6,3" Background="#4CAF50" Foreground="White" 
                                                                 BorderThickness="0" FontSize="10" FontWeight="SemiBold" 
                                                                 Cursor="Hand" VerticalAlignment="Center">
@@ -110,13 +144,20 @@
                     </Border>
 
                     <!-- Tâches A PRIORISER -->
-                    <Border Grid.Column="1" Background="White" CornerRadius="6" Padding="10" Margin="8,0,0,0">
+                    <Border Grid.Column="1" Background="White" CornerRadius="8" Padding="12" Margin="10,0,0,0">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="8" ShadowDepth="0" Opacity="0.15" Color="#E91E63"/>
+                        </Border.Effect>
                         <StackPanel>
-                            <Border Background="#E91E63" CornerRadius="4" Padding="6" Margin="0,0,0,8">
+                            <Border Background="#E91E63" CornerRadius="6" Padding="10,8" Margin="0,0,0,10">
+                                <Border.Effect>
+                                    <DropShadowEffect BlurRadius="6" ShadowDepth="0" Opacity="0.3" Color="#E91E63"/>
+                                </Border.Effect>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <TextBlock Text="⚡ A PRIORISER (" Foreground="White" FontSize="13" FontWeight="Bold"/>
-                                    <TextBlock Text="{Binding ItemsAPrioriser.Count}" Foreground="White" FontSize="13" FontWeight="Bold"/>
-                                    <TextBlock Text=")" Foreground="White" FontSize="13" FontWeight="Bold"/>
+                                    <TextBlock Text="⚡ A PRIORISER" Foreground="White" FontSize="13" FontWeight="Bold" Margin="0,0,8,0"/>
+                                    <Border Background="White" CornerRadius="10" Padding="8,2" MinWidth="24">
+                                        <TextBlock Text="{Binding ItemsAPrioriser.Count}" Foreground="#E91E63" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                    </Border>
                                 </StackPanel>
                             </Border>
                             
@@ -124,8 +165,11 @@
                                 <ItemsControl ItemsSource="{Binding ItemsAPrioriser}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Border Background="#FCE4EC" BorderBrush="#E91E63" BorderThickness="1" 
-                                                    CornerRadius="4" Padding="8" Margin="0,0,0,6">
+                                            <Border Background="#FCE4EC" BorderBrush="#E91E63" BorderThickness="2" 
+                                                    CornerRadius="6" Padding="10" Margin="0,0,0,8">
+                                                <Border.Effect>
+                                                    <DropShadowEffect BlurRadius="4" ShadowDepth="0" Opacity="0.15" Color="#E91E63"/>
+                                                </Border.Effect>
                                                 <Grid>
                                                     <Grid.RowDefinitions>
                                                         <RowDefinition Height="Auto"/>
@@ -143,7 +187,7 @@
                                                         
                                                         <Button Content="✓ Activer" 
                                                                 Command="{Binding DataContext.ReactiverTacheCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                                CommandParameter="{Binding}"
+                                                                CommandParameter="{Binding Item}"
                                                                 Padding="6,3" Background="#4CAF50" Foreground="White" 
                                                                 BorderThickness="0" FontSize="10" FontWeight="SemiBold" 
                                                                 Cursor="Hand" VerticalAlignment="Center">
@@ -182,13 +226,14 @@
         </Border>
 
         <!-- Filters Bar -->
-        <Border Grid.Row="2" Background="White" CornerRadius="6" Padding="15" Margin="0,0,0,15">
+        <Border Grid.Row="2" Background="White" CornerRadius="8" Padding="20,15" Margin="0,0,0,18">
             <Border.Effect>
-                <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.15" Color="#00915A"/>
+                <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.15" Color="#00915A"/>
             </Border.Effect>
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="🔍 Filtres:" FontWeight="Bold" FontSize="14" 
-                           VerticalAlignment="Center" Margin="0,0,10,0"/>
+                <TextBlock Text="🔍" FontSize="18" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <TextBlock Text="Filtres:" FontWeight="Bold" FontSize="15" 
+                           VerticalAlignment="Center" Margin="0,0,15,0" Foreground="#1A1919"/>
                 
                 <TextBlock Text="Dev:" FontSize="13" VerticalAlignment="Center" Margin="10,0,5,0"/>
                 <ComboBox ItemsSource="{Binding Devs}" DisplayMemberPath="Nom"
@@ -244,14 +289,14 @@
                 </Button>
 
                 <Button Content="🗑️ Effacer filtres" Command="{Binding ClearFiltersCommand}"
-                        Padding="10,5" Background="#E0E0E0" Foreground="#333" 
-                        BorderThickness="0" FontSize="12" FontWeight="SemiBold" Cursor="Hand">
+                        Padding="12,6" Background="#F5F5F5" Foreground="#666" 
+                        BorderThickness="0" FontSize="13" FontWeight="Bold" Cursor="Hand">
                     <Button.Style>
                         <Style TargetType="Button">
                             <Setter Property="Template">
                                 <Setter.Value>
                                     <ControlTemplate TargetType="Button">
-                                        <Border Background="{TemplateBinding Background}" CornerRadius="4" 
+                                        <Border Background="{TemplateBinding Background}" CornerRadius="6" 
                                                 Padding="{TemplateBinding Padding}">
                                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         </Border>
@@ -260,7 +305,7 @@
                             </Setter>
                             <Style.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Background" Value="#D0D0D0"/>
+                                    <Setter Property="Background" Value="#E0E0E0"/>
                                 </Trigger>
                             </Style.Triggers>
                         </Style>
@@ -283,11 +328,11 @@
                 <!-- A PRIORISER Column - SUPPRIMÉE (maintenant dans zone admin) -->
 
                 <!-- A FAIRE Column -->
-                <Border Grid.Column="0" Background="White" CornerRadius="6" Padding="10" Margin="0,0,8,0"
+                <Border Grid.Column="0" Background="White" CornerRadius="8" Padding="12" Margin="0,0,10,0"
                         AllowDrop="True" Tag="AFaire"
                     Drop="KanbanColumn_Drop" DragEnter="KanbanColumn_DragEnter" DragLeave="KanbanColumn_DragLeave">
                 <Border.Effect>
-                    <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.15" Color="#00915A"/>
+                    <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.15" Color="#757575"/>
                 </Border.Effect>
                 <Grid>
                     <Grid.RowDefinitions>
@@ -295,16 +340,17 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    <Border Grid.Row="0" Background="#9E9E9E" CornerRadius="4" Padding="8" Margin="0,0,0,6">
-                        <StackPanel>
+                    <Border Grid.Row="0" Background="#757575" CornerRadius="6" Padding="10,8" Margin="0,0,0,10">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="6" ShadowDepth="0" Opacity="0.3" Color="#757575"/>
+                        </Border.Effect>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                             <TextBlock Text="📋 À FAIRE" FontWeight="Bold" FontSize="14" 
-                                       Foreground="White" HorizontalAlignment="Center"/>
-                            <TextBlock FontSize="18" FontWeight="Bold" Foreground="White" 
-                                       HorizontalAlignment="Center" Margin="0,5,0,0">
-                                <TextBlock.Text>
-                                    <Binding Path="ItemsAfaire.Count"/>
-                                </TextBlock.Text>
-                            </TextBlock>
+                                       Foreground="White" Margin="0,0,8,0"/>
+                            <Border Background="White" CornerRadius="10" Padding="8,3" MinWidth="28">
+                                <TextBlock Text="{Binding ItemsAfaire.Count}" Foreground="#757575" 
+                                           FontSize="13" FontWeight="Bold" HorizontalAlignment="Center"/>
+                            </Border>
                         </StackPanel>
                     </Border>
 
@@ -471,7 +517,7 @@
 
                                             <!-- Bouton Mettre en attente pour admin uniquement -->
                                             <Button Content="⏸ Mettre en attente" Command="{Binding DataContext.MettreEnAttenteCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                    CommandParameter="{Binding}"
+                                                    CommandParameter="{Binding Item}"
                                                     Margin="0,8,0,0" Padding="8,4" Background="#9C27B0" Foreground="White" BorderThickness="0"
                                                     FontSize="11" FontWeight="SemiBold" Cursor="Hand"
                                                     Visibility="{Binding DataContext.EstAdministrateur, 
@@ -507,11 +553,11 @@
             </Border>
 
             <!-- EN COURS Column -->
-            <Border Grid.Column="1" Background="White" CornerRadius="6" Padding="10" Margin="0,0,8,0"
+            <Border Grid.Column="1" Background="White" CornerRadius="8" Padding="12" Margin="0,0,10,0"
                     AllowDrop="True" Tag="EnCours"
                     Drop="KanbanColumn_Drop" DragEnter="KanbanColumn_DragEnter" DragLeave="KanbanColumn_DragLeave">
                 <Border.Effect>
-                    <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.15" Color="#00915A"/>
+                    <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.18" Color="#2196F3"/>
                 </Border.Effect>
                 <Grid>
                     <Grid.RowDefinitions>
@@ -519,16 +565,17 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    <Border Grid.Row="0" Background="#2196F3" CornerRadius="4" Padding="8" Margin="0,0,0,6">
-                        <StackPanel>
+                    <Border Grid.Row="0" Background="#2196F3" CornerRadius="6" Padding="10,8" Margin="0,0,0,10">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="6" ShadowDepth="0" Opacity="0.3" Color="#2196F3"/>
+                        </Border.Effect>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                             <TextBlock Text="⚙️ EN COURS" FontWeight="Bold" FontSize="14" 
-                                       Foreground="White" HorizontalAlignment="Center"/>
-                            <TextBlock FontSize="18" FontWeight="Bold" Foreground="White" 
-                                       HorizontalAlignment="Center" Margin="0,5,0,0">
-                                <TextBlock.Text>
-                                    <Binding Path="ItemsEnCours.Count"/>
-                                </TextBlock.Text>
-                            </TextBlock>
+                                       Foreground="White" Margin="0,0,8,0"/>
+                            <Border Background="White" CornerRadius="10" Padding="8,3" MinWidth="28">
+                                <TextBlock Text="{Binding ItemsEnCours.Count}" Foreground="#2196F3" 
+                                           FontSize="13" FontWeight="Bold" HorizontalAlignment="Center"/>
+                            </Border>
                         </StackPanel>
                     </Border>
 
@@ -692,6 +739,35 @@
                                                     </TextBlock.Style>
                                                 </TextBlock>
                                             </Border>
+
+                                            <!-- Bouton Mettre en attente pour admin uniquement -->
+                                            <Button Content="⏸ Mettre en attente" Command="{Binding DataContext.MettreEnAttenteCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding Item}"
+                                                    Margin="0,8,0,0" Padding="8,4" Background="#9C27B0" Foreground="White" BorderThickness="0"
+                                                    FontSize="11" FontWeight="SemiBold" Cursor="Hand"
+                                                    Visibility="{Binding DataContext.EstAdministrateur, 
+                                                                RelativeSource={RelativeSource AncestorType=UserControl},
+                                                                Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                <Button.Style>
+                                                    <Style TargetType="Button">
+                                                        <Setter Property="Template">
+                                                            <Setter.Value>
+                                                                <ControlTemplate TargetType="Button">
+                                                                    <Border Background="{TemplateBinding Background}" CornerRadius="4" 
+                                                                            Padding="{TemplateBinding Padding}">
+                                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                    </Border>
+                                                                </ControlTemplate>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                        <Style.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="Background" Value="#7B1FA2"/>
+                                                            </Trigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Button.Style>
+                                            </Button>
                                         </StackPanel>
                                     </Border>
                                 </DataTemplate>
@@ -702,11 +778,11 @@
             </Border>
 
             <!-- EN TEST Column -->
-            <Border Grid.Column="2" Background="White" CornerRadius="6" Padding="10" Margin="0,0,8,0"
+            <Border Grid.Column="2" Background="White" CornerRadius="8" Padding="12" Margin="0,0,10,0"
                     AllowDrop="True" Tag="EnTest"
                     Drop="KanbanColumn_Drop" DragEnter="KanbanColumn_DragEnter" DragLeave="KanbanColumn_DragLeave">
                 <Border.Effect>
-                    <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.15" Color="#00915A"/>
+                    <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.18" Color="#FF9800"/>
                 </Border.Effect>
                 <Grid>
                     <Grid.RowDefinitions>
@@ -714,16 +790,17 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    <Border Grid.Row="0" Background="#FF9800" CornerRadius="4" Padding="8" Margin="0,0,0,6">
-                        <StackPanel>
+                    <Border Grid.Row="0" Background="#FF9800" CornerRadius="6" Padding="10,8" Margin="0,0,0,10">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="6" ShadowDepth="0" Opacity="0.3" Color="#FF9800"/>
+                        </Border.Effect>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                             <TextBlock Text="🧪 EN TEST" FontWeight="Bold" FontSize="14" 
-                                       Foreground="White" HorizontalAlignment="Center"/>
-                            <TextBlock FontSize="18" FontWeight="Bold" Foreground="White" 
-                                       HorizontalAlignment="Center" Margin="0,5,0,0">
-                                <TextBlock.Text>
-                                    <Binding Path="ItemsEnTest.Count"/>
-                                </TextBlock.Text>
-                            </TextBlock>
+                                       Foreground="White" Margin="0,0,8,0"/>
+                            <Border Background="White" CornerRadius="10" Padding="8,3" MinWidth="28">
+                                <TextBlock Text="{Binding ItemsEnTest.Count}" Foreground="#FF9800" 
+                                           FontSize="13" FontWeight="Bold" HorizontalAlignment="Center"/>
+                            </Border>
                         </StackPanel>
                     </Border>
 
@@ -887,6 +964,35 @@
                                                     </TextBlock.Style>
                                                 </TextBlock>
                                             </Border>
+
+                                            <!-- Bouton Mettre en attente pour admin uniquement -->
+                                            <Button Content="⏸ Mettre en attente" Command="{Binding DataContext.MettreEnAttenteCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding Item}"
+                                                    Margin="0,8,0,0" Padding="8,4" Background="#9C27B0" Foreground="White" BorderThickness="0"
+                                                    FontSize="11" FontWeight="SemiBold" Cursor="Hand"
+                                                    Visibility="{Binding DataContext.EstAdministrateur, 
+                                                                RelativeSource={RelativeSource AncestorType=UserControl},
+                                                                Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                <Button.Style>
+                                                    <Style TargetType="Button">
+                                                        <Setter Property="Template">
+                                                            <Setter.Value>
+                                                                <ControlTemplate TargetType="Button">
+                                                                    <Border Background="{TemplateBinding Background}" CornerRadius="4" 
+                                                                            Padding="{TemplateBinding Padding}">
+                                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                    </Border>
+                                                                </ControlTemplate>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                        <Style.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="Background" Value="#7B1FA2"/>
+                                                            </Trigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Button.Style>
+                                            </Button>
                                         </StackPanel>
                                     </Border>
                                 </DataTemplate>
@@ -897,11 +1003,11 @@
             </Border>
 
             <!-- TERMINÉ Column -->
-            <Border Grid.Column="3" Background="White" CornerRadius="6" Padding="10"
+            <Border Grid.Column="3" Background="White" CornerRadius="8" Padding="12"
                     AllowDrop="True" Tag="Termine"
                     Drop="KanbanColumn_Drop" DragEnter="KanbanColumn_DragEnter" DragLeave="KanbanColumn_DragLeave">
                 <Border.Effect>
-                    <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.15" Color="#00915A"/>
+                    <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.2" Color="#00915A"/>
                 </Border.Effect>
                 <Grid>
                     <Grid.RowDefinitions>
@@ -909,16 +1015,17 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    <Border Grid.Row="0" Background="#4CAF50" CornerRadius="4" Padding="8" Margin="0,0,0,6">
-                        <StackPanel>
+                    <Border Grid.Row="0" Background="#00915A" CornerRadius="6" Padding="10,8" Margin="0,0,0,10">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="6" ShadowDepth="0" Opacity="0.35" Color="#00915A"/>
+                        </Border.Effect>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                             <TextBlock Text="✅ TERMINÉ" FontWeight="Bold" FontSize="14" 
-                                       Foreground="White" HorizontalAlignment="Center"/>
-                            <TextBlock FontSize="18" FontWeight="Bold" Foreground="White" 
-                                       HorizontalAlignment="Center" Margin="0,5,0,0">
-                                <TextBlock.Text>
-                                    <Binding Path="ItemsTermine.Count"/>
-                                </TextBlock.Text>
-                            </TextBlock>
+                                       Foreground="White" Margin="0,0,8,0"/>
+                            <Border Background="White" CornerRadius="10" Padding="8,3" MinWidth="28">
+                                <TextBlock Text="{Binding ItemsTermine.Count}" Foreground="#00915A" 
+                                           FontSize="13" FontWeight="Bold" HorizontalAlignment="Center"/>
+                            </Border>
                         </StackPanel>
                     </Border>
 
@@ -1039,6 +1146,38 @@
                                                 <TextBlock Text="✓ TERMINÉ" FontSize="10" FontWeight="Bold" 
                                                            HorizontalAlignment="Center" Foreground="#2E7D32"/>
                                             </Border>
+
+                                            <!-- Bouton Archiver (Admin uniquement) -->
+                                            <Button Content="📦 Archiver" 
+                                                    Command="{Binding DataContext.ArchiverTacheCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding Item}"
+                                                    Padding="8,5" Background="#00915A" Foreground="White" 
+                                                    BorderThickness="0" FontSize="11" FontWeight="Bold" 
+                                                    Cursor="Hand" Margin="0,8,0,0"
+                                                    Visibility="{Binding DataContext.EstAdministrateur, 
+                                                                RelativeSource={RelativeSource AncestorType=UserControl},
+                                                                Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                <Button.Style>
+                                                    <Style TargetType="Button">
+                                                        <Setter Property="Template">
+                                                            <Setter.Value>
+                                                                <ControlTemplate TargetType="Button">
+                                                                    <Border Background="{TemplateBinding Background}" 
+                                                                            CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                                                        <ContentPresenter HorizontalAlignment="Center" 
+                                                                                        VerticalAlignment="Center"/>
+                                                                    </Border>
+                                                                </ControlTemplate>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                        <Style.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="Background" Value="#007843"/>
+                                                            </Trigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Button.Style>
+                                            </Button>
                                         </StackPanel>
                                     </Border>
                                 </DataTemplate>

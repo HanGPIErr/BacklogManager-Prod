@@ -4,17 +4,17 @@
 winexe
 C#
 .cs
-C:\Users\HanGP\BacklogManager\obj\Release\
+c:\Users\HanGP\BacklogManager\obj\Release\
 BacklogManager
 none
 false
 TRACE
-C:\Users\HanGP\BacklogManager\App.xaml
-34-610326830
+c:\Users\HanGP\BacklogManager\App.xaml
+371923694132
 
-80-1841208955
-231920626423
-MainWindow.xaml;Views\ProjetsView.xaml;Views\EditTacheWindow.xaml;Views\ProjetDetailsWindow.xaml;Views\DevDetailsWindow.xaml;Views\DashboardView.xaml;Views\BacklogView.xaml;Views\CRACalendrierView.xaml;Views\SuiviCRAView.xaml;Views\CRASaisieWindow.xaml;Views\CRAHistoriqueWindow.xaml;Views\KanbanView.xaml;Views\PokerView.xaml;Views\TimelineView.xaml;Views\GestionEquipeWindow.xaml;Views\GestionProjetsWindow.xaml;Views\AdministrationWindow.xaml;Views\EditProjetWindow.xaml;Views\EditUtilisateurWindow.xaml;Views\Pages\GestionUtilisateursPage.xaml;Views\Pages\GestionRolesPage.xaml;Views\Pages\GestionProjetsPage.xaml;Views\Pages\GestionEquipePage.xaml;Views\Pages\ProjetsListPage.xaml;Views\GestionUtilisateursWindow.xaml;Views\LoginWindow.xaml;Views\DemandesView.xaml;Views\EditionDemandeWindow.xaml;Views\DetailsDemandeWindow.xaml;Views\CommentairesWindow.xaml;Views\StatistiquesWindow.xaml;Views\AuditLogWindow.xaml;Views\NotificationsWindow.xaml;Views\ParametresWindow.xaml;
+86-2093541343
+231902031636
+MainWindow.xaml;Views\ProjetsView.xaml;Views\EditTacheWindow.xaml;Views\TacheSpecialeWindow.xaml;Views\ProjetDetailsWindow.xaml;Views\DevDetailsWindow.xaml;Views\DashboardView.xaml;Views\BacklogView.xaml;Views\ArchivesView.xaml;Views\CRACalendrierView.xaml;Views\SuiviCRAView.xaml;Views\StatistiquesView.xaml;Views\CRASaisieWindow.xaml;Views\CRAHistoriqueWindow.xaml;Views\KanbanView.xaml;Views\PokerView.xaml;Views\TimelineView.xaml;Views\GestionEquipeWindow.xaml;Views\GestionProjetsWindow.xaml;Views\AdministrationWindow.xaml;Views\EditProjetWindow.xaml;Views\EditUtilisateurWindow.xaml;Views\Pages\GestionUtilisateursPage.xaml;Views\Pages\GestionRolesPage.xaml;Views\Pages\GestionProjetsPage.xaml;Views\Pages\GestionEquipePage.xaml;Views\Pages\ProjetsListPage.xaml;Views\GestionUtilisateursWindow.xaml;Views\LoginWindow.xaml;Views\DemandesView.xaml;Views\EditionDemandeWindow.xaml;Views\DetailsDemandeWindow.xaml;Views\CommentairesWindow.xaml;Views\StatistiquesWindow.xaml;Views\AuditLogWindow.xaml;Views\NotificationsWindow.xaml;Views\ParametresWindow.xaml;
 
 False
 

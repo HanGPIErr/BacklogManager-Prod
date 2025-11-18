@@ -84,7 +84,7 @@
                         </Button.Style>
                     </Button>
 
-                    <Button Content="📆 Semaine" Command="{Binding ChangerModeCommand}" CommandParameter="semaine"
+                    <Button Content="📋 Liste" Command="{Binding ChangerModeCommand}" CommandParameter="liste"
                             Padding="15,8" FontSize="12" FontWeight="SemiBold" Cursor="Hand"
                             BorderThickness="0">
                         <Button.Style>
@@ -102,7 +102,7 @@
                                     </Setter.Value>
                                 </Setter>
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding EstModeSemaine}" Value="True">
+                                    <DataTrigger Binding="{Binding EstModeListe}" Value="True">
                                         <Setter Property="Background" Value="#00915A"/>
                                         <Setter Property="Foreground" Value="White"/>
                                     </DataTrigger>
@@ -210,8 +210,18 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    <!-- En-têtes jours semaine -->
+                    <!-- En-têtes jours semaine (seulement en mode calendrier) -->
                     <Grid Grid.Row="0" Margin="0,0,0,10">
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="Visibility" Value="Visible"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding EstModeListe}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
@@ -238,8 +248,18 @@
                                    Foreground="#757575" FontSize="12"/>
                     </Grid>
 
-                    <!-- Grille calendrier -->
+                    <!-- Grille calendrier (mode mois) -->
                     <ItemsControl Grid.Row="1" ItemsSource="{Binding JoursCalendrier}">
+                        <ItemsControl.Style>
+                            <Style TargetType="ItemsControl">
+                                <Setter Property="Visibility" Value="Visible"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding EstModeListe}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ItemsControl.Style>
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <UniformGrid Columns="7"/>
@@ -312,6 +332,90 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
+
+                    <!-- Vue liste (mode liste) -->
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <ScrollViewer.Style>
+                            <Style TargetType="ScrollViewer">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding EstModeListe}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ScrollViewer.Style>
+                        <ItemsControl ItemsSource="{Binding MoisAnnee}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Command="{Binding DataContext.MoisSelectionnCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}"
+                                            Background="Transparent" BorderThickness="0" Cursor="Hand" Padding="0">
+                                        <Button.Template>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="White" BorderBrush="#E0E0E0" BorderThickness="1" 
+                                                        CornerRadius="8" Width="140" Height="180" Margin="8" Padding="12">
+                                                    <Border.Effect>
+                                                        <DropShadowEffect BlurRadius="8" ShadowDepth="0" Opacity="0.1" Color="#00915A"/>
+                                                    </Border.Effect>
+                                                    <StackPanel>
+                                                        <!-- Nom du mois -->
+                                                        <TextBlock Text="{Binding NomMois}" FontSize="16" FontWeight="Bold" 
+                                                                   HorizontalAlignment="Center" Foreground="#00915A" Margin="0,0,0,15"/>
+                                                        
+                                                        <!-- Total jours travaillés -->
+                                                        <Border Background="#E8F5E9" CornerRadius="6" Padding="12,8" Margin="0,0,0,10">
+                                                            <StackPanel>
+                                                                <TextBlock Text="TOTAL" FontSize="10" Foreground="#666" 
+                                                                           HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                                                                <TextBlock Text="{Binding TotalAffiche}" FontSize="24" FontWeight="Bold" 
+                                                                           Foreground="#00915A" HorizontalAlignment="Center"/>
+                                                            </StackPanel>
+                                                        </Border>
+                                                        
+                                                        <!-- Nombre de jours saisis -->
+                                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                            <TextBlock Text="📅 " FontSize="12"/>
+                                                            <TextBlock FontSize="12" Foreground="#666">
+                                                                <Run Text="{Binding NombreJoursSaisis, Mode=OneWay}"/>
+                                                                <Run Text=" jour(s)"/>
+                                                            </TextBlock>
+                                                        </StackPanel>
+                                                        
+                                                        <!-- Heures totales -->
+                                                        <TextBlock FontSize="11" Foreground="#999" HorizontalAlignment="Center" Margin="0,6,0,0">
+                                                            <Run Text="⏱️ "/>
+                                                            <Run Text="{Binding TotalHeures, StringFormat='{}{0:F1}h', Mode=OneWay}"/>
+                                                        </TextBlock>
+                                                    </StackPanel>
+                                                    <Border.Style>
+                                                        <Style TargetType="Border">
+                                                            <Style.Triggers>
+                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                    <Setter Property="BorderBrush" Value="#00915A"/>
+                                                                    <Setter Property="BorderThickness" Value="2"/>
+                                                                    <Setter Property="Effect">
+                                                                        <Setter.Value>
+                                                                            <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.2" Color="#00915A"/>
+                                                                        </Setter.Value>
+                                                                    </Setter>
+                                                                </Trigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Border.Style>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Button.Template>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
                 </Grid>
             </Border>
 

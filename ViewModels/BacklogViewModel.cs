@@ -92,6 +92,7 @@ namespace BacklogManager.ViewModels
         // Expose services for view code-behind
         public BacklogService BacklogService => _backlogService;
         public PermissionService PermissionService => _permissionService;
+        public CRAService CRAService => _craService;
         private TypeDemande? _selectedType;
         private Priorite? _selectedPriorite;
         private Statut? _selectedStatut;
@@ -101,10 +102,41 @@ namespace BacklogManager.ViewModels
         private bool _isEditMode;
 
         public ObservableCollection<BacklogItemViewModel> BacklogItems { get; set; }
+        public ObservableCollection<BacklogItemViewModel> TachesNormales { get; set; }
+        public ObservableCollection<BacklogItemViewModel> TachesSpeciales { get; set; }
+        public ObservableCollection<BacklogItemViewModel> TachesArchivees { get; set; }
         public ObservableCollection<BacklogItem> AllBacklogItems { get; set; }
         public ObservableCollection<Utilisateur> Devs { get; set; }
         public ObservableCollection<Projet> Projets { get; set; }
         public List<int?> ComplexiteValues { get; set; }
+
+        private bool _afficherArchives;
+        public bool AfficherArchives
+        {
+            get { return _afficherArchives; }
+            set
+            {
+                _afficherArchives = value;
+                System.Diagnostics.Debug.WriteLine($"[AfficherArchives] Nouvelle valeur: {value}, EstAdmin: {EstAdministrateur}, ArchivesVisibility: {ArchivesVisibility}");
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(ArchivesVisibility));
+                if (value)
+                {
+                    ChargerArchives();
+                }
+            }
+        }
+
+        public Visibility ArchivesVisibility
+        {
+            get
+            {
+                bool isAdmin = _permissionService?.EstAdministrateur == true;
+                bool shouldShow = _afficherArchives && isAdmin;
+                return shouldShow ? Visibility.Visible : Visibility.Collapsed;
+            }
+        }
+        public bool EstAdministrateur => _permissionService?.EstAdministrateur == true;
 
         // Propriétés de visibilité selon les permissions
         public Visibility PeutCreerTachesVisibility => _permissionService?.PeutCreerTaches == true ? Visibility.Visible : Visibility.Collapsed;
@@ -114,6 +146,9 @@ namespace BacklogManager.ViewModels
         public Visibility PeutPrioriserVisibility => _permissionService?.PeutPrioriser == true ? Visibility.Visible : Visibility.Collapsed;
         public Visibility PeutAssignerDevVisibility => _permissionService?.PeutAssignerDev == true ? Visibility.Visible : Visibility.Collapsed;
         public Visibility PeutChiffrerVisibility => _permissionService?.PeutChiffrer == true ? Visibility.Visible : Visibility.Collapsed;
+        
+        // Visibilité de la section tâches spéciales (visible si au moins une existe)
+        public Visibility TachesSpecialesVisibility => TachesSpeciales?.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
 
         public string SearchText
         {
@@ -209,6 +244,7 @@ namespace BacklogManager.ViewModels
         public ICommand ClearFiltersCommand { get; }
         public ICommand NewProjetCommand { get; }
         public ICommand EditCommand { get; }
+        public ICommand DesarchiverTacheCommand { get; }
 
         // Événements pour notifier les créations/modifications
         public event EventHandler ProjetCreated;
@@ -220,6 +256,9 @@ namespace BacklogManager.ViewModels
             _permissionService = permissionService;
             _craService = craService;
             BacklogItems = new ObservableCollection<BacklogItemViewModel>();
+            TachesNormales = new ObservableCollection<BacklogItemViewModel>();
+            TachesSpeciales = new ObservableCollection<BacklogItemViewModel>();
+            TachesArchivees = new ObservableCollection<BacklogItemViewModel>();
             AllBacklogItems = new ObservableCollection<BacklogItem>();
             Devs = new ObservableCollection<Utilisateur>();
             Projets = new ObservableCollection<Projet>();
@@ -230,6 +269,7 @@ namespace BacklogManager.ViewModels
             ClearFiltersCommand = new RelayCommand(_ => ClearFilters());
             NewProjetCommand = new RelayCommand(_ => CreateNewProjet(), _ => CanCreateProjet());
             EditCommand = new RelayCommand(item => EditItem(item));
+            DesarchiverTacheCommand = new RelayCommand(item => DesarchiverTache((item as BacklogItemViewModel)?.Item), _ => EstAdministrateur);
 
             LoadData();
         }
@@ -255,7 +295,9 @@ namespace BacklogManager.ViewModels
 
         public void LoadData()
         {
-            var items = _backlogService.GetAllBacklogItems();
+            var items = _backlogService.GetAllBacklogItems()
+                .Where(i => !i.EstArchive) // Exclure les tâches archivées
+                .ToList();
             AllBacklogItems.Clear();
             foreach (var item in items)
             {
@@ -289,6 +331,9 @@ namespace BacklogManager.ViewModels
             }
 
             BacklogItems.Clear();
+            TachesNormales.Clear();
+            TachesSpeciales.Clear();
+            
             foreach (var item in filtered)
             {
                 var devNom = "Non assigné";
@@ -323,7 +368,24 @@ namespace BacklogManager.ViewModels
                 }
 
                 BacklogItems.Add(viewModel);
+                
+                // Séparer tâches normales et spéciales
+                bool estTacheSpeciale = item.TypeDemande == TypeDemande.Conges || 
+                                        item.TypeDemande == TypeDemande.NonTravaille || 
+                                        item.TypeDemande == TypeDemande.Support;
+                
+                if (estTacheSpeciale)
+                {
+                    TachesSpeciales.Add(viewModel);
+                }
+                else
+                {
+                    TachesNormales.Add(viewModel);
+                }
             }
+            
+            // Notifier le changement de visibilité de la section spéciale
+            OnPropertyChanged(nameof(TachesSpecialesVisibility));
         }
 
         private void SaveItem()
@@ -418,6 +480,81 @@ namespace BacklogManager.ViewModels
                     LoadData();
                     TacheCreated?.Invoke(this, EventArgs.Empty);
                 }
+            }
+        }
+
+        private void ChargerArchives()
+        {
+            var itemsArchives = _backlogService.GetAllBacklogItems()
+                .Where(i => i.EstArchive)
+                .ToList();
+
+            System.Diagnostics.Debug.WriteLine($"[ChargerArchives] Chargement de {itemsArchives.Count} tâches archivées");
+
+            TachesArchivees.Clear();
+            
+            foreach (var item in itemsArchives)
+            {
+                var dev = Devs.FirstOrDefault(d => d.Id == item.DevAssigneId);
+                var projet = Projets.FirstOrDefault(p => p.Id == item.ProjetId);
+                
+                // Calculer temps réel
+                var tempsReel = _craService?.GetTempsReelTache(item.Id) ?? 0.0;
+                
+                var viewModel = new BacklogItemViewModel
+                {
+                    Item = item,
+                    DevNom = dev?.Nom ?? "Non assigné",
+                    ProjetNom = projet?.Nom ?? "Aucun projet",
+                    TempsReel = tempsReel
+                };
+                
+                // Calculer écarts
+                if (item.ChiffrageHeures.HasValue && item.ChiffrageHeures.Value > 0)
+                {
+                    viewModel.EcartHeures = tempsReel - item.ChiffrageHeures.Value;
+                    viewModel.EcartPourcentage = (viewModel.EcartHeures / item.ChiffrageHeures.Value) * 100;
+                    
+                    if (viewModel.EcartPourcentage >= 100)
+                        viewModel.EnDepassement = true;
+                    else if (viewModel.EcartPourcentage >= 80)
+                        viewModel.EnRisque = true;
+                }
+                
+                TachesArchivees.Add(viewModel);
+            }
+            
+            OnPropertyChanged(nameof(TachesArchivees));
+        }
+
+        private void DesarchiverTache(BacklogItem item)
+        {
+            if (item == null || !EstAdministrateur) return;
+
+            var result = MessageBox.Show(
+                $"Voulez-vous désarchiver la tâche \"{item.Titre}\" ?\n\nElle sera à nouveau visible dans le Kanban et le Backlog.",
+                "Désarchivage de tâche",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                item.EstArchive = false;
+                item.DateDerniereMaj = DateTime.Now;
+                _backlogService.SaveBacklogItem(item);
+                
+                // Recharger les données
+                LoadData();
+                if (AfficherArchives)
+                {
+                    ChargerArchives();
+                }
+                
+                MessageBox.Show(
+                    "Tâche désarchivée avec succès !",
+                    "Désarchivage",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
             }
         }
 

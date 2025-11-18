@@ -43,6 +43,17 @@ namespace BacklogManager.ViewModels
         public string Commentaire => CRA?.Commentaire ?? "";
     }
 
+    public class MoisCRAViewModel
+    {
+        public int Mois { get; set; }
+        public int Annee { get; set; }
+        public string NomMois { get; set; }
+        public double TotalHeures { get; set; }
+        public double TotalJours => TotalHeures / 8.0;
+        public int NombreJoursSaisis { get; set; }
+        public string TotalAffiche => TotalHeures > 0 ? $"{TotalJours:F1}j" : "-";
+    }
+
     public class SuiviCRAViewModel : INotifyPropertyChanged
     {
         private readonly CRAService _craService;
@@ -50,15 +61,32 @@ namespace BacklogManager.ViewModels
         private readonly PermissionService _permissionService;
 
         private DateTime _moisCourant;
-        private string _modeAffichage; // "mois" ou "semaine"
+        private string _modeAffichage; // "mois" ou "liste"
         private Utilisateur _devSelectionne;
         private JourCRAViewModel _jourSelectionne;
         private DateTime _semaineDebut;
+        private int _anneeCourante;
 
         public ObservableCollection<JourCRAViewModel> JoursCalendrier { get; set; }
+        public ObservableCollection<MoisCRAViewModel> MoisAnnee { get; set; }
         public ObservableCollection<Utilisateur> Devs { get; set; }
         public ObservableCollection<DevCRAInfoViewModel> StatsDev { get; set; }
         public ObservableCollection<CRADetailViewModel> CRAsJourSelectionne { get; set; }
+
+        public int AnneeCourante
+        {
+            get => _anneeCourante;
+            set
+            {
+                _anneeCourante = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(PeriodeAffichage));
+                if (ModeAffichage == "liste")
+                {
+                    ChargerMoisAnnee();
+                }
+            }
+        }
 
         public DateTime MoisCourant
         {
@@ -80,10 +108,9 @@ namespace BacklogManager.ViewModels
         {
             get
             {
-                if (ModeAffichage == "semaine")
+                if (ModeAffichage == "liste")
                 {
-                    var fin = SemaineDebut.AddDays(6);
-                    return $"Semaine du {SemaineDebut:dd/MM} au {fin:dd/MM/yyyy}";
+                    return $"ANNÉE {AnneeCourante}";
                 }
                 return MoisAnneeAffichage;
             }
@@ -97,15 +124,23 @@ namespace BacklogManager.ViewModels
                 _modeAffichage = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(EstModeMois));
-                OnPropertyChanged(nameof(EstModeSemaine));
+                OnPropertyChanged(nameof(EstModeListe));
                 OnPropertyChanged(nameof(PeriodeAffichage));
-                ChargerCalendrier();
-                ChargerStatsDev();
+                
+                if (value == "liste")
+                {
+                    ChargerMoisAnnee();
+                }
+                else
+                {
+                    ChargerCalendrier();
+                    ChargerStatsDev();
+                }
             }
         }
 
         public bool EstModeMois => ModeAffichage == "mois";
-        public bool EstModeSemaine => ModeAffichage == "semaine";
+        public bool EstModeListe => ModeAffichage == "liste";
 
         public DateTime SemaineDebut
         {
@@ -146,6 +181,7 @@ namespace BacklogManager.ViewModels
         public ICommand AujourdhuiCommand { get; }
         public ICommand ChangerModeCommand { get; }
         public ICommand JourSelectionnCommand { get; }
+        public ICommand MoisSelectionnCommand { get; }
 
         public SuiviCRAViewModel(CRAService craService, BacklogService backlogService, PermissionService permissionService)
         {
@@ -154,11 +190,13 @@ namespace BacklogManager.ViewModels
             _permissionService = permissionService;
 
             JoursCalendrier = new ObservableCollection<JourCRAViewModel>();
+            MoisAnnee = new ObservableCollection<MoisCRAViewModel>();
             Devs = new ObservableCollection<Utilisateur>();
             StatsDev = new ObservableCollection<DevCRAInfoViewModel>();
             CRAsJourSelectionne = new ObservableCollection<CRADetailViewModel>();
 
             MoisCourant = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+            AnneeCourante = DateTime.Now.Year;
             ModeAffichage = "mois";
             SemaineDebut = GetLundiDeLaSemaine(DateTime.Now);
 
@@ -166,40 +204,37 @@ namespace BacklogManager.ViewModels
             {
                 if (ModeAffichage == "mois")
                     MoisCourant = MoisCourant.AddMonths(-1);
-                else
-                {
-                    SemaineDebut = SemaineDebut.AddDays(-7);
-                    ChargerCalendrier();
-                    ChargerStatsDev();
-                }
+                else if (ModeAffichage == "liste")
+                    AnneeCourante--;
             });
 
             PeriodeSuivanteCommand = new RelayCommand(_ => 
             {
                 if (ModeAffichage == "mois")
                     MoisCourant = MoisCourant.AddMonths(1);
-                else
-                {
-                    SemaineDebut = SemaineDebut.AddDays(7);
-                    ChargerCalendrier();
-                    ChargerStatsDev();
-                }
+                else if (ModeAffichage == "liste")
+                    AnneeCourante++;
             });
 
             AujourdhuiCommand = new RelayCommand(_ => 
             {
                 if (ModeAffichage == "mois")
                     MoisCourant = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
-                else
-                {
-                    SemaineDebut = GetLundiDeLaSemaine(DateTime.Now);
-                    ChargerCalendrier();
-                    ChargerStatsDev();
-                }
+                else if (ModeAffichage == "liste")
+                    AnneeCourante = DateTime.Now.Year;
             });
 
             ChangerModeCommand = new RelayCommand(param => ModeAffichage = param.ToString());
             JourSelectionnCommand = new RelayCommand(param => JourSelectionne = (JourCRAViewModel)param);
+            MoisSelectionnCommand = new RelayCommand(param =>
+            {
+                var moisVM = param as MoisCRAViewModel;
+                if (moisVM != null)
+                {
+                    MoisCourant = new DateTime(moisVM.Annee, moisVM.Mois, 1);
+                    ModeAffichage = "mois"; // Basculer vers la vue mois
+                }
+            });
 
             ChargerDevs();
             ChargerCalendrier();
@@ -232,12 +267,13 @@ namespace BacklogManager.ViewModels
 
             DateTime dateDebut, dateFin;
 
-            if (ModeAffichage == "semaine")
+            if (ModeAffichage == "liste")
             {
-                dateDebut = SemaineDebut;
-                dateFin = SemaineDebut.AddDays(6);
+                // Mode liste: afficher tout le mois en une seule ligne
+                dateDebut = new DateTime(MoisCourant.Year, MoisCourant.Month, 1);
+                dateFin = dateDebut.AddMonths(1).AddDays(-1);
             }
-            else // mois
+            else // mois (calendrier)
             {
                 dateDebut = MoisCourant;
                 dateFin = MoisCourant.AddMonths(1).AddDays(-1);
@@ -254,7 +290,7 @@ namespace BacklogManager.ViewModels
                 ? _craService.GetCRAsByDev(devId.Value, dateDebut, dateFin.AddDays(ModeAffichage == "mois" ? 41 : 0))
                 : _craService.GetCRAsByPeriod(dateDebut, dateFin.AddDays(ModeAffichage == "mois" ? 41 : 0));
 
-            int nombreJours = ModeAffichage == "semaine" ? 7 : 42;
+            int nombreJours = ModeAffichage == "liste" ? (dateFin - dateDebut).Days + 1 : 42;
 
             for (int i = 0; i < nombreJours; i++)
             {
@@ -341,6 +377,35 @@ namespace BacklogManager.ViewModels
                 {
                     CRA = cra,
                     TacheNom = $"[{dev?.Nom}] {tache?.Titre ?? "Tâche supprimée"}"
+                });
+            }
+        }
+
+        private void ChargerMoisAnnee()
+        {
+            MoisAnnee.Clear();
+
+            var devId = DevSelectionne != null && DevSelectionne.Id > 0 ? DevSelectionne.Id : (int?)null;
+            
+            for (int mois = 1; mois <= 12; mois++)
+            {
+                var debutMois = new DateTime(AnneeCourante, mois, 1);
+                var finMois = debutMois.AddMonths(1).AddDays(-1);
+
+                var cras = devId.HasValue
+                    ? _craService.GetCRAsByDev(devId.Value, debutMois, finMois)
+                    : _craService.GetCRAsByPeriod(debutMois, finMois);
+
+                var totalHeures = cras.Sum(c => c.HeuresTravaillees);
+                var joursUniques = cras.Select(c => c.Date.Date).Distinct().Count();
+
+                MoisAnnee.Add(new MoisCRAViewModel
+                {
+                    Mois = mois,
+                    Annee = AnneeCourante,
+                    NomMois = new DateTime(AnneeCourante, mois, 1).ToString("MMMM").ToUpper(),
+                    TotalHeures = totalHeures,
+                    NombreJoursSaisis = joursUniques
                 });
             }
         }

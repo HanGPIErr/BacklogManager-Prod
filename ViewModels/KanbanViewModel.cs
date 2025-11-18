@@ -293,6 +293,7 @@ namespace BacklogManager.ViewModels
         public ICommand ClearFiltersCommand { get; }
         public ICommand MettreEnAttenteCommand { get; }
         public ICommand ReactiverTacheCommand { get; }
+        public ICommand ArchiverTacheCommand { get; }
 
         // Événement pour notifier les changements de statut
         public event EventHandler TacheStatutChanged;
@@ -346,12 +347,13 @@ namespace BacklogManager.ViewModels
             Devs = new ObservableCollection<Dev>();
             Projets = new ObservableCollection<Projet>();
 
-            MoveLeftCommand = new RelayCommand(item => MoveItemLeft((item as KanbanItemViewModel)?.Item));
-            MoveRightCommand = new RelayCommand(item => MoveItemRight((item as KanbanItemViewModel)?.Item));
+            MoveLeftCommand = new RelayCommand(item => MoveItemLeft((item as KanbanItemViewModel)?.Item ?? item as BacklogItem));
+            MoveRightCommand = new RelayCommand(item => MoveItemRight((item as KanbanItemViewModel)?.Item ?? item as BacklogItem));
             RefreshCommand = new RelayCommand(_ => LoadItems());
             ClearFiltersCommand = new RelayCommand(_ => ClearFilters());
-            MettreEnAttenteCommand = new RelayCommand(item => MettreEnAttente((item as KanbanItemViewModel)?.Item));
-            ReactiverTacheCommand = new RelayCommand(item => ReactiverTache((item as KanbanItemViewModel)?.Item));
+            MettreEnAttenteCommand = new RelayCommand(item => MettreEnAttente((item as KanbanItemViewModel)?.Item ?? item as BacklogItem));
+            ReactiverTacheCommand = new RelayCommand(item => ReactiverTache(item as BacklogItem));
+            ArchiverTacheCommand = new RelayCommand(item => ArchiverTache(item as BacklogItem), _ => EstAdministrateur);
 
             LoadFilterLists(); // Charger les listes une seule fois
             LoadItems();
@@ -381,7 +383,9 @@ namespace BacklogManager.ViewModels
 
         public void LoadItems()
         {
-            var allItems = _backlogService.GetAllBacklogItems();
+            var allItems = _backlogService.GetAllBacklogItems()
+                .Where(i => i.EstVisibleDansKanban && !i.EstArchive) // Filtrer les tâches non-Kanban ET archivées
+                .ToList();
             var devs = _backlogService.GetAllDevs();
             var projets = _backlogService.GetAllProjets();
 
@@ -601,6 +605,31 @@ namespace BacklogManager.ViewModels
 
             _backlogService.DeleteBacklogItem(task.Id);
             LoadItems();
+        }
+
+        private void ArchiverTache(BacklogItem item)
+        {
+            if (item == null || !EstAdministrateur) return;
+
+            var result = System.Windows.MessageBox.Show(
+                $"Voulez-vous archiver la tâche \"{item.Titre}\" ?\n\nElle ne sera plus visible dans le Kanban et le Backlog.",
+                "Archivage de tâche",
+                System.Windows.MessageBoxButton.YesNo,
+                System.Windows.MessageBoxImage.Question);
+
+            if (result == System.Windows.MessageBoxResult.Yes)
+            {
+                item.EstArchive = true;
+                item.DateDerniereMaj = DateTime.Now;
+                _backlogService.SaveBacklogItem(item);
+                LoadItems();
+                
+                System.Windows.MessageBox.Show(
+                    "Tâche archivée avec succès !",
+                    "Archivage",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Information);
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
