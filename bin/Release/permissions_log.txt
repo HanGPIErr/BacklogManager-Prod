@@ -277,3 +277,33 @@ BtnNouvelleDemande.IsEnabled: True
 ==========================================
 PeutSupprimerDemandes: True
 PeutArchiverDemandes: True
+=== VERIFICATION PERMISSIONS DEMANDES 21:43:22 ===
+User: Système (ID: 1)
+Role: Administrateur (ID: 1, Type: Administrateur)
+IsAdmin: True, IsChefDeProjet: False, IsBusinessAnalyst: False
+PeutCreerDemandes (DB): True
+Vérification directe - Admin: True, Chef: False, BA: False
+BtnNouvelleDemande.IsEnabled: True
+==========================================
+PeutSupprimerDemandes: True
+PeutArchiverDemandes: True
+=== VERIFICATION PERMISSIONS DEMANDES 21:43:49 ===
+User: Système (ID: 1)
+Role: Administrateur (ID: 1, Type: Administrateur)
+IsAdmin: True, IsChefDeProjet: False, IsBusinessAnalyst: False
+PeutCreerDemandes (DB): True
+Vérification directe - Admin: True, Chef: False, BA: False
+BtnNouvelleDemande.IsEnabled: True
+==========================================
+PeutSupprimerDemandes: True
+PeutArchiverDemandes: True
+=== VERIFICATION PERMISSIONS DEMANDES 21:44:18 ===
+User: Système (ID: 1)
+Role: Administrateur (ID: 1, Type: Administrateur)
+IsAdmin: True, IsChefDeProjet: False, IsBusinessAnalyst: False
+PeutCreerDemandes (DB): True
+Vérification directe - Admin: True, Chef: False, BA: False
+BtnNouvelleDemande.IsEnabled: True
+==========================================
+PeutSupprimerDemandes: True
+PeutArchiverDemandes: True
