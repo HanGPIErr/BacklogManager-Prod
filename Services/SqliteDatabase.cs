@@ -267,6 +267,7 @@ namespace BacklogManager.Services
                             Commentaire TEXT,
                             DateCreation TEXT NOT NULL,
                             EstPrevisionnel INTEGER DEFAULT 0,
+                            EstValide INTEGER DEFAULT 0,
                             FOREIGN KEY (BacklogItemId) REFERENCES BacklogItems(Id) ON DELETE CASCADE,
                             FOREIGN KEY (DevId) REFERENCES Utilisateurs(Id)
                         );
@@ -409,6 +410,7 @@ namespace BacklogManager.Services
                             Commentaire TEXT,
                             DateCreation TEXT NOT NULL,
                             EstPrevisionnel INTEGER DEFAULT 0,
+                            EstValide INTEGER DEFAULT 0,
                             FOREIGN KEY (BacklogItemId) REFERENCES BacklogItems(Id) ON DELETE CASCADE,
                             FOREIGN KEY (DevId) REFERENCES Utilisateurs(Id)
                         );
@@ -416,6 +418,27 @@ namespace BacklogManager.Services
                         CREATE INDEX IF NOT EXISTS idx_cra_backlogitem ON CRA(BacklogItemId);
                         CREATE INDEX IF NOT EXISTS idx_cra_dev ON CRA(DevId);
                         CREATE INDEX IF NOT EXISTS idx_cra_date ON CRA(Date);
+                    ";
+                    cmd.ExecuteNonQuery();
+                }
+                
+                // Vérifier et ajouter EstValide à la table CRA si manquant
+                cmd.CommandText = @"SELECT COUNT(*) FROM pragma_table_info('CRA') WHERE name='EstValide';";
+                var hasEstValide = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                
+                if (!hasEstValide)
+                {
+                    cmd.CommandText = @"ALTER TABLE CRA ADD COLUMN EstValide INTEGER DEFAULT 0;";
+                    cmd.ExecuteNonQuery();
+                    
+                    // Migration : marquer tous les CRA existants comme validés (sauf les prévisionnels dans le futur)
+                    cmd.CommandText = @"
+                        UPDATE CRA 
+                        SET EstValide = CASE 
+                            WHEN EstPrevisionnel = 0 THEN 1 
+                            WHEN date(Date) < date('now') THEN 0
+                            ELSE 0
+                        END;
                     ";
                     cmd.ExecuteNonQuery();
                 }
@@ -1567,7 +1590,8 @@ namespace BacklogManager.Services
                                 HeuresTravaillees = reader.GetDouble(4),
                                 Commentaire = reader.IsDBNull(5) ? null : reader.GetString(5),
                                 DateCreation = DateTime.Parse(reader.GetString(6)),
-                                EstPrevisionnel = !reader.IsDBNull(7) && reader.GetInt32(7) == 1
+                                EstPrevisionnel = !reader.IsDBNull(7) && reader.GetInt32(7) == 1,
+                                EstValide = !reader.IsDBNull(8) && reader.GetInt32(8) == 1
                             });
                         }
                     }
@@ -1575,6 +1599,11 @@ namespace BacklogManager.Services
             }
 
             return cras;
+        }
+
+        public List<CRA> GetAllCRAs()
+        {
+            return GetCRAs();
         }
 
         public void SaveCRA(CRA cra)
@@ -1588,8 +1617,8 @@ namespace BacklogManager.Services
                     {
                         // Insert
                         cmd.CommandText = @"
-                            INSERT INTO CRA (BacklogItemId, DevId, Date, HeuresTravaillees, Commentaire, DateCreation, EstPrevisionnel)
-                            VALUES (@BacklogItemId, @DevId, @Date, @HeuresTravaillees, @Commentaire, @DateCreation, @EstPrevisionnel);
+                            INSERT INTO CRA (BacklogItemId, DevId, Date, HeuresTravaillees, Commentaire, DateCreation, EstPrevisionnel, EstValide)
+                            VALUES (@BacklogItemId, @DevId, @Date, @HeuresTravaillees, @Commentaire, @DateCreation, @EstPrevisionnel, @EstValide);
                             SELECT last_insert_rowid();
                         ";
                         cmd.Parameters.AddWithValue("@BacklogItemId", cra.BacklogItemId);
@@ -1599,6 +1628,7 @@ namespace BacklogManager.Services
                         cmd.Parameters.AddWithValue("@Commentaire", (object)cra.Commentaire ?? DBNull.Value);
                         cmd.Parameters.AddWithValue("@DateCreation", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
                         cmd.Parameters.AddWithValue("@EstPrevisionnel", cra.EstPrevisionnel ? 1 : 0);
+                        cmd.Parameters.AddWithValue("@EstValide", cra.EstValide ? 1 : 0);
 
                         cra.Id = Convert.ToInt32(cmd.ExecuteScalar());
                     }
@@ -1612,7 +1642,8 @@ namespace BacklogManager.Services
                                 Date = @Date,
                                 HeuresTravaillees = @HeuresTravaillees,
                                 Commentaire = @Commentaire,
-                                EstPrevisionnel = @EstPrevisionnel
+                                EstPrevisionnel = @EstPrevisionnel,
+                                EstValide = @EstValide
                             WHERE Id = @Id
                         ";
                         cmd.Parameters.AddWithValue("@Id", cra.Id);
@@ -1622,6 +1653,7 @@ namespace BacklogManager.Services
                         cmd.Parameters.AddWithValue("@HeuresTravaillees", cra.HeuresTravaillees);
                         cmd.Parameters.AddWithValue("@Commentaire", (object)cra.Commentaire ?? DBNull.Value);
                         cmd.Parameters.AddWithValue("@EstPrevisionnel", cra.EstPrevisionnel ? 1 : 0);
+                        cmd.Parameters.AddWithValue("@EstValide", cra.EstValide ? 1 : 0);
 
                         cmd.ExecuteNonQuery();
                     }

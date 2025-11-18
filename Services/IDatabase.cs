@@ -43,6 +43,7 @@ namespace BacklogManager.Services
         
         // CRA
         List<CRA> GetCRAs(int? backlogItemId = null, int? devId = null, System.DateTime? dateDebut = null, System.DateTime? dateFin = null);
+        List<CRA> GetAllCRAs();
         void SaveCRA(CRA cra);
         void DeleteCRA(int id);
         

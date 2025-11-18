@@ -55,6 +55,10 @@ namespace BacklogManager.ViewModels
         public bool EstConges { get; set; }
         public bool EstNonTravaille { get; set; }
         
+        // Validation CRA
+        public bool ADesCRAsAValider { get; set; } // True si le jour a des CRA non validés dans le passé
+        public int NombreCRAsAValider { get; set; } // Nombre de CRA à valider pour ce jour
+        
         // Liste des tâches travaillées ce jour (pour affichage détaillé)
         public ObservableCollection<TacheJourViewModel> TachesDuJour { get; set; }
         
@@ -232,9 +236,11 @@ namespace BacklogManager.ViewModels
                 if (TacheSelectionnee == null || !TacheSelectionnee.ChiffrageJours.HasValue)
                     return 0;
 
-                var tempsReelHeures = _craService.GetTempsReelTache(TacheSelectionnee.Id);
-                var tempsReelJours = tempsReelHeures / 8.0;
-                var restant = TacheSelectionnee.ChiffrageJours.Value - tempsReelJours;
+                // Utiliser GetTempsTotalTache pour compter TOUS les CRA (validés + prévisionnels)
+                // afin d'éviter la double allocation
+                var tempsTotalHeures = _craService.GetTempsTotalTache(TacheSelectionnee.Id);
+                var tempsTotalJours = tempsTotalHeures / 8.0;
+                var restant = TacheSelectionnee.ChiffrageJours.Value - tempsTotalJours;
                 return Math.Max(0, restant); // Ne pas retourner de valeur négative
             }
         }
@@ -275,6 +281,7 @@ namespace BacklogManager.ViewModels
         public ICommand SetJoursRapideCommand { get; }
         public ICommand JourSelectionnCommand { get; }
         public ICommand AllocationAutomatiqueCommand { get; }
+        public ICommand ValiderJourneeCommand { get; }
 
         public CRACalendrierViewModel(CRAService craService, BacklogService backlogService, 
             AuthenticationService authService, PermissionService permissionService)
@@ -303,6 +310,8 @@ namespace BacklogManager.ViewModels
             SetJoursRapideCommand = new RelayCommand(param => JoursASaisir = double.Parse(param.ToString(), System.Globalization.CultureInfo.InvariantCulture));
             JourSelectionnCommand = new RelayCommand(param => JourSelectionne = (JourCalendrierViewModel)param);
             AllocationAutomatiqueCommand = new RelayCommand(_ => AllouerAutomatiquement(), _ => AfficherAllocationAuto);
+            ValiderJourneeCommand = new RelayCommand(param => ValiderJournee((JourCalendrierViewModel)param));
+            ValiderJourneeCommand = new RelayCommand(param => ValiderJournee((JourCalendrierViewModel)param));
 
             ChargerDevs();
             ChargerTachesDisponibles();
@@ -441,6 +450,11 @@ namespace BacklogManager.ViewModels
                 var estJourFerie = JoursFeriesService.EstJourFerie(date);
                 var nomJourFerie = JoursFeriesService.GetNomJourFerie(date);
                 
+                // Détecter les CRA à valider (prévisionnels dans le passé non validés)
+                var crasAValider = crasDuJour.Where(c => c.EstAValider).ToList();
+                var aDesCRAsAValider = crasAValider.Any();
+                var nombreCRAsAValider = crasAValider.Count;
+                
                 var jourVM = new JourCalendrierViewModel
                 {
                     Date = date,
@@ -457,7 +471,9 @@ namespace BacklogManager.ViewModels
                     TotalHeuresPrevisionnelles = 0, // Sera calculé séparément
                     EstConges = estConges,
                     EstNonTravaille = estNonTravaille,
-                    TachesDuJour = tachesDuJour
+                    TachesDuJour = tachesDuJour,
+                    ADesCRAsAValider = aDesCRAsAValider,
+                    NombreCRAsAValider = nombreCRAsAValider
                 };
 
                 JoursCalendrier.Add(jourVM);
@@ -512,6 +528,40 @@ namespace BacklogManager.ViewModels
         {
             try
             {
+                // Vérifier qu'il reste du temps à allouer pour cette tâche
+                if (TacheSelectionnee.ChiffrageJours.HasValue && JoursRestants <= 0)
+                {
+                    System.Windows.MessageBox.Show(
+                        $"⚠️ Il ne reste plus de temps à allouer pour cette tâche !\\n\\n" +
+                        $"Chiffrage: {TacheSelectionnee.ChiffrageJours.Value:F1}j\\n" +
+                        $"Déjà alloué: {TacheSelectionnee.ChiffrageJours.Value:F1}j (validé + prévisionnel)\\n\\n" +
+                        $"Si vous devez ajouter plus de temps, augmentez d'abord le chiffrage de la tâche.",
+                        "Tâche complète",
+                        System.Windows.MessageBoxButton.OK,
+                        System.Windows.MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Vérifier que la saisie ne dépasse pas le temps restant
+                if (TacheSelectionnee.ChiffrageJours.HasValue && JoursASaisir > JoursRestants)
+                {
+                    var result = System.Windows.MessageBox.Show(
+                        $"⚠️ Vous essayez de saisir {JoursASaisir:F1}j mais il ne reste que {JoursRestants:F1}j à allouer.\\n\\n" +
+                        $"Voulez-vous saisir uniquement {JoursRestants:F1}j ?",
+                        "Dépassement",
+                        System.Windows.MessageBoxButton.YesNo,
+                        System.Windows.MessageBoxImage.Question);
+
+                    if (result == System.Windows.MessageBoxResult.Yes)
+                    {
+                        JoursASaisir = JoursRestants;
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+
                 // Vérification jour férié / weekend
                 if (!JoursFeriesService.EstJourOuvre(JourSelectionne.Date))
                 {
@@ -554,7 +604,9 @@ namespace BacklogManager.ViewModels
                     Date = JourSelectionne.Date,
                     HeuresTravaillees = heures,
                     Commentaire = Commentaire,
-                    DateCreation = DateTime.Now
+                    DateCreation = DateTime.Now,
+                    EstPrevisionnel = JourSelectionne.Date >= DateTime.Now.Date, // Prévisionnel si aujourd'hui ou futur
+                    EstValide = JourSelectionne.Date < DateTime.Now.Date // Validé automatiquement si dans le passé
                 };
 
                 _craService.SaveCRA(cra);
@@ -805,6 +857,46 @@ namespace BacklogManager.ViewModels
         }
 
         /// <summary>
+        /// Valide tous les CRA d'une journée
+        /// </summary>
+        private void ValiderJournee(JourCalendrierViewModel jour)
+        {
+            if (jour == null || DevSelectionne == null) return;
+
+            var result = System.Windows.MessageBox.Show(
+                $"Valider tous les CRA du {jour.Date:dd/MM/yyyy} ?\n\n" +
+                $"Cela confirmera que les {jour.NombreCRAsAValider} CRA prévisionnel(s) correspondent à la réalité.\n" +
+                $"Les CRA validés compteront dans le temps réel des tâches.",
+                "Validation CRA",
+                System.Windows.MessageBoxButton.YesNo,
+                System.Windows.MessageBoxImage.Question);
+
+            if (result == System.Windows.MessageBoxResult.Yes)
+            {
+                try
+                {
+                    _craService.ValiderJournee(DevSelectionne.Id, jour.Date);
+                    ChargerCalendrier();
+                    ChargerCRAsJour();
+
+                    System.Windows.MessageBox.Show(
+                        $"✅ {jour.NombreCRAsAValider} CRA(s) validé(s) avec succès !",
+                        "Succès",
+                        System.Windows.MessageBoxButton.OK,
+                        System.Windows.MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    System.Windows.MessageBox.Show(
+                        $"Erreur lors de la validation : {ex.Message}",
+                        "Erreur",
+                        System.Windows.MessageBoxButton.OK,
+                        System.Windows.MessageBoxImage.Error);
+                }
+            }
+        }
+
+        /// <summary>
         /// Alloue automatiquement le temps restant de la tâche sur les jours disponibles
         /// </summary>
         private void AllouerAutomatiquement()
@@ -927,7 +1019,8 @@ namespace BacklogManager.ViewModels
                         HeuresTravaillees = heuresAAllouer,
                         Commentaire = "Allocation automatique",
                         DateCreation = DateTime.Now,
-                        EstPrevisionnel = jour > aujourdhui
+                        EstPrevisionnel = jour >= aujourdhui, // Prévisionnel si aujourd'hui ou futur
+                        EstValide = jour < aujourdhui // Validé automatiquement si dans le passé
                     };
 
                     _craService.SaveCRA(cra);

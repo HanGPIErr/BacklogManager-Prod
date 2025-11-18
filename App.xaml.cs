@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Windows;
 using BacklogManager.Services;
 using BacklogManager.ViewModels;
@@ -29,6 +30,9 @@ namespace BacklogManager
 
             try
             {
+                // Créer raccourci bureau au premier lancement
+                CreerRaccourciDesktop();
+
                 // Show login window instead of MainWindow
                 var loginWindow = new LoginWindow();
                 loginWindow.Show();
@@ -37,6 +41,43 @@ namespace BacklogManager
             {
                 MessageBox.Show($"Erreur au démarrage: {ex.Message}\n\nStack: {ex.StackTrace}", 
                     "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// Crée un raccourci sur le bureau au premier lancement de l'application
+        /// </summary>
+        private void CreerRaccourciDesktop()
+        {
+            try
+            {
+                string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                string shortcutPath = Path.Combine(desktopPath, "BacklogManager.lnk");
+
+                // Ne créer que si le raccourci n'existe pas déjà
+                if (!File.Exists(shortcutPath))
+                {
+                    string exePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+                    string workingDirectory = Path.GetDirectoryName(exePath);
+
+                    // Utiliser l'API Windows Shell pour créer le raccourci
+                    Type shellType = Type.GetTypeFromProgID("WScript.Shell");
+                    dynamic shell = Activator.CreateInstance(shellType);
+                    dynamic shortcut = shell.CreateShortcut(shortcutPath);
+
+                    shortcut.TargetPath = exePath;
+                    shortcut.WorkingDirectory = workingDirectory;
+                    shortcut.Description = "BacklogManager - Gestion de projets Agile";
+                    shortcut.IconLocation = exePath + ",0";
+                    shortcut.Save();
+
+                    System.Runtime.InteropServices.Marshal.ReleaseComObject(shortcut);
+                    System.Runtime.InteropServices.Marshal.ReleaseComObject(shell);
+                }
+            }
+            catch
+            {
+                // Ignorer les erreurs silencieusement (permissions, raccourci déjà existant, etc.)
             }
         }
     }

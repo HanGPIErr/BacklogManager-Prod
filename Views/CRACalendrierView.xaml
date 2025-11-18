@@ -195,12 +195,13 @@
                                             <Setter Property="Template">
                                                 <Setter.Value>
                                                     <ControlTemplate TargetType="Button">
-                                                        <Border Background="{TemplateBinding Background}" CornerRadius="6" 
+                                                        <Border x:Name="PART_Border" Background="White" CornerRadius="6" 
                                                                 Padding="{TemplateBinding Padding}" BorderBrush="#E0E0E0" BorderThickness="1">
                                                             <Grid>
                                                                 <Grid.RowDefinitions>
                                                                     <RowDefinition Height="Auto"/>
                                                                     <RowDefinition Height="*"/>
+                                                                    <RowDefinition Height="Auto"/>
                                                                 </Grid.RowDefinitions>
 
                                                                 <TextBlock Grid.Row="0" Text="{Binding Jour}" 
@@ -282,26 +283,66 @@
                                                                         </ItemsControl.ItemTemplate>
                                                                     </ItemsControl>
                                                                 </Grid>
+                                                                
+                                                                <!-- Bouton de validation CRA -->
+                                                                <Button Grid.Row="2" 
+                                                                        Command="{Binding DataContext.ValiderJourneeCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                        CommandParameter="{Binding}"
+                                                                        Background="#FF9800" Foreground="White" 
+                                                                        BorderThickness="0" Padding="3" Margin="2,2,2,0"
+                                                                        FontSize="9" FontWeight="Bold" Cursor="Hand"
+                                                                        ToolTip="Valider les CRA de cette journée">
+                                                                    <Button.Style>
+                                                                        <Style TargetType="Button">
+                                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                                            <Setter Property="Template">
+                                                                                <Setter.Value>
+                                                                                    <ControlTemplate TargetType="Button">
+                                                                                        <Border Background="{TemplateBinding Background}" 
+                                                                                                CornerRadius="3" Padding="{TemplateBinding Padding}">
+                                                                                            <TextBlock Text="✓ Valider" Foreground="{TemplateBinding Foreground}"
+                                                                                                       FontSize="{TemplateBinding FontSize}"
+                                                                                                       FontWeight="{TemplateBinding FontWeight}"
+                                                                                                       HorizontalAlignment="Center"/>
+                                                                                        </Border>
+                                                                                    </ControlTemplate>
+                                                                                </Setter.Value>
+                                                                            </Setter>
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding ADesCRAsAValider}" Value="True">
+                                                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+                                                                    </Button.Style>
+                                                                </Button>
                                                             </Grid>
                                                         </Border>
                                                         <ControlTemplate.Triggers>
-                                                            <Trigger Property="IsMouseOver" Value="True">
-                                                                <Setter Property="Background" Value="#E8F5E9"/>
-                                                            </Trigger>
-                                                            <DataTrigger Binding="{Binding EstAujourdhui}" Value="True">
-                                                                <Setter Property="Background" Value="#C8E6C9"/>
+                                                            <!-- Couleurs de base selon temporalité -->
+                                                            <DataTrigger Binding="{Binding EstDansPasse}" Value="True">
+                                                                <Setter TargetName="PART_Border" Property="Background" Value="#E8F5E9"/>
                                                             </DataTrigger>
+                                                            <DataTrigger Binding="{Binding EstDansFutur}" Value="True">
+                                                                <Setter TargetName="PART_Border" Property="Background" Value="#FFE082"/>
+                                                            </DataTrigger>
+                                                            <!-- CRA à valider (orange vif) - prioritaire sur les couleurs temporelles -->
+                                                            <DataTrigger Binding="{Binding ADesCRAsAValider}" Value="True">
+                                                                <Setter TargetName="PART_Border" Property="Background" Value="#FF9800"/>
+                                                            </DataTrigger>
+                                                            <!-- Couleurs spécifiques prioritaires -->
                                                             <DataTrigger Binding="{Binding EstWeekend}" Value="True">
-                                                                <Setter Property="Background" Value="#F5F5F5"/>
+                                                                <Setter TargetName="PART_Border" Property="Background" Value="#F5F5F5"/>
                                                             </DataTrigger>
                                                             <DataTrigger Binding="{Binding EstJourFerie}" Value="True">
-                                                                <Setter Property="Background" Value="#FFF3E0"/>
+                                                                <Setter TargetName="PART_Border" Property="Background" Value="#FFF3E0"/>
                                                             </DataTrigger>
-                                                            <!-- Couleurs pour distinction temporelle des CRA prévisionnels -->
-                                                            <DataTrigger Binding="{Binding EstDansFutur}" Value="True">
-                                                                <Setter Property="Background" Value="#E3F2FD"/>
-                                                                <Setter Property="Opacity" Value="0.7"/>
+                                                            <DataTrigger Binding="{Binding EstAujourdhui}" Value="True">
+                                                                <Setter TargetName="PART_Border" Property="Background" Value="#C8E6C9"/>
                                                             </DataTrigger>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter TargetName="PART_Border" Property="Background" Value="#E8F5E9"/>
+                                                            </Trigger>
                                                         </ControlTemplate.Triggers>
                                                     </ControlTemplate>
                                                 </Setter.Value>

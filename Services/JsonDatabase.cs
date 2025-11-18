@@ -627,6 +627,14 @@ namespace BacklogManager.Services
             }
         }
 
+        public List<CRA> GetAllCRAs()
+        {
+            lock (_lock)
+            {
+                return _data.CRAs.ToList();
+            }
+        }
+
         public void SaveCRA(CRA cra)
         {
             lock (_lock)

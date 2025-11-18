@@ -327,8 +327,10 @@
                                                             </DataTrigger>
                                                             <!-- Distinction futur vs passé pour CRA prévisionnels -->
                                                             <DataTrigger Binding="{Binding EstDansFutur}" Value="True">
-                                                                <Setter Property="Background" Value="#E3F2FD"/>
-                                                                <Setter Property="Opacity" Value="0.7"/>
+                                                                <Setter Property="Background" Value="#FFE082"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding EstDansPasse}" Value="True">
+                                                                <Setter Property="Background" Value="#E8F5E9"/>
                                                             </DataTrigger>
                                                         </ControlTemplate.Triggers>
                                                     </ControlTemplate>

@@ -70,9 +70,20 @@ namespace BacklogManager.Services
         public double GetTempsReelTache(int backlogItemId)
         {
             var cras = GetCRAsByBacklogItem(backlogItemId);
-            // Exclure les CRA prévisionnels (dates futures) du calcul du temps réel
-            var aujourdhui = DateTime.Now.Date;
-            return cras.Where(c => c.Date <= aujourdhui && !c.EstPrevisionnel).Sum(c => c.HeuresTravaillees);
+            // Inclure uniquement les CRA validés dans le calcul du temps réel
+            // Les CRA prévisionnels (non validés) ne comptent pas comme temps réel
+            return cras.Where(c => c.EstValide).Sum(c => c.HeuresTravaillees);
+        }
+
+        /// <summary>
+        /// Calcule le temps total (réel + prévisionnel) passé sur une tâche
+        /// Utilisé pour calculer ce qui reste à allouer
+        /// </summary>
+        public double GetTempsTotalTache(int backlogItemId)
+        {
+            var cras = GetCRAsByBacklogItem(backlogItemId);
+            // Compter TOUS les CRA (validés + prévisionnels) pour éviter la double allocation
+            return cras.Sum(c => c.HeuresTravaillees);
         }
 
         /// <summary>
@@ -324,6 +335,64 @@ namespace BacklogManager.Services
             }
 
             return csv;
+        }
+
+        /// <summary>
+        /// Valide un CRA prévisionnel (le passe en réel)
+        /// </summary>
+        public void ValiderCRA(int craId)
+        {
+            var cra = _db.GetAllCRAs().FirstOrDefault(c => c.Id == craId);
+            if (cra == null) return;
+
+            // Passe le CRA en validé
+            cra.EstPrevisionnel = false;
+            cra.EstValide = true;
+
+            _db.SaveCRA(cra);
+        }
+
+        /// <summary>
+        /// Valide tous les CRA d'une journée pour un utilisateur
+        /// </summary>
+        public void ValiderJournee(int devId, DateTime date)
+        {
+            var cras = _db.GetAllCRAs()
+                .Where(c => c.DevId == devId)
+                .Where(c => c.Date.Date == date.Date)
+                .Where(c => c.EstPrevisionnel) // Seulement les prévisionnels
+                .ToList();
+
+            foreach (var cra in cras)
+            {
+                cra.EstPrevisionnel = false;
+                cra.EstValide = true;
+                _db.SaveCRA(cra);
+            }
+        }
+
+        /// <summary>
+        /// Récupère les jours avec CRA à valider pour un dev
+        /// </summary>
+        public List<DateTime> GetJoursAValider(int devId)
+        {
+            return _db.GetAllCRAs()
+                .Where(c => c.DevId == devId)
+                .Where(c => c.EstPrevisionnel)
+                .Where(c => c.Date.Date < DateTime.Now.Date)
+                .Where(c => !c.EstValide)
+                .Select(c => c.Date.Date)
+                .Distinct()
+                .OrderBy(d => d)
+                .ToList();
+        }
+
+        /// <summary>
+        /// Compte le nombre de jours à valider pour un dev
+        /// </summary>
+        public int GetNombreJoursAValider(int devId)
+        {
+            return GetJoursAValider(devId).Count;
         }
     }
 

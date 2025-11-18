@@ -21,6 +21,8 @@ namespace BacklogManager.ViewModels
         public bool EstJourFerie { get; set; }
         public string NomJourFerie { get; set; }
         public string IconeJourFerie { get; set; }
+        public bool EstDansPasse { get; set; }
+        public bool EstDansFutur { get; set; }
         public double TotalHeuresDev { get; set; }
         public string TotalJoursAffiche => TotalHeuresDev > 0 ? $"{TotalHeuresDev / 8.0:F1}j" : "";
     }
@@ -300,17 +302,20 @@ namespace BacklogManager.ViewModels
 
                 var estJourFerie = JoursFeriesService.EstJourFerie(date);
                 var nomJourFerie = JoursFeriesService.GetNomJourFerie(date);
+                var aujourdhui = DateTime.Now.Date;
 
                 var jourVM = new JourCRAViewModel
                 {
                     Date = date,
                     Jour = date.Day,
                     EstDansMois = date.Month == MoisCourant.Month,
-                    EstAujourdhui = date.Date == DateTime.Now.Date,
+                    EstAujourdhui = date.Date == aujourdhui,
                     EstWeekend = JoursFeriesService.EstWeekend(date),
                     EstJourFerie = estJourFerie,
                     NomJourFerie = nomJourFerie,
                     IconeJourFerie = estJourFerie ? "/Images/jour-ferie.png" : null,
+                    EstDansPasse = date < aujourdhui,
+                    EstDansFutur = date > aujourdhui,
                     TotalHeuresDev = totalHeures
                 };
 
