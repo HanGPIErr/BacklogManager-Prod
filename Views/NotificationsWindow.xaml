@@ -150,9 +150,13 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
 
-                                <!-- Icône -->
-                                <TextBlock Grid.Column="0" Text="{Binding IconeEmoji}" FontSize="32" 
-                                           VerticalAlignment="Center" Margin="0,0,15,0"/>
+                                <!-- Icône Caramel et Flopy -->
+                                <Border Grid.Column="0" Background="#F5F5F5" 
+                                        Width="48" Height="48" CornerRadius="24" 
+                                        Margin="0,0,15,0" VerticalAlignment="Center">
+                                    <Image Source="{Binding ImageCaramelFlopy}" 
+                                           Width="46" Height="46" Stretch="Uniform"/>
+                                </Border>
 
                                 <!-- Contenu -->
                                 <StackPanel Grid.Column="1">
@@ -209,7 +213,10 @@
         <Border Grid.Row="2" x:Name="MessageVide" Visibility="Collapsed"
                 Background="White" CornerRadius="8" Padding="40">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                <TextBlock Text="🎉" FontSize="64" HorizontalAlignment="Center" Margin="0,0,0,15"/>
+                <Image Source="/Images/caramel-flopy-happy.png" 
+                       Width="120" Height="120" 
+                       Stretch="Uniform"
+                       Margin="0,0,0,20"/>
                 <TextBlock Text="Aucune notification" FontSize="20" FontWeight="Bold" 
                            Foreground="#666" HorizontalAlignment="Center" Margin="0,0,0,10"/>
                 <TextBlock Text="Vous êtes à jour !" FontSize="14" Foreground="#999" 

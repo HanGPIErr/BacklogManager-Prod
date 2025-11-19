@@ -339,13 +339,11 @@
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
                                         
-                                        <Border Grid.Column="0" Background="#E3F2FD" 
-                                                Width="36" Height="36" CornerRadius="18" 
+                                        <Border Grid.Column="0" Background="#F5F5F5" 
+                                                Width="40" Height="40" CornerRadius="20" 
                                                 Margin="0,0,12,0" VerticalAlignment="Top">
-                                            <TextBlock FontSize="18" VerticalAlignment="Center" 
-                                                       HorizontalAlignment="Center">
-                                                <Run Text="{Binding Icone}"/>
-                                            </TextBlock>
+                                            <Image Source="{Binding ImageCaramelFlopy}" 
+                                                   Width="38" Height="38" Stretch="Uniform"/>
                                         </Border>
                                         
                                         <StackPanel Grid.Column="1" VerticalAlignment="Center">
@@ -372,7 +370,10 @@
                     <Border Background="#E8F5E9" CornerRadius="8" Padding="20" 
                             Visibility="{Binding HasNoNotifications, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                         <StackPanel HorizontalAlignment="Center">
-                            <TextBlock Text="🔕" FontSize="32" TextAlignment="Center" Margin="0,0,0,8"/>
+                            <Image Source="/Images/caramel-flopy-happy.png" 
+                                   Width="80" Height="80" 
+                                   Stretch="Uniform"
+                                   Margin="0,0,0,12"/>
                             <TextBlock Text="Aucune nouvelle notification" 
                                        FontSize="14" Foreground="#00915A" TextAlignment="Center" FontWeight="SemiBold"/>
                             <TextBlock Text="Vous êtes à jour avec toutes les actualités." 

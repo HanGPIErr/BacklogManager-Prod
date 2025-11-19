@@ -111,7 +111,7 @@ namespace BacklogManager.Views
                     "• 🟠 Orange clair : prévisionnel futur\n" +
                     "• 🟠 Orange vif : passé, à valider\n" +
                     "• 🟢 Vert : validé, compte dans les stats\n\n" +
-                    "💡 *Conseil d'Einstein* : Validez régulièrement (chaque fin de semaine par exemple) !" },
+                    "💡 *Conseil de Caramel* : Validez régulièrement (chaque fin de semaine par exemple) !" },
                 
                 { "Comment voir les statistiques globales ?",
                     "Les statistiques, c'est mon dada ! J'adore les chiffres 📈\n\n" +
@@ -161,7 +161,7 @@ namespace BacklogManager.Views
                     "• Visualisez l'avancement en temps réel\n" +
                     "• Déplacez les cartes : À faire → En cours → Test → Terminé\n" +
                     "• Surveillez que rien ne reste bloqué\n\n" +
-                    "🎯 *Stratégie d'Einstein* : Ne surchargez pas vos devs ! Mieux vaut livrer régulièrement que bloquer sur trop de tâches." },
+                    "🎯 *Stratégie de Caramel* : Ne surchargez pas vos devs ! Mieux vaut livrer régulièrement que bloquer sur trop de tâches." },
                 
                 { "Comment suivre l'avancement du projet ?",
                     "Le suivi, c'est votre tableau de bord quotidien ! 🎛️\n\n" +
@@ -265,7 +265,7 @@ namespace BacklogManager.Views
                     "• Cliquez sur **Détails** puis **Chiffrage**\n" +
                     "• Les développeurs saisissent leurs estimations\n" +
                     "• Vous pouvez commenter et ajuster le périmètre\n\n" +
-                    "🎯 *Conseil d'Einstein* : Un bon chiffrage vient d'une bonne spec. CQFD !" }
+                    "🎯 *Conseil de Caramel* : Un bon chiffrage vient d'une bonne spec. CQFD !" }
             };
         }
 
@@ -287,7 +287,7 @@ namespace BacklogManager.Views
                 { "Comment obtenir de l'aide ?",
                     "Vous êtes déjà au bon endroit ! 🎓\n\n" +
                     "**Sources d'aide :**\n" +
-                    "• Ce guide Einstein (vous y êtes !)\n" +
+                    "• Ce guide Caramel et Flopy (vous y êtes !)\n" +
                     "• Les tooltips : survolez les boutons pour des infos\n" +
                     "• La documentation technique\n" +
                     "• Votre administrateur système\n\n" +
@@ -362,6 +362,23 @@ namespace BacklogManager.Views
         {
             ConversationPanel.Children.Clear();
 
+            // Déterminer l'état émotionnel selon le contenu de la réponse
+            string imageSource = "/Images/caramel-flopy-normal.png"; // Par défaut
+
+            if (reponse.Contains("✅") || reponse.Contains("🎉") || reponse.Contains("Bravo") || 
+                reponse.Contains("Excellent") || reponse.Contains("félicitations") || reponse.Contains("Félicitations"))
+            {
+                imageSource = "/Images/caramel-flopy-happy.png";
+            }
+            else if (reponse.Contains("⚠️") || reponse.Contains("Attention") || reponse.Contains("Important") ||
+                     reponse.Contains("erreur") || reponse.Contains("N'oubliez pas") || reponse.Contains("éviter"))
+            {
+                imageSource = "/Images/caramel-flopy-grumpy.png";
+            }
+
+            // Mettre à jour l'image
+            ImgGuide.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri(imageSource, UriKind.Relative));
+
             // Question de l'utilisateur
             var questionBorder = new Border
             {
@@ -384,7 +401,7 @@ namespace BacklogManager.Views
             questionBorder.Child = questionText;
             ConversationPanel.Children.Add(questionBorder);
 
-            // Réponse d'Einstein
+            // Réponse de Caramel & Flopy
             var reponseBorder = new Border
             {
                 Background = Brushes.White,

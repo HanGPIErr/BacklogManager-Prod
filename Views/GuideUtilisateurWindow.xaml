@@ -1,7 +1,7 @@
 <Window x:Class="BacklogManager.Views.GuideUtilisateurWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Einstein vous guide 🧠" 
+        Title="Caramel et Flopy vous guident 🐱🐰" 
         Height="700" Width="1000"
         WindowStartupLocation="CenterOwner"
         Background="#F5F5F5"
@@ -12,39 +12,40 @@
         <Border Background="#00915A" Height="80" VerticalAlignment="Top">
             <Grid Margin="30,0">
                 <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="💬 Posez vos questions à Einstein" FontSize="24" FontWeight="Bold" 
+                    <TextBlock Text="💬 Posez vos questions à Caramel &amp; Flopy" FontSize="24" FontWeight="Bold" 
                                Foreground="White"/>
                     <TextBlock x:Name="TxtRole" FontSize="14" Foreground="#E8F5E9" Margin="0,5,0,0"/>
                 </StackPanel>
             </Grid>
         </Border>
 
-        <!-- Content avec Einstein et chat -->
+        <!-- Content avec Caramel et Flopy -->
         <Grid Margin="0,80,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="250"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- Einstein + Questions à gauche -->
+            <!-- Caramel et Flopy + Questions à gauche -->
             <Border Grid.Column="0" Background="White" Padding="15" Margin="20,20,10,20" 
                     CornerRadius="12" VerticalAlignment="Stretch">
                 <Border.Effect>
                     <DropShadowEffect BlurRadius="20" ShadowDepth="0" Opacity="0.2" Color="#00915A"/>
                 </Border.Effect>
                 <StackPanel>
-                    <!-- Einstein -->
-                    <Image Source="/Images/einstein-guide.png" 
+                    <!-- Caramel & Flopy -->
+                    <Image x:Name="ImgGuide"
+                           Source="/Images/caramel-flopy-normal.png" 
                            Width="120" Height="120" 
                            Stretch="Uniform"
                            Margin="0,0,0,10"/>
-                    <TextBlock Text="💡 Einstein" 
+                    <TextBlock Text="🐱 Caramel et Flopy 🐰" 
                                FontSize="16" 
                                FontWeight="Bold"
                                Foreground="#00915A"
                                TextAlignment="Center"
                                Margin="0,0,0,5"/>
-                    <TextBlock Text="Votre assistant personnel" 
+                    <TextBlock Text="Vos assistants personnels" 
                                FontSize="10" 
                                Foreground="#666"
                                TextAlignment="Center"
@@ -82,10 +83,10 @@
                     <Border Grid.Row="0" Background="#E8F5E9" CornerRadius="8" Padding="15" Margin="0,0,0,15">
                         <StackPanel>
                             <TextBlock FontSize="14" FontWeight="SemiBold" Foreground="#00915A">
-                                <Run Text="👋 Bonjour ! Je suis Albert Einstein, votre guide."/>
+                                <Run Text="👋 Bonjour ! Nous sommes Caramel et Flopy, vos guides."/>
                             </TextBlock>
                             <TextBlock FontSize="12" Foreground="#666" Margin="0,8,0,0" TextWrapping="Wrap">
-                                Cliquez sur une question à gauche pour que je vous explique comment utiliser BacklogManager de manière simple et efficace. N'hésitez pas, il n'y a pas de question bête !
+                                Cliquez sur une question à gauche pour que nous vous expliquions comment utiliser BacklogManager de manière simple et efficace. N'hésitez pas, il n'y a pas de question bête !
                             </TextBlock>
                         </StackPanel>
                     </Border>
@@ -93,7 +94,7 @@
                     <!-- Zone de réponse scrollable -->
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                         <StackPanel x:Name="ConversationPanel" Margin="0,0,10,0">
-                            <!-- Les réponses d'Einstein apparaîtront ici -->
+                            <!-- Les réponses de Caramel et Flopy apparaîtront ici -->
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>

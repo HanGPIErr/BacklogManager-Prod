@@ -457,7 +457,9 @@
     <Resource Include="Images\backlogmanager.ico" />
     <Resource Include="Images\conges-icon.png" />
     <Resource Include="Images\jour-ferie.png" />
-    <Resource Include="Images\einstein-guide.png" />
+    <Resource Include="Images\caramel-flopy-normal.png" />
+    <Resource Include="Images\caramel-flopy-happy.png" />
+    <Resource Include="Images\caramel-flopy-grumpy.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages\System.Data.SQLite.Core.1.0.118\SQLite.Interop.dll">

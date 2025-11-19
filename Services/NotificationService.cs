@@ -36,6 +36,18 @@ namespace BacklogManager.Services
             }
         }
 
+        public string ImageCaramelFlopy
+        {
+            get
+            {
+                if (Type == NotificationType.Urgent || Type == NotificationType.Attention)
+                    return "/Images/caramel-flopy-grumpy.png";
+                if (Type == NotificationType.Success)
+                    return "/Images/caramel-flopy-happy.png";
+                return "/Images/caramel-flopy-normal.png";
+            }
+        }
+
         public string CouleurFond
         {
             get
