@@ -479,6 +479,7 @@ namespace BacklogManager.ViewModels
 
             const double HEURES_PAR_JOUR = 8.0;
             var maintenant = DateTime.Now;
+            var listTemp = new List<CRADevViewModel>();
 
             foreach (var dev in devs)
             {
@@ -502,7 +503,7 @@ namespace BacklogManager.ViewModels
                     var heuresTotal = crasDev.Sum(c => c.HeuresTravaillees);
                     var joursTotal = heuresTotal / HEURES_PAR_JOUR;
 
-                    CRAParDev.Add(new CRADevViewModel
+                    listTemp.Add(new CRADevViewModel
                     {
                         DevId = dev.Id,
                         NomDev = dev.Nom,
@@ -513,10 +514,15 @@ namespace BacklogManager.ViewModels
                 }
             }
 
+            // Calculer le max pour les barres de progression
+            if (listTemp.Any())
+            {
+                var maxHeures = listTemp.Max(c => double.Parse(c.HeuresTotal));
+                CRADevViewModel.SetMaxHeures(maxHeures);
+            }
+
             // Trier par heures totales décroissantes
-            var sortedList = CRAParDev.OrderByDescending(c => double.Parse(c.HeuresTotal)).ToList();
-            CRAParDev.Clear();
-            foreach (var item in sortedList)
+            foreach (var item in listTemp.OrderByDescending(c => double.Parse(c.HeuresTotal)))
             {
                 CRAParDev.Add(item);
             }
@@ -784,6 +790,11 @@ namespace BacklogManager.ViewModels
         public int EnCours { get; set; }
         public int Terminees { get; set; }
         public int Total { get; set; }
+        
+        // Propriétés pour les barres de progression (largeur max 400px)
+        public double LargeurAfaire => Total > 0 ? (AFaire * 400.0 / Total) : 0;
+        public double LargeurEnCours => Total > 0 ? (EnCours * 400.0 / Total) : 0;
+        public double LargeurTerminees => Total > 0 ? (Terminees * 400.0 / Total) : 0;
     }
 
     public class CRADevViewModel
@@ -793,6 +804,20 @@ namespace BacklogManager.ViewModels
         public string HeuresMois { get; set; }
         public string HeuresTotal { get; set; }
         public string JoursTotal { get; set; }
+        
+        // Propriété pour la barre de progression (basée sur le max des heures totales)
+        // Calculée dynamiquement - largeur max 400px
+        private static double _maxHeures = 1000; // Valeur par défaut
+        public static void SetMaxHeures(double max) => _maxHeures = max > 0 ? max : 1000;
+        public double LargeurBarreTotal
+        {
+            get
+            {
+                if (double.TryParse(HeuresTotal, out double heures))
+                    return (heures * 400.0 / _maxHeures);
+                return 0;
+            }
+        }
     }
 
     public class CompletionProjetViewModel
@@ -803,5 +828,18 @@ namespace BacklogManager.ViewModels
         public int TachesTerminees { get; set; }
         public string TauxCompletion { get; set; }
         public string HeuresCRA { get; set; }
+        
+        // Propriétés pour la visualisation
+        public string CouleurProjet => Projet?.CouleurHex ?? "#00915A";
+        public double LargeurBarreCompletion
+        {
+            get
+            {
+                if (TotalTaches > 0)
+                    return (TachesTerminees * 400.0 / TotalTaches);
+                return 0;
+            }
+        }
+        public string LabelCompletion => $"{TachesTerminees}/{TotalTaches}";
     }
 }

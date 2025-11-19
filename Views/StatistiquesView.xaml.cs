@@ -1,4 +1,6 @@
 using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media;
 using BacklogManager.ViewModels;
 
 namespace BacklogManager.Views
@@ -49,19 +51,40 @@ namespace BacklogManager.Views
             }
         }
 
-        private void GridChargeParDev_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void GridChargeParDev_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if (DataContext is StatistiquesViewModel viewModel && GridChargeParDev.SelectedItem is ChargeDevViewModel devStats)
+            if (DataContext is StatistiquesViewModel viewModel && ((DataGrid)sender).SelectedItem is ChargeDevViewModel devStats)
             {
                 viewModel.AfficherDetailsDevCommand?.Execute(devStats);
             }
         }
 
-        private void GridCRAParDev_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void GridCRAParDev_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if (DataContext is StatistiquesViewModel viewModel && GridCRAParDev.SelectedItem is CRADevViewModel craDevStats)
+            if (DataContext is StatistiquesViewModel viewModel && ((DataGrid)sender).SelectedItem is CRADevViewModel craDevStats)
             {
                 viewModel.AfficherDetailsCRADevCommand?.Execute(craDevStats);
+            }
+        }
+
+        // Event handlers pour les effets hover sur les cartes
+        private void DevCard_MouseEnter(object sender, MouseEventArgs e)
+        {
+            if (sender is Border border)
+            {
+                border.Background = new SolidColorBrush(Color.FromRgb(255, 255, 255));
+                border.BorderBrush = new SolidColorBrush(Color.FromRgb(0, 145, 90));
+                border.BorderThickness = new System.Windows.Thickness(2);
+            }
+        }
+
+        private void DevCard_MouseLeave(object sender, MouseEventArgs e)
+        {
+            if (sender is Border border)
+            {
+                border.Background = new SolidColorBrush(Color.FromRgb(249, 249, 249));
+                border.BorderBrush = new SolidColorBrush(Color.FromRgb(224, 224, 224));
+                border.BorderThickness = new System.Windows.Thickness(1);
             }
         }
     }

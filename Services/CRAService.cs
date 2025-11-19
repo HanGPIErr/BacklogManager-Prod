@@ -33,9 +33,16 @@ namespace BacklogManager.Services
 
             // Mise à jour automatique de DateDebut si première saisie
             var backlogItem = _db.GetBacklogItems().FirstOrDefault(b => b.Id == cra.BacklogItemId);
-            if (backlogItem != null && !backlogItem.DateDebut.HasValue)
+            if (backlogItem != null)
             {
-                backlogItem.DateDebut = cra.Date;
+                if (!backlogItem.DateDebut.HasValue)
+                {
+                    backlogItem.DateDebut = cra.Date;
+                }
+                
+                // Mise à jour du temps réel passé (uniquement les CRA validés)
+                backlogItem.TempsReelHeures = GetTempsReelTache(cra.BacklogItemId);
+                
                 _db.AddOrUpdateBacklogItem(backlogItem);
             }
         }
@@ -159,7 +166,16 @@ namespace BacklogManager.Services
                     throw new InvalidOperationException("Impossible de supprimer un CRA de plus de 7 jours.");
             }
 
+            var backlogItemId = cra.BacklogItemId;
             _db.DeleteCRA(id);
+            
+            // Recalculer le temps réel après suppression
+            var backlogItem = _db.GetBacklogItems().FirstOrDefault(b => b.Id == backlogItemId);
+            if (backlogItem != null)
+            {
+                backlogItem.TempsReelHeures = GetTempsReelTache(backlogItemId);
+                _db.AddOrUpdateBacklogItem(backlogItem);
+            }
         }
 
         /// <summary>
@@ -350,6 +366,14 @@ namespace BacklogManager.Services
             cra.EstValide = true;
 
             _db.SaveCRA(cra);
+            
+            // Recalculer le temps réel après validation (car maintenant le CRA compte comme validé)
+            var backlogItem = _db.GetBacklogItems().FirstOrDefault(b => b.Id == cra.BacklogItemId);
+            if (backlogItem != null)
+            {
+                backlogItem.TempsReelHeures = GetTempsReelTache(cra.BacklogItemId);
+                _db.AddOrUpdateBacklogItem(backlogItem);
+            }
         }
 
         /// <summary>
@@ -363,11 +387,25 @@ namespace BacklogManager.Services
                 .Where(c => c.EstPrevisionnel) // Seulement les prévisionnels
                 .ToList();
 
+            // Récupérer les IDs des tâches concernées pour les mettre à jour
+            var backlogItemIds = cras.Select(c => c.BacklogItemId).Distinct().ToList();
+
             foreach (var cra in cras)
             {
                 cra.EstPrevisionnel = false;
                 cra.EstValide = true;
                 _db.SaveCRA(cra);
+            }
+            
+            // Mettre à jour le temps réel de toutes les tâches concernées
+            foreach (var backlogItemId in backlogItemIds)
+            {
+                var backlogItem = _db.GetBacklogItems().FirstOrDefault(b => b.Id == backlogItemId);
+                if (backlogItem != null)
+                {
+                    backlogItem.TempsReelHeures = GetTempsReelTache(backlogItemId);
+                    _db.AddOrUpdateBacklogItem(backlogItem);
+                }
             }
         }
 

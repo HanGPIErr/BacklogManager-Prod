@@ -57,77 +57,79 @@ namespace BacklogManager.Views
         {
             _questionsReponses = new Dictionary<string, string>
             {
-                { "Comment ajouter un nouvel utilisateur ?", 
-                    "Excellente question ! Voici comment procéder de manière simple :\n\n" +
-                    "1️⃣ Rendez-vous dans l'onglet **Administration** en haut de l'application\n" +
-                    "2️⃣ Cliquez sur **Gestion des utilisateurs**\n" +
-                    "3️⃣ Appuyez sur le bouton **➕ Nouvel utilisateur**\n" +
-                    "4️⃣ Remplissez les informations : nom, prénom, email\n" +
-                    "5️⃣ Choisissez le rôle approprié (Dev, Chef de projet, etc.)\n" +
-                    "6️⃣ Validez et voilà ! L'utilisateur peut maintenant se connecter.\n\n" +
-                    "💡 *Astuce* : Pensez à bien choisir le rôle dès le départ, cela définit les permissions !" },
+                { "Comment gérer les utilisateurs et leurs rôles ?", 
+                    "En tant qu'administrateur, vous êtes le maître du système ! 👑\n\n" +
+                    "**Accès Administration :**\n" +
+                    "Seul vous avez accès à la section **ADMINISTRATION** du menu latéral.\n\n" +
+                    "**Gestion des utilisateurs :**\n" +
+                    "• Les utilisateurs sont créés automatiquement au démarrage\n" +
+                    "• Vous pouvez modifier leurs rôles et permissions\n" +
+                    "• 4 types de rôles : Administrateur, Chef de Projet, Business Analyst, Développeur\n\n" +
+                    "**Permissions importantes :**\n" +
+                    "• Vous seul pouvez **archiver** les demandes obsolètes\n" +
+                    "• Vous seul pouvez **supprimer** tâches et demandes\n" +
+                    "• Vous seul pouvez gérer les référentiels (projets, équipes)\n\n" +
+                    "💡 *Astuce* : Chaque rôle a des permissions précises. Admin = tous pouvoirs !" },
                 
-                { "Comment gérer les projets ?",
-                    "Ah, la gestion de projets ! C'est un peu comme diriger un orchestre 🎼\n\n" +
-                    "**Pour créer un projet :**\n" +
-                    "• Allez dans **Projets & Équipes**\n" +
-                    "• Cliquez sur **Créer un projet**\n" +
-                    "• Définissez le nom, la durée des sprints\n" +
-                    "• Assignez un chef de projet\n" +
-                    "• Ajoutez les développeurs à l'équipe\n\n" +
-                    "**Pour suivre l'avancement :**\n" +
-                    "• Le **Dashboard** vous donne une vue globale\n" +
-                    "• Le **Kanban** montre les tâches en temps réel\n" +
-                    "• Le **Suivi CRA** indique le temps passé\n\n" +
-                    "🎯 *Mon conseil* : Revoyez régulièrement les projets pour ajuster les équipes si besoin !" },
+                { "Comment utiliser le Dashboard et le Kanban ?",
+                    "Le Dashboard et le Kanban sont vos outils de pilotage quotidien ! 📊\n\n" +
+                    "**Dashboard (🏠) :**\n" +
+                    "• Vue d'ensemble avec KPIs : tâches terminées, en cours, à prioriser\n" +
+                    "• Productivité de l'équipe en pourcentage\n" +
+                    "• Notifications importantes affichées avec Caramel & Flopy\n" +
+                    "• Cliquez sur une notification pour l'envoyer par email au développeur\n\n" +
+                    "**Kanban (🎯) :**\n" +
+                    "• Colonnes : EN ATTENTE | A PRIORISER (zone admin) | À FAIRE | EN COURS | EN TEST | TERMINÉ\n" +
+                    "• Drag & drop pour changer les statuts\n" +
+                    "• Filtres par développeur et par projet\n" +
+                    "• Vous pouvez supprimer des tâches (croix rouge sur les cartes)\n\n" +
+                    "🎯 *Mon conseil* : Zone admin visible uniquement par vous pour gérer EN ATTENTE et A PRIORISER !" },
                 
-                { "Que faire avec les demandes obsolètes ?",
-                    "Bonne question ! Les demandes obsolètes, c'est comme les vieux papiers : il faut les ranger 📦\n\n" +
-                    "**Pourquoi archiver ?**\n" +
-                    "• Garde la liste des demandes actives propre et lisible\n" +
-                    "• Préserve l'historique sans encombrer\n" +
-                    "• Améliore les performances de l'application\n\n" +
-                    "**Comment faire ?**\n" +
-                    "1. Allez dans **Demandes**\n" +
-                    "2. Sélectionnez la demande obsolète\n" +
-                    "3. Cliquez sur **Archiver** (seuls les admins peuvent le faire)\n" +
-                    "4. La demande disparaît de la vue principale\n\n" +
-                    "**Pour retrouver une demande archivée ?**\n" +
-                    "Rendez-vous dans **Archives** ! Tout y est conservé.\n\n" +
-                    "⚠️ *Important* : N'archivez que les demandes vraiment terminées ou annulées !" },
+                { "Comment gérer le Backlog et les Demandes ?",
+                    "Le Backlog et les Demandes sont au cœur de la planification ! 📋\n\n" +
+                    "**Backlog (📋) :**\n" +
+                    "• Liste de TOUTES les tâches du système\n" +
+                    "• Créez de nouvelles tâches avec le bouton ➕\n" +
+                    "• Assignez des développeurs et définissez les priorités\n" +
+                    "• Double-cliquez sur une tâche pour l'éditer\n" +
+                    "• Supprimez les tâches obsolètes (vous seul le pouvez)\n\n" +
+                    "**Demandes (📝) :**\n" +
+                    "• Créez des demandes métier avec ➕ Nouvelle demande\n" +
+                    "• Assignez un Business Analyst pour spécifier\n" +
+                    "• Archivez les demandes terminées (bouton Archiver)\n" +
+                    "• Seul l'admin peut supprimer et archiver\n\n" +
+                    "⚠️ *Important* : Utilisez Archiver au lieu de Supprimer pour garder l'historique !" },
                 
-                { "Comment valider les CRA ?",
-                    "Ah, les CRA ! Le suivi du temps, c'est essentiel pour mesurer la productivité 📊\n\n" +
-                    "**Pourquoi valider les CRA ?**\n" +
-                    "• Permet de distinguer le temps prévisionnel du temps réel\n" +
-                    "• Donne des statistiques précises\n" +
-                    "• Aide à mieux estimer les futures tâches\n\n" +
-                    "**La procédure est simple :**\n" +
-                    "1. Allez dans **CRA Calendrier** ou **Suivi CRA**\n" +
-                    "2. Vous voyez des journées en orange ? Elles sont à valider\n" +
-                    "3. Cliquez sur le bouton **orange de validation**\n" +
-                    "4. La journée passe en vert ✅\n\n" +
-                    "**Les 3 états :**\n" +
-                    "• 🟠 Orange clair : prévisionnel futur\n" +
-                    "• 🟠 Orange vif : passé, à valider\n" +
-                    "• 🟢 Vert : validé, compte dans les stats\n\n" +
-                    "💡 *Conseil de Caramel* : Validez régulièrement (chaque fin de semaine par exemple) !" },
+                { "Comment fonctionne le suivi des CRA et du temps ?",
+                    "Le CRA est crucial pour le suivi projet ! ⏱️\n\n" +
+                    "**Saisir CRA (⏱️) :**\n" +
+                    "• Les développeurs saisissent leur temps par tâche et par jour\n" +
+                    "• Vous pouvez consulter mais pas saisir (c'est pour les devs)\n\n" +
+                    "**Suivi CRA (📊) - Section ADMINISTRATION :**\n" +
+                    "• Vue calendrier avec temps saisi par développeur\n" +
+                    "• Validez les CRA pour les comptabiliser dans les stats\n" +
+                    "• États : Prévisionnel (orange clair) → À valider (orange) → Validé (vert)\n" +
+                    "• Seul le temps validé compte dans le 'Temps réel passé' du Kanban\n\n" +
+                    "**Important pour les stats :**\n" +
+                    "• Le Kanban affiche Temps réel = somme des CRA validés\n" +
+                    "• Les estimations vs réalisé vous aident à ajuster les futurs chiffrages\n\n" +
+                    "💡 *Conseil* : Validez les CRA chaque semaine pour des statistiques à jour !" },
                 
-                { "Comment voir les statistiques globales ?",
-                    "Les statistiques, c'est mon dada ! J'adore les chiffres 📈\n\n" +
-                    "**Le Dashboard est votre ami :**\n" +
-                    "• Vue d'ensemble avec les KPIs principaux\n" +
-                    "• Nombre de tâches terminées, en cours, à faire\n" +
-                    "• Productivité du jour en pourcentage\n" +
-                    "• Charge de travail des développeurs\n\n" +
-                    "**Le Suivi CRA pour le détail :**\n" +
-                    "• Temps passé par développeur\n" +
-                    "• Séparation travail / congés / non-travaillé\n" +
-                    "• Statistiques par période (mois, année)\n" +
-                    "• Export possible vers Excel\n\n" +
-                    "**Cliquez sur un dev dans les stats :**\n" +
-                    "Une fenêtre s'ouvre avec toutes ses métriques détaillées !\n\n" +
-                    "🔬 *Ma méthode* : Consultez le Dashboard tous les matins, ça donne le pouls du projet !" }
+                { "Comment utiliser les Notifications intelligentes ?",
+                    "Les notifications, c'est votre système d'alerte proactif ! 🔔\n\n" +
+                    "**Types de notifications avec Caramel & Flopy :**\n" +
+                    "• 🔴 URGENT (grumpy) : Tâches en retard critique\n" +
+                    "• ⚠️ ATTENTION (grumpy) : Échéance proche, attention requise\n" +
+                    "• ✅ SUCCESS (happy) : Félicitations, tâche terminée\n" +
+                    "• 📋 INFO (normal) : Informations générales\n\n" +
+                    "**Fonctionnalité Email :**\n" +
+                    "• Cliquez sur le bouton '📧 Envoyer par email' sur une notification\n" +
+                    "• Outlook s'ouvre avec un email pré-rempli\n" +
+                    "• Message formaté avec détails tâche, urgence, deadline\n" +
+                    "• Pratique pour faire un follow-up rapide au développeur\n\n" +
+                    "**Badge rouge :**\n" +
+                    "Nombre de notifications non lues affiché dans le menu\n\n" +
+                    "💡 *Astuce* : Traitez les notifications URGENT en priorité pour éviter les blocages !" }
             };
         }
 
@@ -135,49 +137,54 @@ namespace BacklogManager.Views
         {
             _questionsReponses = new Dictionary<string, string>
             {
-                { "Comment créer une nouvelle demande ?",
-                    "Créer une demande, c'est le point de départ de tout projet ! 🚀\n\n" +
-                    "**Étapes simples :**\n" +
-                    "1. Allez dans l'onglet **Demandes**\n" +
-                    "2. Cliquez sur **➕ Nouvelle demande**\n" +
-                    "3. Remplissez le titre (clair et concis)\n" +
-                    "4. Décrivez le besoin dans la description\n" +
-                    "5. Définissez la criticité (Basse, Moyenne, Haute)\n" +
-                    "6. Assignez un projet si vous en avez un\n" +
-                    "7. Validez !\n\n" +
-                    "**Après création :**\n" +
-                    "• Vous pouvez assigner un Business Analyst pour détailler\n" +
-                    "• La demande passe par différents statuts (Brouillon → Spécification → Chiffrage → Acceptée)\n\n" +
-                    "💡 *Conseil* : Plus la description est précise, plus le chiffrage sera juste !" },
+                { "Quelles sont mes permissions en tant que Chef de Projet ?",
+                    "En tant que Chef de Projet, vous avez de larges pouvoirs ! 👔\n\n" +
+                    "**Ce que vous POUVEZ faire :**\n" +
+                    "✅ Créer des demandes métier (📝 Demandes)\n" +
+                    "✅ Prioriser les tâches dans le Backlog\n" +
+                    "✅ Assigner des développeurs aux tâches\n" +
+                    "✅ Modifier toutes les tâches (pas seulement les vôtres)\n" +
+                    "✅ Supprimer des tâches et des demandes\n" +
+                    "✅ Voir tous les KPI et statistiques\n" +
+                    "✅ Changer les statuts dans le Kanban\n\n" +
+                    "**Ce que vous NE POUVEZ PAS faire :**\n" +
+                    "❌ Accéder à la section ADMINISTRATION\n" +
+                    "❌ Gérer les utilisateurs et les rôles\n" +
+                    "❌ Archiver des demandes (réservé à l'admin)\n\n" +
+                    "🎯 *Votre rôle* : Orchestrer l'équipe et prioriser le travail !" },
                 
-                { "Comment planifier les tâches ?",
-                    "Planifier, c'est l'art de l'organisation ! Comme une partie d'échecs 🎲\n\n" +
-                    "**Dans le Backlog :**\n" +
-                    "• Créez des tâches depuis les demandes acceptées\n" +
-                    "• Assignez des développeurs selon leurs compétences\n" +
-                    "• Définissez une priorité (drag & drop pour réordonner)\n" +
-                    "• Estimez la charge en jours\n\n" +
-                    "**Utilisez le Kanban :**\n" +
-                    "• Visualisez l'avancement en temps réel\n" +
-                    "• Déplacez les cartes : À faire → En cours → Test → Terminé\n" +
-                    "• Surveillez que rien ne reste bloqué\n\n" +
-                    "🎯 *Stratégie de Caramel* : Ne surchargez pas vos devs ! Mieux vaut livrer régulièrement que bloquer sur trop de tâches." },
+                { "Comment organiser le Backlog et prioriser les tâches ?",
+                    "La priorisation, c'est votre super-pouvoir ! 🎯\n\n" +
+                    "**Dans le Backlog (📋) :**\n" +
+                    "• Créez de nouvelles tâches avec le bouton ➕ Nouvelle tâche\n" +
+                    "• Assignez un développeur dans le formulaire\n" +
+                    "• Définissez la priorité : Urgent / Haute / Moyenne / Basse\n" +
+                    "• Estimez la charge en jours\n" +
+                    "• Double-cliquez pour modifier une tâche existante\n\n" +
+                    "**Filtres disponibles :**\n" +
+                    "• Par développeur pour équilibrer la charge\n" +
+                    "• Par projet pour suivre un périmètre\n" +
+                    "• Par statut pour identifier les blocages\n\n" +
+                    "**Conseil stratégique :**\n" +
+                    "Priorisez selon valeur métier + urgence. Les devs voient leurs tâches dans le Kanban !\n\n" +
+                    "🎯 *Astuce* : Utilisez les priorités pour guider les devs, pas pour les stresser !" },
                 
-                { "Comment suivre l'avancement du projet ?",
-                    "Le suivi, c'est votre tableau de bord quotidien ! 🎛️\n\n" +
-                    "**Dashboard - Vue rapide :**\n" +
-                    "• KPIs essentiels en un coup d'œil\n" +
-                    "• Productivité de l'équipe\n" +
-                    "• Tâches terminées vs à faire\n\n" +
-                    "**Kanban - Vue détaillée :**\n" +
-                    "• Chaque tâche visible avec son statut\n" +
-                    "• Filtrez par développeur ou projet\n" +
-                    "• Identifiez les blocages rapidement\n\n" +
-                    "**Suivi CRA - Vue temporelle :**\n" +
-                    "• Temps passé par tâche\n" +
-                    "• Comparez estimé vs réalisé\n" +
-                    "• Ajustez vos futures estimations\n\n" +
-                    "📊 *Mon truc* : Daily meeting de 10 min devant le Kanban, ça fait des miracles !" }
+                { "Comment utiliser le Kanban et les Demandes ?",
+                    "Le Kanban et les Demandes sont vos outils de pilotage visuel ! 📊\n\n" +
+                    "**Kanban (🎯) :**\n" +
+                    "• 4 colonnes principales : À FAIRE | EN COURS | EN TEST | TERMINÉ\n" +
+                    "• Drag & drop pour changer les statuts (vous pouvez tout bouger)\n" +
+                    "• Filtres par dev/projet en haut\n" +
+                    "• Bouton ❌ pour supprimer une tâche obsolète\n" +
+                    "• Temps réel passé affiché (basé sur CRA validés)\n\n" +
+                    "**Demandes (📝) :**\n" +
+                    "• Créez des demandes avec ➕ Nouvelle demande\n" +
+                    "• Assignez un BA pour spécifier\n" +
+                    "• Modifiez et supprimez les demandes (vous avez les droits)\n" +
+                    "• Suivez le cycle : Brouillon → Spécification → Chiffrage → Acceptée\n\n" +
+                    "**Dashboard (🏠) :**\n" +
+                    "Vue synthétique des KPIs et notifications importantes\n\n" +
+                    "📊 *Mon truc* : Daily stand-up de 10 min devant le Kanban !" }
             };
         }
 
@@ -185,53 +192,58 @@ namespace BacklogManager.Views
         {
             _questionsReponses = new Dictionary<string, string>
             {
-                { "Comment saisir mes heures de travail ?",
-                    "Saisir vos heures, c'est crucial pour les statistiques ! ⏱️\n\n" +
-                    "**Méthode simple :**\n" +
-                    "1. Allez dans **CRA Calendrier**\n" +
-                    "2. Cliquez sur un jour dans le calendrier\n" +
-                    "3. Sélectionnez la tâche travaillée\n" +
-                    "4. Indiquez le nombre d'heures (ou demi-journées)\n" +
-                    "5. Ajoutez un commentaire si besoin\n" +
-                    "6. Validez !\n\n" +
-                    "**Astuces :**\n" +
-                    "• Utilisez 4h pour une demi-journée, 8h pour une journée\n" +
-                    "• Le système calcule automatiquement si vous dépassez la charge\n" +
-                    "• Orange = à valider, Vert = validé et comptabilisé\n\n" +
-                    "💡 *Important* : Saisissez régulièrement, pas tout en fin de mois !" },
+                { "Quelles sont mes permissions en tant que Développeur ?",
+                    "En tant que dev, vous avez des droits ciblés sur VOS tâches ! 💻\n\n" +
+                    "**Ce que vous POUVEZ faire :**\n" +
+                    "✅ Saisir vos heures dans le CRA (⏱️ Saisir CRA)\n" +
+                    "✅ Modifier VOS propres tâches assignées\n" +
+                    "✅ Changer le statut de VOS tâches dans le Kanban\n" +
+                    "✅ Participer au Planning Poker (chiffrage)\n" +
+                    "✅ Voir vos tâches dans le Dashboard et le Kanban\n\n" +
+                    "**Ce que vous NE POUVEZ PAS faire :**\n" +
+                    "❌ Créer des demandes (réservé aux BA, Chef, Admin)\n" +
+                    "❌ Modifier ou supprimer les tâches des autres devs\n" +
+                    "❌ Assigner des développeurs aux tâches\n" +
+                    "❌ Prioriser les tâches\n" +
+                    "❌ Voir les KPI globaux et statistiques\n" +
+                    "❌ Accéder à l'Administration\n\n" +
+                    "🎯 *Votre focus* : Exécuter vos tâches et saisir votre temps !" },
                 
-                { "Comment poser mes congés ?",
-                    "Ah, les vacances ! Tout le monde a besoin de repos 🏖️\n\n" +
-                    "**C'est très simple :**\n" +
-                    "1. Dans **CRA Calendrier**, cliquez sur **Saisir Congés**\n" +
-                    "2. Choisissez entre :\n" +
-                    "   • Journée simple (1 jour)\n" +
-                    "   • Période (plusieurs jours d'affilée)\n" +
-                    "3. Sélectionnez le type : Congés ou Non travaillé\n" +
-                    "4. Validez\n\n" +
-                    "**Le système intelligent :**\n" +
-                    "• Décale automatiquement vos tâches planifiées\n" +
-                    "• Ne compte pas dans votre charge de travail\n" +
-                    "• Apparaît en bleu dans le calendrier 🔵\n\n" +
-                    "**Repositionner une tâche :**\n" +
-                    "Si une tâche tombe pendant vos congés, cliquez sur **Repositionner** pour la déplacer automatiquement !\n\n" +
-                    "🌴 *Conseil* : Posez vos congés dès que possibles pour que l'équipe puisse s'organiser." },
+                { "Comment saisir mes heures dans le CRA ?",
+                    "Le CRA, c'est votre feuille de temps quotidienne ! ⏱️\n\n" +
+                    "**Accès : ⏱️ Saisir CRA dans le menu**\n\n" +
+                    "**Saisie des heures :**\n" +
+                    "1. Calendrier affiché avec le mois en cours\n" +
+                    "2. Cliquez sur un jour pour saisir du temps\n" +
+                    "3. Sélectionnez la tâche travaillée (dans la liste)\n" +
+                    "4. Indiquez les heures : 4h (demi-journée) ou 8h (journée)\n" +
+                    "5. Ajoutez un commentaire optionnel\n" +
+                    "6. Validez\n\n" +
+                    "**Saisie congés/absences :**\n" +
+                    "• Bouton 'Saisir Congés' pour déclarer congés/RTT/absence\n" +
+                    "• Le système décale automatiquement vos tâches planifiées\n" +
+                    "• Apparaît différemment dans le calendrier\n\n" +
+                    "**Important :**\n" +
+                    "Votre temps est en 'prévisionnel' jusqu'à validation par l'admin. Seul le temps validé compte dans les stats du Kanban !\n\n" +
+                    "💡 *Conseil* : Saisissez quotidiennement, c'est plus précis !" },
                 
-                { "Comment voir mes tâches en cours ?",
-                    "Vos tâches, c'est votre to-do list quotidienne ! ✅\n\n" +
-                    "**Dans le Dashboard :**\n" +
-                    "• Section \"Mes tâches\" avec tout ce qui vous est assigné\n" +
-                    "• Statuts visibles : À faire, En cours, Test\n" +
-                    "• Cliquez pour voir les détails\n\n" +
-                    "**Dans le Kanban :**\n" +
-                    "• Vue d'ensemble de toutes les tâches de l'équipe\n" +
-                    "• Filtrez sur votre nom pour voir uniquement les vôtres\n" +
-                    "• Glissez-déposez pour changer le statut\n\n" +
-                    "**Dans le Backlog :**\n" +
-                    "• Liste complète avec priorités\n" +
-                    "• Double-cliquez pour éditer\n" +
-                    "• Voyez la charge restante\n\n" +
-                    "🎯 *Ma méthode* : Dashboard le matin pour voir le jour, Kanban pour updater l'avancement." }
+                { "Comment utiliser le Kanban et le Backlog ?",
+                    "Kanban et Backlog sont vos outils de travail quotidiens ! 🎯\n\n" +
+                    "**Dashboard (🏠) :**\n" +
+                    "• Vue synthétique de VOS tâches assignées\n" +
+                    "• Statuts : À faire, En cours, En test\n" +
+                    "• Cliquez sur une tâche pour les détails\n\n" +
+                    "**Kanban (🎯) :**\n" +
+                    "• Colonnes : À FAIRE | EN COURS | EN TEST | TERMINÉ\n" +
+                    "• Filtrez par votre nom pour voir uniquement VOS tâches\n" +
+                    "• Glissez-déposez VOS cartes pour changer le statut\n" +
+                    "• Vous NE POUVEZ PAS déplacer les tâches des autres\n" +
+                    "• Temps réel = heures CRA validées par l'admin\n\n" +
+                    "**Backlog (📋) :**\n" +
+                    "• Liste de toutes les tâches (toute l'équipe)\n" +
+                    "• Double-cliquez sur VOS tâches pour les éditer\n" +
+                    "• Voyez les priorités définies par le Chef de Projet\n\n" +
+                    "🎯 *Ma méthode* : Dashboard au réveil, Kanban en continu, CRA en fin de journée !" }
             };
         }
 
@@ -239,33 +251,41 @@ namespace BacklogManager.Views
         {
             _questionsReponses = new Dictionary<string, string>
             {
-                { "Comment bien rédiger une spécification ?",
-                    "Les spécifications, c'est la fondation de tout ! Comme un plan d'architecte 📐\n\n" +
-                    "**Les éléments clés :**\n" +
-                    "1. **Contexte métier** : Pourquoi ce besoin existe ?\n" +
-                    "2. **Spécifications fonctionnelles** : Que doit faire le système ?\n" +
-                    "3. **Critères d'acceptation** : Comment valider que c'est bon ?\n" +
-                    "4. **Bénéfices attendus** : Quel est le ROI ?\n\n" +
-                    "**Règles d'or :**\n" +
-                    "• Soyez précis et sans ambiguïté\n" +
-                    "• Utilisez des exemples concrets\n" +
-                    "• Ajoutez des schémas si nécessaire\n" +
-                    "• Pensez aux cas limites et erreurs\n\n" +
-                    "💡 *Astuce* : Faites relire par quelqu'un qui ne connaît pas le projet. S'il comprend, c'est bon !" },
+                { "Quelles sont mes permissions en tant que Business Analyst ?",
+                    "En tant que BA, vous êtes le pont entre métier et technique ! 📐\n\n" +
+                    "**Ce que vous POUVEZ faire :**\n" +
+                    "✅ Créer des demandes métier (📝 Demandes)\n" +
+                    "✅ Modifier les demandes que vous avez créées\n" +
+                    "✅ Voir les KPI dans le Dashboard\n" +
+                    "✅ Consulter le Backlog et le Kanban (lecture seule)\n\n" +
+                    "**Ce que vous NE POUVEZ PAS faire :**\n" +
+                    "❌ Chiffrer les tâches (réservé aux développeurs)\n" +
+                    "❌ Prioriser les tâches (réservé Chef de Projet et Admin)\n" +
+                    "❌ Modifier les tâches dans le Backlog\n" +
+                    "❌ Supprimer des demandes (Chef de Projet et Admin)\n" +
+                    "❌ Saisir des CRA (réservé aux développeurs)\n" +
+                    "❌ Accéder à l'Administration\n\n" +
+                    "🎯 *Votre rôle* : Exprimer le besoin métier clairement et créer les demandes !" },
                 
-                { "Comment participer au chiffrage ?",
-                    "Le chiffrage, c'est l'art de l'estimation ! Pas toujours facile 🎲\n\n" +
-                    "**Votre rôle en tant que BA :**\n" +
-                    "• Clarifier les zones d'ombre pour les devs\n" +
-                    "• Découper la demande en sous-tâches si elle est grosse\n" +
-                    "• Participer aux sessions de Planning Poker\n" +
-                    "• Valider que l'estimation correspond au scope\n\n" +
-                    "**Dans l'application :**\n" +
-                    "• Consultez la demande dans **Demandes**\n" +
-                    "• Cliquez sur **Détails** puis **Chiffrage**\n" +
-                    "• Les développeurs saisissent leurs estimations\n" +
-                    "• Vous pouvez commenter et ajuster le périmètre\n\n" +
-                    "🎯 *Conseil de Caramel* : Un bon chiffrage vient d'une bonne spec. CQFD !" }
+                { "Comment créer et suivre mes demandes ?",
+                    "Les demandes, c'est votre terrain de jeu ! 📝\n\n" +
+                    "**Créer une demande (📝 Demandes) :**\n" +
+                    "1. Cliquez sur ➕ Nouvelle demande\n" +
+                    "2. Remplissez le titre (clair et précis)\n" +
+                    "3. Décrivez le besoin dans la description\n" +
+                    "4. Définissez la criticité : Basse / Moyenne / Haute / Critique\n" +
+                    "5. Assignez à un projet si applicable\n" +
+                    "6. Validez\n\n" +
+                    "**Cycle de vie d'une demande :**\n" +
+                    "• Brouillon : demande en cours de rédaction\n" +
+                    "• Spécification : vous détaillez les besoins\n" +
+                    "• Chiffrage : les devs estiment (vous ne chiffrez pas)\n" +
+                    "• Acceptée : prête à être découpée en tâches\n\n" +
+                    "**Suivi :**\n" +
+                    "• Dashboard : vue synthétique\n" +
+                    "• Backlog : voir les tâches créées depuis vos demandes\n" +
+                    "• Kanban : avancement visuel (lecture seule pour vous)\n\n" +
+                    "🎯 *Conseil* : Plus votre description est précise, plus l'équipe sera efficace !" }
             };
         }
 
@@ -273,29 +293,42 @@ namespace BacklogManager.Views
         {
             _questionsReponses = new Dictionary<string, string>
             {
-                { "Comment naviguer dans l'application ?",
-                    "Bienvenue dans BacklogManager ! Laissez-moi vous faire le tour du propriétaire 🏠\n\n" +
-                    "**Les onglets principaux :**\n" +
-                    "• 📊 **Dashboard** : Votre tableau de bord personnel\n" +
-                    "• 📋 **Backlog** : Liste de toutes les tâches\n" +
-                    "• 🎯 **Kanban** : Vue visuelle de l'avancement\n" +
-                    "• 📝 **Demandes** : Gestion des besoins\n" +
-                    "• ⏱️ **CRA Calendrier** : Saisie des temps\n" +
-                    "• 📈 **Suivi CRA** : Statistiques temporelles\n\n" +
-                    "💡 *Astuce* : Commencez toujours par le Dashboard, c'est votre point de départ quotidien !" },
+                { "Comment naviguer dans BacklogManager ?",
+                    "Bienvenue dans BacklogManager BNP Paribas ! 🏠\n\n" +
+                    "**Menu latéral gauche avec sections :**\n\n" +
+                    "**VUES :**\n" +
+                    "• 🏠 Dashboard : Tableau de bord personnel, KPIs, notifications\n" +
+                    "• 📋 Backlog : Liste complète des tâches\n" +
+                    "• 🎯 Kanban : Suivi visuel (À faire → En cours → Test → Terminé)\n\n" +
+                    "**TEMPS & CRA :**\n" +
+                    "• ⏱️ Saisir CRA : Saisie des heures par tâche (développeurs)\n\n" +
+                    "**ADMINISTRATION :**\n" +
+                    "• 📊 Suivi CRA : Validation des temps (admin uniquement)\n\n" +
+                    "**ACTIONS :**\n" +
+                    "• 📝 Demandes : Gestion des besoins métier\n" +
+                    "• 🔔 Notifications : Alertes et suivis avec Caramel & Flopy\n\n" +
+                    "💡 *Conseil* : Dashboard = point de départ quotidien !" },
                 
-                { "Comment obtenir de l'aide ?",
-                    "Vous êtes déjà au bon endroit ! 🎓\n\n" +
+                { "Qui sont Caramel et Flopy ? 🐱🐰",
+                    "Nous sommes vos guides et compagnons dans BacklogManager ! \n\n" +
+                    "**Caramel (chat orange) :**\n" +
+                    "Le sage et l'organisé. Expert en planification et stratégie !\n\n" +
+                    "**Flopy (lapin blanc) :**\n" +
+                    "Le curieux et l'enthousiaste. Toujours prêt à aider !\n\n" +
+                    "**Nos 3 états émotionnels :**\n" +
+                    "😊 Normal : Réponse standard, tout va bien\n" +
+                    "😄 Heureux : Félicitations, succès, bonnes nouvelles\n" +
+                    "😠 Grognon : Attention, urgence, problème à traiter\n\n" +
+                    "**Où nous trouver :**\n" +
+                    "• Dans ce guide (vous y êtes !)\n" +
+                    "• Sur les notifications du Dashboard\n" +
+                    "• Dans la fenêtre Notifications complète\n" +
+                    "• Sur les états vides (pas de données)\n\n" +
                     "**Sources d'aide :**\n" +
-                    "• Ce guide Caramel et Flopy (vous y êtes !)\n" +
-                    "• Les tooltips : survolez les boutons pour des infos\n" +
-                    "• La documentation technique\n" +
+                    "• Ce guide adapté à votre rôle\n" +
+                    "• Tooltips en survolant les boutons\n" +
                     "• Votre administrateur système\n\n" +
-                    "**En cas de bug :**\n" +
-                    "• Notez ce que vous faisiez\n" +
-                    "• Prenez une capture d'écran si possible\n" +
-                    "• Contactez le support technique\n\n" +
-                    "🤝 *Rappel* : Il n'y a pas de question bête. Demandez toujours !" }
+                    "🤝 *Notre devise* : Pas de question bête, que des réponses utiles !" }
             };
         }
 

@@ -94,7 +94,7 @@
 
         <!-- Kanban Columns with Horizontal Scroll -->
         <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
-            <Grid MinWidth="1800">
+            <Grid MinWidth="2100">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="300"/>
                     <ColumnDefinition Width="300"/>
@@ -130,7 +130,7 @@
                         </StackPanel>
                     </Border>
 
-                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" MaxHeight="400">
                         <ItemsControl ItemsSource="{Binding ItemsEnAttente}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
