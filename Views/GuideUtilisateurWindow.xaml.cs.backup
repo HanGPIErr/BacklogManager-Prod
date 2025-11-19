@@ -1,0 +1,368 @@
+using System;
+using System.Collections.Generic;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Media;
+using BacklogManager.Domain;
+using BacklogManager.Services;
+
+namespace BacklogManager.Views
+{
+    public partial class GuideUtilisateurWindow : Window
+    {
+        private readonly AuthenticationService _authService;
+        private readonly Role _userRole;
+        private Dictionary<string, string> _questionsReponses;
+
+        public GuideUtilisateurWindow(AuthenticationService authService)
+        {
+            InitializeComponent();
+            _authService = authService;
+            _userRole = _authService.GetCurrentUserRole();
+            
+            ChargerQuestionsSelonRole();
+        }
+
+        private void ChargerQuestionsSelonRole()
+        {
+            if (_userRole == null) return;
+
+            TxtRole.Text = string.Format("Guide {0}", _userRole.Nom);
+            _questionsReponses = new Dictionary<string, string>();
+
+            switch (_userRole.Type)
+            {
+                case RoleType.Administrateur:
+                    ChargerQuestionsAdministrateur();
+                    break;
+                case RoleType.ChefDeProjet:
+                    ChargerQuestionsChefDeProjet();
+                    break;
+                case RoleType.Developpeur:
+                    ChargerQuestionsDeveloppeur();
+                    break;
+                case RoleType.BusinessAnalyst:
+                    ChargerQuestionsBusinessAnalyst();
+                    break;
+                default:
+                    ChargerQuestionsGenerales();
+                    break;
+            }
+
+            AfficherQuestions();
+        }
+
+        private void ChargerQuestionsAdministrateur()
+        {
+            _questionsReponses = new Dictionary<string, string>
+            {
+                { "Comment ajouter un nouvel utilisateur ?", 
+                    "Excellente question ! Voici comment procéder de manière simple :\n\n" +
+                    "1️⃣ Rendez-vous dans l'onglet **Administration** en haut de l'application\n" +
+                    "2️⃣ Cliquez sur **Gestion des utilisateurs**\n" +
+                    "3️⃣ Appuyez sur le bouton **➕ Nouvel utilisateur**\n" +
+                    "4️⃣ Remplissez les informations : nom, prénom, email\n" +
+                    "5️⃣ Choisissez le rôle approprié (Dev, Chef de projet, etc.)\n" +
+                    "6️⃣ Validez et voilà ! L'utilisateur peut maintenant se connecter.\n\n" +
+                    "💡 *Astuce* : Pensez à bien choisir le rôle dès le départ, cela définit les permissions !" },
+                
+                { "Comment gérer les projets ?",
+                    "Ah, la gestion de projets ! C'est un peu comme diriger un orchestre 🎼\n\n" +
+                    "**Pour créer un projet :**\n" +
+                    "• Allez dans **Projets & Équipes**\n" +
+                    "• Cliquez sur **Créer un projet**\n" +
+                    "• Définissez le nom, la durée des sprints\n" +
+                    "• Assignez un chef de projet\n" +
+                    "• Ajoutez les développeurs à l'équipe\n\n" +
+                    "**Pour suivre l'avancement :**\n" +
+                    "• Le **Dashboard** vous donne une vue globale\n" +
+                    "• Le **Kanban** montre les tâches en temps réel\n" +
+                    "• Le **Suivi CRA** indique le temps passé\n\n" +
+                    "🎯 *Mon conseil* : Revoyez régulièrement les projets pour ajuster les équipes si besoin !" },
+                
+                { "Que faire avec les demandes obsolètes ?",
+                    "Bonne question ! Les demandes obsolètes, c'est comme les vieux papiers : il faut les ranger 📦\n\n" +
+                    "**Pourquoi archiver ?**\n" +
+                    "• Garde la liste des demandes actives propre et lisible\n" +
+                    "• Préserve l'historique sans encombrer\n" +
+                    "• Améliore les performances de l'application\n\n" +
+                    "**Comment faire ?**\n" +
+                    "1. Allez dans **Demandes**\n" +
+                    "2. Sélectionnez la demande obsolète\n" +
+                    "3. Cliquez sur **Archiver** (seuls les admins peuvent le faire)\n" +
+                    "4. La demande disparaît de la vue principale\n\n" +
+                    "**Pour retrouver une demande archivée ?**\n" +
+                    "Rendez-vous dans **Archives** ! Tout y est conservé.\n\n" +
+                    "⚠️ *Important* : N'archivez que les demandes vraiment terminées ou annulées !" },
+                
+                { "Comment valider les CRA ?",
+                    "Ah, les CRA ! Le suivi du temps, c'est essentiel pour mesurer la productivité 📊\n\n" +
+                    "**Pourquoi valider les CRA ?**\n" +
+                    "• Permet de distinguer le temps prévisionnel du temps réel\n" +
+                    "• Donne des statistiques précises\n" +
+                    "• Aide à mieux estimer les futures tâches\n\n" +
+                    "**La procédure est simple :**\n" +
+                    "1. Allez dans **CRA Calendrier** ou **Suivi CRA**\n" +
+                    "2. Vous voyez des journées en orange ? Elles sont à valider\n" +
+                    "3. Cliquez sur le bouton **orange de validation**\n" +
+                    "4. La journée passe en vert ✅\n\n" +
+                    "**Les 3 états :**\n" +
+                    "• 🟠 Orange clair : prévisionnel futur\n" +
+                    "• 🟠 Orange vif : passé, à valider\n" +
+                    "• 🟢 Vert : validé, compte dans les stats\n\n" +
+                    "💡 *Conseil d'Einstein* : Validez régulièrement (chaque fin de semaine par exemple) !" },
+                
+                { "Comment voir les statistiques globales ?",
+                    "Les statistiques, c'est mon dada ! J'adore les chiffres 📈\n\n" +
+                    "**Le Dashboard est votre ami :**\n" +
+                    "• Vue d'ensemble avec les KPIs principaux\n" +
+                    "• Nombre de tâches terminées, en cours, à faire\n" +
+                    "• Productivité du jour en pourcentage\n" +
+                    "• Charge de travail des développeurs\n\n" +
+                    "**Le Suivi CRA pour le détail :**\n" +
+                    "• Temps passé par développeur\n" +
+                    "• Séparation travail / congés / non-travaillé\n" +
+                    "• Statistiques par période (mois, année)\n" +
+                    "• Export possible vers Excel\n\n" +
+                    "**Cliquez sur un dev dans les stats :**\n" +
+                    "Une fenêtre s'ouvre avec toutes ses métriques détaillées !\n\n" +
+                    "🔬 *Ma méthode* : Consultez le Dashboard tous les matins, ça donne le pouls du projet !" }
+            };
+        }
+
+            AjouterSection("📋 Gestion des tâches",
+                "• Accédez au Backlog pour voir toutes les tâches\n" +
+                "• Créez des tâches à partir des demandes acceptées\n" +
+                "• Assignez les tâches aux développeurs disponibles\n" +
+                "• Définissez les priorités et dates limites\n" +
+                "• Utilisez le Kanban pour visualiser l'avancement",
+                CreerBoutonAction("Voir le Backlog", "Backlog"));
+
+            AjouterSection("📁 Suivi des projets",
+                "• Consultez l'onglet Projets & Équipes\n" +
+                "• Suivez l'avancement de chaque sprint\n" +
+                "• Vérifiez la charge de travail des développeurs\n" +
+                "• Ajustez les ressources si nécessaire");
+
+            AjouterSection("⏱️ Validation des CRA",
+                "• Accédez à Suivi CRA pour consulter les temps saisis\n" +
+                "• Vérifiez la cohérence avec les tâches assignées\n" +
+                "• Identifiez les dépassements ou blocages\n" +
+                "• Communiquez avec l'équipe si besoin",
+                CreerBoutonAction("Consulter les CRA", "CRA"));
+
+            AjouterSection("🎯 Bonnes pratiques",
+                "✓ Priorisez les demandes selon la valeur métier\n" +
+                "✓ Communiquez régulièrement avec les développeurs\n" +
+                "✓ Anticipez les risques de dépassement de délais\n" +
+                "✓ Validez les spécifications avant création de tâches");
+        }
+
+        private void ChargerGuideDeveloppeur()
+        {
+            AjouterSection("🎯 Vue d'ensemble",
+                "En tant que Développeur, vous réalisez les tâches qui vous sont assignées et saisissez votre temps de travail quotidien.");
+
+            AjouterSection("📋 Mes tâches",
+                "• Consultez vos tâches dans l'onglet Backlog\n" +
+                "• Utilisez le Kanban pour voir les tâches À faire, En cours, En test\n" +
+                "• Cliquez sur une tâche pour voir ses détails\n" +
+                "• Mettez à jour le statut au fur et à mesure de l'avancement",
+                CreerBoutonAction("Voir mes tâches", "Kanban"));
+
+            AjouterSection("⏱️ Saisie CRA (quotidienne)",
+                "• Accédez à l'onglet Saisir CRA tous les jours\n" +
+                "• Sélectionnez le jour dans le calendrier\n" +
+                "• Pour chaque tâche travaillée, saisissez le temps\n" +
+                "• Ajoutez un commentaire décrivant ce qui a été fait\n" +
+                "• Le temps est en jours : 0.5j = 4h, 1j = 8h",
+                CreerBoutonAction("Saisir mon CRA", "CRA"));
+
+            AjouterSection("🔄 Workflow des tâches",
+                "1. À faire → Commencez la tâche, passez-la \"En cours\"\n" +
+                "2. En cours → Développement en cours, saisissez votre temps quotidien\n" +
+                "3. En test → Une fois terminé, passez en test pour validation\n" +
+                "4. Terminé → Le chef valide et clôture la tâche");
+
+            AjouterSection("💬 Communication",
+                "• Utilisez les commentaires sur les tâches pour signaler un problème\n" +
+                "• Prévenez votre chef si vous êtes bloqué\n" +
+                "• Indiquez si vous estimez dépasser le temps prévu\n" +
+                "• Mettez à jour régulièrement le statut de vos tâches");
+
+            AjouterSection("✅ Bonnes pratiques",
+                "✓ Saisissez votre CRA quotidiennement (ne pas attendre la fin de semaine)\n" +
+                "✓ Soyez précis dans vos commentaires CRA\n" +
+                "✓ Alertez rapidement en cas de blocage technique\n" +
+                "✓ Consultez le Kanban régulièrement pour voir vos priorités");
+        }
+
+        private void ChargerGuideBusinessAnalyst()
+        {
+            AjouterSection("🎯 Vue d'ensemble",
+                "En tant que Business Analyst, vous collectez les besoins métier, rédigez les spécifications et facilitez le chiffrage des demandes.");
+
+            AjouterSection("📝 Création de demandes",
+                "• Accédez à l'onglet Demandes\n" +
+                "• Cliquez sur \"Nouvelle demande\" pour créer une demande\n" +
+                "• Renseignez le titre, description et contexte métier\n" +
+                "• Définissez la criticité selon l'urgence\n" +
+                "• Assignez un projet si applicable",
+                CreerBoutonAction("Créer une demande", "Demandes"));
+
+            AjouterSection("📋 Spécifications détaillées",
+                "• Pour chaque demande, cliquez sur \"Détails\"\n" +
+                "• Complétez les spécifications fonctionnelles\n" +
+                "• Décrivez les bénéfices attendus pour le métier\n" +
+                "• Ajoutez des critères d'acceptation clairs\n" +
+                "• Joignez des maquettes ou documents si nécessaire");
+
+            AjouterSection("💼 Suivi des demandes",
+                "• Consultez régulièrement vos demandes en cours\n" +
+                "• Filtrez par statut pour voir l'avancement\n" +
+                "• Répondez aux questions des développeurs dans les commentaires\n" +
+                "• Participez au chiffrage avec l'équipe technique");
+
+            AjouterSection("🤝 Collaboration",
+                "• Travaillez avec le Chef de Projet pour prioriser\n" +
+                "• Clarifiez les besoins avec les développeurs\n" +
+                "• Validez que les développements correspondent aux attentes\n" +
+                "• Participez aux sessions de planning poker si nécessaire");
+
+            AjouterSection("✅ Bonnes pratiques",
+                "✓ Rédigez des spécifications claires et sans ambiguïté\n" +
+                "✓ Définissez des critères d'acceptation mesurables\n" +
+                "✓ Priorisez les demandes avec le métier\n" +
+                "✓ Restez disponible pour répondre aux questions techniques");
+        }
+
+        private void ChargerGuideGeneral()
+        {
+            AjouterSection("🎯 Bienvenue sur BacklogManager",
+                "BacklogManager est votre outil de gestion de projets et de suivi d'activité. Naviguez dans les différents onglets pour accéder aux fonctionnalités.");
+
+            AjouterSection("📊 Dashboard",
+                "Votre tableau de bord personnel affiche vos statistiques et tâches en cours.",
+                CreerBoutonAction("Voir Dashboard", "Dashboard"));
+
+            AjouterSection("📋 Backlog & Kanban",
+                "Consultez et gérez les tâches du projet.",
+                CreerBoutonAction("Voir Backlog", "Backlog"));
+
+            AjouterSection("📝 Demandes",
+                "Gérez les demandes de développement.",
+                CreerBoutonAction("Voir Demandes", "Demandes"));
+        }
+
+        private void AjouterSection(string titre, string contenu, UIElement actionButton = null)
+        {
+            // Card container
+            var border = new Border
+            {
+                Background = Brushes.White,
+                CornerRadius = new CornerRadius(10),
+                Padding = new Thickness(20, 18, 20, 18),
+                Margin = new Thickness(0, 0, 0, 15),
+                Effect = new System.Windows.Media.Effects.DropShadowEffect
+                {
+                    BlurRadius = 10,
+                    ShadowDepth = 0,
+                    Opacity = 0.1,
+                    Color = Colors.Gray
+                }
+            };
+
+            var stackPanel = new StackPanel();
+
+            // Titre
+            var txtTitre = new TextBlock
+            {
+                Text = titre,
+                FontSize = 18,
+                FontWeight = FontWeights.Bold,
+                Foreground = new SolidColorBrush(Color.FromRgb(26, 25, 25)),
+                Margin = new Thickness(0, 0, 0, 12)
+            };
+            stackPanel.Children.Add(txtTitre);
+
+            // Contenu
+            var txtContenu = new TextBlock
+            {
+                Text = contenu,
+                FontSize = 14,
+                Foreground = new SolidColorBrush(Color.FromRgb(102, 102, 102)),
+                TextWrapping = TextWrapping.Wrap,
+                LineHeight = 22,
+                Margin = new Thickness(0, 0, 0, actionButton != null ? 15 : 0)
+            };
+            stackPanel.Children.Add(txtContenu);
+
+            // Bouton d'action si fourni
+            if (actionButton != null)
+            {
+                stackPanel.Children.Add(actionButton);
+            }
+
+            border.Child = stackPanel;
+            ContentPanel.Children.Add(border);
+        }
+
+        private Button CreerBoutonAction(string texte, string cible)
+        {
+            var button = new Button
+            {
+                Content = string.Format("→ {0}", texte),
+                Height = 38,
+                Padding = new Thickness(18, 0, 18, 0),
+                Background = new SolidColorBrush(Color.FromRgb(0, 145, 90)),
+                Foreground = Brushes.White,
+                FontSize = 13,
+                FontWeight = FontWeights.SemiBold,
+                BorderThickness = new Thickness(0),
+                Cursor = System.Windows.Input.Cursors.Hand,
+                HorizontalAlignment = HorizontalAlignment.Left,
+                Tag = cible
+            };
+
+            button.Click += BoutonAction_Click;
+
+            // Style avec template
+            var style = new Style(typeof(Button));
+            var template = new ControlTemplate(typeof(Button));
+            
+            var borderFactory = new FrameworkElementFactory(typeof(Border));
+            borderFactory.SetValue(Border.BackgroundProperty, new TemplateBindingExtension(Button.BackgroundProperty));
+            borderFactory.SetValue(Border.CornerRadiusProperty, new CornerRadius(6));
+            borderFactory.SetValue(Border.PaddingProperty, new TemplateBindingExtension(Button.PaddingProperty));
+            
+            var contentFactory = new FrameworkElementFactory(typeof(ContentPresenter));
+            contentFactory.SetValue(ContentPresenter.HorizontalAlignmentProperty, HorizontalAlignment.Center);
+            contentFactory.SetValue(ContentPresenter.VerticalAlignmentProperty, VerticalAlignment.Center);
+            
+            borderFactory.AppendChild(contentFactory);
+            template.VisualTree = borderFactory;
+            
+            var hoverTrigger = new Trigger { Property = Button.IsMouseOverProperty, Value = true };
+            hoverTrigger.Setters.Add(new Setter(Button.BackgroundProperty, new SolidColorBrush(Color.FromRgb(0, 120, 67))));
+            template.Triggers.Add(hoverTrigger);
+            
+            style.Setters.Add(new Setter(Button.TemplateProperty, template));
+            button.Style = style;
+
+            return button;
+        }
+
+        private void BoutonAction_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            if (button?.Tag is string cible)
+            {
+                // Fermer la fenêtre et indiquer quelle action effectuer
+                this.Tag = cible;
+                this.DialogResult = true;
+                this.Close();
+            }
+        }
+    }
+}
