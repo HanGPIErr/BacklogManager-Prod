@@ -22,7 +22,9 @@ namespace BacklogManager.Services
             }
 
             _databasePath = Path.Combine(appDataPath, "backlog.db");
-            _connectionString = string.Format("Data Source={0};Version=3;", _databasePath);
+            _connectionString = string.Format(
+                "Data Source={0};Version=3;Journal Mode=WAL;Pooling=True;Max Pool Size=100;BusyTimeout=30000;", 
+                _databasePath);
 
             InitializeDatabase();
         }
@@ -40,6 +42,20 @@ namespace BacklogManager.Services
                 using (var conn = GetConnection())
                 {
                     conn.Open();
+                    
+                    // Configuration pour multi-utilisateurs
+                    using (var cmd = conn.CreateCommand())
+                    {
+                        cmd.CommandText = "PRAGMA journal_mode=WAL;";
+                        cmd.ExecuteNonQuery();
+                        cmd.CommandText = "PRAGMA synchronous=NORMAL;";
+                        cmd.ExecuteNonQuery();
+                        cmd.CommandText = "PRAGMA temp_store=MEMORY;";
+                        cmd.ExecuteNonQuery();
+                        cmd.CommandText = "PRAGMA cache_size=10000;";
+                        cmd.ExecuteNonQuery();
+                    }
+                    
                     MigrateDatabaseSchema(conn);
                 }
             }
@@ -51,11 +67,54 @@ namespace BacklogManager.Services
             return new SQLiteConnection(_connectionString);
         }
 
+        // Exécution avec retry en cas de lock
+        private T ExecuteWithRetry<T>(Func<T> action, int maxRetries = 5)
+        {
+            int retryCount = 0;
+            while (true)
+            {
+                try
+                {
+                    return action();
+                }
+                catch (SQLiteException ex) when (ex.ResultCode == SQLiteErrorCode.Busy || 
+                                                   ex.ResultCode == SQLiteErrorCode.Locked)
+                {
+                    retryCount++;
+                    if (retryCount >= maxRetries)
+                    {
+                        throw new Exception($"Database locked après {maxRetries} tentatives. Réessayez dans quelques instants.", ex);
+                    }
+                    // Attente exponentielle: 100ms, 200ms, 400ms, 800ms, 1600ms
+                    System.Threading.Thread.Sleep(100 * (int)Math.Pow(2, retryCount - 1));
+                }
+            }
+        }
+
+        private void ExecuteWithRetry(Action action, int maxRetries = 5)
+        {
+            ExecuteWithRetry<object>(() => { action(); return null; }, maxRetries);
+        }
+
         private void CreateTables()
         {
             using (var conn = GetConnection())
             {
                 conn.Open();
+                
+                // Configuration pour multi-utilisateurs
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = "PRAGMA journal_mode=WAL;";
+                    cmd.ExecuteNonQuery();
+                    cmd.CommandText = "PRAGMA synchronous=NORMAL;";
+                    cmd.ExecuteNonQuery();
+                    cmd.CommandText = "PRAGMA temp_store=MEMORY;";
+                    cmd.ExecuteNonQuery();
+                    cmd.CommandText = "PRAGMA cache_size=10000;";
+                    cmd.ExecuteNonQuery();
+                }
+                
                 using (var cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"

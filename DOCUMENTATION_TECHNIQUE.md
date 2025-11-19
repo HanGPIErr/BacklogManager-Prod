@@ -657,8 +657,11 @@ Accessible via bouton "📊 KPI" (si PeutVoirKPI):
    - **Solution envisagée**: Lock sur AnalyserTaches()
 
 ### Limitations actuelles
-1. **Base de données**: Pas de gestion de transactions complexes
-   - SQLite limite les écritures concurrentes
+1. **Base de données**: Configuration multi-utilisateurs optimisée
+   - Mode WAL activé pour lectures concurrentes
+   - BusyTimeout 30s pour gérer les verrous
+   - Retry automatique en cas de lock (5 tentatives)
+   - ⚠️ Recommandé pour 4-5 utilisateurs max sur réseau partagé
    
 2. **Permissions**: Pas de permissions personnalisées par utilisateur
    - Uniquement basé sur rôles
@@ -669,8 +672,11 @@ Accessible via bouton "📊 KPI" (si PeutVoirKPI):
 4. **Export PDF**: Nécessite navigateur pour conversion HTML → PDF
    - Pas de génération PDF native
 
-5. **Multi-utilisateurs**: Pas de synchronisation temps réel
-   - Chaque poste a sa propre base locale
+5. **Multi-utilisateurs**: Configuration SQLite optimisée
+   - Mode WAL (Write-Ahead Logging) pour écritures concurrentes
+   - Pooling de connexions (max 100)
+   - Retry automatique en cas de verrous
+   - ⚠️ Pour plus de 5 utilisateurs, migrer vers SQL Server Express
 
 ---
 
