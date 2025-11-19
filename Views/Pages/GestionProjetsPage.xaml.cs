@@ -59,5 +59,26 @@ namespace BacklogManager.Views.Pages
         {
             ChargerProjets();
         }
+
+        private void LstProjets_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (LstProjets.SelectedItem == null)
+                return;
+
+            var projet = LstProjets.SelectedItem as Domain.Projet;
+            if (projet != null)
+            {
+                try
+                {
+                    var detailsWindow = new ProjetDetailsWindow(projet, _backlogService);
+                    detailsWindow.ShowDialog();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Erreur lors de l'ouverture des détails du projet :\n{ex.Message}",
+                        "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
     }
 }

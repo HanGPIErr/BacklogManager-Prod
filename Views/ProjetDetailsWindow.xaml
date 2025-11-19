@@ -96,7 +96,7 @@
                             <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
                                 <TextBlock x:Name="TxtTempsReel" FontSize="28" FontWeight="Bold" 
                                            Foreground="#9C27B0"/>
-                                <TextBlock Text="h" FontSize="16" Foreground="#9C27B0" 
+                                <TextBlock Text="j" FontSize="16" Foreground="#9C27B0" 
                                            VerticalAlignment="Bottom" Margin="2,0,0,6"/>
                             </StackPanel>
                         </StackPanel>
@@ -219,13 +219,17 @@
                             </TextBox.Resources>
                         </TextBox>
                         
-                        <ComboBox x:Name="CmbFiltreStatut" Width="120" Padding="8,5">
+                        <ComboBox x:Name="CmbFiltreStatut" Width="120" Padding="8,5" Margin="0,0,10,0">
                             <ComboBoxItem Content="Tous" IsSelected="True"/>
                             <ComboBoxItem Content="À faire"/>
                             <ComboBoxItem Content="En cours"/>
                             <ComboBoxItem Content="En test"/>
                             <ComboBoxItem Content="Terminé"/>
                         </ComboBox>
+                        
+                        <CheckBox x:Name="ChkAfficherArchivees" Content="📦 Afficher archivées" 
+                                  IsChecked="True" VerticalAlignment="Center" 
+                                  FontWeight="SemiBold" Foreground="#1A1919"/>
                     </StackPanel>
                 </Grid>
 
@@ -283,8 +287,8 @@
                                                 <TextBlock Text=" • " FontSize="12" Foreground="#CCC" Margin="5,0"/>
                                                 
                                                 <TextBlock FontSize="12" Foreground="#9C27B0" FontWeight="SemiBold">
-                                                    <Run Text="{Binding TempsReelHeures, StringFormat={}{0:F1}}"/>
-                                                    <Run Text="h passé"/>
+                                                    <Run Text="{Binding TempsReelJours, StringFormat={}{0:F1}}"/>
+                                                    <Run Text="j passé"/>
                                                 </TextBlock>
                                             </StackPanel>
                                         </StackPanel>

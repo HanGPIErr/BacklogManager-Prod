@@ -15,6 +15,7 @@ namespace BacklogManager.Views
         private readonly BacklogService _backlogService;
         private List<TacheDetailsViewModel> _allTaches;
         private List<TacheDetailsViewModel> _filteredTaches;
+        private bool _afficherArchivees = true; // Afficher par défaut
 
         public ProjetDetailsWindow(Projet projet, BacklogService backlogService)
         {
@@ -31,9 +32,9 @@ namespace BacklogManager.Views
             TxtNomProjet.Text = _projet.Nom;
             TxtDescription.Text = string.IsNullOrEmpty(_projet.Description) ? "Aucune description" : _projet.Description;
 
-            // Charger toutes les tâches du projet
+            // Charger toutes les tâches du projet (y compris archivées)
             var taches = _backlogService.GetAllBacklogItems()
-                .Where(t => t.ProjetId == _projet.Id && !t.EstArchive)
+                .Where(t => t.ProjetId == _projet.Id)
                 .ToList();
 
             var utilisateurs = _backlogService.GetAllUtilisateurs();
@@ -50,8 +51,10 @@ namespace BacklogManager.Views
                     : "Non assigné",
                 ChiffrageJours = t.ChiffrageHeures.HasValue ? t.ChiffrageHeures.Value / 7.0 : 0,
                 TempsReelHeures = t.TempsReelHeures ?? 0,
+                TempsReelJours = (t.TempsReelHeures ?? 0) / 8.0, // Conversion heures en jours
                 ProgressionPct = CalculerProgression(t),
-                StatutOriginal = t.Statut
+                StatutOriginal = t.Statut,
+                EstArchive = t.EstArchive
             }).ToList();
 
             _filteredTaches = new List<TacheDetailsViewModel>(_allTaches);
@@ -65,6 +68,8 @@ namespace BacklogManager.Views
             // Filtres
             TxtRecherche.TextChanged += (s, e) => AppliquerFiltres();
             CmbFiltreStatut.SelectionChanged += (s, e) => AppliquerFiltres();
+            ChkAfficherArchivees.Checked += (s, e) => { _afficherArchivees = true; AppliquerFiltres(); };
+            ChkAfficherArchivees.Unchecked += (s, e) => { _afficherArchivees = false; AppliquerFiltres(); };
         }
 
         private void CalculerMetriques(List<BacklogItem> taches)
@@ -78,6 +83,12 @@ namespace BacklogManager.Views
             double chargeEstimeeHeures = taches.Sum(t => t.ChiffrageHeures ?? 0);
             double tempsReelHeures = taches.Sum(t => t.TempsReelHeures ?? 0);
             
+            // Conversion en jours (8h = 1j)
+            double tempsReelJours = tempsReelHeures / 8.0;
+            
+            // Arrondir au demi-jour le plus proche pour l'affichage
+            double tempsReelJoursAffiche = Math.Round(tempsReelJours * 2) / 2;
+            
             // Progression basée sur temps réel vs charge prévue (comme Kanban)
             double progression = chargeEstimeeHeures > 0 ? Math.Min(100, (tempsReelHeures / chargeEstimeeHeures) * 100) : 0;
 
@@ -85,7 +96,7 @@ namespace BacklogManager.Views
             TxtTotalTaches.Text = total.ToString();
             TxtProgression.Text = progression.ToString("F0");
             TxtChargeEstimee.Text = (chargeEstimeeHeures / 7.0).ToString("F1");
-            TxtTempsReel.Text = tempsReelHeures.ToString("F1");
+            TxtTempsReel.Text = tempsReelJoursAffiche.ToString("F1"); // Affichage en jours
 
             TxtCountAfaire.Text = afaire.ToString();
             TxtCountEnCours.Text = enCours.ToString();
@@ -94,7 +105,7 @@ namespace BacklogManager.Views
 
             // Barre de progression
             ProgressBarGlobal.Value = progression;
-            TxtProgressionLabel.Text = $"{tempsReelHeures:F1}h / {chargeEstimeeHeures:F1}h ({progression:F0}%)";
+            TxtProgressionLabel.Text = $"{tempsReelJoursAffiche:F1}j / {(chargeEstimeeHeures / 8.0):F1}j ({progression:F0}%)";
 
             // Couleur du statut
             if (progression >= 100)
@@ -132,6 +143,12 @@ namespace BacklogManager.Views
         private void AppliquerFiltres()
         {
             var filtered = _allTaches.AsEnumerable();
+
+            // Filtre archivées
+            if (!_afficherArchivees)
+            {
+                filtered = filtered.Where(t => !t.EstArchive);
+            }
 
             // Filtre recherche
             string recherche = TxtRecherche.Text?.ToLower() ?? "";
@@ -203,7 +220,9 @@ namespace BacklogManager.Views
         public string DevNom { get; set; }
         public double ChiffrageJours { get; set; }
         public double TempsReelHeures { get; set; }
+        public double TempsReelJours { get; set; } // Temps en jours (calculé lors de la création)
         public double ProgressionPct { get; set; }
         public Statut StatutOriginal { get; set; }
+        public bool EstArchive { get; set; }
     }
 }

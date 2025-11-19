@@ -8,33 +8,70 @@
       Background="#F5F5F5">
     <Page.Resources>
         <Style TargetType="ComboBox">
-            <Setter Property="Height" Value="35"/>
-            <Setter Property="Padding" Value="8"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Padding" Value="12,8"/>
             <Setter Property="FontSize" Value="13"/>
+            <Setter Property="BorderBrush" Value="#E0E0E0"/>
+            <Setter Property="BorderThickness" Value="1"/>
         </Style>
         <Style TargetType="DatePicker">
-            <Setter Property="Height" Value="35"/>
-            <Setter Property="Padding" Value="8"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Padding" Value="12,8"/>
             <Setter Property="FontSize" Value="13"/>
+            <Setter Property="BorderBrush" Value="#E0E0E0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        
+        <!-- Style pour les badges d'action -->
+        <Style x:Key="ActionBadgeStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="8,3"/>
+            <Setter Property="Margin" Value="0"/>
         </Style>
     </Page.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Filtres -->
-        <Border Grid.Row="0" Background="White" Padding="20" Margin="0,0,0,15" 
-                BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="8">
+        <!-- Header élégant -->
+        <Border Grid.Row="0" Background="White" CornerRadius="12" Padding="25,20" Margin="0,0,0,20">
             <Border.Effect>
-                <DropShadowEffect Color="#E0E0E0" BlurRadius="8" ShadowDepth="1" Opacity="0.3" Direction="270"/>
+                <DropShadowEffect Color="#00915A" BlurRadius="15" ShadowDepth="0" Opacity="0.1"/>
+            </Border.Effect>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <Border Grid.Column="0" Background="#00915A" Width="4" CornerRadius="2" 
+                        Margin="0,0,18,0" VerticalAlignment="Stretch"/>
+                
+                <StackPanel Grid.Column="1">
+                    <TextBlock FontSize="22" FontWeight="Bold">
+                        <Run Text="📋" FontSize="24"/>
+                        <Run Text=" Journal d'Audit" Foreground="#1A1919"/>
+                    </TextBlock>
+                    <TextBlock Text="Historique complet des actions et modifications du système" 
+                               FontSize="13" Foreground="#6D6D6D" Margin="0,4,0,0"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Filtres élégants -->
+        <Border Grid.Row="1" Background="White" Padding="25" Margin="0,0,0,20" 
+                BorderBrush="#E0E0E0" BorderThickness="0" CornerRadius="12">
+            <Border.Effect>
+                <DropShadowEffect Color="#E0E0E0" BlurRadius="12" ShadowDepth="2" Opacity="0.2" Direction="270"/>
             </Border.Effect>
             <StackPanel>
-                <TextBlock Text="🔍 Filtres" FontSize="16" FontWeight="Bold" 
-                           Foreground="#1A1919" Margin="0,0,0,15"/>
+                <TextBlock Text="🔍 Filtres de recherche" FontSize="15" FontWeight="SemiBold" 
+                           Foreground="#1A1919" Margin="0,0,0,18"/>
                 
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -79,90 +116,252 @@
             </StackPanel>
         </Border>
 
-        <!-- DataGrid -->
-        <Border Grid.Row="1" Background="White" 
-                BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="8">
+        <!-- DataGrid moderne -->
+        <Border Grid.Row="2" Background="White" 
+                BorderBrush="#E0E0E0" BorderThickness="0" CornerRadius="12">
             <Border.Effect>
-                <DropShadowEffect Color="#E0E0E0" BlurRadius="8" ShadowDepth="1" Opacity="0.3" Direction="270"/>
+                <DropShadowEffect Color="#E0E0E0" BlurRadius="12" ShadowDepth="2" Opacity="0.2" Direction="270"/>
             </Border.Effect>
             <DataGrid x:Name="DgAuditLogs" 
                       AutoGenerateColumns="False"
                       IsReadOnly="True"
                       AlternatingRowBackground="#FAFAFA"
                       RowBackground="White"
-                      GridLinesVisibility="Horizontal"
+                      GridLinesVisibility="None"
                       HeadersVisibility="Column"
                       BorderThickness="0"
                       SelectionMode="Single"
                       CanUserAddRows="False"
                       CanUserDeleteRows="False"
-                      Margin="15">
+                      RowHeight="45"
+                      Margin="20">
+                <DataGrid.ColumnHeaderStyle>
+                    <Style TargetType="DataGridColumnHeader">
+                        <Setter Property="Background" Value="#F5F5F5"/>
+                        <Setter Property="Foreground" Value="#1A1919"/>
+                        <Setter Property="FontWeight" Value="Bold"/>
+                        <Setter Property="FontSize" Value="13"/>
+                        <Setter Property="Padding" Value="15,12"/>
+                        <Setter Property="BorderThickness" Value="0,0,0,2"/>
+                        <Setter Property="BorderBrush" Value="#E0E0E0"/>
+                    </Style>
+                </DataGrid.ColumnHeaderStyle>
+                <DataGrid.CellStyle>
+                    <Style TargetType="DataGridCell">
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="Padding" Value="15,8"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="DataGridCell">
+                                    <Border Padding="{TemplateBinding Padding}" Background="{TemplateBinding Background}">
+                                        <ContentPresenter VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </DataGrid.CellStyle>
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="📅 Date" 
+                    <DataGridTextColumn Header="📅 Date &amp; Heure" 
                                         Binding="{Binding DateAction, StringFormat='dd/MM/yyyy HH:mm:ss'}" 
-                                        Width="140" FontWeight="SemiBold"/>
-                    <DataGridTextColumn Header="👤 Utilisateur" Binding="{Binding Username}" Width="110"/>
-                    <DataGridTextColumn Header="⚡ Action" Binding="{Binding Action}" Width="90">
-                        <DataGridTextColumn.ElementStyle>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="FontWeight" Value="Bold"/>
-                                <Style.Triggers>
+                                        Width="160" FontWeight="SemiBold" FontSize="13"/>
+                    <DataGridTextColumn Header="👤 Utilisateur" Binding="{Binding Username}" Width="130" FontSize="13"/>
+                    <DataGridTemplateColumn Header="⚡ Action" Width="110">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Border x:Name="ActionBadge" CornerRadius="12" Padding="10,5" HorizontalAlignment="Center">
+                                    <TextBlock x:Name="ActionText" Text="{Binding Action}" FontWeight="Bold" FontSize="11" TextAlignment="Center"/>
+                                </Border>
+                                <DataTemplate.Triggers>
                                     <DataTrigger Binding="{Binding Action}" Value="CREATE">
-                                        <Setter Property="Foreground" Value="#00915A"/>
+                                        <Setter TargetName="ActionBadge" Property="Background" Value="#E8F5E9"/>
+                                        <Setter TargetName="ActionText" Property="Foreground" Value="#00915A"/>
+                                        <Setter TargetName="ActionText" Property="Text" Value="✅ CREATE"/>
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding Action}" Value="UPDATE">
-                                        <Setter Property="Foreground" Value="#FF9800"/>
+                                        <Setter TargetName="ActionBadge" Property="Background" Value="#FFF3E0"/>
+                                        <Setter TargetName="ActionText" Property="Foreground" Value="#F57C00"/>
+                                        <Setter TargetName="ActionText" Property="Text" Value="✏️ UPDATE"/>
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding Action}" Value="DELETE">
-                                        <Setter Property="Foreground" Value="#E74C3C"/>
+                                        <Setter TargetName="ActionBadge" Property="Background" Value="#FFEBEE"/>
+                                        <Setter TargetName="ActionText" Property="Foreground" Value="#C62828"/>
+                                        <Setter TargetName="ActionText" Property="Text" Value="🗑️ DELETE"/>
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding Action}" Value="LOGIN">
-                                        <Setter Property="Foreground" Value="#2196F3"/>
+                                        <Setter TargetName="ActionBadge" Property="Background" Value="#E3F2FD"/>
+                                        <Setter TargetName="ActionText" Property="Foreground" Value="#1976D2"/>
+                                        <Setter TargetName="ActionText" Property="Text" Value="🔓 LOGIN"/>
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding Action}" Value="LOGOUT">
-                                        <Setter Property="Foreground" Value="#95A5A6"/>
+                                        <Setter TargetName="ActionBadge" Property="Background" Value="#F5F5F5"/>
+                                        <Setter TargetName="ActionText" Property="Foreground" Value="#757575"/>
+                                        <Setter TargetName="ActionText" Property="Text" Value="🔒 LOGOUT"/>
                                     </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </DataGridTextColumn.ElementStyle>
-                    </DataGridTextColumn>
-                    <DataGridTextColumn Header="📦 Type" Binding="{Binding EntityType}" Width="120"/>
-                    <DataGridTextColumn Header="🔑 ID" Binding="{Binding EntityId}" Width="70"/>
-                    <DataGridTextColumn Header="📝 Détails" Binding="{Binding Details}" Width="*"/>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="📦 Type d'Entité" Binding="{Binding EntityType}" Width="140" FontSize="13"/>
+                    <DataGridTextColumn Header="🔑 ID" Binding="{Binding EntityId}" Width="80" FontSize="13"/>
+                    <DataGridTextColumn Header="📝 Détails" Binding="{Binding Details}" Width="*" FontSize="13"/>
                 </DataGrid.Columns>
             </DataGrid>
         </Border>
 
-        <!-- Boutons -->
-        <Border Grid.Row="2" Background="White" Padding="15" Margin="0,15,0,0" 
-                BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="8">
+        <!-- Boutons et Pagination -->
+        <Border Grid.Row="3" Background="White" Padding="20" Margin="0,20,0,0" 
+                BorderBrush="#E0E0E0" BorderThickness="0" CornerRadius="12">
             <Border.Effect>
-                <DropShadowEffect Color="#E0E0E0" BlurRadius="8" ShadowDepth="1" Opacity="0.3" Direction="270"/>
+                <DropShadowEffect Color="#E0E0E0" BlurRadius="12" ShadowDepth="2" Opacity="0.2" Direction="270"/>
             </Border.Effect>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button x:Name="BtnExporterCSV" Content="💾 Exporter CSV" 
-                        Background="#00915A" Foreground="White"
-                        FontSize="14" FontWeight="SemiBold" Padding="20,10" Margin="0,0,10,0"
-                        BorderThickness="0" Cursor="Hand"
-                        Click="BtnExporterCSV_Click">
-                    <Button.Resources>
-                        <Style TargetType="Border">
-                            <Setter Property="CornerRadius" Value="6"/>
-                        </Style>
-                    </Button.Resources>
-                </Button>
-                <Button x:Name="BtnActualiser" Content="🔄 Actualiser" 
-                        Background="#2196F3" Foreground="White"
-                        FontSize="14" FontWeight="SemiBold" Padding="20,10"
-                        BorderThickness="0" Cursor="Hand"
-                        Click="BtnActualiser_Click">
-                    <Button.Resources>
-                        <Style TargetType="Border">
-                            <Setter Property="CornerRadius" Value="6"/>
-                        </Style>
-                    </Button.Resources>
-                </Button>
-            </StackPanel>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Pagination à gauche -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button x:Name="BtnPremierePage" Content="⏮️ Première" 
+                            Background="#95A5A6" Foreground="White"
+                            FontSize="13" FontWeight="SemiBold" Padding="16,10" Margin="0,0,6,0"
+                            BorderThickness="0" Cursor="Hand"
+                            Click="BtnPremierePage_Click">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" 
+                                                    CornerRadius="8" Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <Button x:Name="BtnPagePrecedente" Content="⬅️ Précédent" 
+                            Background="#95A5A6" Foreground="White"
+                            FontSize="13" FontWeight="SemiBold" Padding="16,10" Margin="0,0,12,0"
+                            BorderThickness="0" Cursor="Hand"
+                            Click="BtnPagePrecedente_Click">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" 
+                                                    CornerRadius="8" Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    
+                    <Border Background="#F5F5F5" CornerRadius="8" Padding="16,10" Margin="0,0,12,0">
+                        <TextBlock x:Name="TxtPagination" Text="Page 1 / 1 (0 entrées)" 
+                                   FontSize="13" FontWeight="Bold" Foreground="#1A1919"
+                                   VerticalAlignment="Center"/>
+                    </Border>
+                    
+                    <Button x:Name="BtnPageSuivante" Content="Suivant ➡️" 
+                            Background="#95A5A6" Foreground="White"
+                            FontSize="13" FontWeight="SemiBold" Padding="16,10" Margin="0,0,6,0"
+                            BorderThickness="0" Cursor="Hand"
+                            Click="BtnPageSuivante_Click">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" 
+                                                    CornerRadius="8" Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <Button x:Name="BtnDernierePage" Content="Dernière ⏭️" 
+                            Background="#95A5A6" Foreground="White"
+                            FontSize="13" FontWeight="SemiBold" Padding="16,10"
+                            BorderThickness="0" Cursor="Hand"
+                            Click="BtnDernierePage_Click">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" 
+                                                    CornerRadius="8" Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </StackPanel>
+
+                <!-- Boutons d'actions à droite -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button x:Name="BtnExporterCSV" Content="💾 Exporter CSV" 
+                            Background="#00915A" Foreground="White"
+                            FontSize="14" FontWeight="Bold" Padding="22,11" Margin="0,0,10,0"
+                            BorderThickness="0" Cursor="Hand"
+                            Click="BtnExporterCSV_Click">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" 
+                                                    CornerRadius="8" Padding="{TemplateBinding Padding}">
+                                                <Border.Effect>
+                                                    <DropShadowEffect Color="#00915A" BlurRadius="8" ShadowDepth="0" Opacity="0.3"/>
+                                                </Border.Effect>
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <Button x:Name="BtnActualiser" Content="🔄 Actualiser" 
+                            Background="#1976D2" Foreground="White"
+                            FontSize="14" FontWeight="Bold" Padding="22,11"
+                            BorderThickness="0" Cursor="Hand"
+                            Click="BtnActualiser_Click">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" 
+                                                    CornerRadius="8" Padding="{TemplateBinding Padding}">
+                                                <Border.Effect>
+                                                    <DropShadowEffect Color="#1976D2" BlurRadius="8" ShadowDepth="0" Opacity="0.3"/>
+                                                </Border.Effect>
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </StackPanel>
+            </Grid>
         </Border>
     </Grid>
 </Page>

@@ -17,7 +17,13 @@ namespace BacklogManager.Views.Pages
         private readonly AuditLogService _auditLogService;
         private List<AuditLog> _allLogs;
         private List<AuditLog> _filteredLogs;
+        private List<AuditLog> _pagedLogs;
         private bool _isInitialized = false;
+        
+        // Pagination
+        private const int ITEMS_PER_PAGE = 50;
+        private int _currentPage = 1;
+        private int _totalPages = 1;
 
         public AuditLogPage(IDatabase database, AuditLogService auditLogService = null)
         {
@@ -43,8 +49,9 @@ namespace BacklogManager.Views.Pages
                 CmbUtilisateur.ItemsSource = utilisateurs;
                 CmbUtilisateur.SelectedIndex = 0;
 
-                // Afficher les logs
-                DgAuditLogs.ItemsSource = _filteredLogs;
+                // Initialiser la pagination
+                _currentPage = 1;
+                UpdatePagination();
                 
                 _isInitialized = true;
             }
@@ -120,8 +127,9 @@ namespace BacklogManager.Views.Pages
                     }
                 }
 
-                DgAuditLogs.ItemsSource = null;
-                DgAuditLogs.ItemsSource = _filteredLogs;
+                // Réinitialiser à la première page après filtrage
+                _currentPage = 1;
+                UpdatePagination();
             }
             catch (Exception ex)
             {
@@ -166,6 +174,105 @@ namespace BacklogManager.Views.Pages
         private void BtnActualiser_Click(object sender, RoutedEventArgs e)
         {
             LoadData();
+        }
+
+        private void UpdatePagination()
+        {
+            try
+            {
+                if (_filteredLogs == null || _filteredLogs.Count == 0)
+                {
+                    _totalPages = 1;
+                    _currentPage = 1;
+                    _pagedLogs = new List<AuditLog>();
+                    DgAuditLogs.ItemsSource = _pagedLogs;
+                    TxtPagination.Text = "Page 1 / 1 (0 entrées)";
+                    BtnPremierePage.IsEnabled = false;
+                    BtnPagePrecedente.IsEnabled = false;
+                    BtnPageSuivante.IsEnabled = false;
+                    BtnDernierePage.IsEnabled = false;
+                    return;
+                }
+
+                // Calculer le nombre total de pages
+                _totalPages = (int)Math.Ceiling((double)_filteredLogs.Count / ITEMS_PER_PAGE);
+
+                // S'assurer que la page actuelle est valide
+                if (_currentPage > _totalPages)
+                    _currentPage = _totalPages;
+                if (_currentPage < 1)
+                    _currentPage = 1;
+
+                // Extraire les éléments de la page actuelle
+                _pagedLogs = _filteredLogs
+                    .Skip((_currentPage - 1) * ITEMS_PER_PAGE)
+                    .Take(ITEMS_PER_PAGE)
+                    .ToList();
+
+                // Mettre à jour le DataGrid
+                DgAuditLogs.ItemsSource = null;
+                DgAuditLogs.ItemsSource = _pagedLogs;
+
+                // Mettre à jour le texte de pagination
+                int startIndex = (_currentPage - 1) * ITEMS_PER_PAGE + 1;
+                int endIndex = Math.Min(_currentPage * ITEMS_PER_PAGE, _filteredLogs.Count);
+                TxtPagination.Text = $"Page {_currentPage} / {_totalPages} ({startIndex}-{endIndex} sur {_filteredLogs.Count} entrées)";
+
+                // Activer/désactiver les boutons
+                BtnPremierePage.IsEnabled = _currentPage > 1;
+                BtnPagePrecedente.IsEnabled = _currentPage > 1;
+                BtnPageSuivante.IsEnabled = _currentPage < _totalPages;
+                BtnDernierePage.IsEnabled = _currentPage < _totalPages;
+
+                // Changer la couleur des boutons selon l'état
+                BtnPremierePage.Background = new System.Windows.Media.SolidColorBrush(
+                    _currentPage > 1 ? (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#00915A") 
+                                     : (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#95A5A6"));
+                BtnPagePrecedente.Background = new System.Windows.Media.SolidColorBrush(
+                    _currentPage > 1 ? (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#00915A") 
+                                     : (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#95A5A6"));
+                BtnPageSuivante.Background = new System.Windows.Media.SolidColorBrush(
+                    _currentPage < _totalPages ? (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#00915A") 
+                                               : (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#95A5A6"));
+                BtnDernierePage.Background = new System.Windows.Media.SolidColorBrush(
+                    _currentPage < _totalPages ? (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#00915A") 
+                                               : (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#95A5A6"));
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erreur lors de la mise à jour de la pagination :\n{ex.Message}",
+                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void BtnPremierePage_Click(object sender, RoutedEventArgs e)
+        {
+            _currentPage = 1;
+            UpdatePagination();
+        }
+
+        private void BtnPagePrecedente_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currentPage > 1)
+            {
+                _currentPage--;
+                UpdatePagination();
+            }
+        }
+
+        private void BtnPageSuivante_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currentPage < _totalPages)
+            {
+                _currentPage++;
+                UpdatePagination();
+            }
+        }
+
+        private void BtnDernierePage_Click(object sender, RoutedEventArgs e)
+        {
+            _currentPage = _totalPages;
+            UpdatePagination();
         }
     }
 }
