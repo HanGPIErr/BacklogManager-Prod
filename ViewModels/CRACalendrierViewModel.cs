@@ -159,6 +159,7 @@ namespace BacklogManager.ViewModels
                 OnPropertyChanged(nameof(JoursRestants));
                 OnPropertyChanged(nameof(AfficherAllocationAuto));
                 OnPropertyChanged(nameof(ProposeAutoAllocation));
+                OnPropertyChanged(nameof(AfficherSaisiePeriode)); // Afficher saisie période pour congés
             }
         }
 
@@ -208,6 +209,11 @@ namespace BacklogManager.ViewModels
         
         public bool AfficherSelecteurDev => Devs.Count > 1; // Afficher uniquement si plusieurs devs (admin)
 
+        // Afficher la saisie sur période uniquement pour les congés et jours non travaillés
+        public bool AfficherSaisiePeriode => TacheSelectionnee != null && 
+                                             (TacheSelectionnee.TypeDemande == TypeDemande.Conges || 
+                                              TacheSelectionnee.TypeDemande == TypeDemande.NonTravaille);
+
         public string NombreJoursOuvresPeriode
         {
             get
@@ -252,7 +258,9 @@ namespace BacklogManager.ViewModels
                                                TacheSelectionnee.ChiffrageJours.HasValue && 
                                                JoursRestants > 0 &&
                                                JourSelectionne != null &&
-                                               DevSelectionne != null;
+                                               DevSelectionne != null &&
+                                               TacheSelectionnee.TypeDemande != TypeDemande.Conges &&
+                                               TacheSelectionnee.TypeDemande != TypeDemande.NonTravaille;
 
         /// <summary>
         /// Message proposant l'allocation automatique
@@ -278,6 +286,7 @@ namespace BacklogManager.ViewModels
         public ICommand AujourdhuiCommand { get; }
         public ICommand SaisirCRACommand { get; }
         public ICommand SupprimerCRACommand { get; }
+        public ICommand RepositionnerCRACommand { get; }
         public ICommand SetJoursRapideCommand { get; }
         public ICommand JourSelectionnCommand { get; }
         public ICommand AllocationAutomatiqueCommand { get; }
@@ -307,6 +316,7 @@ namespace BacklogManager.ViewModels
             AujourdhuiCommand = new RelayCommand(_ => MoisCourant = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1));
             SaisirCRACommand = new RelayCommand(_ => SaisirCRA(), _ => PeutSaisirCRA());
             SupprimerCRACommand = new RelayCommand(param => SupprimerCRA((CRADisplayViewModel)param));
+            RepositionnerCRACommand = new RelayCommand(param => RepositionnerCRA((CRADisplayViewModel)param));
             SetJoursRapideCommand = new RelayCommand(param => JoursASaisir = double.Parse(param.ToString(), System.Globalization.CultureInfo.InvariantCulture));
             JourSelectionnCommand = new RelayCommand(param => JourSelectionne = (JourCalendrierViewModel)param);
             AllocationAutomatiqueCommand = new RelayCommand(_ => AllouerAutomatiquement(), _ => AfficherAllocationAuto);
@@ -520,16 +530,27 @@ namespace BacklogManager.ViewModels
                 return;
             }
 
-            // Toujours saisir en mode journalier (la saisie sur période a été remplacée par l'allocation auto)
-            SaisirCRAJournalier();
+            // Saisie sur période pour les congés, sinon mode journalier
+            if (SaisirSurPeriode && AfficherSaisiePeriode)
+            {
+                SaisirCRAPeriode();
+            }
+            else
+            {
+                SaisirCRAJournalier();
+            }
         }
 
         private void SaisirCRAJournalier()
         {
             try
             {
-                // Vérifier qu'il reste du temps à allouer pour cette tâche
-                if (TacheSelectionnee.ChiffrageJours.HasValue && JoursRestants <= 0)
+                // Les congés et jours non travaillés ne sont pas limités par le chiffrage
+                bool estCongesOuNonTravaille = TacheSelectionnee.TypeDemande == TypeDemande.Conges || 
+                                                TacheSelectionnee.TypeDemande == TypeDemande.NonTravaille;
+
+                // Vérifier qu'il reste du temps à allouer pour cette tâche (sauf congés/non travaillé)
+                if (!estCongesOuNonTravaille && TacheSelectionnee.ChiffrageJours.HasValue && JoursRestants <= 0)
                 {
                     System.Windows.MessageBox.Show(
                         $"⚠️ Il ne reste plus de temps à allouer pour cette tâche !\\n\\n" +
@@ -542,8 +563,8 @@ namespace BacklogManager.ViewModels
                     return;
                 }
 
-                // Vérifier que la saisie ne dépasse pas le temps restant
-                if (TacheSelectionnee.ChiffrageJours.HasValue && JoursASaisir > JoursRestants)
+                // Vérifier que la saisie ne dépasse pas le temps restant (sauf congés/non travaillé)
+                if (!estCongesOuNonTravaille && TacheSelectionnee.ChiffrageJours.HasValue && JoursASaisir > JoursRestants)
                 {
                     var result = System.Windows.MessageBox.Show(
                         $"⚠️ Vous essayez de saisir {JoursASaisir:F1}j mais il ne reste que {JoursRestants:F1}j à allouer.\\n\\n" +
@@ -577,10 +598,57 @@ namespace BacklogManager.ViewModels
                         return;
                 }
 
+                // Pour les congés/non travaillé, proposer le décalage des tâches existantes
+                if (estCongesOuNonTravaille)
+                {
+                    // Vérifier d'abord s'il y a déjà un congé/non-travaillé ce jour
+                    var crasExistantsCeJour = _craService.GetCRAsByDev(DevSelectionne.Id, JourSelectionne.Date, JourSelectionne.Date);
+                    var aDejaCongesOuNonTravaille = crasExistantsCeJour.Any(c => {
+                        var tache = _backlogService.GetBacklogItemById(c.BacklogItemId);
+                        return tache != null && 
+                               (tache.TypeDemande == TypeDemande.Conges || 
+                                tache.TypeDemande == TypeDemande.NonTravaille);
+                    });
+
+                    // Si un congé/non-travaillé existe déjà ce jour, ne pas en créer un autre
+                    if (aDejaCongesOuNonTravaille)
+                    {
+                        System.Windows.MessageBox.Show(
+                            $"⚠️ Un congé ou jour non-travaillé existe déjà le {JourSelectionne.Date:dd/MM/yyyy}.\n\n" +
+                            $"Vous ne pouvez pas ajouter un autre congé sur ce jour.",
+                            "Congé existant",
+                            System.Windows.MessageBoxButton.OK,
+                            System.Windows.MessageBoxImage.Warning);
+                        return;
+                    }
+
+                    // Vérifier s'il y a des tâches à décaler ce jour-là
+                    var crasExistants = crasExistantsCeJour
+                        .Where(c => c.BacklogItemId != TacheSelectionnee.Id) // Exclure la tâche de congés elle-même
+                        .ToList();
+
+                    if (crasExistants.Any())
+                    {
+                        var result = System.Windows.MessageBox.Show(
+                            $"⚠️ Il y a déjà {crasExistants.Count} CRA existant(s) le {JourSelectionne.Date:dd/MM/yyyy}.\n\n" +
+                            $"Voulez-vous décaler automatiquement ces tâches ?\n\n" +
+                            $"✅ Oui : Les tâches seront décalées au prochain jour disponible\n" +
+                            $"❌ Non : Les tâches resteront en place (superposition)",
+                            "Décalage automatique",
+                            System.Windows.MessageBoxButton.YesNo,
+                            System.Windows.MessageBoxImage.Question);
+
+                        if (result == System.Windows.MessageBoxResult.Yes)
+                        {
+                            DecalerCRAsExistants(crasExistants, JourSelectionne.Date, JourSelectionne.Date);
+                        }
+                    }
+                }
+
                 // Convertir jours en heures (1j = 8h)
                 double heures = JoursASaisir * 8.0;
 
-                // Vérifier la charge maximale journalière
+                // Vérifier la charge maximale journalière (sauf pour congés déjà décalés)
                 double chargeActuelle = _craService.GetChargeParJour(DevSelectionne.Id, JourSelectionne.Date);
                 double chargeTotal = chargeActuelle + heures;
 
@@ -662,78 +730,99 @@ namespace BacklogManager.ViewModels
                 return;
             }
 
-            // Calculer le nombre de jours à saisir
-            var heuresParJour = JoursASaisir * 8.0;
-            int joursADistribuer = (int)Math.Ceiling(JoursASaisir);
+            // Pour les congés/non travaillé, proposer le décalage des tâches existantes
+            bool estCongesOuNonTravaille = TacheSelectionnee.TypeDemande == TypeDemande.Conges || 
+                                            TacheSelectionnee.TypeDemande == TypeDemande.NonTravaille;
 
-            // Trouver les jours disponibles avec décalage automatique
-            var joursDisponibles = TrouverJoursDisponibles(dateDebut, dateFin, DevSelectionne.Id, heuresParJour, joursADistribuer);
+            if (estCongesOuNonTravaille)
+            {
+                // Vérifier s'il y a des tâches à décaler
+                var crasExistants = _craService.GetCRAsByDev(DevSelectionne.Id, dateDebut, dateFin)
+                    .Where(c => c.BacklogItemId != TacheSelectionnee.Id) // Exclure la tâche de congés elle-même
+                    .ToList();
 
-            if (joursDisponibles.Count == 0)
+                if (crasExistants.Any())
+                {
+                    var result = System.Windows.MessageBox.Show(
+                        $"⚠️ Il y a {crasExistants.Count} CRA existant(s) sur cette période.\n\n" +
+                        $"Voulez-vous décaler automatiquement ces tâches après vos congés ?\n\n" +
+                        $"✅ Oui : Les tâches seront décalées après le {dateFin:dd/MM/yyyy}\n" +
+                        $"❌ Non : Les tâches resteront en place (superposition)",
+                        "Décalage automatique",
+                        System.Windows.MessageBoxButton.YesNo,
+                        System.Windows.MessageBoxImage.Question);
+
+                    if (result == System.Windows.MessageBoxResult.Yes)
+                    {
+                        DecalerCRAsExistants(crasExistants, dateDebut, dateFin);
+                    }
+                }
+            }
+
+            // Calculer le nombre de jours ouvrés sur la période
+            var joursOuvres = new List<DateTime>();
+            for (var date = dateDebut; date <= dateFin; date = date.AddDays(1))
+            {
+                if (JoursFeriesService.EstJourOuvre(date) || estCongesOuNonTravaille) // Congés peuvent être sur week-ends/fériés
+                {
+                    joursOuvres.Add(date);
+                }
+            }
+
+            if (joursOuvres.Count == 0)
             {
                 System.Windows.MessageBox.Show(
-                    "Aucun jour disponible trouvé sur cette période.\n\n" +
-                    "Tous les jours sont soit:\n" +
-                    "- Week-ends ou jours fériés\n" +
-                    "- Déjà chargés à 100% (1j = 8h max/jour)",
+                    "Aucun jour ouvré trouvé sur cette période.",
                     "Validation",
                     System.Windows.MessageBoxButton.OK,
                     System.Windows.MessageBoxImage.Warning);
                 return;
             }
 
-            // Séparer jours passés et futurs
-            var aujourdhui = DateTime.Now.Date;
-            var joursPassesEtPresent = joursDisponibles.Where(j => j <= aujourdhui).ToList();
-            var joursFuturs = joursDisponibles.Where(j => j > aujourdhui).ToList();
-
-            // Message de confirmation avec détails
-            var totalJours = joursDisponibles.Count;
-            var totalHeures = heuresParJour * totalJours;
-            var premierJour = joursDisponibles.First();
-            var dernierJour = joursDisponibles.Last();
-
-            string message = $"💾 Saisie CRA sur {totalJours} jour(s) disponible(s)\n\n";
-            message += $"📅 Période effective : {premierJour:dd/MM/yyyy} → {dernierJour:dd/MM/yyyy}\n";
-            message += $"⏱️ Charge : {JoursASaisir:F1}j ({heuresParJour:F1}h) par jour\n";
-            message += $"📊 Total : {totalJours * JoursASaisir:F1}j ({totalHeures:F1}h)\n\n";
-
-            if (joursPassesEtPresent.Count > 0)
-            {
-                message += $"✅ Jours passés/actuels : {joursPassesEtPresent.Count} jour(s)\n";
-                message += "   → Comptés immédiatement dans l'avancement\n\n";
-            }
-
-            if (joursFuturs.Count > 0)
-            {
-                message += $"📆 Jours futurs (prévisionnel) : {joursFuturs.Count} jour(s)\n";
-                message += "   → Ne seront PAS comptés dans l'avancement actuel\n";
-                message += "   → S'ajouteront automatiquement au fur et à mesure\n\n";
-            }
-
-            if (dernierJour > dateFin)
-            {
-                message += $"⚠️ Décalage appliqué jusqu'au {dernierJour:dd/MM/yyyy}\n";
-                message += $"   (certains jours entre {dateDebut:dd/MM/yyyy} et {dateFin:dd/MM/yyyy} n'étaient pas disponibles)\n\n";
-            }
-
-            message += "Continuer ?";
-
-            var result = System.Windows.MessageBox.Show(
-                message,
-                "Confirmation saisie CRA",
+            // Confirmer la saisie
+            var heuresParJour = JoursASaisir * 8.0;
+            var totalHeures = heuresParJour * joursOuvres.Count;
+            
+            var confirmResult = System.Windows.MessageBox.Show(
+                $"💾 Créer des CRA sur {joursOuvres.Count} jour(s)\n\n" +
+                $"📅 Du {joursOuvres.First():dd/MM/yyyy} au {joursOuvres.Last():dd/MM/yyyy}\n" +
+                $"⏱️ {JoursASaisir:F1}j ({heuresParJour:F1}h) par jour\n" +
+                $"📊 Total : {joursOuvres.Count * JoursASaisir:F1}j ({totalHeures:F1}h)\n\n" +
+                $"Continuer ?",
+                "Confirmation",
                 System.Windows.MessageBoxButton.YesNo,
                 System.Windows.MessageBoxImage.Question);
 
-            if (result != System.Windows.MessageBoxResult.Yes)
+            if (confirmResult != System.Windows.MessageBoxResult.Yes)
                 return;
 
             try
             {
                 int nombreCRAsCrees = 0;
+                int nombreCRAsIgnores = 0;
+                var aujourdhui = DateTime.Now.Date;
 
-                foreach (var jour in joursDisponibles)
+                foreach (var jour in joursOuvres)
                 {
+                    // Si c'est des congés/non-travaillé, vérifier s'il n'y a pas déjà un CRA du même type ce jour
+                    if (estCongesOuNonTravaille)
+                    {
+                        var crasExistantsCeJour = _craService.GetCRAsByDev(DevSelectionne.Id, jour, jour);
+                        var aDejaCongesOuNonTravaille = crasExistantsCeJour.Any(c => {
+                            var tache = _backlogService.GetBacklogItemById(c.BacklogItemId);
+                            return tache != null && 
+                                   (tache.TypeDemande == TypeDemande.Conges || 
+                                    tache.TypeDemande == TypeDemande.NonTravaille);
+                        });
+
+                        // Si un congé/non-travaillé existe déjà ce jour, ne pas en créer un autre
+                        if (aDejaCongesOuNonTravaille)
+                        {
+                            nombreCRAsIgnores++;
+                            continue;
+                        }
+                    }
+
                     var cra = new CRA
                     {
                         DevId = DevSelectionne.Id,
@@ -742,7 +831,8 @@ namespace BacklogManager.ViewModels
                         HeuresTravaillees = heuresParJour,
                         Commentaire = Commentaire,
                         DateCreation = DateTime.Now,
-                        EstPrevisionnel = jour > aujourdhui // Marquer comme prévisionnel si futur
+                        EstPrevisionnel = jour >= aujourdhui, // Prévisionnel si aujourd'hui ou futur
+                        EstValide = jour < aujourdhui // Validé automatiquement si dans le passé
                     };
 
                     _craService.SaveCRA(cra);
@@ -759,18 +849,15 @@ namespace BacklogManager.ViewModels
                 ChargerCalendrier();
                 ChargerCRAsJour();
 
-                string messageSucces = $"✅ {nombreCRAsCrees} CRA(s) enregistré(s) !\n\n";
-                if (joursPassesEtPresent.Count > 0)
+                // Message de succès avec détails
+                string message = $"✅ {nombreCRAsCrees} CRA(s) enregistré(s) avec succès !";
+                if (nombreCRAsIgnores > 0)
                 {
-                    messageSucces += $"📊 {joursPassesEtPresent.Count} jour(s) comptés dans l'avancement\n";
-                }
-                if (joursFuturs.Count > 0)
-                {
-                    messageSucces += $"📆 {joursFuturs.Count} jour(s) en prévisionnel (ajoutés au fur et à mesure)";
+                    message += $"\n\n⚠️ {nombreCRAsIgnores} jour(s) ignoré(s) car un congé/non-travaillé existait déjà.";
                 }
 
                 System.Windows.MessageBox.Show(
-                    messageSucces,
+                    message,
                     "Succès",
                     System.Windows.MessageBoxButton.OK,
                     System.Windows.MessageBoxImage.Information);
@@ -783,6 +870,119 @@ namespace BacklogManager.ViewModels
                     System.Windows.MessageBoxButton.OK,
                     System.Windows.MessageBoxImage.Error);
             }
+        }
+
+        /// <summary>
+        /// Décale les CRA existants après une période de congés
+        /// </summary>
+        private void DecalerCRAsExistants(List<CRA> crasADecaler, DateTime debutConges, DateTime finConges)
+        {
+            try
+            {
+                // IMPORTANT : Ne décaler QUE les tâches de travail, pas les congés/non travaillé
+                var crasATravailADecaler = crasADecaler
+                    .Where(c => {
+                        var tache = _backlogService.GetBacklogItemById(c.BacklogItemId);
+                        return tache != null && 
+                               tache.TypeDemande != TypeDemande.Conges && 
+                               tache.TypeDemande != TypeDemande.NonTravaille;
+                    })
+                    .OrderBy(c => c.Date)
+                    .ToList();
+                
+                // Si aucune tâche de travail à décaler, terminé
+                if (!crasATravailADecaler.Any())
+                    return;
+                
+                // Point de départ pour le décalage : jour suivant la fin des congés
+                var dateDecalage = finConges.AddDays(1);
+                
+                // Dictionnaire pour suivre la charge ajoutée à chaque jour pendant le décalage
+                var chargeAjoutee = new Dictionary<DateTime, double>();
+                
+                // Décaler chaque CRA qui est dans la période de congés
+                foreach (var cra in crasATravailADecaler)
+                {
+                    // Si le CRA est dans la période de congés
+                    if (cra.Date >= debutConges && cra.Date <= finConges)
+                    {
+                        // Trouver le prochain jour ouvré disponible
+                        while (!JoursFeriesService.EstJourOuvre(dateDecalage))
+                        {
+                            dateDecalage = dateDecalage.AddDays(1);
+                        }
+                        
+                        // Calculer la charge du jour (existante + ce qu'on a déjà ajouté)
+                        // MAIS en excluant les congés/non-travaillé de la charge existante
+                        var chargeExistante = GetChargeJourSansCongés(cra.DevId, dateDecalage);
+                        var chargeDejaAjoutee = chargeAjoutee.ContainsKey(dateDecalage) ? chargeAjoutee[dateDecalage] : 0;
+                        var chargeTotal = chargeExistante + chargeDejaAjoutee + cra.HeuresTravaillees;
+                        
+                        // Si le jour serait trop chargé (> 8h), passer au jour suivant
+                        while (chargeTotal > 8.0)
+                        {
+                            dateDecalage = dateDecalage.AddDays(1);
+                            while (!JoursFeriesService.EstJourOuvre(dateDecalage))
+                            {
+                                dateDecalage = dateDecalage.AddDays(1);
+                            }
+                            chargeExistante = GetChargeJourSansCongés(cra.DevId, dateDecalage);
+                            chargeDejaAjoutee = chargeAjoutee.ContainsKey(dateDecalage) ? chargeAjoutee[dateDecalage] : 0;
+                            chargeTotal = chargeExistante + chargeDejaAjoutee + cra.HeuresTravaillees;
+                        }
+                        
+                        // Enregistrer la charge ajoutée à ce jour
+                        if (chargeAjoutee.ContainsKey(dateDecalage))
+                            chargeAjoutee[dateDecalage] += cra.HeuresTravaillees;
+                        else
+                            chargeAjoutee[dateDecalage] = cra.HeuresTravaillees;
+                        
+                        // Décaler le CRA
+                        cra.Date = dateDecalage;
+                        
+                        // Mettre à jour EstPrevisionnel et EstValide selon la nouvelle date
+                        var aujourdhui = DateTime.Now.Date;
+                        cra.EstPrevisionnel = dateDecalage >= aujourdhui;
+                        cra.EstValide = dateDecalage < aujourdhui;
+                        
+                        _craService.SaveCRA(cra);
+                        
+                        // Passer au jour suivant pour le prochain CRA
+                        dateDecalage = dateDecalage.AddDays(1);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show(
+                    $"Erreur lors du décalage des CRA : {ex.Message}",
+                    "Erreur",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// Calcule la charge d'un jour en excluant les congés et jours non travaillés
+        /// </summary>
+        private double GetChargeJourSansCongés(int devId, DateTime date)
+        {
+            var crasDuJour = _craService.GetCRAsByDev(devId, date, date);
+            
+            // Ne compter que les CRA de vraies tâches (pas congés ni non-travaillé)
+            double charge = 0;
+            foreach (var cra in crasDuJour)
+            {
+                var tache = _backlogService.GetBacklogItemById(cra.BacklogItemId);
+                if (tache != null && 
+                    tache.TypeDemande != TypeDemande.Conges && 
+                    tache.TypeDemande != TypeDemande.NonTravaille)
+                {
+                    charge += cra.HeuresTravaillees;
+                }
+            }
+            
+            return charge;
         }
 
         /// <summary>
@@ -849,6 +1049,207 @@ namespace BacklogManager.ViewModels
                 {
                     System.Windows.MessageBox.Show(
                         $"Erreur lors de la suppression : {ex.Message}",
+                        "Erreur",
+                        System.Windows.MessageBoxButton.OK,
+                        System.Windows.MessageBoxImage.Error);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Déplace un CRA d'un jour à un autre (drag and drop)
+        /// </summary>
+        public void DeplacerCRA(CRADisplayViewModel craDisplay, JourCalendrierViewModel jourCible)
+        {
+            if (craDisplay == null || jourCible == null || DevSelectionne == null) return;
+            
+            // Ne pas permettre de déplacer hors du mois
+            if (!jourCible.EstDansMois) return;
+
+            var cra = craDisplay.CRA;
+            var dateOrigine = cra.Date;
+            var dateDestination = jourCible.Date;
+
+            // Si c'est le même jour, ne rien faire
+            if (dateOrigine.Date == dateDestination.Date) return;
+
+            // Vérifier qu'on ne dépasse pas 8h sur le jour de destination
+            var chargeDestination = _craService.GetChargeParJour(DevSelectionne.Id, dateDestination);
+            if (chargeDestination + cra.HeuresTravaillees > 8.0)
+            {
+                var joursDisponibles = chargeDestination / 8.0;
+                System.Windows.MessageBox.Show(
+                    $"Impossible de déplacer ce CRA :\n\n" +
+                    $"Le {dateDestination:dd/MM/yyyy} est déjà chargé à {joursDisponibles:F1}j\n" +
+                    $"Il reste seulement {(8.0 - chargeDestination) / 8.0:F1}j disponible(s).\n\n" +
+                    $"Ce CRA nécessite {cra.HeuresTravaillees / 8.0:F1}j.",
+                    "Jour trop chargé",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Warning);
+                return;
+            }
+
+            // Demander confirmation
+            var result = System.Windows.MessageBox.Show(
+                $"Déplacer ce CRA ?\n\n" +
+                $"Tâche : {craDisplay.TacheNom}\n" +
+                $"Temps : {craDisplay.Jours:F1}j\n\n" +
+                $"Du {dateOrigine:dddd dd/MM/yyyy}\n" +
+                $"Vers {dateDestination:dddd dd/MM/yyyy}",
+                "Confirmation de déplacement",
+                System.Windows.MessageBoxButton.YesNo,
+                System.Windows.MessageBoxImage.Question);
+
+            if (result == System.Windows.MessageBoxResult.Yes)
+            {
+                try
+                {
+                    // Déplacer le CRA
+                    cra.Date = dateDestination;
+                    
+                    // Mettre à jour EstPrevisionnel et EstValide selon la nouvelle date
+                    var aujourdhui = DateTime.Now.Date;
+                    cra.EstPrevisionnel = dateDestination >= aujourdhui;
+                    cra.EstValide = dateDestination < aujourdhui;
+                    
+                    _craService.SaveCRA(cra);
+                    
+                    // Rafraîchir l'affichage
+                    ChargerCalendrier();
+                    
+                    // Si le jour sélectionné est l'origine ou la destination, recharger les CRA affichés
+                    if (JourSelectionne != null && 
+                        (JourSelectionne.Date.Date == dateOrigine.Date || JourSelectionne.Date.Date == dateDestination.Date))
+                    {
+                        ChargerCRAsJour();
+                    }
+                    
+                    System.Windows.MessageBox.Show(
+                        $"✓ CRA déplacé avec succès vers le {dateDestination:dd/MM/yyyy}",
+                        "Succès",
+                        System.Windows.MessageBoxButton.OK,
+                        System.Windows.MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    System.Windows.MessageBox.Show(
+                        $"Erreur lors du déplacement : {ex.Message}",
+                        "Erreur",
+                        System.Windows.MessageBoxButton.OK,
+                        System.Windows.MessageBoxImage.Error);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Repositionne un CRA au prochain jour disponible à partir d'aujourd'hui
+        /// </summary>
+        private void RepositionnerCRA(CRADisplayViewModel craDisplay)
+        {
+            if (craDisplay == null || DevSelectionne == null) return;
+
+            var cra = craDisplay.CRA;
+            var dateOrigine = cra.Date;
+            var aujourdhui = DateTime.Now.Date;
+
+            // Chercher le prochain jour disponible à partir d'aujourd'hui
+            DateTime dateRecherche = aujourdhui;
+            DateTime? dateDisponible = null;
+            int joursRecherches = 0;
+            const int maxJoursRecherche = 90; // Chercher max 3 mois
+
+            while (joursRecherches < maxJoursRecherche)
+            {
+                // Vérifier si c'est un jour ouvré
+                if (JoursFeriesService.EstJourOuvre(dateRecherche))
+                {
+                    // Vérifier la charge du jour
+                    var chargeJour = _craService.GetChargeParJour(DevSelectionne.Id, dateRecherche);
+                    
+                    // Si le jour a de la place pour ce CRA
+                    if (chargeJour + cra.HeuresTravaillees <= 8.0)
+                    {
+                        dateDisponible = dateRecherche;
+                        break;
+                    }
+                }
+                
+                dateRecherche = dateRecherche.AddDays(1);
+                joursRecherches++;
+            }
+
+            if (!dateDisponible.HasValue)
+            {
+                System.Windows.MessageBox.Show(
+                    "Aucun jour disponible trouvé dans les 3 prochains mois.\n\n" +
+                    "Tous les jours ouvrés sont déjà chargés à 8h.",
+                    "Aucun créneau disponible",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Warning);
+                return;
+            }
+
+            var dateDestination = dateDisponible.Value;
+
+            // Si c'est le même jour, rien à faire
+            if (dateOrigine.Date == dateDestination.Date)
+            {
+                System.Windows.MessageBox.Show(
+                    "Ce CRA est déjà au prochain jour disponible.",
+                    "Information",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Information);
+                return;
+            }
+
+            // Calculer le nombre de jours de décalage
+            int joursDecalage = (int)(dateDestination - aujourdhui).TotalDays;
+            
+            // Demander confirmation
+            var result = System.Windows.MessageBox.Show(
+                $"📍 Repositionner ce CRA ?\n\n" +
+                $"Tâche : {craDisplay.TacheNom}\n" +
+                $"Temps : {craDisplay.Jours:F1}j\n\n" +
+                $"Date actuelle : {dateOrigine:dddd dd/MM/yyyy}\n" +
+                $"➜ Prochain jour disponible : {dateDestination:dddd dd/MM/yyyy}\n" +
+                $"   (dans {joursDecalage} jour{(joursDecalage > 1 ? "s" : "")})",
+                "Repositionner au prochain créneau",
+                System.Windows.MessageBoxButton.YesNo,
+                System.Windows.MessageBoxImage.Question);
+
+            if (result == System.Windows.MessageBoxResult.Yes)
+            {
+                try
+                {
+                    // Déplacer le CRA
+                    cra.Date = dateDestination;
+                    
+                    // Mettre à jour EstPrevisionnel et EstValide selon la nouvelle date
+                    cra.EstPrevisionnel = dateDestination >= aujourdhui;
+                    cra.EstValide = dateDestination < aujourdhui;
+                    
+                    _craService.SaveCRA(cra);
+                    
+                    // Rafraîchir l'affichage
+                    ChargerCalendrier();
+                    
+                    // Si le jour sélectionné est l'origine ou la destination, recharger les CRA affichés
+                    if (JourSelectionne != null && 
+                        (JourSelectionne.Date.Date == dateOrigine.Date || JourSelectionne.Date.Date == dateDestination.Date))
+                    {
+                        ChargerCRAsJour();
+                    }
+                    
+                    System.Windows.MessageBox.Show(
+                        $"✓ CRA repositionné avec succès au {dateDestination:dd/MM/yyyy}",
+                        "Succès",
+                        System.Windows.MessageBoxButton.OK,
+                        System.Windows.MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    System.Windows.MessageBox.Show(
+                        $"Erreur lors du repositionnement : {ex.Message}",
                         "Erreur",
                         System.Windows.MessageBoxButton.OK,
                         System.Windows.MessageBoxImage.Error);

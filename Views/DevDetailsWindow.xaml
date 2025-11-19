@@ -83,6 +83,10 @@
 
                 <!-- Métriques clés -->
                 <Grid Grid.Row="1" Margin="0,20,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
@@ -140,9 +144,9 @@
                             <TextBlock Text="⚡ Réalisé" FontSize="11" Foreground="#C2185B" FontWeight="SemiBold"/>
                             <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
                                 <TextBlock x:Name="TxtTempsReel" FontSize="26" FontWeight="Bold" Foreground="#E91E63"/>
-                                <TextBlock Text="h" FontSize="14" Foreground="#E91E63" VerticalAlignment="Bottom" Margin="2,0,0,4"/>
+                                <TextBlock Text="j" FontSize="14" Foreground="#E91E63" VerticalAlignment="Bottom" Margin="2,0,0,4"/>
                             </StackPanel>
-                            <TextBlock Text="passées" FontSize="9" Foreground="#C2185B"/>
+                            <TextBlock Text="travail effectué" FontSize="9" Foreground="#C2185B"/>
                         </StackPanel>
                     </Border>
 
@@ -153,6 +157,40 @@
                             <TextBlock x:Name="TxtTauxRealisation" FontSize="26" FontWeight="Bold" 
                                        Foreground="#FBC02D" Margin="0,4,0,0"/>
                             <TextBlock Text="prévu/réel" FontSize="9" Foreground="#F57F17"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Deuxième ligne : Congés et Non travaillé -->
+                    <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Background="#E3F2FD" CornerRadius="6" Padding="12" Margin="0,8,8,0">
+                        <StackPanel>
+                            <TextBlock Text="🏖️ Congés" FontSize="11" Foreground="#1565C0" FontWeight="SemiBold"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                <TextBlock x:Name="TxtConges" FontSize="26" FontWeight="Bold" Foreground="#2196F3"/>
+                                <TextBlock Text="j" FontSize="14" Foreground="#2196F3" VerticalAlignment="Bottom" Margin="2,0,0,4"/>
+                            </StackPanel>
+                            <TextBlock Text="sur la période" FontSize="9" Foreground="#1565C0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2" Background="#EEEEEE" CornerRadius="6" Padding="12" Margin="0,8,8,0">
+                        <StackPanel>
+                            <TextBlock Text="🚫 Non travaillé" FontSize="11" Foreground="#424242" FontWeight="SemiBold"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                <TextBlock x:Name="TxtNonTravaille" FontSize="26" FontWeight="Bold" Foreground="#757575"/>
+                                <TextBlock Text="j" FontSize="14" Foreground="#757575" VerticalAlignment="Bottom" Margin="2,0,0,4"/>
+                            </StackPanel>
+                            <TextBlock Text="sur la période" FontSize="9" Foreground="#424242"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Row="1" Grid.Column="4" Grid.ColumnSpan="2" Background="#E8F5E9" CornerRadius="6" Padding="12" Margin="0,8,0,0">
+                        <StackPanel>
+                            <TextBlock Text="📋 Total CRA" FontSize="11" Foreground="#2E7D32" FontWeight="SemiBold"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                <TextBlock x:Name="TxtTotalCRA" FontSize="26" FontWeight="Bold" Foreground="#00915A"/>
+                                <TextBlock Text="j" FontSize="14" Foreground="#00915A" VerticalAlignment="Bottom" Margin="2,0,0,4"/>
+                            </StackPanel>
+                            <TextBlock Text="travail + congés + non-travaillé" FontSize="9" Foreground="#2E7D32"/>
                         </StackPanel>
                     </Border>
                 </Grid>
@@ -331,8 +369,8 @@
                                                 </TextBlock>
                                                 <TextBlock Text=" • " FontSize="12" Foreground="#CCC" Margin="5,0"/>
                                                 <TextBlock FontSize="12" Foreground="#9C27B0" FontWeight="SemiBold">
-                                                    <Run Text="{Binding TempsReelHeures, StringFormat={}{0:F1}}"/>
-                                                    <Run Text="h passé"/>
+                                                    <Run Text="{Binding TempsReelJours, StringFormat={}{0:F1}}"/>
+                                                    <Run Text="j réalisé"/>
                                                 </TextBlock>
                                             </StackPanel>
                                         </StackPanel>

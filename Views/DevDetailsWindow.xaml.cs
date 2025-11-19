@@ -122,16 +122,8 @@ namespace BacklogManager.Views
             int termine = taches.Count(t => t.Statut == Statut.Termine);
 
             double chargeJours = taches.Sum(t => t.ChiffrageHeures ?? 0) / 7.0;
-            double tempsReel = taches.Sum(t => t.TempsReelHeures ?? 0);
-
-            TxtTotalTaches.Text = total.ToString();
-            TxtEnCours.Text = enCours.ToString();
-            TxtTerminees.Text = termine.ToString();
-            TxtCharge.Text = chargeJours.ToString("F1");
-            TxtTempsReel.Text = tempsReel.ToString("F1");
-
-            // Calcul du taux de réalisation
-            var tachesAvecEstimation = taches.Where(t => t.ChiffrageHeures.HasValue && t.ChiffrageHeures.Value > 0).ToList();
+            
+            // Récupérer les CRAs du dev pour calculer le temps réel
             var crasDev = _craService.GetCRAsByDev(_dev.Id);
             
             // Appliquer le filtre de période sur les CRA
@@ -141,14 +133,48 @@ namespace BacklogManager.Views
                                              c.Date <= _dateFinFiltre.Value).ToList();
             }
             
-            var totalHeuresCRA = crasDev.Sum(c => c.HeuresTravaillees);
+            // Séparer par type : congés, non-travaillé, travail réel
+            double heuresTravail = 0;
+            double heuresConges = 0;
+            double heuresNonTravaille = 0;
+            
+            foreach (var cra in crasDev)
+            {
+                var tache = _backlogService.GetBacklogItemById(cra.BacklogItemId);
+                if (tache != null)
+                {
+                    if (tache.TypeDemande == TypeDemande.Conges)
+                        heuresConges += cra.HeuresTravaillees;
+                    else if (tache.TypeDemande == TypeDemande.NonTravaille)
+                        heuresNonTravaille += cra.HeuresTravaillees;
+                    else
+                        heuresTravail += cra.HeuresTravaillees;
+                }
+            }
+            
+            double joursTravail = heuresTravail / 8.0;
+            double joursConges = heuresConges / 8.0;
+            double joursNonTravaille = heuresNonTravaille / 8.0;
+            double totalJoursCRA = (heuresTravail + heuresConges + heuresNonTravaille) / 8.0;
+
+            TxtTotalTaches.Text = total.ToString();
+            TxtEnCours.Text = enCours.ToString();
+            TxtTerminees.Text = termine.ToString();
+            TxtCharge.Text = chargeJours.ToString("F1");
+            TxtTempsReel.Text = joursTravail.ToString("F1");
+            TxtConges.Text = joursConges.ToString("F1");
+            TxtNonTravaille.Text = joursNonTravaille.ToString("F1");
+            TxtTotalCRA.Text = totalJoursCRA.ToString("F1");
+
+            // Calcul du taux de réalisation (seulement travail réel, pas congés)
+            var tachesAvecEstimation = taches.Where(t => t.ChiffrageHeures.HasValue && t.ChiffrageHeures.Value > 0).ToList();
             var totalEstimeHeures = tachesAvecEstimation.Sum(t => t.ChiffrageHeures.Value);
 
             if (tachesAvecEstimation.Count == 0)
             {
                 TxtTauxRealisation.Text = "⚠ Chiffrer";
             }
-            else if (totalHeuresCRA == 0)
+            else if (heuresTravail == 0)
             {
                 TxtTauxRealisation.Text = "⚠ Saisir CRA";
             }
@@ -158,7 +184,7 @@ namespace BacklogManager.Views
             }
             else
             {
-                double taux = (totalHeuresCRA / totalEstimeHeures) * 100.0;
+                double taux = (heuresTravail / totalEstimeHeures) * 100.0;
                 TxtTauxRealisation.Text = $"{taux:F0}%";
             }
 
@@ -190,16 +216,20 @@ namespace BacklogManager.Views
             ListeProjets.ItemsSource = parProjet;
 
             // Liste des tâches
-            _allTaches = taches.Select(t => new TacheDevViewModel
-            {
-                Titre = t.Titre,
-                Statut = GetStatutDisplay(t.Statut),
-                StatutColor = GetStatutColor(t.Statut),
-                ProjetNom = projets.FirstOrDefault(p => p.Id == t.ProjetId)?.Nom ?? "Sans projet",
-                ChiffrageJours = t.ChiffrageHeures.HasValue ? t.ChiffrageHeures.Value / 7.0 : 0,
-                TempsReelHeures = t.TempsReelHeures ?? 0,
-                ProgressionPct = CalculerProgression(t),
-                StatutOriginal = t.Statut
+            _allTaches = taches.Select(t => {
+                // Calculer le temps réel depuis les CRAs pour cette tâche
+                var crasTache = crasDev.Where(c => c.BacklogItemId == t.Id).Sum(c => c.HeuresTravaillees);
+                return new TacheDevViewModel
+                {
+                    Titre = t.Titre,
+                    Statut = GetStatutDisplay(t.Statut),
+                    StatutColor = GetStatutColor(t.Statut),
+                    ProjetNom = projets.FirstOrDefault(p => p.Id == t.ProjetId)?.Nom ?? "Sans projet",
+                    ChiffrageJours = t.ChiffrageHeures.HasValue ? t.ChiffrageHeures.Value / 7.0 : 0,
+                    TempsReelJours = crasTache / 8.0,
+                    ProgressionPct = CalculerProgression(t),
+                    StatutOriginal = t.Statut
+                };
             }).ToList();
 
             ListeTaches.ItemsSource = _allTaches;
@@ -475,7 +505,7 @@ namespace BacklogManager.Views
         public Brush StatutColor { get; set; }
         public string ProjetNom { get; set; }
         public double ChiffrageJours { get; set; }
-        public double TempsReelHeures { get; set; }
+        public double TempsReelJours { get; set; }
         public double ProgressionPct { get; set; }
         public Statut StatutOriginal { get; set; }
     }

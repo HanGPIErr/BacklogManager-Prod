@@ -24,7 +24,10 @@ namespace BacklogManager.ViewModels
         public bool EstDansPasse { get; set; }
         public bool EstDansFutur { get; set; }
         public double TotalHeuresDev { get; set; }
-        public string TotalJoursAffiche => TotalHeuresDev > 0 ? $"{TotalHeuresDev / 8.0:F1}j" : "";
+        public double HeuresTachesTravail { get; set; } // Heures de vraies tâches uniquement (sans congés)
+        public string TotalJoursAffiche => HeuresTachesTravail > 0 ? $"{HeuresTachesTravail / 8.0:F1}j" : "";
+        public bool EstConges { get; set; }
+        public bool EstNonTravaille { get; set; }
     }
 
     public class DevCRAInfoViewModel
@@ -35,6 +38,12 @@ namespace BacklogManager.ViewModels
         public double TotalJoursPeriode => TotalHeuresPeriode / 8.0;
         public int NombreJoursSaisis { get; set; }
         public List<CRA> CRAs { get; set; }
+        public double HeuresConges { get; set; }
+        public double JoursConges => HeuresConges / 8.0;
+        public double HeuresNonTravaille { get; set; }
+        public double JoursNonTravaille => HeuresNonTravaille / 8.0;
+        public double HeuresTravail { get; set; }
+        public double JoursTravail => HeuresTravail / 8.0;
     }
 
     public class CRADetailViewModel
@@ -44,6 +53,9 @@ namespace BacklogManager.ViewModels
         public double Jours => CRA?.HeuresTravaillees / 8.0 ?? 0;
         public double Heures => CRA?.HeuresTravaillees ?? 0;
         public string Commentaire => CRA?.Commentaire ?? "";
+        public bool EstConges { get; set; }
+        public bool EstNonTravaille { get; set; }
+        public bool EstTacheNormale => !EstConges && !EstNonTravaille;
     }
 
     public class MoisCRAViewModel
@@ -298,11 +310,34 @@ namespace BacklogManager.ViewModels
             for (int i = 0; i < nombreJours; i++)
             {
                 var date = dateDebut.AddDays(i);
-                var totalHeures = cras.Where(c => c.Date.Date == date.Date).Sum(c => c.HeuresTravaillees);
+                var crasJour = cras.Where(c => c.Date.Date == date.Date).ToList();
+                var totalHeures = crasJour.Sum(c => c.HeuresTravaillees);
 
                 var estJourFerie = JoursFeriesService.EstJourFerie(date);
                 var nomJourFerie = JoursFeriesService.GetNomJourFerie(date);
                 var aujourdhui = DateTime.Now.Date;
+
+                // Déterminer si c'est un jour de congés/non-travaillé et calculer heures de travail réel
+                var estConges = false;
+                var estNonTravaille = false;
+                var heuresTravail = 0.0;
+                if (crasJour.Any())
+                {
+                    var tachesIds = crasJour.Select(c => c.BacklogItemId).Distinct();
+                    var taches = tachesIds.Select(id => _backlogService.GetBacklogItemById(id)).Where(t => t != null).ToList();
+                    estConges = taches.Any(t => t.TypeDemande == TypeDemande.Conges);
+                    estNonTravaille = taches.Any(t => t.TypeDemande == TypeDemande.NonTravaille);
+                    
+                    // Calculer heures de vraies tâches (exclure congés et non-travaillé)
+                    foreach (var cra in crasJour)
+                    {
+                        var tache = _backlogService.GetBacklogItemById(cra.BacklogItemId);
+                        if (tache != null && tache.TypeDemande != TypeDemande.Conges && tache.TypeDemande != TypeDemande.NonTravaille)
+                        {
+                            heuresTravail += cra.HeuresTravaillees;
+                        }
+                    }
+                }
 
                 var jourVM = new JourCRAViewModel
                 {
@@ -316,7 +351,10 @@ namespace BacklogManager.ViewModels
                     IconeJourFerie = estJourFerie ? "/Images/jour-ferie.png" : null,
                     EstDansPasse = date < aujourdhui,
                     EstDansFutur = date > aujourdhui,
-                    TotalHeuresDev = totalHeures
+                    TotalHeuresDev = totalHeures,
+                    HeuresTachesTravail = heuresTravail,
+                    EstConges = estConges,
+                    EstNonTravaille = estNonTravaille
                 };
 
                 JoursCalendrier.Add(jourVM);
@@ -353,13 +391,35 @@ namespace BacklogManager.ViewModels
 
                 var joursUniques = cras.Select(c => c.Date.Date).Distinct().Count();
 
+                // Calculer les heures par type
+                var heuresConges = 0.0;
+                var heuresNonTravaille = 0.0;
+                var heuresTravail = 0.0;
+                
+                foreach (var cra in cras)
+                {
+                    var tache = _backlogService.GetBacklogItemById(cra.BacklogItemId);
+                    if (tache != null)
+                    {
+                        if (tache.TypeDemande == TypeDemande.Conges)
+                            heuresConges += cra.HeuresTravaillees;
+                        else if (tache.TypeDemande == TypeDemande.NonTravaille)
+                            heuresNonTravaille += cra.HeuresTravaillees;
+                        else
+                            heuresTravail += cra.HeuresTravaillees;
+                    }
+                }
+
                 StatsDev.Add(new DevCRAInfoViewModel
                 {
                     Dev = dev,
                     Nom = dev.Nom,
                     TotalHeuresPeriode = cras.Sum(c => c.HeuresTravaillees),
                     NombreJoursSaisis = joursUniques,
-                    CRAs = cras
+                    CRAs = cras,
+                    HeuresConges = heuresConges,
+                    HeuresNonTravaille = heuresNonTravaille,
+                    HeuresTravail = heuresTravail
                 });
             }
         }
@@ -386,7 +446,9 @@ namespace BacklogManager.ViewModels
                 CRAsJourSelectionne.Add(new CRADetailViewModel
                 {
                     CRA = cra,
-                    TacheNom = $"[{dev?.Nom}] {tache?.Titre ?? "Tâche supprimée"}"
+                    TacheNom = $"[{dev?.Nom}] {tache?.Titre ?? "Tâche supprimée"}",
+                    EstConges = tache?.TypeDemande == TypeDemande.Conges,
+                    EstNonTravaille = tache?.TypeDemande == TypeDemande.NonTravaille
                 });
             }
         }

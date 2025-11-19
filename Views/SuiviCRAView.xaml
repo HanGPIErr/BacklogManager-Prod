@@ -295,19 +295,26 @@
                                                                        ToolTip="{Binding NomJourFerie}"
                                                                        Visibility="{Binding EstJourFerie, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
-                                                                <Border Grid.Row="3" Background="#00915A" CornerRadius="3" Padding="6,3" Margin="0,4,0,0">
-                                                                    <TextBlock Text="{Binding TotalJoursAffiche}" FontSize="11" FontWeight="Bold" 
-                                                                               Foreground="White" HorizontalAlignment="Center"/>
+                                                                <Border Grid.Row="3" CornerRadius="3" Padding="6,3" Margin="0,4,0,0">
                                                                     <Border.Style>
                                                                         <Style TargetType="Border">
+                                                                            <Setter Property="Background" Value="#00915A"/>
                                                                             <Setter Property="Visibility" Value="Visible"/>
                                                                             <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding EstConges}" Value="True">
+                                                                                    <Setter Property="Background" Value="#2196F3"/>
+                                                                                </DataTrigger>
+                                                                                <DataTrigger Binding="{Binding EstNonTravaille}" Value="True">
+                                                                                    <Setter Property="Background" Value="#757575"/>
+                                                                                </DataTrigger>
                                                                                 <DataTrigger Binding="{Binding TotalJoursAffiche}" Value="">
                                                                                     <Setter Property="Visibility" Value="Collapsed"/>
                                                                                 </DataTrigger>
                                                                             </Style.Triggers>
                                                                         </Style>
                                                                     </Border.Style>
+                                                                    <TextBlock Text="{Binding TotalJoursAffiche}" FontSize="11" FontWeight="Bold" 
+                                                                               Foreground="White" HorizontalAlignment="Center"/>
                                                                 </Border>
                                                             </Grid>
                                                         </Border>
@@ -474,6 +481,21 @@
                                                             <Run Text="{Binding NombreJoursSaisis, Mode=OneWay}"/>
                                                             <Run Text="jour(s) saisi(s)"/>
                                                         </TextBlock>
+                                                        <TextBlock FontSize="11" Margin="0,4,0,0">
+                                                            <Run Text="📋" Foreground="#00915A"/>
+                                                            <Run Text="Travail:" Foreground="#00915A" FontWeight="SemiBold"/>
+                                                            <Run Text="{Binding JoursTravail, StringFormat='{}{0:F1}j', Mode=OneWay}" Foreground="#00915A"/>
+                                                        </TextBlock>
+                                                        <TextBlock FontSize="11" Margin="0,2,0,0">
+                                                            <Run Text="🏖️" Foreground="#2196F3"/>
+                                                            <Run Text="Congés:" Foreground="#2196F3" FontWeight="SemiBold"/>
+                                                            <Run Text="{Binding JoursConges, StringFormat='{}{0:F1}j', Mode=OneWay}" Foreground="#2196F3"/>
+                                                        </TextBlock>
+                                                        <TextBlock FontSize="11" Margin="0,2,0,0">
+                                                            <Run Text="🚫" Foreground="#757575"/>
+                                                            <Run Text="Non travaillé:" Foreground="#757575" FontWeight="SemiBold"/>
+                                                            <Run Text="{Binding JoursNonTravaille, StringFormat='{}{0:F1}j', Mode=OneWay}" Foreground="#757575"/>
+                                                        </TextBlock>
                                                     </StackPanel>
                                                 </Grid>
                                             </Grid>
@@ -499,8 +521,25 @@
                             <ItemsControl ItemsSource="{Binding CRAsJourSelectionne}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Border Background="#F5F5F5" BorderBrush="#E0E0E0" BorderThickness="1" 
+                                        <Border BorderBrush="#E0E0E0" BorderThickness="1" 
                                                 CornerRadius="4" Padding="10" Margin="0,0,0,8">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Background" Value="#F5F5F5"/>
+                                                    <Style.Triggers>
+                                                        <!-- Congés : fond bleu clair -->
+                                                        <DataTrigger Binding="{Binding EstConges}" Value="True">
+                                                            <Setter Property="Background" Value="#E3F2FD"/>
+                                                            <Setter Property="BorderBrush" Value="#2196F3"/>
+                                                        </DataTrigger>
+                                                        <!-- Non travaillé : fond gris -->
+                                                        <DataTrigger Binding="{Binding EstNonTravaille}" Value="True">
+                                                            <Setter Property="Background" Value="#EEEEEE"/>
+                                                            <Setter Property="BorderBrush" Value="#9E9E9E"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
                                             <Grid>
                                                 <Grid.RowDefinitions>
                                                     <RowDefinition Height="Auto"/>
@@ -508,14 +547,48 @@
                                                     <RowDefinition Height="Auto"/>
                                                 </Grid.RowDefinitions>
 
-                                                <TextBlock Grid.Row="0" Text="{Binding TacheNom}" FontWeight="SemiBold" 
-                                                           FontSize="12" Margin="0,0,0,5" TextWrapping="Wrap"/>
+                                                <!-- Nom de la tâche avec icône -->
+                                                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,5">
+                                                    <!-- Icône selon le type -->
+                                                    <TextBlock FontSize="14" Margin="0,0,5,0">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Setter Property="Text" Value="📋"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding EstConges}" Value="True">
+                                                                        <Setter Property="Text" Value="🏖️"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding EstNonTravaille}" Value="True">
+                                                                        <Setter Property="Text" Value="🚫"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+                                                    
+                                                    <TextBlock Text="{Binding TacheNom}" FontWeight="SemiBold" 
+                                                               FontSize="12" TextWrapping="Wrap"/>
+                                                </StackPanel>
                                                 
                                                 <TextBlock Grid.Row="1" Text="{Binding Commentaire}" FontSize="10" 
                                                            Foreground="#666" Margin="0,0,0,5" TextWrapping="Wrap"
                                                            Visibility="{Binding Commentaire, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                                 
-                                                <Border Grid.Row="2" Background="#00915A" CornerRadius="3" Padding="4,2" HorizontalAlignment="Left">
+                                                <!-- Badge avec couleur selon le type -->
+                                                <Border Grid.Row="2" CornerRadius="3" Padding="4,2" HorizontalAlignment="Left">
+                                                    <Border.Style>
+                                                        <Style TargetType="Border">
+                                                            <Setter Property="Background" Value="#00915A"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding EstConges}" Value="True">
+                                                                    <Setter Property="Background" Value="#2196F3"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding EstNonTravaille}" Value="True">
+                                                                    <Setter Property="Background" Value="#757575"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Border.Style>
                                                     <TextBlock Text="{Binding Jours, StringFormat='{}{0:F1}j'}" 
                                                                FontSize="10" FontWeight="Bold" Foreground="White"/>
                                                 </Border>
