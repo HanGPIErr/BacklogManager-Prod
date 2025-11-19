@@ -293,6 +293,7 @@
     <Compile Include="Services\InitializationService.cs" />
     <Compile Include="Services\AuditLogService.cs" />
     <Compile Include="Services\NotificationService.cs" />
+    <Compile Include="Services\EmailService.cs" />
     <Compile Include="Services\JoursFeriesService.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\ProjetsViewModel.cs" />

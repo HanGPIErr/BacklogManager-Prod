@@ -9,12 +9,14 @@ namespace BacklogManager.Views
     public partial class NotificationsWindow : Window
     {
         private readonly NotificationService _notificationService;
+        private readonly EmailService _emailService;
         private List<Notification> _toutesNotifications;
 
-        public NotificationsWindow(NotificationService notificationService)
+        public NotificationsWindow(NotificationService notificationService, EmailService emailService)
         {
             InitializeComponent();
             _notificationService = notificationService;
+            _emailService = emailService;
             
             // Charger après que tous les contrôles soient initialisés
             Loaded += (s, e) => ChargerNotifications();
@@ -123,6 +125,37 @@ namespace BacklogManager.Views
             // Ré-analyser le backlog pour générer de nouvelles notifications
             _notificationService.AnalyserEtGenererNotifications();
             ChargerNotifications();
+        }
+
+        private void BtnEnvoyerEmail_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            if (button?.Tag is Notification notification)
+            {
+                // Vérifier si l'email peut être envoyé
+                if (!_emailService.PeutEnvoyerEmail(notification))
+                {
+                    MessageBox.Show(
+                        "Impossible d'envoyer l'email :\n\n" +
+                        "• Aucun développeur n'est assigné à cette tâche, ou\n" +
+                        "• L'adresse email du développeur est manquante.\n\n" +
+                        "Veuillez assigner un développeur avec une adresse email valide.",
+                        "Email non disponible",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                    return;
+                }
+
+                // Envoyer l'email via Outlook
+                _emailService.EnvoyerNotificationTache(notification);
+                
+                // Marquer la notification comme lue
+                if (!notification.EstLue)
+                {
+                    _notificationService.MarquerCommeLue(notification.Id);
+                    ChargerNotifications();
+                }
+            }
         }
 
         private void BtnFermer_Click(object sender, RoutedEventArgs e)

@@ -13,6 +13,7 @@ namespace BacklogManager
         private readonly IDatabase _database;
         private PermissionService _permissionService;
         private NotificationService _notificationService;
+        private EmailService _emailService;
         private System.Windows.Threading.DispatcherTimer _notificationTimer;
 
         public MainWindow(AuthenticationService authService)
@@ -36,6 +37,9 @@ namespace BacklogManager
             
             // Initialiser le NotificationService
             _notificationService = new NotificationService(_backlogService, _database);
+            
+            // Initialiser l'EmailService
+            _emailService = new EmailService(_backlogService, _authService);
             
             // Initialiser le CRAService
             var craService = new CRAService(_database);
@@ -263,7 +267,7 @@ namespace BacklogManager
         {
             try
             {
-                var window = new NotificationsWindow(_notificationService);
+                var window = new NotificationsWindow(_notificationService, _emailService);
                 window.Owner = this;
                 window.ShowDialog();
                 
