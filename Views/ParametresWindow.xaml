@@ -78,49 +78,103 @@
                     <StackPanel>
                         <TextBlock Text="📤 Export / Import des données" Style="{StaticResource SectionTitle}"/>
                         
-                        <TextBlock Text="Export des données:" FontWeight="SemiBold" Margin="0,0,0,10"/>
-                        <StackPanel Orientation="Horizontal">
-                            <Button x:Name="BtnExportJSON" Content="💾 Exporter en JSON" 
+                        <TextBlock Text="Export des données (base complète):" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                        <WrapPanel>
+                            <Button x:Name="BtnExportSQLite" Content="💾 Exporter SQLite (.db)" 
                                     Background="#00915A" Foreground="White" 
-                                    Click="BtnExportJSON_Click"/>
-                            <Button x:Name="BtnExportCSV" Content="📊 Exporter en CSV" 
+                                    Click="BtnExportSQLite_Click" Margin="0,0,5,5"/>
+                            <Button x:Name="BtnExportJSON" Content="📄 Exporter JSON complet" 
                                     Background="#3498DB" Foreground="White" 
-                                    Click="BtnExportCSV_Click"/>
-                        </StackPanel>
+                                    Click="BtnExportJSON_Click" Margin="0,0,5,5"/>
+                            <Button x:Name="BtnExportComplet" Content="📦 Export complet (SQLite+JSON)" 
+                                    Background="#9B59B6" Foreground="White" 
+                                    Click="BtnExportComplet_Click" Margin="0,0,5,5"/>
+                        </WrapPanel>
+                        
+                        <TextBlock Text="Export partiel:" FontWeight="SemiBold" Margin="0,15,0,10"/>
+                        <Button x:Name="BtnExportCSV" Content="📊 Exporter backlog en CSV" 
+                                Background="#95A5A6" Foreground="White" 
+                                Click="BtnExportCSV_Click" Width="220" HorizontalAlignment="Left"/>
 
                         <TextBlock Text="Import des données:" FontWeight="SemiBold" Margin="0,15,0,10"/>
-                        <Button x:Name="BtnImportJSON" Content="📥 Importer depuis JSON" 
-                                Background="#9B59B6" Foreground="White" 
-                                Click="BtnImportJSON_Click" Width="200" HorizontalAlignment="Left"/>
+                        <WrapPanel>
+                            <Button x:Name="BtnImportSQLite" Content="📥 Importer SQLite (.db)" 
+                                    Background="#E67E22" Foreground="White" 
+                                    Click="BtnImportSQLite_Click" Margin="0,0,5,5"/>
+                            <Button x:Name="BtnImportJSON" Content="📥 Importer JSON" 
+                                    Background="#E67E22" Foreground="White" 
+                                    Click="BtnImportJSON_Click" Margin="0,0,5,5"/>
+                        </WrapPanel>
                         
                         <Border Background="#FFF8E1" CornerRadius="4" Padding="10" Margin="0,10,0,0">
                             <TextBlock TextWrapping="Wrap" FontSize="11" Foreground="#856404">
                                 <Run Text="⚠️ Attention: "/>
-                                <Run Text="L'import remplacera toutes les données existantes. Faites une sauvegarde avant d'importer."/>
+                                <Run Text="L'import remplacera toutes les données existantes. Créez TOUJOURS une sauvegarde avant d'importer !"/>
                             </TextBlock>
                         </Border>
                     </StackPanel>
                 </Border>
 
-                <!-- Section Sauvegarde/Restauration -->
+                <!-- Section Sauvegarde automatique -->
                 <Border Background="White" CornerRadius="6" Padding="20" Margin="0,0,0,15">
                     <Border.Effect>
                         <DropShadowEffect BlurRadius="5" ShadowDepth="2" Opacity="0.15"/>
                     </Border.Effect>
                     <StackPanel>
-                        <TextBlock Text="💼 Sauvegarde et restauration" Style="{StaticResource SectionTitle}"/>
+                        <TextBlock Text="⚡ Sauvegarde automatique" Style="{StaticResource SectionTitle}"/>
+                        
+                        <CheckBox x:Name="ChkSauvegardeAuto" Content="Activer la sauvegarde automatique" 
+                                  FontWeight="SemiBold" Margin="0,0,0,15"
+                                  Checked="ChkSauvegardeAuto_CheckedChanged" 
+                                  Unchecked="ChkSauvegardeAuto_CheckedChanged"/>
+                        
+                        <Grid IsEnabled="{Binding IsChecked, ElementName=ChkSauvegardeAuto}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <TextBlock Grid.Column="0" Text="Intervalle (minutes):" 
+                                       VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <TextBox x:Name="TxtIntervalleMinutes" Grid.Column="1" Text="30" 
+                                     Height="32" Padding="8" VerticalContentAlignment="Center"
+                                     PreviewTextInput="TxtIntervalleMinutes_PreviewTextInput"/>
+                            <Button x:Name="BtnAppliquerIntervalle" Grid.Column="2" Content="✓ Appliquer" 
+                                    Background="#00915A" Foreground="White" Width="100" 
+                                    HorizontalAlignment="Left" Margin="10,0,0,0"
+                                    Click="BtnAppliquerIntervalle_Click"/>
+                        </Grid>
+                        
+                        <Border Background="#E8F5E9" CornerRadius="4" Padding="10" Margin="0,15,0,0">
+                            <StackPanel>
+                                <TextBlock Text="📊 Statut de la sauvegarde automatique" FontWeight="SemiBold" Foreground="#2E7D32" Margin="0,0,0,5"/>
+                                <TextBlock x:Name="TxtStatutSauvegardeAuto" Text="Désactivée" Foreground="#6D6D6D" FontSize="12"/>
+                                <TextBlock x:Name="TxtProchaineSauvegarde" Text="" Foreground="#6D6D6D" FontSize="12" Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Border>
+
+                <!-- Section Sauvegarde/Restauration manuelle -->
+                <Border Background="White" CornerRadius="6" Padding="20" Margin="0,0,0,15">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="5" ShadowDepth="2" Opacity="0.15"/>
+                    </Border.Effect>
+                    <StackPanel>
+                        <TextBlock Text="💼 Sauvegarde et restauration manuelles" Style="{StaticResource SectionTitle}"/>
                         
                         <TextBlock Text="Créer une sauvegarde complète:" FontWeight="SemiBold" Margin="0,0,0,10"/>
-                        <Button x:Name="BtnCreerSauvegarde" Content="💾 Créer une sauvegarde" 
+                        <Button x:Name="BtnCreerSauvegarde" Content="💾 Sauvegarder maintenant (SQLite)" 
                                 Background="#00915A" Foreground="White" 
-                                Click="BtnCreerSauvegarde_Click" Width="200" HorizontalAlignment="Left"/>
+                                Click="BtnCreerSauvegarde_Click" Width="250" HorizontalAlignment="Left"/>
                         
                         <TextBlock Text="Restaurer depuis une sauvegarde:" FontWeight="SemiBold" Margin="0,15,0,10"/>
                         <Button x:Name="BtnRestaurerSauvegarde" Content="📥 Restaurer une sauvegarde" 
                                 Background="#E74C3C" Foreground="White" 
-                                Click="BtnRestaurerSauvegarde_Click" Width="200" HorizontalAlignment="Left"/>
+                                Click="BtnRestaurerSauvegarde_Click" Width="250" HorizontalAlignment="Left"/>
                         
-                        <TextBlock Text="Dernière sauvegarde:" FontWeight="SemiBold" Margin="0,15,0,5"/>
+                        <TextBlock Text="Dernière sauvegarde manuelle:" FontWeight="SemiBold" Margin="0,15,0,5"/>
                         <TextBlock x:Name="TxtDerniereSauvegarde" Text="Aucune sauvegarde trouvée" 
                                    Foreground="#6D6D6D" FontSize="12"/>
                     </StackPanel>

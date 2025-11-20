@@ -1,9 +1,14 @@
 using System;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows;
+using System.Windows.Input;
+using System.Windows.Threading;
 using BacklogManager.Services;
+using BacklogManager.Domain;
 using Microsoft.Win32;
 
 namespace BacklogManager.Views
@@ -12,6 +17,8 @@ namespace BacklogManager.Views
     {
         private readonly IDatabase _database;
         private readonly string _backupFolder;
+        private DispatcherTimer _autoSaveTimer;
+        private DateTime _nextAutoSave;
 
         public ParametresWindow(IDatabase database)
         {
@@ -26,6 +33,7 @@ namespace BacklogManager.Views
             }
 
             ChargerParametres();
+            InitialiserSauvegardeAutomatique();
         }
 
         private void ChargerParametres()
@@ -52,7 +60,7 @@ namespace BacklogManager.Views
             {
                 if (Directory.Exists(_backupFolder))
                 {
-                    var backups = Directory.GetFiles(_backupFolder, "backup_*.zip")
+                    var backups = Directory.GetFiles(_backupFolder, "backup_manual_*.db")
                         .Select(f => new FileInfo(f))
                         .OrderByDescending(f => f.LastWriteTime)
                         .FirstOrDefault();
@@ -65,6 +73,146 @@ namespace BacklogManager.Views
             }
             catch { }
         }
+
+        #region Sauvegarde Automatique
+
+        private void InitialiserSauvegardeAutomatique()
+        {
+            _autoSaveTimer = new DispatcherTimer();
+            _autoSaveTimer.Tick += AutoSaveTimer_Tick;
+            
+            // Charger les préférences (à implémenter avec config file)
+            ChkSauvegardeAuto.IsChecked = false;
+            TxtIntervalleMinutes.Text = "30";
+            UpdateStatutSauvegardeAuto();
+        }
+
+        private void ChkSauvegardeAuto_CheckedChanged(object sender, RoutedEventArgs e)
+        {
+            if (ChkSauvegardeAuto.IsChecked == true)
+            {
+                DemarrerSauvegardeAutomatique();
+            }
+            else
+            {
+                ArreterSauvegardeAutomatique();
+            }
+            UpdateStatutSauvegardeAuto();
+        }
+
+        private void BtnAppliquerIntervalle_Click(object sender, RoutedEventArgs e)
+        {
+            if (int.TryParse(TxtIntervalleMinutes.Text, out int minutes) && minutes > 0)
+            {
+                if (ChkSauvegardeAuto.IsChecked == true)
+                {
+                    DemarrerSauvegardeAutomatique();
+                }
+                MessageBox.Show($"Intervalle mis à jour : {minutes} minutes", 
+                    "Configuration", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            else
+            {
+                MessageBox.Show("Veuillez saisir un nombre de minutes valide (> 0)", 
+                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Warning);
+                TxtIntervalleMinutes.Text = "30";
+            }
+        }
+
+        private void TxtIntervalleMinutes_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            // Autoriser uniquement les chiffres
+            e.Handled = !IsTextNumeric(e.Text);
+        }
+
+        private bool IsTextNumeric(string text)
+        {
+            return Regex.IsMatch(text, "^[0-9]+$");
+        }
+
+        private void DemarrerSauvegardeAutomatique()
+        {
+            if (int.TryParse(TxtIntervalleMinutes.Text, out int minutes) && minutes > 0)
+            {
+                _autoSaveTimer.Stop();
+                _autoSaveTimer.Interval = TimeSpan.FromMinutes(minutes);
+                _autoSaveTimer.Start();
+                _nextAutoSave = DateTime.Now.AddMinutes(minutes);
+                UpdateStatutSauvegardeAuto();
+            }
+        }
+
+        private void ArreterSauvegardeAutomatique()
+        {
+            _autoSaveTimer.Stop();
+            UpdateStatutSauvegardeAuto();
+        }
+
+        private void AutoSaveTimer_Tick(object sender, EventArgs e)
+        {
+            try
+            {
+                // Créer une sauvegarde automatique
+                var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+                var backupFileName = $"backup_auto_{timestamp}.db";
+                var backupPath = Path.Combine(_backupFolder, backupFileName);
+
+                var dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "backlog.db");
+                
+                if (File.Exists(dbPath))
+                {
+                    File.Copy(dbPath, backupPath, true);
+                    
+                    // Nettoyer les anciennes sauvegardes auto (garder les 10 dernières)
+                    NettoyerAnciennesSauvegardes("backup_auto_*.db", 10);
+                }
+
+                // Calculer la prochaine sauvegarde
+                if (int.TryParse(TxtIntervalleMinutes.Text, out int minutes))
+                {
+                    _nextAutoSave = DateTime.Now.AddMinutes(minutes);
+                    UpdateStatutSauvegardeAuto();
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log silencieux pour ne pas interrompre l'utilisateur
+                System.Diagnostics.Debug.WriteLine($"Erreur sauvegarde auto: {ex.Message}");
+            }
+        }
+
+        private void NettoyerAnciennesSauvegardes(string pattern, int keepCount)
+        {
+            try
+            {
+                var files = Directory.GetFiles(_backupFolder, pattern)
+                    .Select(f => new FileInfo(f))
+                    .OrderByDescending(f => f.LastWriteTime)
+                    .Skip(keepCount);
+
+                foreach (var file in files)
+                {
+                    file.Delete();
+                }
+            }
+            catch { }
+        }
+
+        private void UpdateStatutSauvegardeAuto()
+        {
+            if (ChkSauvegardeAuto.IsChecked == true && _autoSaveTimer.IsEnabled)
+            {
+                TxtStatutSauvegardeAuto.Text = $"✅ Activée - Intervalle: {TxtIntervalleMinutes.Text} minutes";
+                TxtProchaineSauvegarde.Text = $"⏰ Prochaine sauvegarde: {_nextAutoSave:dd/MM/yyyy HH:mm:ss}";
+            }
+            else
+            {
+                TxtStatutSauvegardeAuto.Text = "❌ Désactivée";
+                TxtProchaineSauvegarde.Text = "";
+            }
+        }
+
+        #endregion
 
         private void BtnChangerDB_Click(object sender, RoutedEventArgs e)
         {
@@ -88,6 +236,49 @@ namespace BacklogManager.Views
             }
         }
 
+        private void BtnExportSQLite_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var saveDialog = new SaveFileDialog
+                {
+                    Filter = "Base de données SQLite (*.db)|*.db",
+                    FileName = $"BacklogManager_SQLite_{DateTime.Now:yyyyMMdd_HHmmss}.db",
+                    Title = "Exporter la base de données SQLite"
+                };
+
+                if (saveDialog.ShowDialog() == true)
+                {
+                    var dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "backlog.db");
+                    
+                    if (File.Exists(dbPath))
+                    {
+                        File.Copy(dbPath, saveDialog.FileName, true);
+                        
+                        var fileInfo = new FileInfo(saveDialog.FileName);
+                        MessageBox.Show(
+                            $"Export SQLite réussi !\n\n" +
+                            $"Fichier: {Path.GetFileName(saveDialog.FileName)}\n" +
+                            $"Taille: {fileInfo.Length / 1024} KB\n" +
+                            $"Emplacement: {Path.GetDirectoryName(saveDialog.FileName)}",
+                            "Export SQLite", 
+                            MessageBoxButton.OK, 
+                            MessageBoxImage.Information);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Le fichier de base de données n'a pas été trouvé.",
+                            "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erreur lors de l'export SQLite:\n{ex.Message}",
+                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         private void BtnExportJSON_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -95,38 +286,24 @@ namespace BacklogManager.Views
                 var saveDialog = new SaveFileDialog
                 {
                     Filter = "Fichiers JSON (*.json)|*.json",
-                    FileName = $"BacklogManager_Export_{DateTime.Now:yyyyMMdd_HHmmss}.json",
-                    Title = "Exporter les données en JSON"
+                    FileName = $"BacklogManager_Full_{DateTime.Now:yyyyMMdd_HHmmss}.json",
+                    Title = "Exporter toutes les données en JSON"
                 };
 
                 if (saveDialog.ShowDialog() == true)
                 {
-                    // Export simplifié sans Newtonsoft.Json
-                    var json = new StringBuilder();
-                    json.AppendLine("{");
-                    json.AppendLine($"  \"ExportDate\": \"{DateTime.Now:yyyy-MM-dd HH:mm:ss}\",");
-                    json.AppendLine($"  \"Version\": \"1.0\",");
-                    
-                    var items = _database.GetBacklog();
-                    var projets = _database.GetProjets();
-                    var users = _database.GetUtilisateurs();
-                    
-                    json.AppendLine($"  \"TotalBacklogItems\": {items.Count},");
-                    json.AppendLine($"  \"TotalProjets\": {projets.Count},");
-                    json.AppendLine($"  \"TotalUtilisateurs\": {users.Count}");
-                    json.AppendLine("}");
+                    var json = ExporterToutesLesDonneesJSON();
+                    File.WriteAllText(saveDialog.FileName, json, Encoding.UTF8);
 
-                    File.WriteAllText(saveDialog.FileName, json.ToString(), Encoding.UTF8);
-
+                    var fileInfo = new FileInfo(saveDialog.FileName);
                     MessageBox.Show(
-                        $"Export réussi !\n\n" +
-                        $"Fichier créé: {saveDialog.FileName}\n\n" +
-                        $"Statistiques:\n" +
-                        $"- {items.Count} tâches\n" +
-                        $"- {projets.Count} projets\n" +
-                        $"- {users.Count} utilisateurs\n\n" +
-                        $"Note: Pour un export complet avec toutes les données, utilisez la fonction Sauvegarde.",
-                        "Export JSON", MessageBoxButton.OK, MessageBoxImage.Information);
+                        $"Export JSON complet réussi !\n\n" +
+                        $"Fichier: {Path.GetFileName(saveDialog.FileName)}\n" +
+                        $"Taille: {fileInfo.Length / 1024} KB\n" +
+                        $"Contenu: Toutes les tables (BacklogItems, Utilisateurs, Projets, CRA, etc.)",
+                        "Export JSON", 
+                        MessageBoxButton.OK, 
+                        MessageBoxImage.Information);
                 }
             }
             catch (Exception ex)
@@ -134,6 +311,179 @@ namespace BacklogManager.Views
                 MessageBox.Show($"Erreur lors de l'export JSON:\n{ex.Message}\n\nStackTrace:\n{ex.StackTrace}",
                     "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private void BtnExportComplet_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var saveDialog = new SaveFileDialog
+                {
+                    Filter = "Archive ZIP (*.zip)|*.zip",
+                    FileName = $"BacklogManager_Complete_{DateTime.Now:yyyyMMdd_HHmmss}.zip",
+                    Title = "Export complet (SQLite + JSON)"
+                };
+
+                if (saveDialog.ShowDialog() == true)
+                {
+                    var tempFolder = Path.Combine(Path.GetTempPath(), "BacklogExport_" + Guid.NewGuid().ToString());
+                    Directory.CreateDirectory(tempFolder);
+
+                    try
+                    {
+                        // Copier SQLite
+                        var dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "backlog.db");
+                        var dbExportPath = Path.Combine(tempFolder, "backlog.db");
+                        File.Copy(dbPath, dbExportPath, true);
+
+                        // Créer JSON
+                        var jsonContent = ExporterToutesLesDonneesJSON();
+                        var jsonPath = Path.Combine(tempFolder, "data_export.json");
+                        File.WriteAllText(jsonPath, jsonContent, Encoding.UTF8);
+
+                        // Créer README
+                        var readmePath = Path.Combine(tempFolder, "README.txt");
+                        File.WriteAllText(readmePath, 
+                            $"BacklogManager - Export Complet\n" +
+                            $"================================\n\n" +
+                            $"Date d'export: {DateTime.Now:dd/MM/yyyy HH:mm:ss}\n\n" +
+                            $"Contenu:\n" +
+                            $"- backlog.db: Base de données SQLite complète\n" +
+                            $"- data_export.json: Toutes les données en format JSON\n\n" +
+                            $"Pour restaurer:\n" +
+                            $"- SQLite: Utiliser 'Importer SQLite' dans les paramètres\n" +
+                            $"- JSON: Utiliser 'Importer JSON' dans les paramètres\n", 
+                            Encoding.UTF8);
+
+                        // Créer le ZIP
+                        if (File.Exists(saveDialog.FileName))
+                            File.Delete(saveDialog.FileName);
+                        
+                        System.IO.Compression.ZipFile.CreateFromDirectory(tempFolder, saveDialog.FileName);
+
+                        var fileInfo = new FileInfo(saveDialog.FileName);
+                        MessageBox.Show(
+                            $"Export complet réussi !\n\n" +
+                            $"Fichier: {Path.GetFileName(saveDialog.FileName)}\n" +
+                            $"Taille: {fileInfo.Length / 1024} KB\n" +
+                            $"Contenu: SQLite + JSON + README\n" +
+                            $"Emplacement: {Path.GetDirectoryName(saveDialog.FileName)}",
+                            "Export Complet", 
+                            MessageBoxButton.OK, 
+                            MessageBoxImage.Information);
+                    }
+                    finally
+                    {
+                        // Nettoyer le dossier temporaire
+                        if (Directory.Exists(tempFolder))
+                            Directory.Delete(tempFolder, true);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erreur lors de l'export complet:\n{ex.Message}",
+                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private string ExporterToutesLesDonneesJSON()
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("{");
+            sb.AppendLine($"  \"ExportDate\": \"{DateTime.Now:yyyy-MM-dd HH:mm:ss}\",");
+            sb.AppendLine($"  \"Version\": \"2.0\",");
+            sb.AppendLine($"  \"Application\": \"BacklogManager\",");
+            
+            // BacklogItems
+            var items = _database.GetBacklog();
+            sb.AppendLine($"  \"BacklogItems\": [");
+            for (int i = 0; i < items.Count; i++)
+            {
+                var item = items[i];
+                sb.AppendLine("    {");
+                sb.AppendLine($"      \"Id\": {item.Id},");
+                sb.AppendLine($"      \"Titre\": {EscapeJson(item.Titre)},");
+                sb.AppendLine($"      \"Description\": {EscapeJson(item.Description)},");
+                sb.AppendLine($"      \"TypeDemande\": \"{item.TypeDemande}\",");
+                sb.AppendLine($"      \"Priorite\": \"{item.Priorite}\",");
+                sb.AppendLine($"      \"Statut\": \"{item.Statut}\",");
+                sb.AppendLine($"      \"Complexite\": {item.Complexite ?? 0},");
+                sb.AppendLine($"      \"ChiffrageHeures\": {item.ChiffrageHeures ?? 0},");
+                sb.AppendLine($"      \"TempsReelHeures\": {item.TempsReelHeures ?? 0},");
+                sb.AppendLine($"      \"ProjetId\": {(item.ProjetId.HasValue ? item.ProjetId.Value.ToString() : "null")},");
+                sb.AppendLine($"      \"DevAssigneId\": {(item.DevAssigneId.HasValue ? item.DevAssigneId.Value.ToString() : "null")},");
+                sb.AppendLine($"      \"DateCreation\": \"{item.DateCreation:yyyy-MM-dd HH:mm:ss}\",");
+                sb.AppendLine($"      \"EstArchive\": {item.EstArchive.ToString().ToLower()}");
+                sb.Append("    }");
+                if (i < items.Count - 1) sb.AppendLine(",");
+                else sb.AppendLine();
+            }
+            sb.AppendLine("  ],");
+            
+            // Projets
+            var projets = _database.GetProjets();
+            sb.AppendLine($"  \"Projets\": [");
+            for (int i = 0; i < projets.Count; i++)
+            {
+                var p = projets[i];
+                sb.AppendLine("    {");
+                sb.AppendLine($"      \"Id\": {p.Id},");
+                sb.AppendLine($"      \"Nom\": {EscapeJson(p.Nom)},");
+                sb.AppendLine($"      \"Description\": {EscapeJson(p.Description)},");
+                sb.AppendLine($"      \"DateCreation\": \"{p.DateCreation:yyyy-MM-dd HH:mm:ss}\",");
+                sb.AppendLine($"      \"Actif\": {p.Actif.ToString().ToLower()},");
+                sb.AppendLine($"      \"CouleurHex\": {EscapeJson(p.CouleurHex)}");
+                sb.Append("    }");
+                if (i < projets.Count - 1) sb.AppendLine(",");
+                else sb.AppendLine();
+            }
+            sb.AppendLine("  ],");
+            
+            // Utilisateurs
+            var users = _database.GetUtilisateurs();
+            sb.AppendLine($"  \"Utilisateurs\": [");
+            for (int i = 0; i < users.Count; i++)
+            {
+                var u = users[i];
+                sb.AppendLine("    {");
+                sb.AppendLine($"      \"Id\": {u.Id},");
+                sb.AppendLine($"      \"UsernameWindows\": {EscapeJson(u.UsernameWindows)},");
+                sb.AppendLine($"      \"Nom\": {EscapeJson(u.Nom)},");
+                sb.AppendLine($"      \"Prenom\": {EscapeJson(u.Prenom)},");
+                sb.AppendLine($"      \"Email\": {EscapeJson(u.Email)},");
+                sb.AppendLine($"      \"RoleId\": {u.RoleId},");
+                sb.AppendLine($"      \"Actif\": {u.Actif.ToString().ToLower()}");
+                sb.Append("    }");
+                if (i < users.Count - 1) sb.AppendLine(",");
+                else sb.AppendLine();
+            }
+            sb.AppendLine("  ],");
+            
+            // Statistiques
+            sb.AppendLine($"  \"Statistics\": {{");
+            sb.AppendLine($"    \"TotalBacklogItems\": {items.Count},");
+            sb.AppendLine($"    \"TotalProjets\": {projets.Count},");
+            sb.AppendLine($"    \"TotalUtilisateurs\": {users.Count}");
+            sb.AppendLine("  }");
+            
+            sb.AppendLine("}");
+            
+            return sb.ToString();
+        }
+
+        private string EscapeJson(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+                return "\"\"";
+            
+            value = value.Replace("\\", "\\\\")
+                        .Replace("\"", "\\\"")
+                        .Replace("\n", "\\n")
+                        .Replace("\r", "\\r")
+                        .Replace("\t", "\\t");
+            
+            return $"\"{value}\"";
         }
 
         private void BtnExportCSV_Click(object sender, RoutedEventArgs e)
@@ -195,13 +545,69 @@ namespace BacklogManager.Views
             return value;
         }
 
+        private void BtnImportSQLite_Click(object sender, RoutedEventArgs e)
+        {
+            var result = MessageBox.Show(
+                "⚠️ ATTENTION ⚠️\n\n" +
+                "L'import va REMPLACER la base de données actuelle.\n\n" +
+                "Toutes les modifications non sauvegardées seront PERDUES !\n\n" +
+                "Voulez-vous continuer ?",
+                "Confirmer l'import SQLite",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (result != MessageBoxResult.Yes)
+                return;
+
+            try
+            {
+                var openDialog = new OpenFileDialog
+                {
+                    Filter = "Base de données SQLite (*.db)|*.db",
+                    Title = "Sélectionner une base SQLite à importer"
+                };
+
+                if (openDialog.ShowDialog() == true)
+                {
+                    var dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "backlog.db");
+                    
+                    // Créer une sauvegarde de sécurité avant import
+                    var backupBeforeImport = Path.Combine(_backupFolder, $"backup_before_import_{DateTime.Now:yyyyMMdd_HHmmss}.db");
+                    if (File.Exists(dbPath))
+                    {
+                        File.Copy(dbPath, backupBeforeImport, true);
+                    }
+
+                    // Copier le nouveau fichier
+                    File.Copy(openDialog.FileName, dbPath, true);
+
+                    MessageBox.Show(
+                        "Import SQLite effectué avec succès !\n\n" +
+                        "Une sauvegarde de l'ancienne base a été créée.\n\n" +
+                        "L'application va maintenant se fermer.\n" +
+                        "Veuillez la redémarrer pour charger les nouvelles données.",
+                        "Import SQLite",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+
+                    Application.Current.Shutdown();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erreur lors de l'import SQLite:\n{ex.Message}",
+                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         private void BtnImportJSON_Click(object sender, RoutedEventArgs e)
         {
             var result = MessageBox.Show(
                 "⚠️ ATTENTION ⚠️\n\n" +
-                "L'import va REMPLACER toutes les données actuelles par celles du fichier JSON.\n\n" +
+                "L'import JSON va REMPLACER toutes les données actuelles par celles du fichier JSON.\n\n" +
                 "Cette action est IRRÉVERSIBLE !\n\n" +
-                "Avez-vous créé une sauvegarde avant de continuer ?",
+                "Une sauvegarde automatique sera créée avant l'import.\n\n" +
+                "Voulez-vous continuer ?",
                 "Confirmer l'import",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Warning);
@@ -220,8 +626,12 @@ namespace BacklogManager.Views
                 if (openDialog.ShowDialog() == true)
                 {
                     MessageBox.Show(
-                        "Fonctionnalité d'import en cours de développement.\n\n" +
-                        "Pour l'instant, utilisez la restauration depuis une sauvegarde.",
+                        "Fonctionnalité d'import JSON en cours de développement.\n\n" +
+                        "Pour l'instant, utilisez 'Importer SQLite' pour restaurer une base complète.\n\n" +
+                        "L'import JSON sera disponible dans une prochaine version pour permettre:\n" +
+                        "- Import sélectif de données\n" +
+                        "- Fusion avec données existantes\n" +
+                        "- Import depuis exports d'autres outils",
                         "Import JSON",
                         MessageBoxButton.OK,
                         MessageBoxImage.Information);
@@ -239,7 +649,7 @@ namespace BacklogManager.Views
             try
             {
                 var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-                var backupFileName = $"backup_{timestamp}.db";
+                var backupFileName = $"backup_manual_{timestamp}.db";
                 var backupPath = Path.Combine(_backupFolder, backupFileName);
 
                 // Copier le fichier de base de données
@@ -250,7 +660,7 @@ namespace BacklogManager.Views
                     File.Copy(dbPath, backupPath, true);
 
                     MessageBox.Show(
-                        $"Sauvegarde créée avec succès !\n\n" +
+                        $"Sauvegarde manuelle créée avec succès !\n\n" +
                         $"Fichier: {backupFileName}\n" +
                         $"Emplacement: {_backupFolder}",
                         "Sauvegarde",
