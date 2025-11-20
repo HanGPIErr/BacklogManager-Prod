@@ -93,109 +93,15 @@ namespace BacklogManager.Services
             if (!utilisateurs.Any())
             {
                 var roleAdmin = roles.FirstOrDefault(r => r.Type == RoleType.Administrateur);
-                var roleBA = roles.FirstOrDefault(r => r.Type == RoleType.BusinessAnalyst);
-                var roleCP = roles.FirstOrDefault(r => r.Type == RoleType.ChefDeProjet);
-                var roleDev = roles.FirstOrDefault(r => r.Type == RoleType.Developpeur);
 
-                // Admin
+                // Créer un utilisateur administrateur par défaut
                 _database.AddOrUpdateUtilisateur(new Utilisateur
                 {
-                    UsernameWindows = "J00001",
-                    Nom = "Admin",
+                    UsernameWindows = "ADMIN",
+                    Nom = "Administrateur",
                     Prenom = "Système",
-                    Email = "admin@bnpparibas.com",
+                    Email = "admin@company.com",
                     RoleId = roleAdmin?.Id ?? 1,
-                    Actif = true,
-                    DateCreation = DateTime.Now
-                });
-
-                // Business Analysts
-                _database.AddOrUpdateUtilisateur(new Utilisateur
-                {
-                    UsernameWindows = "J10001",
-                    Nom = "Martin",
-                    Prenom = "Sophie",
-                    Email = "sophie.martin@bnpparibas.com",
-                    RoleId = roleBA?.Id ?? 2,
-                    Actif = true,
-                    DateCreation = DateTime.Now
-                });
-
-                _database.AddOrUpdateUtilisateur(new Utilisateur
-                {
-                    UsernameWindows = "J10002",
-                    Nom = "Dubois",
-                    Prenom = "Marc",
-                    Email = "marc.dubois@bnpparibas.com",
-                    RoleId = roleBA?.Id ?? 2,
-                    Actif = true,
-                    DateCreation = DateTime.Now
-                });
-
-                // Chef de Projet
-                _database.AddOrUpdateUtilisateur(new Utilisateur
-                {
-                    UsernameWindows = "J20001",
-                    Nom = "Leroy",
-                    Prenom = "Catherine",
-                    Email = "catherine.leroy@bnpparibas.com",
-                    RoleId = roleCP?.Id ?? 3,
-                    Actif = true,
-                    DateCreation = DateTime.Now
-                });
-
-                // Développeurs
-                _database.AddOrUpdateUtilisateur(new Utilisateur
-                {
-                    UsernameWindows = "J04831",
-                    Nom = "HanGP",
-                    Prenom = "Pierre-Romain",
-                    Email = "pierre-romain.hangp@bnpparibas.com",
-                    RoleId = roleDev?.Id ?? 4,
-                    Actif = true,
-                    DateCreation = DateTime.Now
-                });
-
-                _database.AddOrUpdateUtilisateur(new Utilisateur
-                {
-                    UsernameWindows = "J30001",
-                    Nom = "Bernard",
-                    Prenom = "Thomas",
-                    Email = "thomas.bernard@bnpparibas.com",
-                    RoleId = roleDev?.Id ?? 4,
-                    Actif = true,
-                    DateCreation = DateTime.Now
-                });
-
-                _database.AddOrUpdateUtilisateur(new Utilisateur
-                {
-                    UsernameWindows = "J30002",
-                    Nom = "Petit",
-                    Prenom = "Julie",
-                    Email = "julie.petit@bnpparibas.com",
-                    RoleId = roleDev?.Id ?? 4,
-                    Actif = true,
-                    DateCreation = DateTime.Now
-                });
-
-                _database.AddOrUpdateUtilisateur(new Utilisateur
-                {
-                    UsernameWindows = "J30003",
-                    Nom = "Robert",
-                    Prenom = "Alexandre",
-                    Email = "alexandre.robert@bnpparibas.com",
-                    RoleId = roleDev?.Id ?? 4,
-                    Actif = true,
-                    DateCreation = DateTime.Now
-                });
-
-                _database.AddOrUpdateUtilisateur(new Utilisateur
-                {
-                    UsernameWindows = "J30004",
-                    Nom = "Moreau",
-                    Prenom = "Émilie",
-                    Email = "emilie.moreau@bnpparibas.com",
-                    RoleId = roleDev?.Id ?? 4,
                     Actif = true,
                     DateCreation = DateTime.Now
                 });
