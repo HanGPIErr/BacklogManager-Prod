@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using System.Windows.Controls;
 using BacklogManager.Domain;
 using BacklogManager.Services;
 
@@ -14,6 +16,8 @@ namespace BacklogManager.Views
         private readonly BacklogService _backlogService;
         private readonly NotificationService _notificationService;
         private readonly AuthenticationService _authService;
+        private readonly AuditLogService _auditLogService;
+        private readonly CRAService _craService;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -97,6 +101,8 @@ namespace BacklogManager.Views
             _backlogService = backlogService;
             _notificationService = notificationService;
             _authService = authService;
+            _auditLogService = authService.GetAuditLogService();
+            _craService = new CRAService(backlogService.Database);
 
             // Initialiser les collections AVANT InitializeComponent
             TachesUrgentes = new ObservableCollection<TacheUrgenteViewModel>();
@@ -165,12 +171,259 @@ namespace BacklogManager.Views
                 t.DateFin.HasValue && t.DateFin.Value.Date == aujourdhui && t.Statut == Statut.Termine);
             TauxProductivite = NbTachesEnCours > 0 ? (tachesTermineesAujourdhui * 100) / NbTachesEnCours : 100;
             
-            // Activités récentes (simulé pour démo)
-            ActivitesRecentes = new ObservableCollection<ActiviteViewModel>
+            // Activités récentes (vraies données depuis AuditLog et CRA)
+            ChargerActivitesRecentes();
+        }
+
+        private void ChargerActivitesRecentes()
+        {
+            var activites = new List<ActiviteViewModel>();
+            var maintenant = DateTime.Now;
+            
+            try
             {
-                new ActiviteViewModel { Action = "Tâche terminée", Details = "Validation des specs", Temps = "Il y a 2h" },
-                new ActiviteViewModel { Action = "Commentaire ajouté", Details = "Sur tâche #15", Temps = "Il y a 3h" },
-                new ActiviteViewModel { Action = "Sprint démarré", Details = "Sprint 12", Temps = "Hier" }
+                // 1. Récupérer les actions pertinentes depuis l'audit log
+                var auditLogs = _auditLogService?.GetRecentLogs(50) ?? new List<AuditLog>();
+                
+                // Filtrer uniquement les actions liées aux tâches et projets (pas les connexions/déconnexions)
+                var logsFiltered = auditLogs
+                    .Where(log => log.EntityType == "BacklogItem" || 
+                                  log.EntityType == "Projet" || 
+                                  log.EntityType == "CRA")
+                    .Take(10)
+                    .ToList();
+                
+                foreach (var log in logsFiltered.Take(5))
+                {
+                    var tempsEcoule = GetTempsEcoule(log.DateAction, maintenant);
+                    
+                    string action = log.Action switch
+                    {
+                        "CREATE" => "✅ Créé",
+                        "UPDATE" => "📝 Modifié",
+                        "DELETE" => "🗑️ Supprimé",
+                        _ => log.Action
+                    };
+                    
+                    string details = "";
+                    int? backlogItemId = null;
+                    bool estArchive = false;
+                    
+                    if (log.EntityType == "BacklogItem")
+                    {
+                        backlogItemId = log.EntityId;
+                        
+                        // Tâche : afficher le titre si disponible
+                        if (log.EntityId.HasValue)
+                        {
+                            var tache = _backlogService.GetBacklogItemById(log.EntityId.Value);
+                            if (tache != null)
+                            {
+                                estArchive = tache.EstArchive;
+                                var titre = tache.Titre.Length > 45 ? tache.Titre.Substring(0, 42) + "..." : tache.Titre;
+                                details = titre;
+                            }
+                            else if (!string.IsNullOrEmpty(log.Details))
+                            {
+                                details = log.Details.Length > 45 ? log.Details.Substring(0, 42) + "..." : log.Details;
+                            }
+                            else
+                            {
+                                details = $"Tâche #{log.EntityId}";
+                            }
+                        }
+                        else if (!string.IsNullOrEmpty(log.Details))
+                        {
+                            details = log.Details.Length > 45 ? log.Details.Substring(0, 42) + "..." : log.Details;
+                        }
+                        else
+                        {
+                            details = "Tâche";
+                        }
+                    }
+                    else if (log.EntityType == "Projet")
+                    {
+                        details = !string.IsNullOrEmpty(log.Details) ? log.Details : "Projet";
+                    }
+                    else if (log.EntityType == "CRA")
+                    {
+                        details = "Temps saisi";
+                    }
+                    
+                    activites.Add(new ActiviteViewModel
+                    {
+                        Action = action,
+                        Details = details,
+                        Temps = tempsEcoule,
+                        BacklogItemId = backlogItemId,
+                        EstArchive = estArchive
+                    });
+                }
+                
+                // 2. Ajouter les CRA récents (congés, tâches travaillées, support)
+                var currentUser = _authService.CurrentUser;
+                if (currentUser != null)
+                {
+                    var crasRecents = _craService?.GetCRAsByDev(currentUser.Id, maintenant.AddDays(-7), maintenant) 
+                        ?? new List<CRA>();
+                    
+                    var toutes = _backlogService.GetAllBacklogItems();
+                    var tachesDico = toutes.ToDictionary(t => t.Id, t => t);
+                    
+                    var crasByDate = crasRecents
+                        .Where(cra => tachesDico.ContainsKey(cra.BacklogItemId))
+                        .OrderByDescending(c => c.Date)
+                        .GroupBy(c => c.Date.Date)
+                        .Take(5);
+                    
+                    foreach (var craGroup in crasByDate)
+                    {
+                        var date = craGroup.Key;
+                        var tempsEcoule = GetTempsEcoule(date, maintenant);
+                        
+                        // Grouper par type de tâche
+                        var conges = craGroup.Where(c => tachesDico[c.BacklogItemId].TypeDemande == TypeDemande.Conges).ToList();
+                        var absences = craGroup.Where(c => tachesDico[c.BacklogItemId].TypeDemande == TypeDemande.NonTravaille).ToList();
+                        var support = craGroup.Where(c => tachesDico[c.BacklogItemId].TypeDemande == TypeDemande.Support).ToList();
+                        var travail = craGroup.Where(c => 
+                            tachesDico[c.BacklogItemId].TypeDemande != TypeDemande.Conges &&
+                            tachesDico[c.BacklogItemId].TypeDemande != TypeDemande.NonTravaille &&
+                            tachesDico[c.BacklogItemId].TypeDemande != TypeDemande.Support).ToList();
+                        
+                        // Congés
+                        if (conges.Any())
+                        {
+                            var totalJours = conges.Sum(c => c.HeuresTravaillees) / 8.0;
+                            var tache = tachesDico[conges.First().BacklogItemId];
+                            activites.Add(new ActiviteViewModel
+                            {
+                                Action = "🏖️ Congé",
+                                Details = $"{totalJours:F1}j - {tache.Titre}",
+                                Temps = tempsEcoule,
+                                BacklogItemId = tache.Id,
+                                EstArchive = tache.EstArchive
+                            });
+                        }
+                        
+                        // Absences
+                        if (absences.Any())
+                        {
+                            var totalJours = absences.Sum(c => c.HeuresTravaillees) / 8.0;
+                            var tache = tachesDico[absences.First().BacklogItemId];
+                            activites.Add(new ActiviteViewModel
+                            {
+                                Action = "⏸️ Absence",
+                                Details = $"{totalJours:F1}j - {tache.Titre}",
+                                Temps = tempsEcoule,
+                                BacklogItemId = tache.Id,
+                                EstArchive = tache.EstArchive
+                            });
+                        }
+                        
+                        // Support
+                        if (support.Any())
+                        {
+                            var totalJours = support.Sum(c => c.HeuresTravaillees) / 8.0;
+                            var tache = tachesDico[support.First().BacklogItemId];
+                            activites.Add(new ActiviteViewModel
+                            {
+                                Action = "🤝 Support",
+                                Details = $"{totalJours:F1}j - {tache.Titre}",
+                                Temps = tempsEcoule,
+                                BacklogItemId = tache.Id,
+                                EstArchive = tache.EstArchive
+                            });
+                        }
+                        
+                        // Travail normal (afficher uniquement si plusieurs tâches dans la journée)
+                        if (travail.Count >= 2)
+                        {
+                            var totalJours = travail.Sum(c => c.HeuresTravaillees) / 8.0;
+                            var nbTaches = travail.Select(c => c.BacklogItemId).Distinct().Count();
+                            activites.Add(new ActiviteViewModel
+                            {
+                                Action = "💼 Travail",
+                                Details = $"{totalJours:F1}j sur {nbTaches} tâche{(nbTaches > 1 ? "s" : "")}",
+                                Temps = tempsEcoule
+                            });
+                        }
+                        else if (travail.Count == 1)
+                        {
+                            var cra = travail.First();
+                            var tache = tachesDico[cra.BacklogItemId];
+                            var jours = cra.HeuresTravaillees / 8.0;
+                            var titre = tache.Titre.Length > 35 ? tache.Titre.Substring(0, 32) + "..." : tache.Titre;
+                            activites.Add(new ActiviteViewModel
+                            {
+                                Action = "⏱️ Temps saisi",
+                                Details = $"{jours:F1}j - {titre}",
+                                Temps = tempsEcoule,
+                                BacklogItemId = tache.Id,
+                                EstArchive = tache.EstArchive
+                            });
+                        }
+                    }
+                }
+                
+                // Trier par pertinence (plus récent en premier) et prendre les 8 premières
+                ActivitesRecentes = new ObservableCollection<ActiviteViewModel>(
+                    activites.Take(8)
+                );
+                
+                // Si aucune activité, afficher un message
+                if (ActivitesRecentes.Count == 0)
+                {
+                    ActivitesRecentes.Add(new ActiviteViewModel
+                    {
+                        Action = "ℹ️ Aucune activité récente",
+                        Details = "Commencez à travailler sur des tâches",
+                        Temps = "Maintenant"
+                    });
+                }
+            }
+            catch
+            {
+                // En cas d'erreur, afficher un message générique
+                ActivitesRecentes = new ObservableCollection<ActiviteViewModel>
+                {
+                    new ActiviteViewModel
+                    {
+                        Action = "⚠️ Erreur",
+                        Details = "Impossible de charger les activités",
+                        Temps = "Maintenant"
+                    }
+                };
+            }
+        }
+        
+        private string GetTempsEcoule(DateTime dateAction, DateTime maintenant)
+        {
+            var diff = maintenant - dateAction;
+            
+            if (diff.TotalMinutes < 1)
+                return "À l'instant";
+            if (diff.TotalMinutes < 60)
+                return $"Il y a {(int)diff.TotalMinutes} min";
+            if (diff.TotalHours < 24)
+                return $"Il y a {(int)diff.TotalHours}h";
+            if (diff.TotalDays < 2)
+                return "Hier";
+            if (diff.TotalDays < 7)
+                return $"Il y a {(int)diff.TotalDays}j";
+            
+            return dateAction.ToString("dd/MM");
+        }
+        
+        private string GetIconeAction(string action)
+        {
+            return action switch
+            {
+                "CREATE" => "✅",
+                "UPDATE" => "📝",
+                "DELETE" => "🗑️",
+                "LOGIN" => "🔐",
+                "LOGOUT" => "🚪",
+                _ => "📋"
             };
         }
 
@@ -214,6 +467,20 @@ namespace BacklogManager.Views
         {
             var mainWindow = Window.GetWindow(this) as MainWindow;
             mainWindow?.AfficherBacklog();
+        }
+
+        private void Activite_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            if (button?.Tag is ActiviteViewModel activite && activite.BacklogItemId.HasValue)
+            {
+                var mainWindow = Window.GetWindow(this) as MainWindow;
+                if (mainWindow != null)
+                {
+                    // Toujours naviguer vers le Backlog (qui contient aussi les archives)
+                    mainWindow.AfficherBacklog();
+                }
+            }
         }
 
         private void VoirKanban_Click(object sender, RoutedEventArgs e)
@@ -294,11 +561,15 @@ namespace BacklogManager.Views
         public bool EstNonLue { get; set; }
     }
 
-    public class ActiviteViewModel
+    public class ActiviteViewModel : INotifyPropertyChanged
     {
         public string Action { get; set; }
         public string Details { get; set; }
         public string Temps { get; set; }
+        public int? BacklogItemId { get; set; }
+        public bool EstArchive { get; set; }
+
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 
     public class TacheUrgenteViewModel

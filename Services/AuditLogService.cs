@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using BacklogManager.Domain;
 
 namespace BacklogManager.Services
@@ -63,6 +65,21 @@ namespace BacklogManager.Services
         public void LogLogout()
         {
             LogAction("LOGOUT", "Utilisateur", _currentUser.Id, null, null, $"Déconnexion de {_currentUser.Nom}");
+        }
+
+        public List<AuditLog> GetRecentLogs(int count = 10)
+        {
+            try
+            {
+                return _database.GetAuditLogs()
+                    .OrderByDescending(log => log.DateAction)
+                    .Take(count)
+                    .ToList();
+            }
+            catch
+            {
+                return new List<AuditLog>();
+            }
         }
     }
 }

@@ -135,6 +135,9 @@ namespace BacklogManager
             BtnDemandes.Visibility = _permissionService.PeutCreerDemandes ? Visibility.Visible : Visibility.Collapsed;
             BtnStatistiques.Visibility = _permissionService.PeutVoirKPI ? Visibility.Visible : Visibility.Collapsed;
             
+            // Le bouton Paramètres est réservé à l'Administrateur uniquement
+            BtnParametres.Visibility = _permissionService.EstAdministrateur ? Visibility.Visible : Visibility.Collapsed;
+            
             // Masquer toute la section ADMINISTRATION si pas d'accès
             TxtHeaderAdmin.Visibility = hasAdminAccess ? Visibility.Visible : Visibility.Collapsed;
         }
@@ -251,6 +254,14 @@ namespace BacklogManager
         {
             try
             {
+                // Vérifier que seul l'Administrateur peut accéder aux paramètres
+                if (!_permissionService.EstAdministrateur)
+                {
+                    MessageBox.Show("Accès refusé.\n\nSeul le rôle Administrateur peut accéder aux paramètres système.", 
+                        "Paramètres - Accès restreint", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
                 var window = new ParametresWindow(_database);
                 window.Owner = this;
                 window.ShowDialog();

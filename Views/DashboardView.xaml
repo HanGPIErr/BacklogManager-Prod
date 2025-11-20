@@ -402,7 +402,33 @@
                         <ItemsControl ItemsSource="{Binding ActivitesRecentes}" MaxHeight="300">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Background="#FAFAFA" CornerRadius="6" Padding="12,10" Margin="0,0,0,8">
+                                    <Button Background="Transparent" BorderThickness="0" 
+                                            Padding="0" Margin="0,0,0,8" Cursor="Hand"
+                                            HorizontalContentAlignment="Stretch"
+                                            Tag="{Binding}"
+                                            Click="Activite_Click">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border x:Name="border" Background="#FAFAFA" 
+                                                                    CornerRadius="6" Padding="12,10">
+                                                                <ContentPresenter/>
+                                                            </Border>
+                                                            <ControlTemplate.Triggers>
+                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                    <Setter TargetName="border" Property="Background" Value="#E8F5E9"/>
+                                                                </Trigger>
+                                                                <Trigger Property="IsPressed" Value="True">
+                                                                    <Setter TargetName="border" Property="Background" Value="#C8E6C9"/>
+                                                                </Trigger>
+                                                            </ControlTemplate.Triggers>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Style>
+                                        </Button.Style>
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto"/>
@@ -428,7 +454,7 @@
                                                 <Run Text="{Binding Temps}"/>
                                             </TextBlock>
                                         </Grid>
-                                    </Border>
+                                    </Button>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
