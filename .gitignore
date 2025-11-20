@@ -53,8 +53,7 @@ bld/
 # NuGet Packages
 *.nupkg
 *.snupkg
-**/packages/*
-!**/packages/build/
+packages/
 *.nuget.props
 *.nuget.targets
 
