@@ -85,7 +85,7 @@ namespace BacklogManager.Services
                         UsernameWindows = username,
                         Nom = "",
                         Prenom = username,
-                        Email = $"{username}@company.com",
+                        Email = $"{username}@bnpparibas.com",
                         RoleId = roleAdmin?.Id ?? 1,
                         Actif = true,
                         DateCreation = DateTime.Now
