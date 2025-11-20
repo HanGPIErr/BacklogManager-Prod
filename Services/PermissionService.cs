@@ -15,7 +15,8 @@ namespace BacklogManager.Services
 
         // Permissions de création
         public bool PeutCreerDemandes => _currentRole?.PeutCreerDemandes ?? false;
-        public bool PeutCreerTaches => _currentRole?.PeutCreerDemandes ?? false; // Même logique
+        public bool PeutCreerTaches => _currentRole?.PeutCreerDemandes ?? false; // Pour Admin/BA/CP
+        public bool PeutCreerTachesSpeciales => true; // Tous les utilisateurs peuvent créer congés/support
         public bool PeutCreerProjets => _currentRole?.PeutGererReferentiels ?? false;
 
         // Permissions de modification

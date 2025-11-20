@@ -140,6 +140,7 @@ namespace BacklogManager.ViewModels
 
         // Propriétés de visibilité selon les permissions
         public Visibility PeutCreerTachesVisibility => _permissionService?.PeutCreerTaches == true ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility PeutCreerTachesSpecialesVisibility => _permissionService?.PeutCreerTachesSpeciales == true ? Visibility.Visible : Visibility.Collapsed;
         public Visibility PeutModifierTachesVisibility => _permissionService?.PeutModifierTaches == true ? Visibility.Visible : Visibility.Collapsed;
         public Visibility PeutGererReferentielsVisibility => _permissionService?.PeutGererReferentiels == true ? Visibility.Visible : Visibility.Collapsed;
         public Visibility PeutCreerProjetsVisibility => _permissionService?.PeutGererReferentiels == true ? Visibility.Visible : Visibility.Collapsed;

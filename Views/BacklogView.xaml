@@ -146,7 +146,7 @@
                             </Button>
                             
                             <Button x:Name="BtnTacheSpeciale" Content="➕ Congés/Support" 
-                                    Visibility="{Binding PeutCreerTachesVisibility}"
+                                    Visibility="{Binding PeutCreerTachesSpecialesVisibility}"
                                     Click="BtnTacheSpeciale_Click"
                                     Height="38" Margin="0,0,10,0" Background="#FFB800" Foreground="White" BorderThickness="0"
                                     FontSize="13" FontWeight="Bold" Cursor="Hand" Padding="16,0">
