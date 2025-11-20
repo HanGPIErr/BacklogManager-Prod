@@ -1,0 +1,169 @@
+<Window x:Class="BacklogManager.Views.UpdateWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Mise à jour disponible" 
+        Height="400" Width="500"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Background="#F5F5F5">
+    
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Titre -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+            <TextBlock Text="🎉 Nouvelle version disponible !" 
+                       FontSize="22" 
+                       FontWeight="Bold" 
+                       Foreground="#00915A"
+                       HorizontalAlignment="Center"/>
+        </StackPanel>
+
+        <!-- Informations de version -->
+        <Border Grid.Row="1" 
+                Background="White" 
+                BorderBrush="#DDDDDD" 
+                BorderThickness="1" 
+                CornerRadius="8" 
+                Padding="15"
+                Margin="0,0,0,15">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                    <TextBlock Text="Version actuelle : " FontWeight="SemiBold" Width="140"/>
+                    <TextBlock x:Name="TxtCurrentVersion" Text="1.0.0" Foreground="#666666"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                    <TextBlock Text="Nouvelle version : " FontWeight="SemiBold" Width="140"/>
+                    <TextBlock x:Name="TxtNewVersion" Text="1.1.0" Foreground="#00915A" FontWeight="Bold"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Date de sortie : " FontWeight="SemiBold" Width="140"/>
+                    <TextBlock x:Name="TxtReleaseDate" Text="20/11/2025" Foreground="#666666"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- Changelog -->
+        <Border Grid.Row="2" 
+                Background="White" 
+                BorderBrush="#DDDDDD" 
+                BorderThickness="1" 
+                CornerRadius="8" 
+                Padding="15"
+                Margin="0,0,0,15">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Top" 
+                           Text="📝 Nouveautés :" 
+                           FontWeight="SemiBold" 
+                           Margin="0,0,0,10"/>
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <TextBlock x:Name="TxtChangelog" 
+                               TextWrapping="Wrap" 
+                               Foreground="#333333"
+                               LineHeight="22"/>
+                </ScrollViewer>
+            </DockPanel>
+        </Border>
+
+        <!-- Message obligatoire -->
+        <Border Grid.Row="3" 
+                x:Name="BorderMandatory"
+                Background="#FFF3CD" 
+                BorderBrush="#FFC107" 
+                BorderThickness="1" 
+                CornerRadius="6" 
+                Padding="12"
+                Margin="0,0,0,15"
+                Visibility="Collapsed">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="⚠️" FontSize="16" Margin="0,0,8,0"/>
+                <TextBlock Text="Cette mise à jour est obligatoire pour continuer à utiliser l'application." 
+                           TextWrapping="Wrap" 
+                           Foreground="#856404"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Boutons -->
+        <Grid Grid.Row="4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Button x:Name="BtnLater" 
+                    Grid.Column="1"
+                    Content="Plus tard" 
+                    Width="120" 
+                    Height="40" 
+                    Margin="0,0,10,0"
+                    Background="White"
+                    BorderBrush="#CCCCCC"
+                    BorderThickness="1"
+                    Cursor="Hand"
+                    Click="BtnLater_Click">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}" 
+                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                            CornerRadius="6">
+                                        <ContentPresenter HorizontalAlignment="Center" 
+                                                          VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#F0F0F0"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+
+            <Button x:Name="BtnUpdate" 
+                    Grid.Column="2"
+                    Content="Mettre à jour" 
+                    Width="140" 
+                    Height="40" 
+                    Background="#00915A"
+                    Foreground="White"
+                    BorderThickness="0"
+                    FontWeight="SemiBold"
+                    Cursor="Hand"
+                    Click="BtnUpdate_Click">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}" 
+                                            CornerRadius="6">
+                                        <ContentPresenter HorizontalAlignment="Center" 
+                                                          VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#007A4D"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </Grid>
+    </Grid>
+</Window>

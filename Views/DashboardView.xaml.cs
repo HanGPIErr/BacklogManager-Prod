@@ -119,7 +119,7 @@ namespace BacklogManager.Views
         {
             // Nom utilisateur
             var user = _authService.CurrentUser;
-            NomUtilisateur = user != null ? $"{user.Prenom}" : "Utilisateur";
+            NomUtilisateur = user != null ? $"{user.Prenom} {user.Nom}" : "Utilisateur";
 
             // Date
             DateAujourdhui = DateTime.Now.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("fr-FR"));

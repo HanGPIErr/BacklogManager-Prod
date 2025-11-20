@@ -82,6 +82,10 @@ backlog-db.json
 # User-specific files
 UTILISATEURS_TEST.txt
 
+# Documentation files
+*.md
+GUIDE_MISE_A_JOUR.txt
+
 # PowerShell scripts (optional)
 CheckArchives.ps1
 fix-interpolations.ps1

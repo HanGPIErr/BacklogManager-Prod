@@ -233,6 +233,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\UpdateWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\DemandesView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -282,6 +286,7 @@
     <Compile Include="Domain\Commentaire.cs" />
     <Compile Include="Domain\HistoriqueModification.cs" />
     <Compile Include="Domain\AuditLog.cs" />
+    <Compile Include="Domain\VersionInfo.cs" />
     <Compile Include="Converters\TimelineBarMarginConverter.cs" />
     <Compile Include="Converters\PercentageToHeightConverter.cs" />
     <Compile Include="Services\IDatabase.cs" />
@@ -297,6 +302,7 @@
     <Compile Include="Services\NotificationService.cs" />
     <Compile Include="Services\EmailService.cs" />
     <Compile Include="Services\JoursFeriesService.cs" />
+    <Compile Include="Services\UpdateService.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\ProjetsViewModel.cs" />
     <Compile Include="ViewModels\BacklogViewModel.cs" />
@@ -402,6 +408,9 @@
     <Compile Include="Views\LoginWindow.xaml.cs">
       <DependentUpon>LoginWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\UpdateWindow.xaml.cs">
+      <DependentUpon>UpdateWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\DemandesView.xaml.cs">
       <DependentUpon>DemandesView.xaml</DependentUpon>
     </Compile>
@@ -454,6 +463,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="config.ini">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\logobnp.png" />

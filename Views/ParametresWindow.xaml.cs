@@ -40,8 +40,29 @@ namespace BacklogManager.Views
         {
             try
             {
-                // Afficher le chemin actuel de la DB
-                var dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "backlog.db");
+                // Lire le chemin depuis config.ini
+                string configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.ini");
+                string dbPath = "data\\backlog.db";
+
+                if (File.Exists(configPath))
+                {
+                    var lines = File.ReadAllLines(configPath);
+                    foreach (var line in lines)
+                    {
+                        if (line.StartsWith("DatabasePath="))
+                        {
+                            dbPath = line.Substring("DatabasePath=".Length).Trim();
+                            break;
+                        }
+                    }
+                }
+
+                // Convertir en chemin absolu si relatif
+                if (!Path.IsPathRooted(dbPath))
+                {
+                    dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, dbPath);
+                }
+
                 TxtCheminDB.Text = dbPath;
 
                 // Afficher la dernière sauvegarde
@@ -225,14 +246,65 @@ namespace BacklogManager.Views
 
             if (openDialog.ShowDialog() == true)
             {
-                TxtCheminDB.Text = openDialog.FileName;
-                MessageBox.Show(
-                    "Le chemin de la base de données a été modifié.\n\n" +
-                    "Veuillez redémarrer l'application pour appliquer les changements.\n\n" +
-                    "Note: Cette fonctionnalité nécessite une configuration supplémentaire dans App.config.",
-                    "Redémarrage requis",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
+                try
+                {
+                    // Convertir en chemin relatif si possible
+                    string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                    string selectedPath = openDialog.FileName;
+                    string pathToSave = selectedPath;
+
+                    // Si le fichier est dans un sous-dossier de l'application, utiliser un chemin relatif
+                    if (selectedPath.StartsWith(baseDir, StringComparison.OrdinalIgnoreCase))
+                    {
+                        pathToSave = selectedPath.Substring(baseDir.Length);
+                    }
+
+                    // Sauvegarder dans config.ini
+                    string configPath = Path.Combine(baseDir, "config.ini");
+                    var lines = new System.Collections.Generic.List<string>();
+                    bool foundDbPath = false;
+
+                    if (File.Exists(configPath))
+                    {
+                        foreach (var line in File.ReadAllLines(configPath))
+                        {
+                            if (line.StartsWith("DatabasePath="))
+                            {
+                                lines.Add($"DatabasePath={pathToSave}");
+                                foundDbPath = true;
+                            }
+                            else
+                            {
+                                lines.Add(line);
+                            }
+                        }
+                    }
+
+                    if (!foundDbPath)
+                    {
+                        // Ajouter la ligne si elle n'existait pas
+                        if (!lines.Any(l => l.StartsWith("[Database]")))
+                        {
+                            lines.Add("[Database]");
+                        }
+                        lines.Add($"DatabasePath={pathToSave}");
+                    }
+
+                    File.WriteAllLines(configPath, lines);
+                    TxtCheminDB.Text = selectedPath;
+
+                    MessageBox.Show(
+                        "Le chemin de la base de données a été modifié dans config.ini\n\n" +
+                        "Veuillez redémarrer l'application pour appliquer les changements.",
+                        "Redémarrage requis",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Erreur lors de la sauvegarde de la configuration: {ex.Message}",
+                        "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
 
@@ -249,7 +321,28 @@ namespace BacklogManager.Views
 
                 if (saveDialog.ShowDialog() == true)
                 {
-                    var dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "backlog.db");
+                    // Lire le chemin depuis config.ini
+                    string configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.ini");
+                    string dbPath = "data\\backlog.db";
+
+                    if (File.Exists(configPath))
+                    {
+                        var lines = File.ReadAllLines(configPath);
+                        foreach (var line in lines)
+                        {
+                            if (line.StartsWith("DatabasePath="))
+                            {
+                                dbPath = line.Substring("DatabasePath=".Length).Trim();
+                                break;
+                            }
+                        }
+                    }
+
+                    // Convertir en chemin absolu si relatif
+                    if (!Path.IsPathRooted(dbPath))
+                    {
+                        dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, dbPath);
+                    }
                     
                     if (File.Exists(dbPath))
                     {

@@ -2,6 +2,7 @@ using System;
 using System.Security.Principal;
 using System.Windows;
 using BacklogManager.Services;
+using BacklogManager.Domain;
 
 namespace BacklogManager.Views
 {
@@ -23,6 +24,66 @@ namespace BacklogManager.Views
             
             // Afficher le username
             AfficherUsername();
+            
+            // Connexion automatique
+            Loaded += (s, e) => TentativeConnexionAutomatique();
+            
+            // Vérifier les mises à jour en arrière-plan
+            Loaded += async (s, e) => await VerifierMisesAJour();
+        }
+
+        private async System.Threading.Tasks.Task VerifierMisesAJour()
+        {
+            try
+            {
+                var updateService = new UpdateService();
+                var versionInfo = await updateService.CheckForUpdatesAsync();
+
+                if (versionInfo != null)
+                {
+                    // Afficher la fenêtre de mise à jour
+                    Dispatcher.Invoke(() =>
+                    {
+                        var updateWindow = new UpdateWindow(versionInfo, updateService);
+                        updateWindow.ShowDialog();
+                    });
+                }
+            }
+            catch
+            {
+                // Ignorer les erreurs de mise à jour pour ne pas bloquer l'application
+            }
+        }
+
+        private void TentativeConnexionAutomatique()
+        {
+            try
+            {
+                // Récupérer le username Windows
+                string windowsUsername = WindowsIdentity.GetCurrent().Name;
+                if (windowsUsername.Contains("\\"))
+                {
+                    windowsUsername = windowsUsername.Split('\\')[1];
+                }
+
+                // Tenter la connexion automatique
+                bool success = _authService.LoginWithUsername(windowsUsername);
+
+                if (success)
+                {
+                    var user = _authService.CurrentUser;
+                    var role = _authService.GetCurrentUserRole();
+
+                    // Ouvrir directement la fenêtre principale
+                    var mainWindow = new MainWindow(_authService);
+                    mainWindow.Show();
+                    this.Close();
+                }
+            }
+            catch
+            {
+                // En cas d'erreur, laisser l'utilisateur se connecter manuellement
+            }
         }
 
         private void AfficherUsername()

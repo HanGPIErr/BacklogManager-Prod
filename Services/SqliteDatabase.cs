@@ -15,13 +15,45 @@ namespace BacklogManager.Services
 
         public SqliteDatabase()
         {
-            var appDataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data");
-            if (!Directory.Exists(appDataPath))
+            // Lire la configuration depuis config.ini
+            string configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.ini");
+            string dbPath = "data\\backlog.db"; // Valeur par défaut
+
+            if (File.Exists(configPath))
             {
-                Directory.CreateDirectory(appDataPath);
+                try
+                {
+                    var lines = File.ReadAllLines(configPath);
+                    foreach (var line in lines)
+                    {
+                        if (line.StartsWith("DatabasePath="))
+                        {
+                            dbPath = line.Substring("DatabasePath=".Length).Trim();
+                            break;
+                        }
+                    }
+                }
+                catch
+                {
+                    // En cas d'erreur de lecture, utiliser la valeur par défaut
+                }
             }
 
-            _databasePath = Path.Combine(appDataPath, "backlog.db");
+            // Convertir le chemin relatif en chemin absolu si nécessaire
+            if (!Path.IsPathRooted(dbPath))
+            {
+                dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, dbPath);
+            }
+
+            _databasePath = dbPath;
+            
+            // Créer le dossier parent si nécessaire
+            var directory = Path.GetDirectoryName(_databasePath);
+            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
             _connectionString = string.Format(
                 "Data Source={0};Version=3;Journal Mode=WAL;Pooling=True;Max Pool Size=100;BusyTimeout=30000;", 
                 _databasePath);
