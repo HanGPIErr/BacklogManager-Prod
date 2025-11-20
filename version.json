@@ -3,6 +3,6 @@
   "releaseDate": "2025-11-20T00:00:00",
   "downloadUrl": "\\\\serveur\\partage\\BacklogManager\\Updates\\BacklogManager-v1.0.0.zip",
   "mandatory": false,
-  "changelog": "Version initiale\n- Gestion de backlog et sprints\n- Planning Poker\n- Tableau Kanban\n- Gestion des CRA\n- Authentification Windows automatique\n- Système de mise à jour automatique",
+  "changelog": "Version initiale\n- Gestion de backlog et sprints\n- Tableau Kanban\n- Gestion des CRA\n- Authentification Windows automatique\n- Système de mise à jour automatique",
   "minimumVersion": "1.0.0"
 }
