@@ -34,7 +34,15 @@ namespace BacklogManager.Services
                     {
                         if (line.StartsWith("UpdateServerPath="))
                         {
-                            return line.Substring("UpdateServerPath=".Length).Trim();
+                            var path = line.Substring("UpdateServerPath=".Length).Trim();
+                            // Nettoyer les guillemets si présents
+                            path = path.Trim('\"', '\'');
+                            // Normaliser les chemins UNC (remplacer \\\\ par \\\\)
+                            if (!string.IsNullOrEmpty(path) && path.StartsWith("\\\\"))
+                            {
+                                path = "\\\\" + path.Substring(2).Replace("\\\\", "\\");
+                            }
+                            return path;
                         }
                     }
                 }

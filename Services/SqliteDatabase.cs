@@ -29,6 +29,13 @@ namespace BacklogManager.Services
                         if (line.StartsWith("DatabasePath="))
                         {
                             dbPath = line.Substring("DatabasePath=".Length).Trim();
+                            // Nettoyer les guillemets si présents
+                            dbPath = dbPath.Trim('\"', '\'');
+                            // Normaliser les chemins UNC (remplacer \\\\ par \\\\)
+                            if (dbPath.StartsWith("\\\\"))
+                            {
+                                dbPath = "\\\\" + dbPath.Substring(2).Replace("\\\\", "\\");
+                            }
                             break;
                         }
                     }
