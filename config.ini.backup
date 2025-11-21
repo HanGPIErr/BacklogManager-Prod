@@ -1,0 +1,13 @@
+[Database]
+# Chemin vers la base de données SQLite
+# Chemins supportés:
+#   - Chemin absolu: C:\Data\BacklogManager\backlog.db
+#   - Chemin relatif: data\backlog.db (relatif au dossier de l'application)
+#   - Réseau: \\serveur\partage\backlog.db
+DatabasePath=data\backlog.db
+
+[Update]
+# Chemin vers le serveur de mise à jour (partage réseau Windows)
+# Exemple: \\serveur\partage\BacklogManager\Updates
+# Laisser vide pour désactiver les mises à jour automatiques
+UpdateServerPath=
