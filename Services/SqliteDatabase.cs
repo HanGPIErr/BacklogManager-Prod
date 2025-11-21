@@ -52,6 +52,22 @@ namespace BacklogManager.Services
                 dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, dbPath);
             }
 
+            // Si c'est un chemin UNC, tenter de le mapper automatiquement
+            if (dbPath.StartsWith("\\\\"))
+            {
+                System.Diagnostics.Debug.WriteLine($"[SqliteDatabase] Chemin UNC détecté: {dbPath}");
+                string mappedPath = NetworkPathMapper.MapUncPathToDrive(dbPath);
+                if (!string.IsNullOrEmpty(mappedPath))
+                {
+                    System.Diagnostics.Debug.WriteLine($"[SqliteDatabase] Chemin mappé: {mappedPath}");
+                    dbPath = mappedPath;
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"[SqliteDatabase] Mapping échoué, utilisation du chemin UNC");
+                }
+            }
+
             _databasePath = dbPath;
             
             // Créer le dossier parent si nécessaire

@@ -3,38 +3,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Management;
-using System.Runtime.InteropServices;
 using System.Windows;
 
 namespace BacklogManager.Services
 {
     /// <summary>
-    /// Service pour mapper automatiquement les chemins UNC en lecteurs réseau
+    /// Service pour mapper automatiquement les chemins UNC en lecteurs réseau via WSH
     /// </summary>
     public static class NetworkPathMapper
     {
-        // Import de l'API Windows pour mapper les lecteurs réseau
-        [DllImport("mpr.dll", CharSet = CharSet.Unicode)]
-        private static extern int WNetAddConnection2(ref NETRESOURCE lpNetResource, string lpPassword, string lpUsername, int dwFlags);
-
-        [DllImport("mpr.dll", CharSet = CharSet.Unicode)]
-        private static extern int WNetCancelConnection2(string lpName, int dwFlags, bool fForce);
-
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-        private struct NETRESOURCE
-        {
-            public int dwScope;
-            public int dwType;
-            public int dwDisplayType;
-            public int dwUsage;
-            public string lpLocalName;
-            public string lpRemoteName;
-            public string lpComment;
-            public string lpProvider;
-        }
-
-        private const int RESOURCETYPE_DISK = 0x00000001;
-        private const int CONNECT_TEMPORARY = 0x00000004;
         /// <summary>
         /// Convertit un chemin UNC en chemin de lecteur mappé.
         /// Si le chemin n'est pas UNC, le retourne tel quel.
@@ -162,7 +139,7 @@ namespace BacklogManager.Services
         }
 
         /// <summary>
-        /// Crée un nouveau mapping de lecteur réseau pour le chemin UNC
+        /// Crée un nouveau mapping de lecteur réseau pour le chemin UNC via WSH
         /// </summary>
         private static string MapNewDrive(string uncPath)
         {
@@ -179,39 +156,31 @@ namespace BacklogManager.Services
                     return null;
                 }
 
-                // Utiliser l'API Windows WNetAddConnection2 (fonctionne sans admin)
+                // Utiliser WSH (Windows Script Host) via COM
                 try
                 {
-                    var netResource = new NETRESOURCE
-                    {
-                        dwType = RESOURCETYPE_DISK,
-                        lpLocalName = availableDrive + ":",
-                        lpRemoteName = uncRoot,
-                        lpProvider = null
-                    };
-
-                    int result = WNetAddConnection2(ref netResource, null, null, CONNECT_TEMPORARY);
-
-                    if (result == 0)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"Lecteur {availableDrive}: mappé vers {uncRoot}");
-                        return availableDrive;
-                    }
-                    else
-                    {
-                        System.Diagnostics.Debug.WriteLine($"Erreur WNetAddConnection2: code {result}");
-                        return null;
-                    }
+                    Type wshNetworkType = Type.GetTypeFromProgID("WScript.Network");
+                    dynamic wshNetwork = Activator.CreateInstance(wshNetworkType);
+                    
+                    // MapNetworkDrive(localName, remoteName, updateProfile, user, password)
+                    wshNetwork.MapNetworkDrive(availableDrive + ":", uncRoot, false, null, null);
+                    
+                    System.Diagnostics.Debug.WriteLine($"[NetworkPathMapper] Lecteur {availableDrive}: mappé vers {uncRoot} via WSH");
+                    
+                    // Libérer l'objet COM
+                    System.Runtime.InteropServices.Marshal.ReleaseComObject(wshNetwork);
+                    
+                    return availableDrive;
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Erreur mapping: {ex.Message}");
+                    System.Diagnostics.Debug.WriteLine($"[NetworkPathMapper] Erreur mapping WSH: {ex.Message}");
                     return null;
                 }
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Erreur création mapping: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[NetworkPathMapper] Erreur création mapping: {ex.Message}");
                 return null;
             }
         }
