@@ -23,7 +23,7 @@ namespace BacklogManager.Services
             {
                 try
                 {
-                    var lines = File.ReadAllLines(configPath);
+                    var lines = File.ReadAllLines(configPath, System.Text.Encoding.UTF8);
                     foreach (var line in lines)
                     {
                         if (line.StartsWith("DatabasePath="))
