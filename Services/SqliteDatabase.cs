@@ -54,9 +54,16 @@ namespace BacklogManager.Services
                 Directory.CreateDirectory(directory);
             }
 
-            _connectionString = string.Format(
-                "Data Source={0};Version=3;Journal Mode=WAL;Pooling=True;Max Pool Size=100;BusyTimeout=30000;", 
-                _databasePath);
+            // Utiliser Uri pour supporter les chemins Unicode/UNC
+            var builder = new SQLiteConnectionStringBuilder
+            {
+                DataSource = _databasePath,
+                Version = 3,
+                JournalMode = SQLiteJournalModeEnum.Wal,
+                Pooling = true,
+                BusyTimeout = 30000
+            };
+            _connectionString = builder.ConnectionString;
 
             InitializeDatabase();
         }

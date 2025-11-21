@@ -46,7 +46,7 @@ namespace BacklogManager.Views
 
                 if (File.Exists(configPath))
                 {
-                    var lines = File.ReadAllLines(configPath);
+                    var lines = File.ReadAllLines(configPath, System.Text.Encoding.UTF8);
                     foreach (var line in lines)
                     {
                         if (line.StartsWith("DatabasePath="))
@@ -266,7 +266,7 @@ namespace BacklogManager.Views
 
                     if (File.Exists(configPath))
                     {
-                        foreach (var line in File.ReadAllLines(configPath))
+                        foreach (var line in File.ReadAllLines(configPath, System.Text.Encoding.UTF8))
                         {
                             if (line.StartsWith("DatabasePath="))
                             {
@@ -290,7 +290,7 @@ namespace BacklogManager.Views
                         lines.Add($"DatabasePath={pathToSave}");
                     }
 
-                    File.WriteAllLines(configPath, lines);
+                    File.WriteAllLines(configPath, lines, System.Text.Encoding.UTF8);
                     TxtCheminDB.Text = selectedPath;
 
                     MessageBox.Show(
@@ -327,7 +327,7 @@ namespace BacklogManager.Views
 
                     if (File.Exists(configPath))
                     {
-                        var lines = File.ReadAllLines(configPath);
+                        var lines = File.ReadAllLines(configPath, System.Text.Encoding.UTF8);
                         foreach (var line in lines)
                         {
                             if (line.StartsWith("DatabasePath="))
