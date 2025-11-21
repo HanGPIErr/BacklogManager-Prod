@@ -61,12 +61,15 @@ namespace BacklogManager.Services
                 Directory.CreateDirectory(directory);
             }
 
+            // Pour les chemins UNC, désactiver WAL (pas supporté sur les partages réseau)
+            bool isUncPath = _databasePath.StartsWith("\\\\");
+            
             // Utiliser Uri pour supporter les chemins Unicode/UNC
             var builder = new SQLiteConnectionStringBuilder
             {
                 DataSource = _databasePath,
                 Version = 3,
-                JournalMode = SQLiteJournalModeEnum.Wal,
+                JournalMode = isUncPath ? SQLiteJournalModeEnum.Delete : SQLiteJournalModeEnum.Wal,
                 Pooling = true,
                 BusyTimeout = 30000
             };
