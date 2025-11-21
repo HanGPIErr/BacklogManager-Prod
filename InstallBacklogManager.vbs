@@ -18,13 +18,6 @@ strSourcePath = strScriptPath
 strDestPath = "C:\SGI_SUPPORT\APPLICATIONS\BacklogManager"
 strExePath = strDestPath & "\BacklogManager.exe"
 
-' Vérifier si on a les droits admin
-If Not IsAdmin() Then
-    ' Relancer le script avec élévation
-    objShell.ShellExecute "wscript.exe", """" & WScript.ScriptFullName & """", "", "runas", 1
-    WScript.Quit
-End If
-
 ' Message de bienvenue
 intResult = MsgBox("BacklogManager - Installation" & vbCrLf & vbCrLf & _
                    "L'application sera installée dans :" & vbCrLf & _
@@ -35,9 +28,10 @@ If intResult = vbNo Then
     WScript.Quit
 End If
 
-' Créer le dossier de destination
+' Créer le dossier de destination (avec dossiers parents)
 If Not objFSO.FolderExists(strDestPath) Then
-    objFSO.CreateFolder(strDestPath)
+    ' Créer tous les dossiers parents nécessaires
+    CreateFolderRecursive strDestPath
 End If
 
 ' Copier tous les fichiers
@@ -66,21 +60,6 @@ WScript.Quit
 ' =====================================
 ' Fonctions
 ' =====================================
-
-Function IsAdmin()
-    Dim objWMI, colItems, objItem
-    On Error Resume Next
-    
-    Set objWMI = GetObject("winmgmts:\\.\root\cimv2")
-    Set colItems = objWMI.ExecQuery("Select * from Win32_Group where SID='S-1-5-32-544'")
-    
-    For Each objItem in colItems
-        IsAdmin = True
-        Exit Function
-    Next
-    
-    IsAdmin = False
-End Function
 
 Sub CopyFolder(strSource, strDest)
     Dim objFolder, objFile, objSubFolder
@@ -151,3 +130,21 @@ Sub CreateDesktopShortcut(strTargetPath)
     objShortcut.IconLocation = strTargetPath & ",0"
     objShortcut.Save
 End Sub
+
+' Créer les dossiers récursivement (parents inclus)
+Sub CreateFolderRecursive(strPath)
+    Dim strParent
+    
+    If objFSO.FolderExists(strPath) Then
+        Exit Sub
+    End If
+    
+    strParent = objFSO.GetParentFolderName(strPath)
+    
+    If strParent <> "" And Not objFSO.FolderExists(strParent) Then
+        CreateFolderRecursive strParent
+    End If
+    
+    objFSO.CreateFolder strPath
+End Sub
+

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Management;
+using System.Runtime.InteropServices;
+using System.Windows;
 
 namespace BacklogManager.Services
 {
@@ -11,6 +13,28 @@ namespace BacklogManager.Services
     /// </summary>
     public static class NetworkPathMapper
     {
+        // Import de l'API Windows pour mapper les lecteurs réseau
+        [DllImport("mpr.dll", CharSet = CharSet.Unicode)]
+        private static extern int WNetAddConnection2(ref NETRESOURCE lpNetResource, string lpPassword, string lpUsername, int dwFlags);
+
+        [DllImport("mpr.dll", CharSet = CharSet.Unicode)]
+        private static extern int WNetCancelConnection2(string lpName, int dwFlags, bool fForce);
+
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+        private struct NETRESOURCE
+        {
+            public int dwScope;
+            public int dwType;
+            public int dwDisplayType;
+            public int dwUsage;
+            public string lpLocalName;
+            public string lpRemoteName;
+            public string lpComment;
+            public string lpProvider;
+        }
+
+        private const int RESOURCETYPE_DISK = 0x00000001;
+        private const int CONNECT_TEMPORARY = 0x00000004;
         /// <summary>
         /// Convertit un chemin UNC en chemin de lecteur mappé.
         /// Si le chemin n'est pas UNC, le retourne tel quel.
@@ -50,7 +74,17 @@ namespace BacklogManager.Services
                     return Path.Combine(newDrive + ":\\", relativePath);
                 }
 
-                // Si le mapping a échoué, retourner le chemin original
+                // Si le mapping a échoué, afficher un message d'erreur
+                System.Windows.MessageBox.Show(
+                    $"Impossible de mapper automatiquement le chemin réseau:\n{path}\n\n" +
+                    "Veuillez mapper manuellement un lecteur réseau (ex: Z:) vers ce partage,\n" +
+                    "puis modifier le chemin dans config.ini pour utiliser le lecteur mappé.\n\n" +
+                    "Exemple: DatabasePath=Z:\\backlog.db",
+                    "Erreur de mapping réseau",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Warning);
+
+                // Retourner le chemin original (échouera probablement avec SQLite)
                 return path;
             }
             catch (Exception ex)
@@ -134,27 +168,44 @@ namespace BacklogManager.Services
         {
             try
             {
-                // Obtenir la racine UNC à mapper (\\serveur\partage ou jusqu'à 2 niveaux de sous-dossiers)
+                // Obtenir la racine UNC à mapper
                 string uncRoot = GetUncRoot(uncPath);
 
                 // Trouver une lettre de lecteur disponible
                 string availableDrive = FindAvailableDriveLetter();
                 if (string.IsNullOrEmpty(availableDrive))
+                {
+                    System.Diagnostics.Debug.WriteLine("Aucun lecteur disponible");
                     return null;
+                }
 
-                // Utiliser WScript.Network pour mapper le lecteur
+                // Utiliser l'API Windows WNetAddConnection2 (fonctionne sans admin)
                 try
                 {
-                    var networkObject = Activator.CreateInstance(Type.GetTypeFromProgID("WScript.Network"));
-                    var method = networkObject.GetType().GetMethod("MapNetworkDrive");
-                    method.Invoke(networkObject, new object[] { availableDrive + ":", uncRoot, false });
+                    var netResource = new NETRESOURCE
+                    {
+                        dwType = RESOURCETYPE_DISK,
+                        lpLocalName = availableDrive + ":",
+                        lpRemoteName = uncRoot,
+                        lpProvider = null
+                    };
 
-                    System.Diagnostics.Debug.WriteLine($"Lecteur {availableDrive}: mappé vers {uncRoot}");
-                    return availableDrive;
+                    int result = WNetAddConnection2(ref netResource, null, null, CONNECT_TEMPORARY);
+
+                    if (result == 0)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Lecteur {availableDrive}: mappé vers {uncRoot}");
+                        return availableDrive;
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Erreur WNetAddConnection2: code {result}");
+                        return null;
+                    }
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Erreur mapping lecteur: {ex.Message}");
+                    System.Diagnostics.Debug.WriteLine($"Erreur mapping: {ex.Message}");
                     return null;
                 }
             }

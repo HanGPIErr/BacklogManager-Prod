@@ -85,12 +85,12 @@ if (-not (Test-Path $DataPath)) {
 Write-Host ""
 Write-Host "Création du raccourci bureau..." -ForegroundColor Yellow
 
-# Créer le raccourci sur le bureau
+# Créer le raccourci sur le bureau (utilise le lanceur VBS)
 $WshShell = New-Object -ComObject WScript.Shell
 $DesktopPath = [Environment]::GetFolderPath("CommonDesktopDirectory")
 $ShortcutPath = Join-Path $DesktopPath "BacklogManager.lnk"
 $Shortcut = $WshShell.CreateShortcut($ShortcutPath)
-$Shortcut.TargetPath = Join-Path $InstallPath "BacklogManager.exe"
+$Shortcut.TargetPath = Join-Path $InstallPath "StartBacklogManager.vbs"
 $Shortcut.WorkingDirectory = $InstallPath
 $Shortcut.Description = "BacklogManager - Gestion de projets Agile"
 $Shortcut.IconLocation = Join-Path $InstallPath "BacklogManager.exe"
@@ -106,7 +106,7 @@ if (-not (Test-Path $StartMenuFolder)) {
 }
 $StartMenuShortcutPath = Join-Path $StartMenuFolder "BacklogManager.lnk"
 $StartMenuShortcut = $WshShell.CreateShortcut($StartMenuShortcutPath)
-$StartMenuShortcut.TargetPath = Join-Path $InstallPath "BacklogManager.exe"
+$StartMenuShortcut.TargetPath = Join-Path $InstallPath "StartBacklogManager.vbs"
 $StartMenuShortcut.WorkingDirectory = $InstallPath
 $StartMenuShortcut.Description = "BacklogManager - Gestion de projets Agile"
 $StartMenuShortcut.IconLocation = Join-Path $InstallPath "BacklogManager.exe"

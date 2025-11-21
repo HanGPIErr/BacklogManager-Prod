@@ -52,9 +52,6 @@ namespace BacklogManager.Services
                 dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, dbPath);
             }
 
-            // Mapper automatiquement les chemins UNC vers un lecteur réseau
-            dbPath = NetworkPathMapper.MapUncPathToDrive(dbPath);
-
             _databasePath = dbPath;
             
             // Créer le dossier parent si nécessaire
@@ -83,33 +80,51 @@ namespace BacklogManager.Services
 
         private void InitializeDatabase()
         {
-            if (!File.Exists(_databasePath))
+            try
             {
-                SQLiteConnection.CreateFile(_databasePath);
-                CreateTables();
-            }
-            else
-            {
-                // Appliquer les migrations sur base existante
-                using (var conn = GetConnection())
+                System.Diagnostics.Debug.WriteLine($"[SqliteDatabase] Chemin DB: {_databasePath}");
+                System.Diagnostics.Debug.WriteLine($"[SqliteDatabase] Connection String: {_connectionString}");
+                
+                if (!File.Exists(_databasePath))
                 {
-                    conn.Open();
+                    var directory = Path.GetDirectoryName(_databasePath);
+                    System.Diagnostics.Debug.WriteLine($"[SqliteDatabase] Dossier parent: {directory}");
+                    System.Diagnostics.Debug.WriteLine($"[SqliteDatabase] Dossier existe: {Directory.Exists(directory)}");
                     
-                    // Configuration pour multi-utilisateurs
-                    using (var cmd = conn.CreateCommand())
-                    {
-                        cmd.CommandText = "PRAGMA journal_mode=WAL;";
-                        cmd.ExecuteNonQuery();
-                        cmd.CommandText = "PRAGMA synchronous=NORMAL;";
-                        cmd.ExecuteNonQuery();
-                        cmd.CommandText = "PRAGMA temp_store=MEMORY;";
-                        cmd.ExecuteNonQuery();
-                        cmd.CommandText = "PRAGMA cache_size=10000;";
-                        cmd.ExecuteNonQuery();
-                    }
-                    
-                    MigrateDatabaseSchema(conn);
+                    SQLiteConnection.CreateFile(_databasePath);
+                    System.Diagnostics.Debug.WriteLine($"[SqliteDatabase] Fichier DB cree avec succes");
+                    CreateTables();
                 }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"[SqliteDatabase] Fichier DB existe deja");
+                    // Appliquer les migrations sur base existante
+                    using (var conn = GetConnection())
+                    {
+                        conn.Open();
+                        
+                        // Configuration pour multi-utilisateurs
+                        using (var cmd = conn.CreateCommand())
+                        {
+                            cmd.CommandText = "PRAGMA journal_mode=WAL;";
+                            cmd.ExecuteNonQuery();
+                            cmd.CommandText = "PRAGMA synchronous=NORMAL;";
+                            cmd.ExecuteNonQuery();
+                            cmd.CommandText = "PRAGMA temp_store=MEMORY;";
+                            cmd.ExecuteNonQuery();
+                            cmd.CommandText = "PRAGMA cache_size=10000;";
+                            cmd.ExecuteNonQuery();
+                        }
+                        
+                        MigrateDatabaseSchema(conn);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[SqliteDatabase] ERREUR: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[SqliteDatabase] Stack: {ex.StackTrace}");
+                throw;
             }
         }
 
