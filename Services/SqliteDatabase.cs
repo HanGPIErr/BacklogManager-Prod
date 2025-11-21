@@ -52,6 +52,9 @@ namespace BacklogManager.Services
                 dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, dbPath);
             }
 
+            // Mapper automatiquement les chemins UNC vers un lecteur réseau
+            dbPath = NetworkPathMapper.MapUncPathToDrive(dbPath);
+
             _databasePath = dbPath;
             
             // Créer le dossier parent si nécessaire
