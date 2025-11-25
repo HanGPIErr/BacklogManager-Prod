@@ -153,5 +153,6 @@ namespace BacklogManager.Services
         public void UpdateChatConversation(int conversationId) => ExecuteWriteWithRetry(() => _database.UpdateChatConversation(conversationId), nameof(UpdateChatConversation));
         public List<ChatMessageDB> GetChatMessages(int conversationId) => ExecuteReadWithRetry(() => _database.GetChatMessages(conversationId), nameof(GetChatMessages));
         public void AddChatMessage(ChatMessageDB message) => ExecuteWriteWithRetry(() => _database.AddChatMessage(message), nameof(AddChatMessage));
+        public void DeleteUserChatConversations(int userId) => ExecuteWriteWithRetry(() => _database.DeleteUserChatConversations(userId), nameof(DeleteUserChatConversations));
     }
 }

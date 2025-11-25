@@ -146,6 +146,14 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\AgentChatView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\GuideUtilisateurView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\ChatHistoriqueAdminWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -308,6 +316,7 @@
     <Compile Include="Domain\VersionInfo.cs" />
     <Compile Include="Converters\TimelineBarMarginConverter.cs" />
     <Compile Include="Converters\PercentageToHeightConverter.cs" />
+    <Compile Include="Converters\MarkdownToFormattedTextConverter.cs" />
     <Compile Include="Services\IDatabase.cs" />
     <Compile Include="Services\JsonDatabase.cs" />
     <Compile Include="Services\SqliteDatabase.cs" />
@@ -374,8 +383,14 @@
     <Compile Include="Views\GuideUtilisateurWindow.xaml.cs">
       <DependentUpon>GuideUtilisateurWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\GuideUtilisateurView.xaml.cs">
+      <DependentUpon>GuideUtilisateurView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\AgentChatWindow.xaml.cs">
       <DependentUpon>AgentChatWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\AgentChatView.xaml.cs">
+      <DependentUpon>AgentChatView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\ChatHistoriqueAdminWindow.xaml.cs">
       <DependentUpon>ChatHistoriqueAdminWindow.xaml</DependentUpon>

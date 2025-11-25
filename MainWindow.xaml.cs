@@ -447,6 +447,47 @@ namespace BacklogManager
             BtnTimeline_Click(null, null);
         }
 
+        public void AfficherGuide()
+        {
+            try
+            {
+                var guideView = new Views.GuideUtilisateurView(_authService, _database, this);
+                MainContentControl.Content = guideView;
+                DeselectAllMenuButtons();
+            }
+            catch (System.Exception ex)
+            {
+                MessageBox.Show($"Erreur : {ex.Message}", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        public void AfficherChatIA()
+        {
+            try
+            {
+                var chatHistoryService = new ChatHistoryService(_database);
+                var chatView = new Views.AgentChatView(chatHistoryService, _authService.CurrentUser, this);
+                MainContentControl.Content = chatView;
+                DeselectAllMenuButtons();
+            }
+            catch (System.Exception ex)
+            {
+                MessageBox.Show($"Erreur : {ex.Message}", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void DeselectAllMenuButtons()
+        {
+            BtnDashboard.Background = System.Windows.Media.Brushes.Transparent;
+            BtnBacklog.Background = System.Windows.Media.Brushes.Transparent;
+            BtnDemandes.Background = System.Windows.Media.Brushes.Transparent;
+            BtnKanban.Background = System.Windows.Media.Brushes.Transparent;
+            BtnTimeline.Background = System.Windows.Media.Brushes.Transparent;
+            BtnSaisirCRA.Background = System.Windows.Media.Brushes.Transparent;
+            BtnStatistiques.Background = System.Windows.Media.Brushes.Transparent;
+            BtnNotifications.Background = System.Windows.Media.Brushes.Transparent;
+        }
+
         public void NaviguerVersSuiviCRATimeline(Projet projet)
         {
             try

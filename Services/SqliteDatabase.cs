@@ -2095,5 +2095,46 @@ namespace BacklogManager.Services
                 UpdateChatConversation(message.ConversationId);
             }
         }
+
+        public void DeleteUserChatConversations(int userId)
+        {
+            using (var conn = GetConnectionForWrite())
+            {
+                conn.Open();
+                using (var transaction = conn.BeginTransaction())
+                {
+                    try
+                    {
+                        // Supprimer d'abord tous les messages des conversations de l'utilisateur
+                        using (var cmd = conn.CreateCommand())
+                        {
+                            cmd.CommandText = @"
+                                DELETE FROM ChatMessages 
+                                WHERE ConversationId IN (
+                                    SELECT Id FROM ChatConversations WHERE UserId = @UserId
+                                )
+                            ";
+                            cmd.Parameters.AddWithValue("@UserId", userId);
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        // Ensuite supprimer les conversations
+                        using (var cmd = conn.CreateCommand())
+                        {
+                            cmd.CommandText = "DELETE FROM ChatConversations WHERE UserId = @UserId";
+                            cmd.Parameters.AddWithValue("@UserId", userId);
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        transaction.Commit();
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
+            }
+        }
     }
 }

@@ -26,6 +26,11 @@ namespace BacklogManager.Views
             ChargerQuestionsSelonRole();
         }
 
+        private void BtnRetour_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
+
         private void ChargerQuestionsSelonRole()
         {
             if (_userRole == null) return;

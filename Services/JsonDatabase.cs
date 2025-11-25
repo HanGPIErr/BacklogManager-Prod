@@ -697,5 +697,10 @@ namespace BacklogManager.Services
         {
             throw new NotSupportedException("Les conversations chat ne sont supportées qu'en mode SQLite.");
         }
+
+        public void DeleteUserChatConversations(int userId)
+        {
+            throw new NotSupportedException("Les conversations chat ne sont supportées qu'en mode SQLite.");
+        }
     }
 }

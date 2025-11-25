@@ -8,7 +8,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using System.Text.Json;
 using BacklogManager.Services;
 using BacklogManager.Domain;
@@ -16,7 +15,7 @@ using System.IO;
 
 namespace BacklogManager.Views
 {
-    public partial class AgentChatWindow : Window, INotifyPropertyChanged
+    public partial class AgentChatView : UserControl, INotifyPropertyChanged
     {
         private const string API_URL = "https://genfactory-ai.analytics.cib.echonet/genai/api/v2/chat/completions";
         private const string MODEL = "gpt-oss-120b";
@@ -30,7 +29,10 @@ namespace BacklogManager.Views
         private bool _canSendMessage;
         private readonly ChatHistoryService _chatHistoryService;
         private readonly Utilisateur _currentUser;
+        private readonly MainWindow _mainWindow;
         private int? _conversationId;
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public ObservableCollection<ChatMessage> Messages { get; set; }
 
@@ -63,7 +65,7 @@ namespace BacklogManager.Views
             set { _canSendMessage = value; OnPropertyChanged(); }
         }
 
-        public AgentChatWindow(ChatHistoryService chatHistoryService, Utilisateur currentUser)
+        public AgentChatView(ChatHistoryService chatHistoryService, Utilisateur currentUser, MainWindow mainWindow)
         {
             InitializeComponent();
             DataContext = this;
@@ -71,46 +73,22 @@ namespace BacklogManager.Views
             
             _chatHistoryService = chatHistoryService;
             _currentUser = currentUser;
+            _mainWindow = mainWindow;
             
             LoadToken();
         }
 
         private void BtnRetour_Click(object sender, RoutedEventArgs e)
         {
-            Close();
-        }
-
-        private void AddReaction(ChatMessage message, string emoji)
-        {
-            if (message.Reaction == emoji)
-            {
-                // Si la même réaction est cliquée, on la retire
-                message.Reaction = null;
-            }
-            else
-            {
-                message.Reaction = emoji;
-            }
-        }
-
-        private void ReactionButton_Click(object sender, RoutedEventArgs e)
-        {
-            var button = sender as Button;
-            if (button?.DataContext is ChatMessage message)
-            {
-                // Récupérer l'emoji du TextBlock dans le Content
-                if (button.Content is TextBlock textBlock && !string.IsNullOrEmpty(textBlock.Text))
-                {
-                    AddReaction(message, textBlock.Text);
-                }
-            }
+            // Retour au Dashboard
+            var btnDashboard = _mainWindow.FindName("BtnDashboard") as Button;
+            btnDashboard?.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));
         }
 
         private void LoadToken()
         {
             try
             {
-                // Charger le token depuis les paramètres locaux
                 _apiToken = Properties.Settings.Default[TOKEN_KEY]?.ToString()?.Trim();
                 
                 if (string.IsNullOrWhiteSpace(_apiToken))
@@ -127,16 +105,15 @@ namespace BacklogManager.Views
                     Messages.Add(new ChatMessage
                     {
                         IsUser = false,
-                        Auteur = "🤖 Agent BacklogManager",
-                        Message = "Bonjour ! Je suis votre assistante virtuelle pour gérer votre backlog. Je suis là pour vous aider, vous conseiller et répondre à toutes vos questions sur la gestion de projet, les tâches, les CRA et bien plus encore. N'hésitez pas à me poser vos questions ! 😊",
+                        Auteur = "Agent Project & Change",
+                        Message = "Bonjour ! Je suis votre assistante virtuelle pour gérer votre backlog. Comment puis-je vous aider aujourd'hui ? 😊",
                         Horodatage = DateTime.Now.ToString("HH:mm")
                     });
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                NeedTokenConfiguration = true;
-                ChatVisible = false;
+                MessageBox.Show($"Erreur lors du chargement du token : {ex.Message}", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -152,7 +129,6 @@ namespace BacklogManager.Views
 
             try
             {
-                // Sauvegarder dans les paramètres locaux
                 Properties.Settings.Default[TOKEN_KEY] = token;
                 Properties.Settings.Default.Save();
                 
@@ -160,12 +136,11 @@ namespace BacklogManager.Views
                 NeedTokenConfiguration = false;
                 ChatVisible = true;
                 
-                // Message de bienvenue
                 Messages.Add(new ChatMessage
                 {
                     IsUser = false,
                     Auteur = "Agent Project & Change",
-                    Message = "Bonjour ! Je suis votre assistante virtuelle pour gérer votre backlog. Je suis là pour vous aider, vous conseiller et répondre à toutes vos questions sur la gestion de projet, les tâches, les CRA et bien plus encore. N'hésitez pas à me poser vos questions ! 😊",
+                    Message = "Bonjour ! Je suis votre assistante virtuelle. N'hésitez pas à me poser vos questions ! 😊",
                     Horodatage = DateTime.Now.ToString("HH:mm")
                 });
                 
@@ -177,58 +152,34 @@ namespace BacklogManager.Views
             }
         }
 
-        private void Cancel_Click(object sender, RoutedEventArgs e)
-        {
-            Close();
-        }
-
-        private void TxtMessage_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter && (Keyboard.Modifiers & ModifierKeys.Shift) != ModifierKeys.Shift)
-            {
-                e.Handled = true;
-                if (!string.IsNullOrWhiteSpace(MessageActuel))
-                {
-                    _ = SendMessage();
-                }
-            }
-        }
-
-        private async void SendMessage_Click(object sender, RoutedEventArgs e)
-        {
-            await SendMessage();
-        }
-
-        private async Task SendMessage()
+        private async void Send_Click(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrWhiteSpace(MessageActuel)) return;
 
             var userMessage = MessageActuel;
-            MessageActuel = string.Empty;
+            MessageActuel = "";
             CanSendMessage = false;
 
-            // Créer une nouvelle conversation si nécessaire
-            if (!_conversationId.HasValue)
-            {
-                _conversationId = _chatHistoryService.StartNewConversation(_currentUser.Id, $"{_currentUser.Prenom} {_currentUser.Nom}");
-            }
-
-            // Ajouter le message utilisateur
+            // Ajouter message utilisateur
             var userChatMsg = new ChatMessage
             {
                 IsUser = true,
-                Auteur = "Vous",
+                Auteur = _currentUser.Nom,
                 Message = userMessage,
                 Horodatage = DateTime.Now.ToString("HH:mm")
             };
             Messages.Add(userChatMsg);
 
-            // Sauvegarder le message utilisateur dans la BDD
-            _chatHistoryService.SaveMessage(_conversationId.Value, _currentUser.Id, $"{_currentUser.Prenom} {_currentUser.Nom}", true, userMessage);
+            // Créer conversation si nécessaire
+            if (!_conversationId.HasValue)
+            {
+                _conversationId = _chatHistoryService.StartNewConversation(_currentUser.Id, _currentUser.Nom);
+            }
 
-            ScrollToBottom();
+            // Sauvegarder message utilisateur
+            _chatHistoryService.SaveMessage(_conversationId.Value, _currentUser.Id, _currentUser.Nom, true, userMessage);
 
-            // Ajouter un message "en train de réfléchir"
+            // Message "en train de réfléchir"
             var thinkingMessage = new ChatMessage
             {
                 IsUser = false,
@@ -241,13 +192,9 @@ namespace BacklogManager.Views
 
             try
             {
-                // Appeler l'API
                 var response = await CallChatAPI(userMessage);
-                
-                // Retirer le message "en train de réfléchir"
                 Messages.Remove(thinkingMessage);
-                
-                // Ajouter la réponse de l'agent
+
                 var agentChatMsg = new ChatMessage
                 {
                     IsUser = false,
@@ -257,7 +204,6 @@ namespace BacklogManager.Views
                 };
                 Messages.Add(agentChatMsg);
 
-                // Sauvegarder la réponse de l'agent dans la BDD
                 _chatHistoryService.SaveMessage(_conversationId.Value, _currentUser.Id, "Agent Project & Change", false, response);
             }
             catch (Exception ex)
@@ -267,7 +213,7 @@ namespace BacklogManager.Views
                 {
                     IsUser = false,
                     Auteur = "Agent Project & Change",
-                    Message = $"❌ Désolée, j'ai rencontré une erreur : {ex.Message}\n\nAssurez-vous que votre token est valide et que vous avez accès à l'API.",
+                    Message = $"❌ Désolée, j'ai rencontré une erreur : {ex.Message}\n\nAssurez-vous que votre token est valide.",
                     Horodatage = DateTime.Now.ToString("HH:mm")
                 };
                 Messages.Add(errorMsg);
@@ -284,14 +230,12 @@ namespace BacklogManager.Views
                 client.Timeout = TimeSpan.FromSeconds(60);
                 client.DefaultRequestHeaders.Clear();
                 
-                // Logging pour debug
                 LogDebug($"Token length: {_apiToken?.Length ?? 0}");
                 LogDebug($"Token first 20 chars: {(_apiToken?.Length >= 20 ? _apiToken.Substring(0, 20) : _apiToken)}");
                 
                 client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_apiToken}");
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
                 
-                // Construire l'historique de conversation pour le contexte
                 var conversationHistory = Messages
                     .Where(m => m.Message != "Je réfléchis... 💭")
                     .Select(m => new
@@ -301,7 +245,6 @@ namespace BacklogManager.Views
                     })
                     .ToList();
 
-                // Ajouter le message système avec la personnalité de l'agent
                 var messages = new[]
                 {
                     new
@@ -344,20 +287,17 @@ namespace BacklogManager.Views
                 var jsonContent = JsonSerializer.Serialize(requestBody);
                 var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
-                // Logging pour debug
                 LogDebug($"API URL: {API_URL}");
                 LogDebug($"Request body: {jsonContent.Substring(0, Math.Min(500, jsonContent.Length))}...");
                 LogDebug($"Authorization header: Bearer {_apiToken?.Substring(0, Math.Min(20, _apiToken?.Length ?? 0))}...");
 
                 var response = await client.PostAsync(API_URL, content);
                 
-                // Gérer les erreurs HTTP avec plus de détails
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorContent = await response.Content.ReadAsStringAsync();
                     var statusCode = (int)response.StatusCode;
                     
-                    // Log détaillé pour debug
                     LogDebug($"ERROR - Status Code: {statusCode}");
                     LogDebug($"ERROR - Response: {errorContent}");
                     LogDebug($"ERROR - Headers sent:");
@@ -366,7 +306,7 @@ namespace BacklogManager.Views
                         LogDebug($"  {header.Key}: {string.Join(", ", header.Value)}");
                     }
                     
-                    throw new Exception($"Le code d'état de réponse n'indique pas la réussite : {statusCode} ({response.StatusCode}).\n\nDétails : {errorContent}\n\nVérifiez que votre token est valide et que vous avez les droits d'accès à l'API.");
+                    throw new Exception($"Erreur {statusCode}: {errorContent}");
                 }
 
                 var responseBody = await response.Content.ReadAsStringAsync();
@@ -387,32 +327,67 @@ namespace BacklogManager.Views
             ScrollMessages.ScrollToBottom();
         }
 
-        private void ClearHistory_Click(object sender, RoutedEventArgs e)
+        private void NewConversation_Click(object sender, RoutedEventArgs e)
         {
             var result = MessageBox.Show(
-                "Êtes-vous sûr de vouloir effacer tout l'historique de conversation ?",
-                "Confirmation",
+                "Voulez-vous démarrer une nouvelle conversation ?\n\nL'historique actuel sera conservé dans la base de données.",
+                "Nouvelle conversation",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Question);
 
             if (result == MessageBoxResult.Yes)
             {
                 Messages.Clear();
+                _conversationId = null;
+                
                 Messages.Add(new ChatMessage
                 {
                     IsUser = false,
                     Auteur = "Agent Project & Change",
-                    Message = "Historique effacé ! On repart sur de bonnes bases. Que puis-je faire pour vous ? 😊",
+                    Message = "Nouvelle conversation démarrée ! Comment puis-je vous aider ? 😊",
                     Horodatage = DateTime.Now.ToString("HH:mm")
                 });
+            }
+        }
+
+        private void ClearHistory_Click(object sender, RoutedEventArgs e)
+        {
+            var result = MessageBox.Show(
+                "Voulez-vous vraiment effacer tout l'historique des conversations ?\n\nCette action est irréversible.",
+                "Confirmation",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    _chatHistoryService.DeleteAllConversations(_currentUser.Id);
+                    Messages.Clear();
+                    _conversationId = null;
+                    
+                    Messages.Add(new ChatMessage
+                    {
+                        IsUser = false,
+                        Auteur = "Agent Project & Change",
+                        Message = "L'historique a été effacé. Comment puis-je vous aider ? 😊",
+                        Horodatage = DateTime.Now.ToString("HH:mm")
+                    });
+                    
+                    MessageBox.Show("L'historique a été effacé avec succès.", "Succès", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Erreur lors de l'effacement de l'historique : {ex.Message}", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
 
         private void ChangeToken_Click(object sender, RoutedEventArgs e)
         {
             var result = MessageBox.Show(
-                "Voulez-vous vraiment changer votre token d'accès ?\nL'historique de conversation sera conservé.",
-                "Confirmation",
+                "Voulez-vous modifier votre token d'accès API ?\n\nVous devrez saisir un nouveau token.",
+                "Modifier le token",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Question);
 
@@ -420,7 +395,7 @@ namespace BacklogManager.Views
             {
                 ChatVisible = false;
                 NeedTokenConfiguration = true;
-                TxtToken.Clear();
+                TxtToken.Text = "";
             }
         }
 
@@ -438,38 +413,7 @@ namespace BacklogManager.Views
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-    }
-
-    public class ChatMessage : INotifyPropertyChanged
-    {
-        public bool IsUser { get; set; }
-        public string Auteur { get; set; }
-        public string Message { get; set; }
-        public string Horodatage { get; set; }
-        
-        public HorizontalAlignment Alignment => IsUser ? HorizontalAlignment.Right : HorizontalAlignment.Left;
-
-        private string _reaction;
-        public string Reaction
-        {
-            get => _reaction;
-            set
-            {
-                _reaction = value;
-                OnPropertyChanged(nameof(Reaction));
-                OnPropertyChanged(nameof(HasReaction));
-            }
-        }
-
-        public bool HasReaction => !string.IsNullOrEmpty(Reaction);
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

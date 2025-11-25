@@ -63,5 +63,6 @@ namespace BacklogManager.Services
         void UpdateChatConversation(int conversationId);
         List<ChatMessageDB> GetChatMessages(int conversationId);
         void AddChatMessage(ChatMessageDB message);
+        void DeleteUserChatConversations(int userId);
     }
 }

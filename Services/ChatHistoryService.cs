@@ -67,6 +67,15 @@ namespace BacklogManager.Services
         }
 
         /// <summary>
+        /// Supprime toutes les conversations d'un utilisateur
+        /// </summary>
+        public void DeleteAllConversations(int userId)
+        {
+            _database.DeleteUserChatConversations(userId);
+            _currentConversationId = null;
+        }
+
+        /// <summary>
         /// ID de la conversation actuelle
         /// </summary>
         public int? CurrentConversationId

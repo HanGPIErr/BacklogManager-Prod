@@ -1,0 +1,148 @@
+<UserControl x:Class="BacklogManager.Views.GuideUtilisateurView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="#F5F5F5">
+    
+    <Grid>
+        <!-- Header -->
+        <Border Background="#00915A" Height="80" VerticalAlignment="Top">
+            <Grid Margin="30,0">
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="💬 Agent Project &amp; Change - Votre guide de pilotage" FontSize="24" FontWeight="Bold" 
+                               Foreground="White"/>
+                    <TextBlock x:Name="TxtRole" FontSize="14" Foreground="#E8F5E9" Margin="0,5,0,0"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Content avec Caramel et Flopy -->
+        <Grid Margin="0,80,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="250"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Questions à gauche -->
+            <Border Grid.Column="0" Background="White" Padding="15" Margin="20,20,10,20" 
+                    CornerRadius="12" VerticalAlignment="Stretch">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="20" ShadowDepth="0" Opacity="0.2" Color="#00915A"/>
+                </Border.Effect>
+                <StackPanel>
+                    <!-- Caramel & Flopy -->
+                    <Image Source="pack://application:,,,/Images/agent-project-and-change.png" 
+                           Width="140" Height="140" 
+                           Stretch="Uniform"
+                           Margin="0,0,0,10"
+                           HorizontalAlignment="Center"/>
+                    <TextBlock Text="🎯 Agent Project &amp; Change"
+                               FontSize="14" 
+                               FontWeight="Bold"
+                               Foreground="#00915A"
+                               TextAlignment="Center"
+                               TextWrapping="Wrap"
+                               Margin="0,0,0,5"/>
+                    <TextBlock Text="Pilotez efficacement vos projets" 
+                               FontSize="11" 
+                               Foreground="#666"
+                               TextAlignment="Center"
+                               TextWrapping="Wrap"
+                               Margin="0,0,0,15"/>
+
+                    <!-- Questions FAQ -->
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="350">
+                        <ItemsControl x:Name="ListeQuestions" Margin="0,10,0,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Background="#F5F5F5" 
+                                            Foreground="#333"
+                                            BorderThickness="0"
+                                            Padding="10,8"
+                                            Margin="0,0,0,8"
+                                            HorizontalContentAlignment="Left"
+                                            FontSize="11"
+                                            Cursor="Hand"
+                                            Click="Question_Click">
+                                        <Button.Content>
+                                            <TextBlock Text="{Binding}" TextWrapping="Wrap"/>
+                                        </Button.Content>
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border Background="{TemplateBinding Background}" 
+                                                                    CornerRadius="6" 
+                                                                    Padding="{TemplateBinding Padding}">
+                                                                <ContentPresenter/>
+                                                            </Border>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="#00915A"/>
+                                                        <Setter Property="Foreground" Value="White"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+
+                    <!-- Bouton Chat IA -->
+                    <Button Content="💬 Discuter avec l'IA" 
+                            Background="#00915A" 
+                            Foreground="White"
+                            BorderThickness="0"
+                            Padding="12,10"
+                            Margin="0,15,0,0"
+                            FontSize="13"
+                            FontWeight="SemiBold"
+                            Cursor="Hand"
+                            Click="BtnChatIA_Click">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" 
+                                                    CornerRadius="6" 
+                                                    Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#007A4D"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </StackPanel>
+            </Border>
+
+            <!-- Réponse à droite -->
+            <Border Grid.Column="1" Background="White" Padding="30" Margin="10,20,20,20" 
+                    CornerRadius="12">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="20" ShadowDepth="0" Opacity="0.2" Color="#00915A"/>
+                </Border.Effect>
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <TextBlock x:Name="TxtReponse" 
+                               Text="Sélectionnez une question dans la liste pour voir la réponse détaillée."
+                               FontSize="14"
+                               Foreground="#333"
+                               TextWrapping="Wrap"
+                               LineHeight="24"/>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

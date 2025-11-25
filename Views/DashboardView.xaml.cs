@@ -554,6 +554,19 @@ namespace BacklogManager.Views
         {
             try
             {
+                var mainWindow = Window.GetWindow(this) as MainWindow;
+                mainWindow?.AfficherGuide();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erreur lors de l'ouverture du guide : {ex.Message}", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void BtnVoirGuide_Click_Old(object sender, RoutedEventArgs e)
+        {
+            try
+            {
                 var guideWindow = new Views.GuideUtilisateurWindow(_authService, _backlogService.Database)
                 {
                     Owner = Window.GetWindow(this)
