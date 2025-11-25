@@ -96,16 +96,17 @@ namespace BacklogManager.Services
             };
             _writeConnectionString = writeBuilder.ConnectionString;
             
-            // Pour compatibilité avec tout le code existant, _connectionString = WRITE par défaut
-            _connectionString = _writeConnectionString;
+            // Par défaut, utiliser READ-ONLY pour toutes les opérations (sécurité)
+            _connectionString = _readConnectionString;
 
             InitializeDatabase();
         }
 
         // Méthodes helper pour obtenir les bonnes connection strings
+        // Par défaut READ-ONLY pour la sécurité
         private SQLiteConnection GetConnection()
         {
-            return new SQLiteConnection(_connectionString);
+            return new SQLiteConnection(_readConnectionString);
         }
 
         private SQLiteConnection GetConnectionForWrite()
@@ -200,7 +201,7 @@ namespace BacklogManager.Services
 
         private void CreateTables()
         {
-            using (var conn = GetConnection())
+            using (var conn = GetConnectionForWrite())
             {
                 conn.Open();
                 
@@ -823,7 +824,7 @@ namespace BacklogManager.Services
         // WRITE OPERATIONS (Write Connection - opened, used, closed immediately)
         public Role AddOrUpdateRole(Role role)
         {
-            using (var conn = GetConnection())
+            using (var conn = GetConnectionForWrite())
             {
                 conn.Open();
                 using (var transaction = conn.BeginTransaction())
@@ -882,7 +883,7 @@ namespace BacklogManager.Services
 
         public void UpdateRole(Role role)
         {
-            using (var conn = GetConnection())
+            using (var conn = GetConnectionForWrite())
             {
                 conn.Open();
                 using (var cmd = conn.CreateCommand())
@@ -915,7 +916,7 @@ namespace BacklogManager.Services
 
         public Utilisateur AddOrUpdateUtilisateur(Utilisateur utilisateur)
         {
-            using (var conn = GetConnection())
+            using (var conn = GetConnectionForWrite())
             {
                 conn.Open();
                 using (var transaction = conn.BeginTransaction())
@@ -981,7 +982,7 @@ namespace BacklogManager.Services
 
         public void DeleteUtilisateur(int id)
         {
-            using (var conn = GetConnection())
+            using (var conn = GetConnectionForWrite())
             {
                 conn.Open();
                 using (var cmd = conn.CreateCommand())
@@ -995,7 +996,7 @@ namespace BacklogManager.Services
 
         public Demande AddOrUpdateDemande(Demande demande)
         {
-            using (var conn = GetConnection())
+            using (var conn = GetConnectionForWrite())
             {
                 conn.Open();
                 using (var transaction = conn.BeginTransaction())
@@ -1074,7 +1075,7 @@ namespace BacklogManager.Services
 
         public void DeleteDemande(int id)
         {
-            using (var conn = GetConnection())
+            using (var conn = GetConnectionForWrite())
             {
                 conn.Open();
                 using (var transaction = conn.BeginTransaction())
@@ -1240,7 +1241,7 @@ namespace BacklogManager.Services
 
         public void AddAuditLog(AuditLog auditLog)
         {
-            using (var conn = GetConnection())
+            using (var conn = GetConnectionForWrite())
             {
                 conn.Open();
                 using (var cmd = conn.CreateCommand())
@@ -1386,7 +1387,7 @@ namespace BacklogManager.Services
 
         public BacklogItem AddOrUpdateBacklogItem(BacklogItem item)
         {
-            using (var conn = GetConnection())
+            using (var conn = GetConnectionForWrite())
             {
                 conn.Open();
                 using (var transaction = conn.BeginTransaction())
@@ -1461,7 +1462,7 @@ namespace BacklogManager.Services
         
         public Projet AddOrUpdateProjet(Projet projet)
         {
-            using (var conn = GetConnection())
+            using (var conn = GetConnectionForWrite())
             {
                 conn.Open();
                 using (var transaction = conn.BeginTransaction())
@@ -1514,7 +1515,7 @@ namespace BacklogManager.Services
         
         public Sprint AddOrUpdateSprint(Sprint sprint)
         {
-            using (var conn = GetConnection())
+            using (var conn = GetConnectionForWrite())
             {
                 conn.Open();
                 using (var transaction = conn.BeginTransaction())
@@ -1566,7 +1567,7 @@ namespace BacklogManager.Services
         
         public Dev AddOrUpdateDev(Dev dev)
         {
-            using (var conn = GetConnection())
+            using (var conn = GetConnectionForWrite())
             {
                 conn.Open();
                 using (var transaction = conn.BeginTransaction())
@@ -1615,7 +1616,7 @@ namespace BacklogManager.Services
         
         public Commentaire AddCommentaire(Commentaire commentaire)
         {
-            using (var conn = GetConnection())
+            using (var conn = GetConnectionForWrite())
             {
                 conn.Open();
                 using (var cmd = conn.CreateCommand())
@@ -1648,7 +1649,7 @@ namespace BacklogManager.Services
         // Notifications
         public List<Notification> GetNotifications()
         {
-            using (var conn = new SQLiteConnection(_connectionString))
+            using (var conn = GetConnection())
             {
                 conn.Open();
                 using (var cmd = conn.CreateCommand())
@@ -1679,7 +1680,7 @@ namespace BacklogManager.Services
 
         public void AddOrUpdateNotification(Notification notification)
         {
-            using (var conn = new SQLiteConnection(_connectionString))
+            using (var conn = GetConnectionForWrite())
             {
                 conn.Open();
                 using (var cmd = conn.CreateCommand())
@@ -1719,7 +1720,7 @@ namespace BacklogManager.Services
 
         public void DeleteNotification(int notificationId)
         {
-            using (var conn = new SQLiteConnection(_connectionString))
+            using (var conn = GetConnectionForWrite())
             {
                 conn.Open();
                 using (var cmd = conn.CreateCommand())
@@ -1733,7 +1734,7 @@ namespace BacklogManager.Services
 
         public void DeleteNotificationsLues()
         {
-            using (var conn = new SQLiteConnection(_connectionString))
+            using (var conn = GetConnectionForWrite())
             {
                 conn.Open();
                 using (var cmd = conn.CreateCommand())
@@ -1746,7 +1747,7 @@ namespace BacklogManager.Services
 
         public void MarquerNotificationCommeLue(int notificationId)
         {
-            using (var conn = new SQLiteConnection(_connectionString))
+            using (var conn = GetConnectionForWrite())
             {
                 conn.Open();
                 using (var cmd = conn.CreateCommand())
@@ -1760,7 +1761,7 @@ namespace BacklogManager.Services
 
         public void MarquerToutesNotificationsCommeLues()
         {
-            using (var conn = new SQLiteConnection(_connectionString))
+            using (var conn = GetConnectionForWrite())
             {
                 conn.Open();
                 using (var cmd = conn.CreateCommand())
@@ -1773,7 +1774,7 @@ namespace BacklogManager.Services
 
         public void SupprimerToutesLesNotifications()
         {
-            using (var conn = new SQLiteConnection(_connectionString))
+            using (var conn = GetConnectionForWrite())
             {
                 conn.Open();
                 using (var cmd = conn.CreateCommand())
@@ -1792,7 +1793,7 @@ namespace BacklogManager.Services
         {
             var cras = new List<CRA>();
 
-            using (var conn = new SQLiteConnection(_connectionString))
+            using (var conn = GetConnection())
             {
                 conn.Open();
                 using (var cmd = conn.CreateCommand())
@@ -1861,7 +1862,7 @@ namespace BacklogManager.Services
 
         public void SaveCRA(CRA cra)
         {
-            using (var conn = new SQLiteConnection(_connectionString))
+            using (var conn = GetConnectionForWrite())
             {
                 conn.Open();
                 using (var cmd = conn.CreateCommand())
@@ -1916,7 +1917,7 @@ namespace BacklogManager.Services
 
         public void DeleteCRA(int id)
         {
-            using (var conn = new SQLiteConnection(_connectionString))
+            using (var conn = GetConnectionForWrite())
             {
                 conn.Open();
                 using (var cmd = conn.CreateCommand())

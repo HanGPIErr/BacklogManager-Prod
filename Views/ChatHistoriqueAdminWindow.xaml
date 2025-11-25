@@ -20,15 +20,15 @@
                 <!-- Header -->
                 <Border Grid.Row="0" Background="#00915A" Padding="20,15">
                     <StackPanel>
-                        <TextBlock Text="💬 Conversations" FontSize="18" FontWeight="Bold" Foreground="White"/>
-                        <TextBlock Text="{Binding NbConversations, StringFormat='{}{0} conversation(s)'}" 
+                        <TextBlock Text="👥 Utilisateurs" FontSize="18" FontWeight="Bold" Foreground="White"/>
+                        <TextBlock Text="{Binding NbUtilisateurs, StringFormat='{}{0} utilisateur(s)'}" 
                                    FontSize="12" Foreground="#E0E0E0" Margin="0,5,0,0"/>
                     </StackPanel>
                 </Border>
 
-                <!-- Liste des conversations -->
+                <!-- Liste des utilisateurs -->
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                    <ItemsControl ItemsSource="{Binding Conversations}" Margin="10">
+                    <ItemsControl ItemsSource="{Binding Utilisateurs}" Margin="10">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Border Background="White" BorderBrush="#E1E1E1" BorderThickness="1" 
@@ -45,18 +45,18 @@
                                     </Border.Style>
                                     <Border.InputBindings>
                                         <MouseBinding MouseAction="LeftClick" 
-                                                      Command="{Binding DataContext.SelectConversationCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                      Command="{Binding DataContext.SelectUtilisateurCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                       CommandParameter="{Binding}"/>
                                     </Border.InputBindings>
                                     
                                     <StackPanel>
                                         <TextBlock Text="{Binding Username}" FontWeight="Bold" FontSize="14" Foreground="#333"/>
-                                        <TextBlock Text="{Binding DateDebut, StringFormat='Début: {0:dd/MM/yyyy HH:mm}'}" 
-                                                   FontSize="11" Foreground="#666" Margin="0,3,0,0"/>
-                                        <TextBlock Text="{Binding DateDernierMessage, StringFormat='Dernier message: {0:dd/MM/yyyy HH:mm}'}" 
-                                                   FontSize="11" Foreground="#666" Margin="0,2,0,0"/>
-                                        <TextBlock Text="{Binding NombreMessages, StringFormat='{}{0} message(s)'}" 
+                                        <TextBlock Text="{Binding NbConversations}" 
                                                    FontSize="11" Foreground="#00915A" FontWeight="SemiBold" Margin="0,5,0,0"/>
+                                        <TextBlock Text="{Binding DateDernierMessage, StringFormat='Dernier message: {0}'}" 
+                                                   FontSize="11" Foreground="#666" Margin="0,3,0,0"/>
+                                        <TextBlock Text="{Binding NbMessages}" 
+                                                   FontSize="11" Foreground="#666" Margin="0,2,0,0"/>
                                     </StackPanel>
                                 </Border>
                             </DataTemplate>
@@ -78,20 +78,20 @@
                     CornerRadius="8" Padding="20" Margin="0,0,0,15">
                 <Grid>
                     <StackPanel Visibility="{Binding ConversationSelectionneeVisibility}">
-                        <TextBlock Text="{Binding ConversationSelectionnee.Username}" FontSize="20" FontWeight="Bold" Foreground="#333"/>
+                        <TextBlock Text="{Binding UtilisateurSelectionne.Username}" FontSize="20" FontWeight="Bold" Foreground="#333"/>
                         <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                            <TextBlock Text="🕐" FontSize="14" Margin="0,0,5,0"/>
-                            <TextBlock Text="{Binding ConversationSelectionnee.DateDebut, StringFormat='Conversation démarrée le {0:dd/MM/yyyy à HH:mm}'}" 
+                            <TextBlock Text="💬" FontSize="14" Margin="0,0,5,0"/>
+                            <TextBlock Text="{Binding UtilisateurSelectionne.NbConversations}" 
                                        FontSize="13" Foreground="#666"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-                            <TextBlock Text="💬" FontSize="14" Margin="0,0,5,0"/>
-                            <TextBlock Text="{Binding ConversationSelectionnee.NombreMessages, StringFormat='{}{0} messages échangés'}" 
+                            <TextBlock Text="📝" FontSize="14" Margin="0,0,5,0"/>
+                            <TextBlock Text="Historique complet de toutes les conversations" 
                                        FontSize="13" Foreground="#666"/>
                         </StackPanel>
                     </StackPanel>
                     
-                    <TextBlock Text="👈 Sélectionnez une conversation pour voir l'historique" 
+                    <TextBlock Text="👈 Sélectionnez un utilisateur pour voir son historique complet" 
                                FontSize="14" Foreground="#999" TextAlignment="Center"
                                Visibility="{Binding AucuneConversationVisibility}"/>
                 </Grid>

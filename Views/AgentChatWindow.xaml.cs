@@ -18,7 +18,7 @@ namespace BacklogManager.Views
     public partial class AgentChatWindow : Window, INotifyPropertyChanged
     {
         private const string API_URL = "https://genfactory-ai.analytics.cib.echonet/genai/api/v2/chat/completions";
-        private const string MODEL = "codestral-latest";
+        private const string MODEL = "gpt-oss-120b";
         private const string TOKEN_KEY = "AgentChatToken";
         
         private string _apiToken;

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -16,28 +17,28 @@ namespace BacklogManager.Views
     {
         private readonly ChatHistoryService _chatHistoryService;
 
-        public ObservableCollection<ChatConversation> Conversations { get; set; }
+        public ObservableCollection<UtilisateurConversation> Utilisateurs { get; set; }
         public ObservableCollection<ChatMessageViewModel> Messages { get; set; }
 
-        private ChatConversation _conversationSelectionnee;
-        public ChatConversation ConversationSelectionnee
+        private UtilisateurConversation _utilisateurSelectionne;
+        public UtilisateurConversation UtilisateurSelectionne
         {
-            get => _conversationSelectionnee;
+            get => _utilisateurSelectionne;
             set
             {
-                _conversationSelectionnee = value;
+                _utilisateurSelectionne = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(ConversationSelectionneeVisibility));
                 OnPropertyChanged(nameof(AucuneConversationVisibility));
             }
         }
 
-        public Visibility ConversationSelectionneeVisibility => ConversationSelectionnee != null ? Visibility.Visible : Visibility.Collapsed;
-        public Visibility AucuneConversationVisibility => ConversationSelectionnee == null ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility ConversationSelectionneeVisibility => UtilisateurSelectionne != null ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility AucuneConversationVisibility => UtilisateurSelectionne == null ? Visibility.Visible : Visibility.Collapsed;
 
-        public int NbConversations => Conversations?.Count ?? 0;
+        public int NbUtilisateurs => Utilisateurs?.Count ?? 0;
 
-        public ICommand SelectConversationCommand { get; set; }
+        public ICommand SelectUtilisateurCommand { get; set; }
 
         public ChatHistoriqueAdminWindow(ChatHistoryService chatHistoryService)
         {
@@ -45,43 +46,70 @@ namespace BacklogManager.Views
             DataContext = this;
 
             _chatHistoryService = chatHistoryService;
-            Conversations = new ObservableCollection<ChatConversation>();
+            Utilisateurs = new ObservableCollection<UtilisateurConversation>();
             Messages = new ObservableCollection<ChatMessageViewModel>();
 
-            SelectConversationCommand = new RelayCommand(param => SelectConversation((ChatConversation)param));
+            SelectUtilisateurCommand = new RelayCommand(param => SelectUtilisateur((UtilisateurConversation)param));
 
-            LoadConversations();
+            LoadUtilisateurs();
         }
 
-        private void LoadConversations()
+        private void LoadUtilisateurs()
         {
             try
             {
                 var conversations = _chatHistoryService.GetAllConversations();
-                Conversations.Clear();
-                foreach (var conv in conversations)
+                
+                // Grouper par utilisateur et prendre la dernière conversation
+                var utilisateursGroupes = conversations
+                    .GroupBy(c => c.UserId)
+                    .Select(g => new UtilisateurConversation
+                    {
+                        UserId = g.Key,
+                        Username = g.First().Username,
+                        NombreConversations = g.Count(),
+                        DerniereConversation = g.OrderByDescending(c => c.DateDernierMessage).First(),
+                        ToutesLesConversations = g.OrderByDescending(c => c.DateDernierMessage).ToList()
+                    })
+                    .OrderByDescending(u => u.DerniereConversation.DateDernierMessage)
+                    .ToList();
+
+                Utilisateurs.Clear();
+                foreach (var utilisateur in utilisateursGroupes)
                 {
-                    Conversations.Add(conv);
+                    Utilisateurs.Add(utilisateur);
                 }
-                OnPropertyChanged(nameof(NbConversations));
+                OnPropertyChanged(nameof(NbUtilisateurs));
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erreur lors du chargement des conversations : {ex.Message}", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Erreur lors du chargement des utilisateurs : {ex.Message}", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private void SelectConversation(ChatConversation conversation)
+        private void SelectUtilisateur(UtilisateurConversation utilisateur)
         {
             try
             {
-                ConversationSelectionnee = conversation;
+                UtilisateurSelectionne = utilisateur;
                 Messages.Clear();
 
-                var messages = _chatHistoryService.GetConversationHistory(conversation.Id);
-                foreach (var msg in messages)
+                // Charger tous les messages de toutes les conversations de cet utilisateur
+                foreach (var conversation in utilisateur.ToutesLesConversations)
                 {
-                    Messages.Add(new ChatMessageViewModel(msg));
+                    var messages = _chatHistoryService.GetConversationHistory(conversation.Id);
+                    foreach (var msg in messages)
+                    {
+                        Messages.Add(new ChatMessageViewModel(msg));
+                    }
+                }
+
+                // Trier les messages par date
+                var messagesTries = Messages.OrderBy(m => m.DateMessage).ToList();
+                Messages.Clear();
+                foreach (var msg in messagesTries)
+                {
+                    Messages.Add(msg);
                 }
 
                 // Scroller vers le bas
@@ -89,7 +117,7 @@ namespace BacklogManager.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erreur lors du chargement de la conversation : {ex.Message}", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Erreur lors du chargement de l'historique : {ex.Message}", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -98,6 +126,19 @@ namespace BacklogManager.Views
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+    }
+
+    public class UtilisateurConversation
+    {
+        public int UserId { get; set; }
+        public string Username { get; set; }
+        public int NombreConversations { get; set; }
+        public ChatConversation DerniereConversation { get; set; }
+        public List<ChatConversation> ToutesLesConversations { get; set; }
+
+        public string DateDernierMessage => DerniereConversation.DateDernierMessage.ToString("dd/MM/yyyy HH:mm");
+        public string NbMessages => $"{DerniereConversation.NombreMessages} message(s)";
+        public string NbConversations => NombreConversations > 1 ? $"{NombreConversations} conversation(s)" : "1 conversation";
     }
 
     public class ChatMessageViewModel
