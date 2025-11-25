@@ -379,44 +379,38 @@
                     </StackPanel>
                 </Border>
 
-                <!-- Liste détaillée des tâches -->
-                <TextBlock Text="📋 Détail des Tâches" FontSize="18" FontWeight="Bold" 
+                <!-- Timeline des tâches -->
+                <TextBlock Text="📋 Timeline des Tâches" FontSize="18" FontWeight="Bold" 
                            Foreground="#1A1919" Margin="0,10,0,15"/>
 
                 <ItemsControl ItemsSource="{Binding TimelineItems}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Border Background="White" CornerRadius="6" Padding="15" Margin="0,0,0,15">
-                            <Border.Effect>
-                                <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.15" Color="#00915A"/>
-                            </Border.Effect>
-                            <Grid>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="0,0,0,8">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="40"/>
                                 </Grid.RowDefinitions>
 
-                                <!-- Header with title and status -->
-                                <Grid Grid.Row="0">
+                                <!-- Info de la tâche -->
+                                <Grid Grid.Row="0" Margin="0,0,0,5">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
 
-                                    <StackPanel Grid.Column="0">
-                                        <TextBlock Text="{Binding Item.Titre}" FontSize="16" FontWeight="Bold" 
-                                                   Foreground="#1A1919" TextWrapping="Wrap"/>
-                                        <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-                                            <TextBlock Text="👤 " FontSize="12"/>
-                                            <TextBlock Text="{Binding DevName}" FontSize="12" Foreground="#00915A" FontWeight="SemiBold"/>
-                                            <TextBlock Text=" • 📁 " FontSize="12" Margin="10,0,0,0"/>
-                                            <TextBlock Text="{Binding ProjetName}" FontSize="12" Foreground="#6D6D6D"/>
-                                        </StackPanel>
+                                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Item.Titre}" FontSize="13" FontWeight="SemiBold" 
+                                                   Foreground="#1A1919" VerticalAlignment="Center"/>
+                                        <TextBlock Text=" • " FontSize="12" Margin="5,0" Foreground="#9E9E9E" VerticalAlignment="Center"/>
+                                        <TextBlock Text="👤 " FontSize="11" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding DevName}" FontSize="11" Foreground="#00915A" VerticalAlignment="Center"/>
+                                        <TextBlock Text=" • " FontSize="12" Margin="5,0" Foreground="#9E9E9E" VerticalAlignment="Center"/>
+                                        <TextBlock Text="📁 " FontSize="11" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding ProjetName}" FontSize="11" Foreground="#6D6D6D" VerticalAlignment="Center"/>
                                     </StackPanel>
 
-                                    <Border Grid.Column="1" Padding="10,5" CornerRadius="4" VerticalAlignment="Top">
+                                    <Border Grid.Column="1" Padding="8,3" CornerRadius="3" VerticalAlignment="Center">
                                         <Border.Style>
                                             <Style TargetType="Border">
                                                 <Setter Property="Background" Value="#00915A"/>
@@ -437,155 +431,63 @@
                                             </Style>
                                         </Border.Style>
                                         <TextBlock Text="{Binding Item.Statut}" Foreground="White" 
-                                                   FontSize="11" FontWeight="Bold"/>
+                                                   FontSize="10" FontWeight="Bold"/>
                                     </Border>
                                 </Grid>
 
-                                <!-- Dates -->
-                                <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,10,0,10">
-                                    <Border Background="#E8F5E9" CornerRadius="4" Padding="8,4" Margin="0,0,10,0">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="🎬 Début: " FontSize="11" Foreground="#2E7D32" FontWeight="SemiBold"/>
-                                            <TextBlock Text="{Binding Item.DateCreation, StringFormat='{}{0:dd/MM/yyyy}'}" 
-                                                       FontSize="11" Foreground="#2E7D32"/>
-                                        </StackPanel>
+                                <!-- Barre timeline -->
+                                <Grid Grid.Row="1" x:Name="TimelineContainer">
+                                    <Border Background="#F5F5F5" CornerRadius="4" Height="40">
+                                        <Border.Effect>
+                                            <DropShadowEffect BlurRadius="5" ShadowDepth="0" Opacity="0.1" Color="#00915A"/>
+                                        </Border.Effect>
                                     </Border>
 
-                                    <Border Background="#FFEBEE" CornerRadius="4" Padding="8,4">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="🎯 Deadline: " FontSize="11" Foreground="#C62828" FontWeight="SemiBold"/>
-                                            <TextBlock Text="{Binding Item.DateFinAttendue, StringFormat='{}{0:dd/MM/yyyy}'}" 
-                                                       FontSize="11" Foreground="#C62828"/>
-                                        </StackPanel>
-                                    </Border>
-
-                                    <Border Padding="8,4" Margin="10,0,0,0" CornerRadius="4">
-                                        <Border.Style>
-                                            <Style TargetType="Border">
-                                                <Setter Property="Background" Value="#E8F5E9"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding DaysRemaining}" Value="0">
-                                                        <Setter Property="Background" Value="#FFF3E0"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Border.Style>
-                                        <TextBlock FontSize="11" FontWeight="Bold">
-                                            <TextBlock.Style>
-                                                <Style TargetType="TextBlock">
-                                                    <Setter Property="Foreground" Value="#2E7D32"/>
-                                                    <Setter Property="Text" Value="{Binding ProgressStatus}"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding DaysRemaining}" Value="0">
-                                                            <Setter Property="Foreground" Value="#EF6C00"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </TextBlock.Style>
-                                        </TextBlock>
-                                    </Border>
-                                </StackPanel>
-
-                                <!-- Progress Bar -->
-                                <Grid Grid.Row="2" Margin="0,0,0,10">
-                                    <Border Height="30" Background="#E0E0E0" CornerRadius="4"/>
-                                    <Border Height="30" CornerRadius="4" HorizontalAlignment="Left">
-                                        <Border.Width>
-                                            <MultiBinding Converter="{StaticResource ProgressWidthConverter}">
-                                                <Binding Path="ProgressPercentage"/>
-                                                <Binding RelativeSource="{RelativeSource AncestorType=Grid}" Path="ActualWidth"/>
+                                    <Border Height="35" CornerRadius="4" VerticalAlignment="Center"
+                                            Background="{Binding ProgressColor}">
+                                        <Border.Margin>
+                                            <MultiBinding Converter="{StaticResource TimelineBarMarginConverter}">
+                                                <Binding Path="BarreLeft"/>
+                                                <Binding Path="BarreWidth"/>
+                                                <Binding ElementName="TimelineContainer" Path="ActualWidth"/>
                                             </MultiBinding>
-                                        </Border.Width>
-                                        <Border.Style>
-                                            <Style TargetType="Border">
-                                                <Setter Property="Background" Value="#00915A"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding DaysRemaining}" Value="0">
-                                                        <Setter Property="Background" Value="#F57C00"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Border.Style>
-                                        <TextBlock Text="{Binding ProgressPercentage, StringFormat='{}{0:F0}%'}" 
-                                                   Foreground="White" FontWeight="Bold" FontSize="12"
-                                                   VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                        </Border.Margin>
+                                        <Border.Effect>
+                                            <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.3" Color="#00915A"/>
+                                        </Border.Effect>
+
+                                        <Grid>
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding ProgressPercentage, StringFormat='{}{0:F0}%'}" 
+                                                           Foreground="White" FontWeight="Bold" FontSize="11" Margin="0,0,5,0"/>
+                                                <TextBlock Text="•" Foreground="White" FontWeight="Bold" FontSize="11" Margin="0,0,5,0"/>
+                                                <TextBlock FontSize="10" Foreground="White" FontWeight="SemiBold">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Text" Value="{Binding Item.DateDebut, StringFormat='{}{0:dd/MM}'}"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Item.DateDebut}" Value="{x:Null}">
+                                                                    <Setter Property="Text" Value="{Binding Item.DateCreation, StringFormat='{}{0:dd/MM}'}"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                                <TextBlock Text=" → " Foreground="White" FontSize="10" Margin="2,0"/>
+                                                <TextBlock Text="{Binding Item.DateFinAttendue, StringFormat='{}{0:dd/MM}'}" 
+                                                           Foreground="White" FontSize="10" FontWeight="SemiBold"/>
+                                            </StackPanel>
+                                        </Grid>
                                     </Border>
                                 </Grid>
-
-                                <!-- Stats -->
-                                <StackPanel Grid.Row="3" Orientation="Horizontal">
-                                    <Border Background="#E3F2FD" CornerRadius="4" Padding="8,4" Margin="0,0,10,0">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="📊 Durée totale: " FontSize="11" Foreground="#1976D2" FontWeight="SemiBold"/>
-                                            <TextBlock Text="{Binding DaysTotal}" FontSize="11" Foreground="#1976D2"/>
-                                            <TextBlock Text=" jours" FontSize="11" Foreground="#1976D2"/>
-                                        </StackPanel>
-                                    </Border>
-
-                                    <Border Background="#FFF3E0" CornerRadius="4" Padding="8,4" Margin="0,0,10,0">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="⏱️ Jours écoulés: " FontSize="11" Foreground="#F57C00" FontWeight="SemiBold"/>
-                                            <TextBlock Text="{Binding DaysElapsed}" FontSize="11" Foreground="#F57C00"/>
-                                            <TextBlock Text=" jours" FontSize="11" Foreground="#F57C00"/>
-                                        </StackPanel>
-                                    </Border>
-
-                                    <Border CornerRadius="4" Padding="8,4">
-                                        <Border.Style>
-                                            <Style TargetType="Border">
-                                                <Setter Property="Background" Value="#E8F5E9"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding DaysRemaining}" Value="0">
-                                                        <Setter Property="Background" Value="#FFEBEE"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Border.Style>
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="⏳ Jours restants: " FontSize="11" FontWeight="SemiBold">
-                                                <TextBlock.Style>
-                                                    <Style TargetType="TextBlock">
-                                                        <Setter Property="Foreground" Value="#2E7D32"/>
-                                                        <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding DaysRemaining}" Value="0">
-                                                                <Setter Property="Foreground" Value="#C62828"/>
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </TextBlock.Style>
-                                            </TextBlock>
-                                            <TextBlock Text="{Binding DaysRemaining}" FontSize="11">
-                                                <TextBlock.Style>
-                                                    <Style TargetType="TextBlock">
-                                                        <Setter Property="Foreground" Value="#2E7D32"/>
-                                                        <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding DaysRemaining}" Value="0">
-                                                                <Setter Property="Foreground" Value="#C62828"/>
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </TextBlock.Style>
-                                            </TextBlock>
-                                            <TextBlock Text=" jours" FontSize="11">
-                                                <TextBlock.Style>
-                                                    <Style TargetType="TextBlock">
-                                                        <Setter Property="Foreground" Value="#2E7D32"/>
-                                                        <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding DaysRemaining}" Value="0">
-                                                                <Setter Property="Foreground" Value="#C62828"/>
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </TextBlock.Style>
-                                            </TextBlock>
-                                        </StackPanel>
-                                    </Border>
-                                </StackPanel>
                             </Grid>
-                        </Border>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <TextBlock Text="💡 Les barres représentent la durée et position des tâches sur la période. La couleur indique l'urgence."
+                           FontSize="11" Foreground="#9E9E9E" Margin="0,10,0,0"
+                           TextWrapping="Wrap"/>
             </StackPanel>
         </ScrollViewer>
     </Grid>

@@ -40,11 +40,7 @@ namespace BacklogManager.Services
         {
             get
             {
-                if (Type == NotificationType.Urgent || Type == NotificationType.Attention)
-                    return "/Images/caramel-flopy-grumpy.png";
-                if (Type == NotificationType.Success)
-                    return "/Images/caramel-flopy-happy.png";
-                return "/Images/caramel-flopy-normal.png";
+                return "/Images/agent-project-and-change.png";
             }
         }
 

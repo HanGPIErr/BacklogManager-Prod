@@ -85,7 +85,7 @@
                     </Button>
 
                     <Button Content="📋 Liste" Command="{Binding ChangerModeCommand}" CommandParameter="liste"
-                            Padding="15,8" FontSize="12" FontWeight="SemiBold" Cursor="Hand"
+                            Padding="15,8" Margin="0,0,5,0" FontSize="12" FontWeight="SemiBold" Cursor="Hand"
                             BorderThickness="0">
                         <Button.Style>
                             <Style TargetType="Button">
@@ -103,6 +103,33 @@
                                 </Setter>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding EstModeListe}" Value="True">
+                                        <Setter Property="Background" Value="#00915A"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <Button Content="📊 Timeline Projet" Command="{Binding ChangerModeCommand}" CommandParameter="timeline"
+                            Padding="15,8" FontSize="12" FontWeight="SemiBold" Cursor="Hand"
+                            BorderThickness="0">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background" Value="#E0E0E0"/>
+                                <Setter Property="Foreground" Value="#666"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="6" 
+                                                    Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding EstModeTimeline}" Value="True">
                                         <Setter Property="Background" Value="#00915A"/>
                                         <Setter Property="Foreground" Value="White"/>
                                     </DataTrigger>
@@ -189,11 +216,340 @@
                         </Button.Style>
                     </Button>
                 </StackPanel>
+
+                <!-- Sélecteur de projet (mode Timeline uniquement) -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding EstModeTimeline}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+                    <TextBlock Text="Projet:" FontSize="13" VerticalAlignment="Center" Margin="0,0,10,0" Foreground="#666"/>
+                    <ComboBox ItemsSource="{Binding Projets}" DisplayMemberPath="Nom"
+                              SelectedItem="{Binding ProjetSelectionne}"
+                              Width="250" Padding="10,8" FontSize="13"/>
+                </StackPanel>
             </Grid>
         </Border>
 
         <!-- Contenu principal -->
         <Grid Grid.Row="2">
+            <!-- Mode Timeline Projet -->
+            <Border Background="White" CornerRadius="8" Padding="20">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding EstModeTimeline}" Value="True">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="15" ShadowDepth="0" Opacity="0.1" Color="#00915A"/>
+                </Border.Effect>
+                
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <!-- En-tête avec info projet -->
+                        <Border Background="#F5F5F5" CornerRadius="6" Padding="15" Margin="0,0,0,20">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock FontSize="18" FontWeight="Bold" Foreground="#00915A">
+                                        <Run Text="📊 "/>
+                                        <Run Text="{Binding ProjetSelectionne.Nom, FallbackValue='Sélectionnez un projet'}"/>
+                                    </TextBlock>
+                                    <TextBlock Text="{Binding ProjetSelectionne.Description}" FontSize="12" 
+                                               Foreground="#666" Margin="0,5,0,0" TextWrapping="Wrap"/>
+                                </StackPanel>
+                                
+                                <StackPanel Grid.Column="2" HorizontalAlignment="Right">
+                                    <TextBlock Text="{Binding TachesProjetTimeline.Count, StringFormat='{}{0} tâches'}" 
+                                               FontSize="14" FontWeight="SemiBold" Foreground="#00915A"/>
+                                    <TextBlock Text="Dates du projet à venir" FontSize="11" Foreground="#666" 
+                                               Margin="0,3,0,0" FontStyle="Italic"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <!-- Timeline des tâches -->
+                        <Grid Margin="0,20,0,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            
+                            <!-- Axe des mois -->
+                            <ScrollViewer Grid.Row="0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled"
+                                          x:Name="TimelineHeaderScroll">
+                                <Grid>
+                                    <!-- Mois -->
+                                    <ItemsControl ItemsSource="{Binding MoisTimeline}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel Orientation="Horizontal"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Width="120" BorderBrush="#E0E0E0" BorderThickness="1,0,0,1" 
+                                                        Background="#F9F9F9" Padding="8">
+                                                    <StackPanel>
+                                                        <TextBlock Text="{Binding NomMois}" FontSize="12" FontWeight="SemiBold" 
+                                                                   Foreground="#00915A" HorizontalAlignment="Center"/>
+                                                        <TextBlock Text="{Binding Annee}" FontSize="10" Foreground="#999" 
+                                                                   HorizontalAlignment="Center" Margin="0,2,0,0"/>
+                                                    </StackPanel>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    
+                                    <!-- Badge DÉBUT PROJET -->
+                                    <Border Background="#4CAF50" CornerRadius="4" Padding="6,3" Height="22" 
+                                            VerticalAlignment="Bottom" HorizontalAlignment="Left">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding AfficherMarqueursProjet}" Value="True">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <Border.RenderTransform>
+                                            <TranslateTransform X="{Binding PositionDebutProjet}"/>
+                                        </Border.RenderTransform>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="🚀" FontSize="8" Margin="0,0,2,0"/>
+                                            <TextBlock Text="DÉBUT" FontSize="8" FontWeight="Bold" 
+                                                       Foreground="White"/>
+                                        </StackPanel>
+                                    </Border>
+                                    
+                                    <!-- Badge OBJECTIF LIVRAISON -->
+                                    <Border Background="#FF9800" CornerRadius="4" Padding="6,3" Height="22" 
+                                            VerticalAlignment="Bottom" HorizontalAlignment="Left">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding AfficherMarqueursProjet}" Value="True">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <Border.RenderTransform>
+                                            <TranslateTransform X="{Binding PositionFinProjet}"/>
+                                        </Border.RenderTransform>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="🎯" FontSize="8" Margin="0,0,2,0"/>
+                                            <TextBlock Text="OBJECTIF" FontSize="8" FontWeight="Bold" 
+                                                       Foreground="White"/>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+                            </ScrollViewer>
+                            
+                            <!-- Zone des tâches avec timeline -->
+                            <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
+                                          ScrollChanged="TimelineScroll_ScrollChanged">
+                                <Grid>
+                                    <!-- Grille de fond avec séparateurs de mois -->
+                                    <ItemsControl ItemsSource="{Binding MoisTimeline}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel Orientation="Horizontal"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Width="120" BorderBrush="#E0E0E0" BorderThickness="1,0,0,0" 
+                                                        Height="{Binding DataContext.HauteurTimeline, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    
+                                    <!-- Tâches positionnées sur la timeline -->
+                                    <ItemsControl ItemsSource="{Binding TachesProjetTimeline}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <Canvas/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Background="White" BorderBrush="#00915A" BorderThickness="2" 
+                                                        CornerRadius="6" Padding="10" Margin="5"
+                                                        Width="{Binding LargeurBarre}"
+                                                        Height="80">
+                                                    <Border.Style>
+                                                        <Style TargetType="Border">
+                                                            <Setter Property="Background" Value="White"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Statut}" Value="Termine">
+                                                                    <Setter Property="Background" Value="#E8F5E9"/>
+                                                                    <Setter Property="BorderBrush" Value="#4CAF50"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Statut}" Value="EnCours">
+                                                                    <Setter Property="Background" Value="#E3F2FD"/>
+                                                                    <Setter Property="BorderBrush" Value="#2196F3"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding EstEnRetard}" Value="True">
+                                                                    <Setter Property="Background" Value="#FFEBEE"/>
+                                                                    <Setter Property="BorderBrush" Value="#D32F2F"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Border.Style>
+                                                    <Grid>
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="Auto"/>
+                                                            <RowDefinition Height="Auto"/>
+                                                            <RowDefinition Height="*"/>
+                                                        </Grid.RowDefinitions>
+                                                        
+                                                        <TextBlock Grid.Row="0" Text="{Binding Titre}" FontSize="11" 
+                                                                   FontWeight="SemiBold" Foreground="#333" 
+                                                                   TextTrimming="CharacterEllipsis" ToolTip="{Binding Titre}"/>
+                                                        
+                                                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,3,0,0">
+                                                            <Border CornerRadius="3" Padding="4,2" Margin="0,0,5,0">
+                                                                <Border.Style>
+                                                                    <Style TargetType="Border">
+                                                                        <Setter Property="Background" Value="#9E9E9E"/>
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding Statut}" Value="EnCours">
+                                                                                <Setter Property="Background" Value="#2196F3"/>
+                                                                            </DataTrigger>
+                                                                            <DataTrigger Binding="{Binding Statut}" Value="Termine">
+                                                                                <Setter Property="Background" Value="#4CAF50"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </Border.Style>
+                                                                <TextBlock Text="{Binding Statut}" FontSize="8" 
+                                                                           Foreground="White" FontWeight="SemiBold"/>
+                                                            </Border>
+                                                            
+                                                            <TextBlock Text="{Binding ProgressionPourcentage, StringFormat='{}{0:F0}%'}" 
+                                                                       FontSize="10" FontWeight="Bold" Foreground="#00915A"/>
+                                                        </StackPanel>
+                                                        
+                                                        <StackPanel Grid.Row="2" VerticalAlignment="Bottom">
+                                                            <Border CornerRadius="3" Padding="4,2" Background="#F5F5F5">
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <TextBlock Text="👤 " FontSize="8"/>
+                                                                    <TextBlock Text="{Binding DevAssigneNom, FallbackValue='?'}" 
+                                                                               FontSize="8" FontWeight="SemiBold"/>
+                                                                    <TextBlock Text=" • " FontSize="8" Margin="3,0"/>
+                                                                    <TextBlock Text="{Binding TempsReelJours, StringFormat='{}{0:F1}j'}" 
+                                                                               FontSize="8" FontWeight="SemiBold"/>
+                                                                    <TextBlock Text="/" FontSize="8" Margin="2,0"/>
+                                                                    <TextBlock Text="{Binding ChiffrageJours, StringFormat='{}{0:F1}j', TargetNullValue='?'}" 
+                                                                               FontSize="8"/>
+                                                                </StackPanel>
+                                                            </Border>
+                                                        </StackPanel>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                        <ItemsControl.ItemContainerStyle>
+                                            <Style>
+                                                <Setter Property="Canvas.Left" Value="{Binding PositionX}"/>
+                                                <Setter Property="Canvas.Top" Value="{Binding PositionY}"/>
+                                            </Style>
+                                        </ItemsControl.ItemContainerStyle>
+                                    </ItemsControl>
+
+                                    <!-- Marqueur de début du projet -->
+                                    <Line X1="{Binding PositionDebutProjet}" Y1="0" 
+                                          X2="{Binding PositionDebutProjet}" Y2="{Binding HauteurTimeline}"
+                                          Stroke="#4CAF50" StrokeThickness="2" StrokeDashArray="6,3">
+                                        <Line.Style>
+                                            <Style TargetType="Line">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding AfficherMarqueursProjet}" Value="True">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Line.Style>
+                                    </Line>
+
+                                    <!-- Marqueur de fin prévue du projet -->
+                                    <Line X1="{Binding PositionFinProjet}" Y1="0" 
+                                          X2="{Binding PositionFinProjet}" Y2="{Binding HauteurTimeline}"
+                                          Stroke="#FF9800" StrokeThickness="2" StrokeDashArray="6,3">
+                                        <Line.Style>
+                                            <Style TargetType="Line">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding AfficherMarqueursProjet}" Value="True">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Line.Style>
+                                    </Line>
+                                </Grid>
+                            </ScrollViewer>
+                        </Grid>
+                        
+                        <!-- Message si aucune tâche -->
+                        <Border Background="#F5F5F5" CornerRadius="6" Padding="30" Margin="0,20,0,0">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding TachesProjetTimeline.Count}" Value="0">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <StackPanel HorizontalAlignment="Center">
+                                <TextBlock Text="📋" FontSize="48" HorizontalAlignment="Center" Opacity="0.3"/>
+                                <TextBlock Text="Aucune tâche dans ce projet" FontSize="14" Foreground="#999" 
+                                           HorizontalAlignment="Center" Margin="0,10,0,0"/>
+                                <TextBlock Text="Sélectionnez un projet avec des tâches pour voir la timeline" 
+                                           FontSize="12" Foreground="#999" HorizontalAlignment="Center" 
+                                           Margin="0,5,0,0" FontStyle="Italic"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+
+            <!-- Modes Mois et Liste (existants) -->
+            <Grid>
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Visible"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding EstModeTimeline}" Value="True">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+            
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="3*"/>
                 <ColumnDefinition Width="2*"/>
@@ -604,6 +960,7 @@
                     </Border>
                 </StackPanel>
             </ScrollViewer>
+            </Grid>
         </Grid>
     </Grid>
 </UserControl>

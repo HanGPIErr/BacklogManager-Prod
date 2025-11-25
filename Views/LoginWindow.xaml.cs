@@ -59,15 +59,28 @@ namespace BacklogManager.Views
         {
             try
             {
-                // Récupérer le username Windows
-                string windowsUsername = WindowsIdentity.GetCurrent().Name;
-                if (windowsUsername.Contains("\\"))
+                // Vérifier si un changement d'utilisateur est demandé
+                var switchFile = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".switch_user");
+                string username = null;
+                
+                if (System.IO.File.Exists(switchFile))
                 {
-                    windowsUsername = windowsUsername.Split('\\')[1];
+                    username = System.IO.File.ReadAllText(switchFile).Trim();
+                    System.IO.File.Delete(switchFile); // Supprimer le fichier après lecture
+                }
+                else
+                {
+                    // Récupérer le username Windows
+                    string windowsUsername = WindowsIdentity.GetCurrent().Name;
+                    if (windowsUsername.Contains("\\"))
+                    {
+                        windowsUsername = windowsUsername.Split('\\')[1];
+                    }
+                    username = windowsUsername;
                 }
 
                 // Tenter la connexion automatique
-                bool success = _authService.LoginWithUsername(windowsUsername);
+                bool success = _authService.LoginWithUsername(username);
 
                 if (success)
                 {

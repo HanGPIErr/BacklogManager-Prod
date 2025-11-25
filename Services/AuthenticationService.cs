@@ -175,5 +175,21 @@ namespace BacklogManager.Services
             var role = GetCurrentUserRole();
             return role?.Type == RoleType.Developpeur;
         }
+
+        public void SetCurrentUser(Utilisateur utilisateur)
+        {
+            if (utilisateur != null && utilisateur.Actif)
+            {
+                _currentUser = utilisateur;
+                
+                // Mettre à jour la date de dernière connexion
+                _currentUser.DateDerniereConnexion = DateTime.Now;
+                _database.AddOrUpdateUtilisateur(_currentUser);
+
+                // Réinitialiser l'audit log service avec le nouvel utilisateur
+                _auditLogService = new AuditLogService(_database, _currentUser);
+                _auditLogService.LogLogin();
+            }
+        }
     }
 }

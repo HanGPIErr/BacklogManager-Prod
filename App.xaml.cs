@@ -13,17 +13,30 @@ namespace BacklogManager
         {
             base.OnStartup(e);
 
-            // Gestionnaire d'exceptions globales
+            // Nettoyer les anciens logs au démarrage
+            LoggingService.Instance.CleanOldLogs();
+            LoggingService.Instance.LogInfo("=== Démarrage de l'application ===");
+
+            // Gestionnaire d'exceptions globales - Exceptions non-UI
             AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
             {
                 Exception ex = args.ExceptionObject as Exception;
-                MessageBox.Show($"Erreur critique: {ex?.Message}\n\nStack: {ex?.StackTrace}", 
-                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                LoggingService.Instance.LogError("Exception non gérée (non-UI)", ex);
+                
+                MessageBox.Show($"Erreur critique: {ex?.Message}\n\n" +
+                    $"L'erreur a été enregistrée dans les logs.\n" +
+                    $"Veuillez contacter le support si le problème persiste.", 
+                    "Erreur Critique", MessageBoxButton.OK, MessageBoxImage.Error);
             };
 
+            // Gestionnaire d'exceptions globales - Exceptions UI
             DispatcherUnhandledException += (sender, args) =>
             {
-                MessageBox.Show($"Erreur UI: {args.Exception.Message}\n\nStack: {args.Exception.StackTrace}", 
+                LoggingService.Instance.LogError("Exception non gérée (UI)", args.Exception);
+                
+                MessageBox.Show($"Erreur UI: {args.Exception.Message}\n\n" +
+                    $"L'erreur a été enregistrée dans les logs.\n" +
+                    $"Veuillez contacter le support si le problème persiste.", 
                     "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
                 args.Handled = true;
             };
@@ -39,7 +52,9 @@ namespace BacklogManager
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erreur au démarrage: {ex.Message}\n\nStack: {ex.StackTrace}", 
+                LoggingService.Instance.LogError("Erreur au démarrage de l'application", ex);
+                MessageBox.Show($"Erreur au démarrage: {ex.Message}\n\n" +
+                    $"L'erreur a été enregistrée dans les logs.", 
                     "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }

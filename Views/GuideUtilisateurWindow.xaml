@@ -1,7 +1,7 @@
 <Window x:Class="BacklogManager.Views.GuideUtilisateurWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Caramel et Flopy vous guident 🐱🐰" 
+        Title="Agent Project &amp; Change - Votre assistant de pilotage 🎯"
         Height="700" Width="1000"
         WindowStartupLocation="CenterOwner"
         Background="#F5F5F5"
@@ -12,7 +12,7 @@
         <Border Background="#00915A" Height="80" VerticalAlignment="Top">
             <Grid Margin="30,0">
                 <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="💬 Posez vos questions à Caramel &amp; Flopy" FontSize="24" FontWeight="Bold" 
+                    <TextBlock Text="💬 Agent Project &amp; Change - Votre guide de pilotage" FontSize="24" FontWeight="Bold" 
                                Foreground="White"/>
                     <TextBlock x:Name="TxtRole" FontSize="14" Foreground="#E8F5E9" Margin="0,5,0,0"/>
                 </StackPanel>
@@ -35,17 +35,17 @@
                 <StackPanel>
                     <!-- Caramel & Flopy -->
                     <Image x:Name="ImgGuide"
-                           Source="/Images/caramel-flopy-normal.png" 
+                           Source="pack://application:,,,/Images/agent-project-and-change.png" 
                            Width="120" Height="120" 
                            Stretch="Uniform"
                            Margin="0,0,0,10"/>
-                    <TextBlock Text="🐱 Caramel et Flopy 🐰" 
+                    <TextBlock Text="🎯 Agent Project &amp; Change"
                                FontSize="16" 
                                FontWeight="Bold"
                                Foreground="#00915A"
                                TextAlignment="Center"
                                Margin="0,0,0,5"/>
-                    <TextBlock Text="Vos assistants personnels" 
+                    <TextBlock Text="Pilotez efficacement vos projets" 
                                FontSize="10" 
                                Foreground="#666"
                                TextAlignment="Center"
@@ -81,14 +81,46 @@
 
                     <!-- Message de bienvenue -->
                     <Border Grid.Row="0" Background="#E8F5E9" CornerRadius="8" Padding="15" Margin="0,0,0,15">
-                        <StackPanel>
-                            <TextBlock FontSize="14" FontWeight="SemiBold" Foreground="#00915A">
-                                <Run Text="👋 Bonjour ! Nous sommes Caramel et Flopy, vos guides."/>
-                            </TextBlock>
-                            <TextBlock FontSize="12" Foreground="#666" Margin="0,8,0,0" TextWrapping="Wrap">
-                                Cliquez sur une question à gauche pour que nous vous expliquions comment utiliser BacklogManager de manière simple et efficace. N'hésitez pas, il n'y a pas de question bête !
-                            </TextBlock>
-                        </StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <StackPanel Grid.Column="0">
+                                <TextBlock FontSize="14" FontWeight="SemiBold" Foreground="#00915A">
+                                    <Run Text="🎯 Agent Project &amp; Change - Votre assistant de pilotage"/>
+                                </TextBlock>
+                                <TextBlock FontSize="12" Foreground="#666" Margin="0,8,0,0" TextWrapping="Wrap">
+                                    Sélectionnez une question à gauche pour obtenir des réponses structurées et des recommandations adaptées à votre rôle. Nous vous accompagnons dans le pilotage efficace de vos projets.
+                                </TextBlock>
+                            </StackPanel>
+                            
+                            <Button Grid.Column="1" Content="💬 Discuter avec l'Agent" Padding="12,8" FontSize="12" 
+                                    Background="#3498DB" Foreground="White" BorderThickness="0" Cursor="Hand"
+                                    VerticalAlignment="Center" Margin="10,0,0,0"
+                                    Click="OpenAgentChat_Click">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border Background="{TemplateBinding Background}" 
+                                                            CornerRadius="5" Padding="{TemplateBinding Padding}">
+                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="#2980B9"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </Grid>
                     </Border>
 
                     <!-- Zone de réponse scrollable -->

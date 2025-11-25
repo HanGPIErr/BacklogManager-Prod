@@ -61,6 +61,21 @@ namespace BacklogManager.ViewModels
         }
     }
 
+    public class TacheEnrichie
+    {
+        public BacklogItem Tache { get; set; }
+        public string DevAssigneNom { get; set; }
+
+        // Propriétés miroirs pour le binding
+        public string Titre => Tache?.Titre;
+        public Statut Statut => Tache?.Statut ?? Statut.Afaire;
+        public Priorite Priorite => Tache?.Priorite ?? Priorite.Basse;
+        public int? Complexite => Tache?.Complexite;
+        public DateTime DateCreation => Tache?.DateCreation ?? DateTime.Now;
+        public DateTime? DateDebut => Tache?.DateDebut;
+        public DateTime? DateFinPrevue => Tache?.DateFinAttendue;
+    }
+
     public class ProjetsViewModel : INotifyPropertyChanged
     {
         private readonly BacklogService _backlogService;
@@ -70,10 +85,11 @@ namespace BacklogManager.ViewModels
         private string _searchText;
         private bool _filterActifsOnly;
         private string _triSelection;
+        private bool _triDecroissant = true; // Plus récent en premier par défaut
 
         public ObservableCollection<ProjetItemViewModel> Projets { get; set; }
         public ObservableCollection<ProjetItemViewModel> ProjetsFiltres { get; set; }
-        public ObservableCollection<BacklogItem> TachesProjetSelectionne { get; set; }
+        public ObservableCollection<TacheEnrichie> TachesProjetSelectionne { get; set; }
 
         public string SearchText
         {
@@ -142,7 +158,7 @@ namespace BacklogManager.ViewModels
             _craService = craService;
             Projets = new ObservableCollection<ProjetItemViewModel>();
             ProjetsFiltres = new ObservableCollection<ProjetItemViewModel>();
-            TachesProjetSelectionne = new ObservableCollection<BacklogItem>();
+            TachesProjetSelectionne = new ObservableCollection<TacheEnrichie>();
 
             OptionsTriDisponibles = new ObservableCollection<string>
             {
@@ -193,6 +209,11 @@ namespace BacklogManager.ViewModels
             }
 
             AppliquerFiltres();
+        }
+
+        public void LoadData()
+        {
+            LoadProjets();
         }
 
         private void AppliquerFiltres()
@@ -256,36 +277,111 @@ namespace BacklogManager.ViewModels
             TachesProjetSelectionne.Clear();
             if (SelectedProjet == null) return;
 
-            var taches = _backlogService.GetAllBacklogItems()
-                .Where(t => t.ProjetId == SelectedProjet.Projet.Id)
-                .OrderBy(t => t.Statut)
-                .ThenByDescending(t => t.Priorite)
-                .ToList();
+            // Charger TOUTES les tâches du projet, y compris les archivées
+            var taches = _backlogService.GetAllBacklogItemsIncludingArchived()
+                .Where(t => t.ProjetId == SelectedProjet.Projet.Id);
 
-            foreach (var tache in taches)
+            // Appliquer le tri selon l'ordre
+            taches = _triDecroissant 
+                ? taches.OrderByDescending(t => t.DateCreation) // Plus récent en premier
+                : taches.OrderBy(t => t.DateCreation); // Plus ancien en premier
+
+            // Charger tous les développeurs
+            var devs = _backlogService.GetAllUtilisateurs().ToDictionary(d => d.Id, d => d.Nom);
+
+            foreach (var tache in taches.ToList())
             {
-                TachesProjetSelectionne.Add(tache);
+                var tacheEnrichie = new TacheEnrichie
+                {
+                    Tache = tache,
+                    DevAssigneNom = tache.DevAssigneId.HasValue && devs.ContainsKey(tache.DevAssigneId.Value)
+                        ? devs[tache.DevAssigneId.Value]
+                        : null
+                };
+                TachesProjetSelectionne.Add(tacheEnrichie);
+            }
+        }
+
+        public void InverserTriTaches()
+        {
+            _triDecroissant = !_triDecroissant;
+            LoadTachesProjet();
+        }
+
+        public void ModifierProjet(Projet projet)
+        {
+            var editWindow = new Views.EditProjetWindow(_backlogService, projet);
+            
+            // Trouver la fenêtre parente
+            var mainWindow = System.Windows.Application.Current.MainWindow;
+            if (mainWindow != null && mainWindow != editWindow)
+            {
+                editWindow.Owner = mainWindow;
+            }
+            
+            if (editWindow.ShowDialog() == true)
+            {
+                LoadData();
+            }
+        }
+
+        public void SupprimerProjet(Projet projet)
+        {
+            try
+            {
+                // Récupérer les tâches liées au projet
+                var tachesLiees = _backlogService.GetAllBacklogItemsIncludingArchived()
+                    .Where(t => t.ProjetId == projet.Id)
+                    .ToList();
+
+                // Si des tâches sont liées, les dissocier du projet
+                if (tachesLiees.Any())
+                {
+                    foreach (var tache in tachesLiees)
+                    {
+                        tache.ProjetId = null;
+                        _backlogService.SaveBacklogItem(tache);
+                    }
+                }
+
+                // Supprimer le projet
+                _backlogService.DeleteProjet(projet.Id);
+                
+                // Rafraîchir la liste
+                LoadData();
+                
+                // Si le projet supprimé était sélectionné, réinitialiser la sélection
+                if (SelectedProjet != null && SelectedProjet.Projet.Id == projet.Id)
+                {
+                    SelectedProjet = null;
+                    TachesProjetSelectionne.Clear();
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show(
+                    $"Erreur lors de la suppression du projet: {ex.Message}",
+                    "Erreur",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Error);
             }
         }
 
         private void AjouterProjet()
         {
-            var nom = Microsoft.VisualBasic.Interaction.InputBox("Nom du projet:", "Nouveau Projet", "");
-            if (string.IsNullOrWhiteSpace(nom))
-                return;
-
-            var description = Microsoft.VisualBasic.Interaction.InputBox("Description (optionnel):", "Nouveau Projet", "");
-
-            var nouveauProjet = new Projet
+            var editWindow = new Views.EditProjetWindow(_backlogService);
+            
+            // Trouver la fenêtre parente
+            var mainWindow = System.Windows.Application.Current.MainWindow;
+            if (mainWindow != null && mainWindow != editWindow)
             {
-                Nom = nom,
-                Description = description,
-                DateCreation = DateTime.Now,
-                Actif = true
-            };
-
-            _backlogService.SaveProjet(nouveauProjet);
-            LoadProjets();
+                editWindow.Owner = mainWindow;
+            }
+            
+            if (editWindow.ShowDialog() == true)
+            {
+                LoadProjets();
+            }
         }
 
         public void ModifierTache(BacklogItem tache)

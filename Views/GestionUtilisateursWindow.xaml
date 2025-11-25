@@ -206,6 +206,8 @@
                                     <CheckBox x:Name="ChkCreerDemandes" Content="Créer demandes" Margin="0,0,15,5"/>
                                     <CheckBox x:Name="ChkChiffrer" Content="Chiffrer" Margin="0,0,15,5"/>
                                     <CheckBox x:Name="ChkPrioriser" Content="Prioriser" Margin="0,0,15,5"/>
+                                    <CheckBox x:Name="ChkModifierTaches" Content="Modifier tâches" Margin="0,0,15,5"/>
+                                    <CheckBox x:Name="ChkSupprimerTaches" Content="Supprimer tâches" Margin="0,0,15,5"/>
                                     <CheckBox x:Name="ChkGererUtilisateurs" Content="Gérer utilisateurs" Margin="0,0,15,5"/>
                                     <CheckBox x:Name="ChkVoirKPI" Content="Voir KPI" Margin="0,0,15,5"/>
                                     <CheckBox x:Name="ChkGererReferentiels" Content="Gérer référentiels" Margin="0,0,15,5"/>
@@ -239,6 +241,8 @@
                             <DataGridCheckBoxColumn Header="Créer demandes" Binding="{Binding PeutCreerDemandes}" Width="120"/>
                             <DataGridCheckBoxColumn Header="Chiffrer" Binding="{Binding PeutChiffrer}" Width="80"/>
                             <DataGridCheckBoxColumn Header="Prioriser" Binding="{Binding PeutPrioriser}" Width="80"/>
+                            <DataGridCheckBoxColumn Header="Modifier tâches" Binding="{Binding PeutModifierTaches}" Width="120"/>
+                            <DataGridCheckBoxColumn Header="Supprimer tâches" Binding="{Binding PeutSupprimerTaches}" Width="130"/>
                             <DataGridCheckBoxColumn Header="Gérer users" Binding="{Binding PeutGererUtilisateurs}" Width="100"/>
                             <DataGridCheckBoxColumn Header="Voir KPI" Binding="{Binding PeutVoirKPI}" Width="80"/>
                             <DataGridCheckBoxColumn Header="Actif" Binding="{Binding Actif}" Width="60"/>

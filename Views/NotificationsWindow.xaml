@@ -254,7 +254,7 @@
         <Border Grid.Row="2" x:Name="MessageVide" Visibility="Collapsed"
                 Background="White" CornerRadius="8" Padding="40">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Image Source="/Images/caramel-flopy-happy.png" 
+                <Image Source="/Images/agent-project-and-change.png" 
                        Width="120" Height="120" 
                        Stretch="Uniform"
                        Margin="0,0,0,20"/>

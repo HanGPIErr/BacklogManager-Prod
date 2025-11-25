@@ -332,10 +332,15 @@ namespace BacklogManager.ViewModels
         {
             Devs.Clear();
             
-            // Si l'utilisateur est admin, montrer tous les devs, sinon seulement lui-même
+            // Si l'utilisateur est admin, montrer tous les utilisateurs actifs, sinon seulement lui-même
             if (_permissionService.EstAdministrateur)
             {
-                var users = _backlogService.GetAllUtilisateurs();
+                // Récupérer TOUS les utilisateurs actifs (peu importe le rôle)
+                var users = _backlogService.Database.GetUtilisateurs()
+                    .Where(u => u.Actif)
+                    .OrderBy(u => u.Nom)
+                    .ToList();
+                    
                 foreach (var user in users)
                 {
                     Devs.Add(user);
@@ -362,6 +367,7 @@ namespace BacklogManager.ViewModels
             var taches = _backlogService.GetAllBacklogItems();
 
             // Séparer les tâches normales et spéciales
+            // Les tâches spéciales (Congés, Non travaillé, Support, Run) sont TOUJOURS disponibles pour tous
             var tachesSpeciales = taches.Where(t => 
                 t.TypeDemande == TypeDemande.Conges || 
                 t.TypeDemande == TypeDemande.NonTravaille || 
@@ -376,14 +382,50 @@ namespace BacklogManager.ViewModels
             }
             else
             {
-                // Tâches assignées au dev (en cours/test) + ses tâches spéciales
+                // Tâches assignées au dev (en cours/test) + TOUTES les tâches spéciales (pas de filtre sur dev)
                 var tachesNormales = taches.Where(t => t.DevAssigneId == DevSelectionne.Id && 
                                           (t.Statut == Statut.EnCours || t.Statut == Statut.Test)).ToList();
-                var mesTachesSpeciales = tachesSpeciales.Where(t => t.DevAssigneId == DevSelectionne.Id).ToList();
-                taches = tachesNormales.Concat(mesTachesSpeciales).ToList();
+                // Les tâches spéciales sont disponibles pour tous les devs (pas de filtre DevAssigneId)
+                taches = tachesNormales.Concat(tachesSpeciales).ToList();
             }
 
-            foreach (var tache in taches.OrderByDescending(t => t.Priorite).ThenBy(t => t.Titre))
+            // Filtrer les tâches qui ont encore des jours à saisir
+            var tachesAvecChiffrage = new List<BacklogItem>();
+            foreach (var tache in taches)
+            {
+                // Les tâches spéciales sont toujours disponibles (pas de limite de chiffrage)
+                bool estTacheSpeciale = tache.TypeDemande == TypeDemande.Conges || 
+                                       tache.TypeDemande == TypeDemande.NonTravaille || 
+                                       tache.TypeDemande == TypeDemande.Support || 
+                                       tache.TypeDemande == TypeDemande.Run;
+                
+                if (estTacheSpeciale)
+                {
+                    tachesAvecChiffrage.Add(tache);
+                    continue;
+                }
+                
+                // Pour les tâches normales, vérifier s'il reste du chiffrage
+                if (tache.ChiffrageHeures.HasValue && tache.ChiffrageHeures.Value > 0)
+                {
+                    // Calculer les heures déjà saisies dans le CRA
+                    var heuresSaisies = _craService.GetHeuresSaisiesPourTache(tache.Id);
+                    var heuresRestantes = tache.ChiffrageHeures.Value - heuresSaisies;
+                    
+                    // Si il reste au moins 0.5h à saisir, afficher la tâche
+                    if (heuresRestantes >= 0.5)
+                    {
+                        tachesAvecChiffrage.Add(tache);
+                    }
+                }
+                else
+                {
+                    // Pas de chiffrage défini = toujours disponible
+                    tachesAvecChiffrage.Add(tache);
+                }
+            }
+
+            foreach (var tache in tachesAvecChiffrage.OrderByDescending(t => t.Priorite).ThenBy(t => t.Titre))
             {
                 TachesDisponibles.Add(tache);
             }
@@ -673,8 +715,8 @@ namespace BacklogManager.ViewModels
                     HeuresTravaillees = heures,
                     Commentaire = Commentaire,
                     DateCreation = DateTime.Now,
-                    EstPrevisionnel = JourSelectionne.Date >= DateTime.Now.Date, // Prévisionnel si aujourd'hui ou futur
-                    EstValide = JourSelectionne.Date < DateTime.Now.Date // Validé automatiquement si dans le passé
+                    EstPrevisionnel = true, // Tous les CRA sont prévisionnels à la création
+                    EstValide = false // À valider manuellement
                 };
 
                 _craService.SaveCRA(cra);
@@ -687,6 +729,7 @@ namespace BacklogManager.ViewModels
                 // Rafraîchir l'affichage
                 ChargerCalendrier();
                 ChargerCRAsJour();
+                ChargerTachesDisponibles();
 
                 System.Windows.MessageBox.Show(
                     "CRA enregistré avec succès !",
@@ -831,8 +874,8 @@ namespace BacklogManager.ViewModels
                         HeuresTravaillees = heuresParJour,
                         Commentaire = Commentaire,
                         DateCreation = DateTime.Now,
-                        EstPrevisionnel = jour >= aujourdhui, // Prévisionnel si aujourd'hui ou futur
-                        EstValide = jour < aujourdhui // Validé automatiquement si dans le passé
+                        EstPrevisionnel = true, // Tous les CRA sont prévisionnels à la création
+                        EstValide = false // À valider manuellement
                     };
 
                     _craService.SaveCRA(cra);
@@ -848,6 +891,7 @@ namespace BacklogManager.ViewModels
                 
                 ChargerCalendrier();
                 ChargerCRAsJour();
+                ChargerTachesDisponibles();
 
                 // Message de succès avec détails
                 string message = $"✅ {nombreCRAsCrees} CRA(s) enregistré(s) avec succès !";
@@ -1038,6 +1082,7 @@ namespace BacklogManager.ViewModels
                     _craService.DeleteCRA(craVM.CRA.Id, _authService.CurrentUser.Id, _permissionService.EstAdministrateur);
                     ChargerCalendrier();
                     ChargerCRAsJour();
+                    ChargerTachesDisponibles();
 
                     System.Windows.MessageBox.Show(
                         "CRA supprimé avec succès !",
@@ -1264,6 +1309,18 @@ namespace BacklogManager.ViewModels
         {
             if (jour == null || DevSelectionne == null) return;
 
+            // Vérifier les permissions
+            if (!_permissionService.PeutValiderCRA)
+            {
+                System.Windows.MessageBox.Show(
+                    "Vous n'avez pas les droits pour valider des CRA.\n\n" +
+                    "Seuls les Administrateurs et Chefs de Projet peuvent valider les CRA.",
+                    "Permission refusée",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Warning);
+                return;
+            }
+
             var result = System.Windows.MessageBox.Show(
                 $"Valider tous les CRA du {jour.Date:dd/MM/yyyy} ?\n\n" +
                 $"Cela confirmera que les {jour.NombreCRAsAValider} CRA prévisionnel(s) correspondent à la réalité.\n" +
@@ -1420,8 +1477,8 @@ namespace BacklogManager.ViewModels
                         HeuresTravaillees = heuresAAllouer,
                         Commentaire = "Allocation automatique",
                         DateCreation = DateTime.Now,
-                        EstPrevisionnel = jour >= aujourdhui, // Prévisionnel si aujourd'hui ou futur
-                        EstValide = jour < aujourdhui // Validé automatiquement si dans le passé
+                        EstPrevisionnel = true, // Tous les CRA sont prévisionnels à la création
+                        EstValide = false // À valider manuellement
                     };
 
                     _craService.SaveCRA(cra);

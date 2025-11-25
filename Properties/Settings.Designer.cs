@@ -12,5 +12,17 @@ namespace BacklogManager.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string AgentChatToken {
+            get {
+                return ((string)(this["AgentChatToken"]));
+            }
+            set {
+                this["AgentChatToken"] = value;
+            }
+        }
     }
 }

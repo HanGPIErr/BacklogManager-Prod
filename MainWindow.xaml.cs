@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Windows;
+using BacklogManager.Domain;
 using BacklogManager.Services;
 using BacklogManager.ViewModels;
 using BacklogManager.Views;
@@ -75,6 +76,9 @@ namespace BacklogManager
 
         private void InitialiserNotifications()
         {
+            // Supprimer les anciennes notifications au démarrage (nettoyage après rebranding)
+            _database.SupprimerToutesLesNotifications();
+            
             // Générer les notifications initiales
             _notificationService.AnalyserEtGenererNotifications();
             MettreAJourBadgeNotifications();
@@ -441,6 +445,74 @@ namespace BacklogManager
         public void AfficherTimeline()
         {
             BtnTimeline_Click(null, null);
+        }
+
+        public void NaviguerVersSuiviCRATimeline(Projet projet)
+        {
+            try
+            {
+                // Vérifier les permissions admin
+                if (!_permissionService.EstAdministrateur)
+                {
+                    MessageBox.Show(
+                        "Seul l'administrateur peut accéder au suivi des CRA.",
+                        "Accès refusé",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Créer le ViewModel et la vue
+                var craService = new CRAService(_database);
+                var suiviCRAViewModel = new SuiviCRAViewModel(craService, _backlogService, _permissionService);
+                var suiviCRAView = new Views.SuiviCRAView();
+                suiviCRAView.DataContext = suiviCRAViewModel;
+
+                // Définir le mode timeline et sélectionner le projet
+                suiviCRAViewModel.ModeAffichage = "timeline";
+                suiviCRAViewModel.ProjetSelectionne = projet;
+
+                // Afficher la vue
+                var contentControl = (System.Windows.Controls.ContentControl)this.FindName("MainContentControl");
+                if (contentControl != null)
+                {
+                    contentControl.Content = suiviCRAView;
+                }
+            }
+            catch (System.Exception ex)
+            {
+                MessageBox.Show(string.Format("Erreur lors de la navigation vers la timeline: {0}", ex.Message),
+                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void BtnChangerUtilisateur_Click(object sender, RoutedEventArgs e)
+        {
+            var window = new ChangerUtilisateurWindow(_database);
+            window.Owner = this;
+            
+            if (window.ShowDialog() == true && window.UtilisateurSelectionne != null)
+            {
+                var role = _database.GetRoles().FirstOrDefault(r => r.Id == window.UtilisateurSelectionne.RoleId);
+                
+                // Afficher le message avant de redémarrer
+                var result = MessageBox.Show(
+                    $"Vous allez être connecté en tant que:\n{window.UtilisateurSelectionne.Prenom} {window.UtilisateurSelectionne.Nom}\n\nRôle: {role?.Nom}\n\nL'application va redémarrer pour appliquer les changements.", 
+                    "Changement d'utilisateur", 
+                    MessageBoxButton.OKCancel, 
+                    MessageBoxImage.Information);
+                
+                if (result == MessageBoxResult.OK)
+                {
+                    // Sauvegarder l'utilisateur choisi dans un fichier temporaire
+                    var tempFile = System.IO.Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, ".switch_user");
+                    System.IO.File.WriteAllText(tempFile, window.UtilisateurSelectionne.UsernameWindows);
+                    
+                    // Redémarrer l'application
+                    System.Diagnostics.Process.Start(System.Reflection.Assembly.GetExecutingAssembly().Location);
+                    Application.Current.Shutdown();
+                }
+            }
         }
     }
 }

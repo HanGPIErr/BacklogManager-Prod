@@ -8,7 +8,7 @@ namespace BacklogManager.Views
 {
     public partial class BacklogView : UserControl
     {
-        private Pages.ProjetsListPage _projetsPage;
+        private ProjetsView _projetsView;
 
         public BacklogView()
         {
@@ -18,35 +18,24 @@ namespace BacklogManager.Views
 
         private void BacklogView_Loaded(object sender, RoutedEventArgs e)
         {
-            // Initialiser la page projets si nécessaire
-            if (_projetsPage == null && DataContext is BacklogViewModel viewModel)
+            // Initialiser la vue projets si nécessaire
+            if (_projetsView == null && DataContext is BacklogViewModel viewModel)
             {
-                _projetsPage = new Pages.ProjetsListPage(viewModel.BacklogService, viewModel.PermissionService);
+                _projetsView = new ProjetsView();
+                var projetsViewModel = new ProjetsViewModel(viewModel.BacklogService, viewModel.PermissionService, viewModel.CRAService);
+                _projetsView.DataContext = projetsViewModel;
                 // S'abonner à l'événement de création de projet
                 viewModel.ProjetCreated += OnProjetCreated;
-                // S'abonner à l'événement de clic sur un projet
-                _projetsPage.ProjetClicked += OnProjetClicked;
-            }
-        }
-
-        private void OnProjetClicked(object sender, Domain.Projet projet)
-        {
-            if (DataContext is BacklogViewModel viewModel)
-            {
-                // Définir le filtre de projet
-                viewModel.SelectedProjetId = projet.Id;
-                
-                // Basculer vers l'onglet Tâches
-                BtnVueTaches_Click(null, null);
             }
         }
 
         private void OnProjetCreated(object sender, EventArgs e)
         {
-            // Rafraîchir la page des projets si elle est active
-            if (_projetsPage != null && MainContentFrame?.Visibility == Visibility.Visible)
+            // Rafraîchir la vue des projets si elle est active
+            if (_projetsView != null && MainContentFrame?.Visibility == Visibility.Visible)
             {
-                _projetsPage.Refresh();
+                var viewModel = _projetsView.DataContext as ProjetsViewModel;
+                viewModel?.LoadData();
             }
         }
 
@@ -108,18 +97,21 @@ namespace BacklogManager.Views
             }
 
             // Afficher la vue des projets
-            if (MainContentFrame != null && _projetsPage != null)
+            if (MainContentFrame != null && _projetsView != null)
             {
-                MainContentFrame.Content = _projetsPage;
+                MainContentFrame.Content = _projetsView;
                 MainContentFrame.Visibility = Visibility.Visible;
-                _projetsPage.Refresh();
+                var viewModel = _projetsView.DataContext as ProjetsViewModel;
+                viewModel?.LoadData();
             }
             else if (DataContext is BacklogViewModel viewModel)
             {
-                _projetsPage = new Pages.ProjetsListPage(viewModel.BacklogService, viewModel.PermissionService);
+                _projetsView = new ProjetsView();
+                var projetsViewModel = new ProjetsViewModel(viewModel.BacklogService, viewModel.PermissionService, viewModel.CRAService);
+                _projetsView.DataContext = projetsViewModel;
                 if (MainContentFrame != null)
                 {
-                    MainContentFrame.Content = _projetsPage;
+                    MainContentFrame.Content = _projetsView;
                     MainContentFrame.Visibility = Visibility.Visible;
                 }
             }
@@ -180,6 +172,42 @@ namespace BacklogManager.Views
                 
                 MainContentFrame.Content = archivesView;
                 MainContentFrame.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void MenuButton_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            if (button?.ContextMenu != null)
+            {
+                button.ContextMenu.PlacementTarget = button;
+                button.ContextMenu.IsOpen = true;
+            }
+        }
+
+        private void EditMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            var menuItem = sender as MenuItem;
+            if (menuItem?.Tag != null && DataContext is BacklogViewModel viewModel)
+            {
+                // Vérification de permission supplémentaire
+                if (viewModel.PermissionService?.PeutModifierTaches == true)
+                {
+                    viewModel.EditCommand?.Execute(menuItem.Tag);
+                }
+            }
+        }
+
+        private void DeleteMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            var menuItem = sender as MenuItem;
+            if (menuItem?.Tag != null && DataContext is BacklogViewModel viewModel)
+            {
+                // Vérification de permission supplémentaire
+                if (viewModel.PermissionService?.PeutSupprimerTaches == true)
+                {
+                    viewModel.DeleteCommand?.Execute(menuItem.Tag);
+                }
             }
         }
     }

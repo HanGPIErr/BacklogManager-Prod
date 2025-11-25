@@ -18,6 +18,13 @@ namespace BacklogManager.Views
         public KanbanView()
         {
             InitializeComponent();
+            
+            // Rafraîchir quand la vue devient visible
+            this.Loaded += (s, e) =>
+            {
+                var viewModel = DataContext as KanbanViewModel;
+                viewModel?.LoadItems();
+            };
         }
 
         private void KanbanCard_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)

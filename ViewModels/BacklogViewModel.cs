@@ -147,6 +147,7 @@ namespace BacklogManager.ViewModels
         public Visibility PeutPrioriserVisibility => _permissionService?.PeutPrioriser == true ? Visibility.Visible : Visibility.Collapsed;
         public Visibility PeutAssignerDevVisibility => _permissionService?.PeutAssignerDev == true ? Visibility.Visible : Visibility.Collapsed;
         public Visibility PeutChiffrerVisibility => _permissionService?.PeutChiffrer == true ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility PeutSupprimerVisibility => _permissionService?.PeutSupprimerTaches == true ? Visibility.Visible : Visibility.Collapsed;
         
         // Visibilité de la section tâches spéciales (visible si au moins une existe)
         public Visibility TachesSpecialesVisibility => TachesSpeciales?.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
@@ -245,6 +246,7 @@ namespace BacklogManager.ViewModels
         public ICommand ClearFiltersCommand { get; }
         public ICommand NewProjetCommand { get; }
         public ICommand EditCommand { get; }
+        public ICommand DeleteCommand { get; }
         public ICommand DesarchiverTacheCommand { get; }
 
         // Événements pour notifier les créations/modifications
@@ -270,6 +272,7 @@ namespace BacklogManager.ViewModels
             ClearFiltersCommand = new RelayCommand(_ => ClearFilters());
             NewProjetCommand = new RelayCommand(_ => CreateNewProjet(), _ => CanCreateProjet());
             EditCommand = new RelayCommand(item => EditItem(item));
+            DeleteCommand = new RelayCommand(item => DeleteItem(item), _ => CanDeleteItem());
             DesarchiverTacheCommand = new RelayCommand(item => DesarchiverTache((item as BacklogItemViewModel)?.Item), _ => EstAdministrateur);
 
             LoadData();
@@ -292,6 +295,12 @@ namespace BacklogManager.ViewModels
         {
             if (_permissionService == null) return true;
             return _permissionService.PeutGererReferentiels;
+        }
+
+        private bool CanDeleteItem()
+        {
+            if (_permissionService == null) return true;
+            return _permissionService.PeutSupprimerTaches;
         }
 
         public void LoadData()
@@ -443,23 +452,20 @@ namespace BacklogManager.ViewModels
 
         private void CreateNewProjet()
         {
-            var nom = Microsoft.VisualBasic.Interaction.InputBox("Nom du projet:", "Nouveau Projet", "");
-            if (string.IsNullOrWhiteSpace(nom))
-                return;
-
-            var description = Microsoft.VisualBasic.Interaction.InputBox("Description (optionnel):", "Nouveau Projet", "");
-
-            var nouveauProjet = new Projet
+            var editWindow = new Views.EditProjetWindow(_backlogService);
+            
+            // Trouver la fenêtre parente
+            var mainWindow = System.Windows.Application.Current.MainWindow;
+            if (mainWindow != null && mainWindow != editWindow)
             {
-                Nom = nom,
-                Description = description,
-                DateCreation = DateTime.Now,
-                Actif = true
-            };
-
-            _backlogService.SaveProjet(nouveauProjet);
-            LoadData();
-            ProjetCreated?.Invoke(this, EventArgs.Empty);
+                editWindow.Owner = mainWindow;
+            }
+            
+            if (editWindow.ShowDialog() == true)
+            {
+                LoadData();
+                ProjetCreated?.Invoke(this, EventArgs.Empty);
+            }
         }
 
         private void EditItem(object parameter)
@@ -480,6 +486,24 @@ namespace BacklogManager.ViewModels
                 {
                     LoadData();
                     TacheCreated?.Invoke(this, EventArgs.Empty);
+                }
+            }
+        }
+
+        private void DeleteItem(object parameter)
+        {
+            if (parameter is BacklogItemViewModel itemViewModel)
+            {
+                var result = MessageBox.Show(
+                    $"Êtes-vous sûr de vouloir supprimer la tâche '{itemViewModel.Item.Titre}' ?\n\nCette action est irréversible.",
+                    "Confirmation de suppression",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    _backlogService.DeleteBacklogItem(itemViewModel.Item.Id);
+                    LoadData();
                 }
             }
         }

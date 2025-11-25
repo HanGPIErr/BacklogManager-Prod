@@ -51,27 +51,29 @@ namespace BacklogManager.Services
         public bool PeutModifierProjet(Projet projet) => IsAdmin || PeutGererReferentiels;
         public bool PeutModifierTache(BacklogItem tache)
         {
+            // Admin peut tout modifier
             if (IsAdmin) return true;
-            if (!PeutModifierTaches) return false;
-            
-            // Un dev peut modifier ses propres tâches
-            if (IsDeveloppeur && tache.DevAssigneId == _currentUser.Id) return true;
             
             // Un chef de projet peut modifier toutes les tâches
-            if (IsChefDeProjet) return true;
+            if (IsChefDeProjet && PeutModifierTaches) return true;
             
-            return false;
+            // Un dev peut modifier ses propres tâches s'il a la permission
+            if (IsDeveloppeur && PeutModifierTaches && tache.DevAssigneId == _currentUser.Id) return true;
+            
+            // Sinon vérifier la permission générale
+            return PeutModifierTaches;
         }
 
         public bool PeutSupprimerTache(BacklogItem tache)
         {
+            // Admin peut tout supprimer
             if (IsAdmin) return true;
-            if (!PeutSupprimerTaches) return false;
             
             // Un chef de projet peut supprimer les tâches
-            if (IsChefDeProjet) return true;
+            if (IsChefDeProjet && PeutSupprimerTaches) return true;
             
-            return false;
+            // Sinon vérifier la permission générale
+            return PeutSupprimerTaches;
         }
 
         public bool PeutAssignerDev => IsAdmin || IsChefDeProjet || PeutPrioriser;
@@ -111,6 +113,9 @@ namespace BacklogManager.Services
             // Seuls Admin et Chef de projet peuvent supprimer
             return IsAdmin || IsChefDeProjet;
         }
+
+        // Permissions CRA
+        public bool PeutValiderCRA => IsAdmin || IsChefDeProjet;
     }
 }
 

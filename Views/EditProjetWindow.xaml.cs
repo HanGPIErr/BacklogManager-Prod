@@ -28,6 +28,8 @@ namespace BacklogManager.Views
             {
                 TxtNomProjet.Text = _projet.Nom ?? "";
                 TxtDescription.Text = _projet.Description ?? "";
+                DpDateDebut.SelectedDate = _projet.DateDebut;
+                DpDateFinPrevue.SelectedDate = _projet.DateFinPrevue;
                 ChkActif.IsChecked = _projet.Actif;
             }
         }
@@ -72,11 +74,16 @@ namespace BacklogManager.Views
             {
                 _projet.Nom = TxtNomProjet.Text.Trim();
                 _projet.Description = TxtDescription.Text.Trim();
+                _projet.DateDebut = DpDateDebut.SelectedDate;
+                _projet.DateFinPrevue = DpDateFinPrevue.SelectedDate;
                 _projet.Actif = ChkActif.IsChecked ?? true;
 
                 if (_isNewProjet)
                 {
                     _projet.DateCreation = DateTime.Now;
+                    // Assigner une couleur aléatoire depuis la palette
+                    var random = new Random();
+                    _projet.CouleurHex = Projet.CouleursPalette[random.Next(Projet.CouleursPalette.Length)];
                 }
 
                 _backlogService.SaveProjet(_projet);

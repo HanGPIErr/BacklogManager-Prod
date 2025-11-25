@@ -1,0 +1,67 @@
+<Window x:Class="BacklogManager.Views.ChangerUtilisateurWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Changer d'utilisateur - Backlog Manager" 
+        Height="500" Width="600"
+        WindowStartupLocation="CenterOwner"
+        Background="#F5F5F5"
+        ResizeMode="NoResize">
+    
+    <Window.Resources>
+        <Style x:Key="UserItemStyle" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Padding" Value="15"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#00915A"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="UserNameStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#1A1919"/>
+        </Style>
+
+        <Style x:Key="UserRoleStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="#666666"/>
+            <Setter Property="Margin" Value="0,4,0,0"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <!-- Header -->
+        <Border Background="#00915A" Height="80" VerticalAlignment="Top">
+            <StackPanel VerticalAlignment="Center" Margin="30,0">
+                <TextBlock Text="🔄 Changer d'utilisateur" 
+                           FontSize="22" FontWeight="Bold" 
+                           Foreground="White"/>
+                <TextBlock Text="Sélectionnez un utilisateur pour basculer (mode test)" 
+                           FontSize="12" Foreground="White" 
+                           Opacity="0.8" Margin="0,5,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Liste des utilisateurs -->
+        <ScrollViewer Margin="30,100,30,80" VerticalScrollBarVisibility="Auto">
+            <StackPanel x:Name="PanelUtilisateurs">
+                <!-- Les utilisateurs seront ajoutés ici dynamiquement -->
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Footer avec bouton Annuler -->
+        <Border Background="White" Height="60" VerticalAlignment="Bottom" 
+                BorderThickness="0,1,0,0" BorderBrush="#E0E0E0">
+            <Button Content="Annuler" Width="120" Height="35"
+                    HorizontalAlignment="Right" Margin="0,0,30,0"
+                    Background="#E0E0E0" Foreground="#333333"
+                    BorderThickness="0" FontSize="14"
+                    Cursor="Hand" Click="BtnAnnuler_Click"/>
+        </Border>
+    </Grid>
+</Window>

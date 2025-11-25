@@ -138,6 +138,14 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\AgentChatWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ChatHistoriqueAdminWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\BacklogView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -234,6 +242,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\ChangerUtilisateurWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\UpdateWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -273,6 +285,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Domain\BacklogItem.cs" />
+    <Compile Include="Domain\ChatConversation.cs" />
+    <Compile Include="Domain\ChatMessageDB.cs" />
     <Compile Include="Domain\CRA.cs" />
     <Compile Include="Domain\Dev.cs" />
     <Compile Include="Domain\Projet.cs" />
@@ -295,6 +309,7 @@
     <Compile Include="Services\SqliteDatabase.cs" />
     <Compile Include="Services\NetworkPathMapper.cs" />
     <Compile Include="Services\BacklogService.cs" />
+    <Compile Include="Services\ChatHistoryService.cs" />
     <Compile Include="Services\CRAService.cs" />
     <Compile Include="Services\PermissionService.cs" />
     <Compile Include="Services\PokerService.cs" />
@@ -305,6 +320,8 @@
     <Compile Include="Services\EmailService.cs" />
     <Compile Include="Services\JoursFeriesService.cs" />
     <Compile Include="Services\UpdateService.cs" />
+    <Compile Include="Services\LoggingService.cs" />
+    <Compile Include="Services\DatabaseWrapper.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\ProjetsViewModel.cs" />
     <Compile Include="ViewModels\BacklogViewModel.cs" />
@@ -352,6 +369,12 @@
     </Compile>
     <Compile Include="Views\GuideUtilisateurWindow.xaml.cs">
       <DependentUpon>GuideUtilisateurWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\AgentChatWindow.xaml.cs">
+      <DependentUpon>AgentChatWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ChatHistoriqueAdminWindow.xaml.cs">
+      <DependentUpon>ChatHistoriqueAdminWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\AdministrationView.xaml.cs">
       <DependentUpon>AdministrationView.xaml</DependentUpon>
@@ -409,6 +432,9 @@
     </Compile>
     <Compile Include="Views\LoginWindow.xaml.cs">
       <DependentUpon>LoginWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ChangerUtilisateurWindow.xaml.cs">
+      <DependentUpon>ChangerUtilisateurWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\UpdateWindow.xaml.cs">
       <DependentUpon>UpdateWindow.xaml</DependentUpon>
@@ -474,9 +500,7 @@
     <Resource Include="Images\backlogmanager.ico" />
     <Resource Include="Images\conges-icon.png" />
     <Resource Include="Images\jour-ferie.png" />
-    <Resource Include="Images\caramel-flopy-normal.png" />
-    <Resource Include="Images\caramel-flopy-happy.png" />
-    <Resource Include="Images\caramel-flopy-grumpy.png" />
+    <Resource Include="Images\agent-project-and-change.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages\System.Data.SQLite.Core.1.0.118\SQLite.Interop.dll">

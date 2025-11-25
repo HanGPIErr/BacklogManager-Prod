@@ -67,10 +67,7 @@ namespace BacklogManager.Views
             // Chiffrage (en jours: 1j = 8h)
             ChiffrageTextBox.Text = _tache.ChiffrageHeures.HasValue ? (_tache.ChiffrageHeures.Value / 8.0).ToString("0.#") : "";
 
-            // Date de début (visible uniquement si statut >= En cours)
-            bool enCours = _tache.Statut == Statut.EnCours || _tache.Statut == Statut.Test || _tache.Statut == Statut.Termine;
-            DateDebutLabel.Visibility = enCours ? Visibility.Visible : Visibility.Collapsed;
-            DateDebutDatePicker.Visibility = enCours ? Visibility.Visible : Visibility.Collapsed;
+            // Date de début (toujours visible maintenant)
             DateDebutDatePicker.SelectedDate = _tache.DateDebut;
 
             // Temps réel passé (calculé automatiquement depuis les CRA, affiché en jours)
@@ -87,15 +84,6 @@ namespace BacklogManager.Views
 
             // Événement pour recalculer la progression
             ChiffrageTextBox.TextChanged += (s, e) => UpdateProgression();
-            StatutComboBox.SelectionChanged += (s, e) => 
-            {
-                bool estEnCours = StatutComboBox.SelectedItem != null && 
-                                  ((Statut)StatutComboBox.SelectedItem == Statut.EnCours || 
-                                   (Statut)StatutComboBox.SelectedItem == Statut.Test || 
-                                   (Statut)StatutComboBox.SelectedItem == Statut.Termine);
-                DateDebutLabel.Visibility = estEnCours ? Visibility.Visible : Visibility.Collapsed;
-                DateDebutDatePicker.Visibility = estEnCours ? Visibility.Visible : Visibility.Collapsed;
-            };
 
             // Date fin attendue
             DateFinDatePicker.SelectedDate = _tache.DateFinAttendue;

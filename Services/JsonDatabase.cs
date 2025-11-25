@@ -150,6 +150,7 @@ namespace BacklogManager.Services
         public void AddOrUpdateNotification(Notification notification) { }
         public void DeleteNotification(int notificationId) { }
         public void DeleteNotificationsLues() { }
+        public void SupprimerToutesLesNotifications() { }
         public void MarquerNotificationCommeLue(int notificationId) { }
         public void MarquerToutesNotificationsCommeLues() { }
 
@@ -664,6 +665,37 @@ namespace BacklogManager.Services
                     Save();
                 }
             }
+        }
+        
+        // Chat Conversations - Not supported in JSON mode
+        public List<ChatConversation> GetChatConversations()
+        {
+            throw new NotSupportedException("Les conversations chat ne sont supportées qu'en mode SQLite.");
+        }
+        
+        public ChatConversation GetChatConversation(int conversationId)
+        {
+            throw new NotSupportedException("Les conversations chat ne sont supportées qu'en mode SQLite.");
+        }
+        
+        public int CreateChatConversation(int userId, string username)
+        {
+            throw new NotSupportedException("Les conversations chat ne sont supportées qu'en mode SQLite.");
+        }
+        
+        public void UpdateChatConversation(int conversationId)
+        {
+            throw new NotSupportedException("Les conversations chat ne sont supportées qu'en mode SQLite.");
+        }
+        
+        public List<ChatMessageDB> GetChatMessages(int conversationId)
+        {
+            throw new NotSupportedException("Les conversations chat ne sont supportées qu'en mode SQLite.");
+        }
+        
+        public void AddChatMessage(ChatMessageDB message)
+        {
+            throw new NotSupportedException("Les conversations chat ne sont supportées qu'en mode SQLite.");
         }
     }
 }

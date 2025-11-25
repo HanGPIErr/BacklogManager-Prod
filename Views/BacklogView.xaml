@@ -640,7 +640,9 @@
                                                 <Button Grid.Row="0" Grid.Column="1" Content="⋮" 
                                                         FontSize="18" Width="32" Height="32"
                                                         Background="Transparent" Foreground="#999" BorderThickness="0" 
-                                                        Cursor="Hand" VerticalAlignment="Top">
+                                                        Cursor="Hand" VerticalAlignment="Top"
+                                                        Click="MenuButton_Click" Tag="{Binding}"
+                                                        Visibility="{Binding DataContext.PeutModifierTachesVisibility, RelativeSource={RelativeSource AncestorType=UserControl}}">
                                                     <Button.Style>
                                                         <Style TargetType="Button">
                                                             <Setter Property="Template">
@@ -656,10 +658,21 @@
                                                             <Style.Triggers>
                                                                 <Trigger Property="IsMouseOver" Value="True">
                                                                     <Setter Property="Background" Value="#F5F5F5"/>
+                                                                    <Setter Property="Foreground" Value="#333"/>
                                                                 </Trigger>
                                                             </Style.Triggers>
                                                         </Style>
                                                     </Button.Style>
+                                                    <Button.ContextMenu>
+                                                        <ContextMenu>
+                                                            <MenuItem Header="✏️ Modifier" 
+                                                                      Click="EditMenuItem_Click" Tag="{Binding}"
+                                                                      Visibility="{Binding DataContext.PeutModifierTachesVisibility, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                                                            <MenuItem Header="🗑️ Supprimer" 
+                                                                      Click="DeleteMenuItem_Click" Tag="{Binding}"
+                                                                      Visibility="{Binding DataContext.PeutSupprimerVisibility, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                                                        </ContextMenu>
+                                                    </Button.ContextMenu>
                                                 </Button>
                                             </Grid>
                                         </Border>

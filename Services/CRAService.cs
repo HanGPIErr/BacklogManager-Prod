@@ -83,6 +83,17 @@ namespace BacklogManager.Services
         }
 
         /// <summary>
+        /// Calcule toutes les heures saisies (validées + prévisionnelles) pour une tâche
+        /// Utilisé pour filtrer les tâches disponibles dans le CRA
+        /// </summary>
+        public double GetHeuresSaisiesPourTache(int backlogItemId)
+        {
+            var cras = GetCRAsByBacklogItem(backlogItemId);
+            // Toutes les heures saisies (validées ou non)
+            return cras.Sum(c => c.HeuresTravaillees);
+        }
+
+        /// <summary>
         /// Calcule le temps total (réel + prévisionnel) passé sur une tâche
         /// Utilisé pour calculer ce qui reste à allouer
         /// </summary>

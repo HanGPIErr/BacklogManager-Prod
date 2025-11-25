@@ -239,6 +239,8 @@ namespace BacklogManager.Views
                 PeutCreerDemandes = ChkCreerDemandes.IsChecked ?? false,
                 PeutChiffrer = ChkChiffrer.IsChecked ?? false,
                 PeutPrioriser = ChkPrioriser.IsChecked ?? false,
+                PeutModifierTaches = ChkModifierTaches.IsChecked ?? false,
+                PeutSupprimerTaches = ChkSupprimerTaches.IsChecked ?? false,
                 PeutGererUtilisateurs = ChkGererUtilisateurs.IsChecked ?? false,
                 PeutVoirKPI = ChkVoirKPI.IsChecked ?? false,
                 PeutGererReferentiels = ChkGererReferentiels.IsChecked ?? false,
@@ -264,6 +266,8 @@ namespace BacklogManager.Views
             _roleEnEdition.PeutCreerDemandes = ChkCreerDemandes.IsChecked ?? false;
             _roleEnEdition.PeutChiffrer = ChkChiffrer.IsChecked ?? false;
             _roleEnEdition.PeutPrioriser = ChkPrioriser.IsChecked ?? false;
+            _roleEnEdition.PeutModifierTaches = ChkModifierTaches.IsChecked ?? false;
+            _roleEnEdition.PeutSupprimerTaches = ChkSupprimerTaches.IsChecked ?? false;
             _roleEnEdition.PeutGererUtilisateurs = ChkGererUtilisateurs.IsChecked ?? false;
             _roleEnEdition.PeutVoirKPI = ChkVoirKPI.IsChecked ?? false;
             _roleEnEdition.PeutGererReferentiels = ChkGererReferentiels.IsChecked ?? false;
@@ -287,6 +291,8 @@ namespace BacklogManager.Views
                 ChkCreerDemandes.IsChecked = role.PeutCreerDemandes;
                 ChkChiffrer.IsChecked = role.PeutChiffrer;
                 ChkPrioriser.IsChecked = role.PeutPrioriser;
+                ChkModifierTaches.IsChecked = role.PeutModifierTaches;
+                ChkSupprimerTaches.IsChecked = role.PeutSupprimerTaches;
                 ChkGererUtilisateurs.IsChecked = role.PeutGererUtilisateurs;
                 ChkVoirKPI.IsChecked = role.PeutVoirKPI;
                 ChkGererReferentiels.IsChecked = role.PeutGererReferentiels;
@@ -322,6 +328,8 @@ namespace BacklogManager.Views
             ChkCreerDemandes.IsChecked = false;
             ChkChiffrer.IsChecked = false;
             ChkPrioriser.IsChecked = false;
+            ChkModifierTaches.IsChecked = false;
+            ChkSupprimerTaches.IsChecked = false;
             ChkGererUtilisateurs.IsChecked = false;
             ChkVoirKPI.IsChecked = false;
             ChkGererReferentiels.IsChecked = false;

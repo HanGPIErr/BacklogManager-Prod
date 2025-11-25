@@ -58,6 +58,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
             <!-- Header avec Bonjour + Date + BNP Branding -->
@@ -210,8 +211,163 @@
                 </Border>
             </Grid>
             
-            <!-- MES TÂCHES URGENTES -->
+            <!-- STATISTIQUES PROJETS -->
             <Border Grid.Row="2" Style="{StaticResource MainCard}">
+                <StackPanel>
+                    <TextBlock FontSize="20" FontWeight="Bold" Foreground="#1A1919" Margin="0,0,0,20">
+                        <Run Text="📊 APERÇU DES PROJETS"/>
+                    </TextBlock>
+                    
+                    <ItemsControl ItemsSource="{Binding StatistiquesProjetsList}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Background="Transparent" BorderThickness="0" 
+                                        Padding="0" Margin="0,0,15,15" Cursor="Hand"
+                                        Width="280" Height="180"
+                                        Tag="{Binding}"
+                                        Click="ProjetCard_Click">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border x:Name="border" Background="#F9F9F9" 
+                                                                CornerRadius="8" Padding="20,15" 
+                                                                BorderBrush="#E0E0E0" BorderThickness="1">
+                                                            <ContentPresenter/>
+                                                        </Border>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter TargetName="border" Property="Background" Value="#E8F5E9"/>
+                                                                <Setter TargetName="border" Property="BorderBrush" Value="#00915A"/>
+                                                                <Setter TargetName="border" Property="BorderThickness" Value="2"/>
+                                                            </Trigger>
+                                                            <Trigger Property="IsPressed" Value="True">
+                                                                <Setter TargetName="border" Property="Background" Value="#C8E6C9"/>
+                                                            </Trigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </Button.Style>
+                                    
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        
+                                        <!-- En-tête projet -->
+                                        <Grid Grid.Row="0" Margin="0,0,0,10">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            
+                                            <StackPanel Orientation="Horizontal">
+                                                <Border Width="4" Background="{Binding CouleurProjet}" 
+                                                        CornerRadius="2" Margin="0,0,8,0"/>
+                                                <TextBlock Text="{Binding NomProjet}" FontSize="14" 
+                                                           FontWeight="SemiBold" Foreground="#1A1919" 
+                                                           VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                                                           ToolTip="{Binding NomProjet}"/>
+                                            </StackPanel>
+                                        </Grid>
+                                        
+                                        <!-- Badges -->
+                                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10">
+                                            <Border Background="#E8F5E9" CornerRadius="4" Padding="6,3" Margin="0,0,6,0">
+                                                <TextBlock FontSize="10" Foreground="#00915A" FontWeight="SemiBold">
+                                                    <Run Text="{Binding NbTachesTotal}"/>
+                                                    <Run Text=" tâches"/>
+                                                </TextBlock>
+                                            </Border>
+                                            <Border Background="#E3F2FD" CornerRadius="4" Padding="6,3">
+                                                <TextBlock FontSize="10" Foreground="#2196F3" FontWeight="SemiBold">
+                                                    <Run Text="{Binding ProgressionPourcentage, StringFormat='{}{0:F0}%'}"/>
+                                                </TextBlock>
+                                            </Border>
+                                        </StackPanel>
+                                        
+                                        <!-- Détails des tâches -->
+                                        <Grid Grid.Row="2" Margin="0,0,0,10">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+                                            
+                                            <StackPanel Grid.Column="0" Grid.Row="0" Margin="0,0,5,8">
+                                                <TextBlock Text="À faire" FontSize="9" Foreground="#999" 
+                                                           Margin="0,0,0,2"/>
+                                                <TextBlock FontSize="16" FontWeight="Bold" Foreground="#9E9E9E">
+                                                    <Run Text="{Binding NbTachesAfaire}"/>
+                                                </TextBlock>
+                                            </StackPanel>
+                                            
+                                            <StackPanel Grid.Column="1" Grid.Row="0" Margin="5,0,0,8">
+                                                <TextBlock Text="En cours" FontSize="9" Foreground="#999" 
+                                                           Margin="0,0,0,2"/>
+                                                <TextBlock FontSize="16" FontWeight="Bold" Foreground="#2196F3">
+                                                    <Run Text="{Binding NbTachesEnCours}"/>
+                                                </TextBlock>
+                                            </StackPanel>
+                                            
+                                            <StackPanel Grid.Column="0" Grid.Row="1" Margin="0,0,5,0">
+                                                <TextBlock Text="Terminées" FontSize="9" Foreground="#999" 
+                                                           Margin="0,0,0,2"/>
+                                                <TextBlock FontSize="16" FontWeight="Bold" Foreground="#4CAF50">
+                                                    <Run Text="{Binding NbTachesTerminees}"/>
+                                                </TextBlock>
+                                            </StackPanel>
+                                            
+                                            <StackPanel Grid.Column="1" Grid.Row="1" Margin="5,0,0,0">
+                                                <TextBlock Text="En retard" FontSize="9" Foreground="#999" 
+                                                           Margin="0,0,0,2"/>
+                                                <TextBlock FontSize="16" FontWeight="Bold" Foreground="#FF5722">
+                                                    <Run Text="{Binding NbTachesEnRetard}"/>
+                                                </TextBlock>
+                                            </StackPanel>
+                                        </Grid>
+                                        
+                                        <!-- Barre de progression -->
+                                        <Grid Grid.Row="3">
+                                            <Border Background="#E0E0E0" Height="6" CornerRadius="3"/>
+                                            <Border Background="#00915A" Height="6" CornerRadius="3" 
+                                                    HorizontalAlignment="Left"
+                                                    Width="{Binding ProgressionLargeurCarte}"/>
+                                        </Grid>
+                                    </Grid>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    
+                    <!-- Message si aucun projet -->
+                    <Border Background="#F5F5F5" CornerRadius="6" Padding="30,20" 
+                            Visibility="{Binding AucunProjet, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="📁" FontSize="40" HorizontalAlignment="Center" 
+                                       Margin="0,0,0,10"/>
+                            <TextBlock Text="Aucun projet actif" FontSize="16" 
+                                       Foreground="#999" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+            
+            <!-- MES TÂCHES URGENTES -->
+            <Border Grid.Row="3" Style="{StaticResource MainCard}">
                 <StackPanel>
                     <Grid Margin="0,0,0,18">
                         <Grid.ColumnDefinitions>
@@ -300,7 +456,7 @@
             </Border>
 
             <!-- NOTIFICATIONS RÉCENTES -->
-            <Border Grid.Row="3" Style="{StaticResource MainCard}">
+            <Border Grid.Row="4" Style="{StaticResource MainCard}">
                 <StackPanel>
                     <Grid Margin="0,0,0,18">
                         <Grid.ColumnDefinitions>
@@ -370,7 +526,7 @@
                     <Border Background="#E8F5E9" CornerRadius="8" Padding="20" 
                             Visibility="{Binding HasNoNotifications, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                         <StackPanel HorizontalAlignment="Center">
-                            <Image Source="/Images/caramel-flopy-happy.png" 
+                            <Image Source="/Images/agent-project-and-change.png" 
                                    Width="80" Height="80" 
                                    Stretch="Uniform"
                                    Margin="0,0,0,12"/>
@@ -384,7 +540,7 @@
             </Border>
 
             <!-- ACTIVITÉ RÉCENTE & QUICK ACTIONS -->
-            <Grid Grid.Row="4">
+            <Grid Grid.Row="5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="2*"/>
                     <ColumnDefinition Width="*"/>

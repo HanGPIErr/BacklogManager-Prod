@@ -96,6 +96,15 @@ namespace BacklogManager.Views
             set { _activitesRecentes = value; OnPropertyChanged(); }
         }
 
+        private ObservableCollection<StatistiqueProjetViewModel> _statistiquesProjetsList;
+        public ObservableCollection<StatistiqueProjetViewModel> StatistiquesProjetsList
+        {
+            get => _statistiquesProjetsList;
+            set { _statistiquesProjetsList = value; OnPropertyChanged(); OnPropertyChanged(nameof(AucunProjet)); }
+        }
+
+        public bool AucunProjet => StatistiquesProjetsList == null || StatistiquesProjetsList.Count == 0;
+
         public DashboardView(BacklogService backlogService, NotificationService notificationService, AuthenticationService authService)
         {
             _backlogService = backlogService;
@@ -108,6 +117,7 @@ namespace BacklogManager.Views
             TachesUrgentes = new ObservableCollection<TacheUrgenteViewModel>();
             NotificationsRecentes = new ObservableCollection<NotificationViewModel>();
             ActivitesRecentes = new ObservableCollection<ActiviteViewModel>();
+            StatistiquesProjetsList = new ObservableCollection<StatistiqueProjetViewModel>();
 
             InitializeComponent();
             DataContext = this;
@@ -171,8 +181,53 @@ namespace BacklogManager.Views
                 t.DateFin.HasValue && t.DateFin.Value.Date == aujourdhui && t.Statut == Statut.Termine);
             TauxProductivite = NbTachesEnCours > 0 ? (tachesTermineesAujourdhui * 100) / NbTachesEnCours : 100;
             
+            // Statistiques des projets
+            ChargerStatistiquesProjets(projets, allTaches);
+            
             // Activités récentes (vraies données depuis AuditLog et CRA)
             ChargerActivitesRecentes();
+        }
+
+        private void ChargerStatistiquesProjets(IEnumerable<Projet> projets, List<BacklogItem> allTaches)
+        {
+            var statsProjects = new List<StatistiqueProjetViewModel>();
+
+            foreach (var projet in projets.Where(p => p.Actif).OrderBy(p => p.Nom))
+            {
+                var tachesProjet = allTaches.Where(t => t.ProjetId == projet.Id).ToList();
+                var nbTotal = tachesProjet.Count;
+                
+                if (nbTotal == 0) continue; // Ignorer les projets sans tâches
+
+                var nbAfaire = tachesProjet.Count(t => t.Statut == Statut.Afaire);
+                var nbEnCours = tachesProjet.Count(t => t.Statut == Statut.EnCours);
+                var nbTerminees = tachesProjet.Count(t => t.Statut == Statut.Termine);
+                
+                // Tâches en retard : en cours ou à faire avec date dépassée
+                var nbEnRetard = tachesProjet.Count(t => 
+                    t.Statut != Statut.Termine && 
+                    t.DateFinAttendue.HasValue && 
+                    t.DateFinAttendue.Value < DateTime.Now);
+
+                var progression = nbTotal > 0 ? (nbTerminees * 100.0) / nbTotal : 0;
+                var largeur = Math.Min(progression * 3, 300); // Max 300px
+
+                statsProjects.Add(new StatistiqueProjetViewModel
+                {
+                    ProjetId = projet.Id,
+                    NomProjet = projet.Nom,
+                    CouleurProjet = !string.IsNullOrEmpty(projet.CouleurHex) ? projet.CouleurHex : "#00915A",
+                    NbTachesTotal = nbTotal,
+                    NbTachesAfaire = nbAfaire,
+                    NbTachesEnCours = nbEnCours,
+                    NbTachesTerminees = nbTerminees,
+                    NbTachesEnRetard = nbEnRetard,
+                    ProgressionPourcentage = progression,
+                    ProgressionLargeur = largeur
+                });
+            }
+
+            StatistiquesProjetsList = new ObservableCollection<StatistiqueProjetViewModel>(statsProjects);
         }
 
         private void ChargerActivitesRecentes()
@@ -499,7 +554,7 @@ namespace BacklogManager.Views
         {
             try
             {
-                var guideWindow = new Views.GuideUtilisateurWindow(_authService)
+                var guideWindow = new Views.GuideUtilisateurWindow(_authService, _backlogService.Database)
                 {
                     Owner = Window.GetWindow(this)
                 };
@@ -547,6 +602,32 @@ namespace BacklogManager.Views
             }
         }
 
+        private void ProjetCard_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (sender is Button button && button.Tag is StatistiqueProjetViewModel projetStats)
+                {
+                    var mainWindow = Window.GetWindow(this) as MainWindow;
+                    if (mainWindow != null)
+                    {
+                        // Récupérer le projet complet
+                        var projet = _backlogService.GetAllProjets().FirstOrDefault(p => p.Id == projetStats.ProjetId);
+                        if (projet != null)
+                        {
+                            // Naviguer vers Suivi CRA avec le projet sélectionné
+                            mainWindow.NaviguerVersSuiviCRATimeline(projet);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erreur lors de la navigation : {ex.Message}",
+                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -570,6 +651,21 @@ namespace BacklogManager.Views
         public bool EstArchive { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
+    }
+
+    public class StatistiqueProjetViewModel
+    {
+        public int ProjetId { get; set; }
+        public string NomProjet { get; set; }
+        public string CouleurProjet { get; set; }
+        public int NbTachesTotal { get; set; }
+        public int NbTachesAfaire { get; set; }
+        public int NbTachesEnCours { get; set; }
+        public int NbTachesTerminees { get; set; }
+        public int NbTachesEnRetard { get; set; }
+        public double ProgressionPourcentage { get; set; }
+        public double ProgressionLargeur { get; set; }
+        public double ProgressionLargeurCarte => (ProgressionPourcentage / 100.0) * 240; // 240px max pour les cartes
     }
 
     public class TacheUrgenteViewModel

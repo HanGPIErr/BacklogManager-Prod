@@ -2,10 +2,10 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Gestion Projet" 
-        Width="650" Height="480" 
+        Width="650" Height="580" 
         WindowStartupLocation="CenterOwner"
         ResizeMode="CanResize"
-        MinWidth="600" MinHeight="450"
+        MinWidth="600" MinHeight="550"
         Background="#F5F5F5">
     <Border Background="White" Margin="15" CornerRadius="8" 
             BorderBrush="#E0E0E0" BorderThickness="1">
@@ -54,6 +54,35 @@
                             <TextBlock Text="Décrivez brièvement l'objectif et le périmètre du projet" 
                                        FontSize="11" Foreground="#999999" Margin="0,5,0,0" FontStyle="Italic"/>
                         </StackPanel>
+                    </Border>
+
+                    <!-- Dates du projet -->
+                    <Border Background="#FAFAFA" CornerRadius="4" Padding="15" Margin="0,0,0,12">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="15"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <!-- Date début -->
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="📅 Date début" FontWeight="Bold" FontSize="13" 
+                                           Foreground="#333333" Margin="0,0,0,8"/>
+                                <DatePicker x:Name="DpDateDebut" Padding="10" FontSize="14" 
+                                            BorderBrush="#CCCCCC" BorderThickness="1" Height="42"
+                                            VerticalContentAlignment="Center"/>
+                            </StackPanel>
+                            
+                            <!-- Date fin -->
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="🏁 Date fin prévue" FontWeight="Bold" FontSize="13" 
+                                           Foreground="#333333" Margin="0,0,0,8"/>
+                                <DatePicker x:Name="DpDateFinPrevue" Padding="10" FontSize="14" 
+                                            BorderBrush="#CCCCCC" BorderThickness="1" Height="42"
+                                            VerticalContentAlignment="Center"/>
+                            </StackPanel>
+                        </Grid>
                     </Border>
 
                     <!-- Statut actif -->

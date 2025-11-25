@@ -11,7 +11,9 @@ namespace BacklogManager.Services
     public class SqliteDatabase : IDatabase
     {
         private readonly string _databasePath;
-        private readonly string _connectionString;
+        private readonly string _connectionString; // Connection string READ-WRITE par défaut (compatibilité)
+        private readonly string _readConnectionString;
+        private readonly string _writeConnectionString;
 
         public SqliteDatabase()
         {
@@ -52,20 +54,10 @@ namespace BacklogManager.Services
                 dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, dbPath);
             }
 
-            // Si c'est un chemin UNC, tenter de le mapper automatiquement
+            // Mapper les chemins UNC vers des lecteurs réseau
             if (dbPath.StartsWith("\\\\"))
             {
-                System.Diagnostics.Debug.WriteLine($"[SqliteDatabase] Chemin UNC détecté: {dbPath}");
-                string mappedPath = NetworkPathMapper.MapUncPathToDrive(dbPath);
-                if (!string.IsNullOrEmpty(mappedPath))
-                {
-                    System.Diagnostics.Debug.WriteLine($"[SqliteDatabase] Chemin mappé: {mappedPath}");
-                    dbPath = mappedPath;
-                }
-                else
-                {
-                    System.Diagnostics.Debug.WriteLine($"[SqliteDatabase] Mapping échoué, utilisation du chemin UNC");
-                }
+                dbPath = NetworkPathMapper.MapUncPathToDrive(dbPath);
             }
 
             _databasePath = dbPath;
@@ -80,18 +72,50 @@ namespace BacklogManager.Services
             // Pour les chemins UNC, désactiver WAL (pas supporté sur les partages réseau)
             bool isUncPath = _databasePath.StartsWith("\\\\");
             
-            // Utiliser Uri pour supporter les chemins Unicode/UNC
-            var builder = new SQLiteConnectionStringBuilder
+            // Connexion READONLY pour les lectures
+            var readBuilder = new SQLiteConnectionStringBuilder
             {
                 DataSource = _databasePath,
                 Version = 3,
                 JournalMode = isUncPath ? SQLiteJournalModeEnum.Delete : SQLiteJournalModeEnum.Wal,
                 Pooling = true,
-                BusyTimeout = 30000
+                BusyTimeout = 30000,
+                ReadOnly = true
             };
-            _connectionString = builder.ConnectionString;
+            _readConnectionString = readBuilder.ConnectionString;
+
+            // Connexion READ-WRITE pour les écritures
+            var writeBuilder = new SQLiteConnectionStringBuilder
+            {
+                DataSource = _databasePath,
+                Version = 3,
+                JournalMode = isUncPath ? SQLiteJournalModeEnum.Delete : SQLiteJournalModeEnum.Wal,
+                Pooling = true,
+                BusyTimeout = 30000,
+                ReadOnly = false
+            };
+            _writeConnectionString = writeBuilder.ConnectionString;
+            
+            // Pour compatibilité avec tout le code existant, _connectionString = WRITE par défaut
+            _connectionString = _writeConnectionString;
 
             InitializeDatabase();
+        }
+
+        // Méthodes helper pour obtenir les bonnes connection strings
+        private SQLiteConnection GetConnection()
+        {
+            return new SQLiteConnection(_connectionString);
+        }
+
+        private SQLiteConnection GetConnectionForWrite()
+        {
+            return new SQLiteConnection(_writeConnectionString);
+        }
+
+        private SQLiteConnection GetConnectionForRead()
+        {
+            return new SQLiteConnection(_readConnectionString);
         }
 
         private void InitializeDatabase()
@@ -99,7 +123,8 @@ namespace BacklogManager.Services
             try
             {
                 System.Diagnostics.Debug.WriteLine($"[SqliteDatabase] Chemin DB: {_databasePath}");
-                System.Diagnostics.Debug.WriteLine($"[SqliteDatabase] Connection String: {_connectionString}");
+                System.Diagnostics.Debug.WriteLine($"[SqliteDatabase] Connection String READ: {_readConnectionString}");
+                System.Diagnostics.Debug.WriteLine($"[SqliteDatabase] Connection String WRITE: {_writeConnectionString}");
                 
                 if (!File.Exists(_databasePath))
                 {
@@ -115,7 +140,7 @@ namespace BacklogManager.Services
                 {
                     System.Diagnostics.Debug.WriteLine($"[SqliteDatabase] Fichier DB existe deja");
                     // Appliquer les migrations sur base existante
-                    using (var conn = GetConnection())
+                    using (var conn = GetConnectionForWrite())
                     {
                         conn.Open();
                         
@@ -142,12 +167,6 @@ namespace BacklogManager.Services
                 System.Diagnostics.Debug.WriteLine($"[SqliteDatabase] Stack: {ex.StackTrace}");
                 throw;
             }
-        }
-
-        // Connexion standard
-        private SQLiteConnection GetConnection()
-        {
-            return new SQLiteConnection(_connectionString);
         }
 
         // Exécution avec retry en cas de lock
@@ -612,6 +631,79 @@ namespace BacklogManager.Services
                 if (!hasEstPrevisionnel)
                 {
                     cmd.CommandText = @"ALTER TABLE CRA ADD COLUMN EstPrevisionnel INTEGER DEFAULT 0;";
+                    cmd.ExecuteNonQuery();
+                }
+
+                // Vérifier et ajouter CouleurHex si manquant dans Projets
+                cmd.CommandText = @"SELECT COUNT(*) FROM pragma_table_info('Projets') WHERE name='CouleurHex';";
+                var hasCouleurHex = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                
+                if (!hasCouleurHex)
+                {
+                    cmd.CommandText = @"ALTER TABLE Projets ADD COLUMN CouleurHex TEXT DEFAULT '#00915A';";
+                    cmd.ExecuteNonQuery();
+                }
+
+                // Vérifier et ajouter DateFinPrevue si manquant dans Projets (renommage de DateFin)
+                cmd.CommandText = @"SELECT COUNT(*) FROM pragma_table_info('Projets') WHERE name='DateFinPrevue';";
+                var hasDateFinPrevue = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                
+                if (!hasDateFinPrevue)
+                {
+                    cmd.CommandText = @"ALTER TABLE Projets ADD COLUMN DateFinPrevue TEXT;";
+                    cmd.ExecuteNonQuery();
+                    
+                    // Copier les données de DateFin vers DateFinPrevue si DateFin existe
+                    cmd.CommandText = @"UPDATE Projets SET DateFinPrevue = DateFin WHERE DateFin IS NOT NULL;";
+                    cmd.ExecuteNonQuery();
+                }
+                
+                // Vérifier et créer la table ChatConversations si elle n'existe pas
+                cmd.CommandText = @"SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='ChatConversations';";
+                var hasChatConversationsTable = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                
+                if (!hasChatConversationsTable)
+                {
+                    cmd.CommandText = @"
+                        CREATE TABLE ChatConversations (
+                            Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            UserId INTEGER NOT NULL,
+                            Username TEXT NOT NULL,
+                            DateDebut TEXT NOT NULL,
+                            DateDernierMessage TEXT NOT NULL,
+                            NombreMessages INTEGER NOT NULL DEFAULT 0,
+                            FOREIGN KEY (UserId) REFERENCES Utilisateurs(Id)
+                        );
+                        
+                        CREATE INDEX IF NOT EXISTS idx_chatconv_userid ON ChatConversations(UserId);
+                        CREATE INDEX IF NOT EXISTS idx_chatconv_date ON ChatConversations(DateDernierMessage);
+                    ";
+                    cmd.ExecuteNonQuery();
+                }
+                
+                // Vérifier et créer la table ChatMessages si elle n'existe pas
+                cmd.CommandText = @"SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='ChatMessages';";
+                var hasChatMessagesTable = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                
+                if (!hasChatMessagesTable)
+                {
+                    cmd.CommandText = @"
+                        CREATE TABLE ChatMessages (
+                            Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            ConversationId INTEGER NOT NULL,
+                            UserId INTEGER NOT NULL,
+                            Username TEXT NOT NULL,
+                            IsUser INTEGER NOT NULL,
+                            Message TEXT NOT NULL,
+                            DateMessage TEXT NOT NULL,
+                            Reaction TEXT,
+                            FOREIGN KEY (ConversationId) REFERENCES ChatConversations(Id) ON DELETE CASCADE,
+                            FOREIGN KEY (UserId) REFERENCES Utilisateurs(Id)
+                        );
+                        
+                        CREATE INDEX IF NOT EXISTS idx_chatmsg_convid ON ChatMessages(ConversationId);
+                        CREATE INDEX IF NOT EXISTS idx_chatmsg_date ON ChatMessages(DateMessage);
+                    ";
                     cmd.ExecuteNonQuery();
                 }
             }
@@ -1178,7 +1270,7 @@ namespace BacklogManager.Services
             using (var conn = GetConnection())
             {
                 conn.Open();
-                using (var cmd = new SQLiteCommand("SELECT Id, Nom, Description, DateCreation, Actif FROM Projets WHERE Actif = 1 ORDER BY DateCreation DESC", conn))
+                using (var cmd = new SQLiteCommand("SELECT Id, Nom, Description, DateCreation, DateDebut, DateFin, CouleurHex, Actif FROM Projets WHERE Actif = 1 ORDER BY DateCreation DESC", conn))
                 using (var reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
@@ -1189,7 +1281,10 @@ namespace BacklogManager.Services
                             Nom = reader.GetString(1),
                             Description = reader.IsDBNull(2) ? null : reader.GetString(2),
                             DateCreation = reader.IsDBNull(3) ? DateTime.Now : DateTime.Parse(reader.GetString(3)),
-                            Actif = reader.GetInt32(4) == 1
+                            DateDebut = reader.IsDBNull(4) ? (DateTime?)null : DateTime.Parse(reader.GetString(4)),
+                            DateFinPrevue = reader.IsDBNull(5) ? (DateTime?)null : DateTime.Parse(reader.GetString(5)),
+                            CouleurHex = reader.IsDBNull(6) ? "#00915A" : reader.GetString(6),
+                            Actif = reader.GetInt32(7) == 1
                         });
                     }
                 }
@@ -1377,13 +1472,13 @@ namespace BacklogManager.Services
                         {
                             if (projet.Id == 0)
                             {
-                                cmd.CommandText = @"INSERT INTO Projets (Nom, Description, DateCreation, Actif) 
-                                    VALUES (@Nom, @Description, @DateCreation, @Actif);
+                                cmd.CommandText = @"INSERT INTO Projets (Nom, Description, DateCreation, DateDebut, DateFin, CouleurHex, Actif) 
+                                    VALUES (@Nom, @Description, @DateCreation, @DateDebut, @DateFin, @CouleurHex, @Actif);
                                     SELECT last_insert_rowid();";
                             }
                             else
                             {
-                                cmd.CommandText = @"UPDATE Projets SET Nom = @Nom, Description = @Description, Actif = @Actif 
+                                cmd.CommandText = @"UPDATE Projets SET Nom = @Nom, Description = @Description, DateDebut = @DateDebut, DateFin = @DateFin, CouleurHex = @CouleurHex, Actif = @Actif 
                                     WHERE Id = @Id";
                                 cmd.Parameters.AddWithValue("@Id", projet.Id);
                             }
@@ -1391,6 +1486,9 @@ namespace BacklogManager.Services
                             cmd.Parameters.AddWithValue("@Nom", projet.Nom);
                             cmd.Parameters.AddWithValue("@Description", (object)projet.Description ?? DBNull.Value);
                             cmd.Parameters.AddWithValue("@DateCreation", projet.DateCreation.ToString("yyyy-MM-dd HH:mm:ss"));
+                            cmd.Parameters.AddWithValue("@DateDebut", projet.DateDebut.HasValue ? (object)projet.DateDebut.Value.ToString("yyyy-MM-dd") : DBNull.Value);
+                            cmd.Parameters.AddWithValue("@DateFin", projet.DateFinPrevue.HasValue ? (object)projet.DateFinPrevue.Value.ToString("yyyy-MM-dd") : DBNull.Value);
+                            cmd.Parameters.AddWithValue("@CouleurHex", (object)projet.CouleurHex ?? "#00915A");
                             cmd.Parameters.AddWithValue("@Actif", projet.Actif ? 1 : 0);
 
                             if (projet.Id == 0)
@@ -1673,6 +1771,19 @@ namespace BacklogManager.Services
             }
         }
 
+        public void SupprimerToutesLesNotifications()
+        {
+            using (var conn = new SQLiteConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = "DELETE FROM Notifications";
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
         // ============================================
         // Méthodes CRA (Compte Rendu d'Activité)
         // ============================================
@@ -1814,6 +1925,173 @@ namespace BacklogManager.Services
                     cmd.Parameters.AddWithValue("@Id", id);
                     cmd.ExecuteNonQuery();
                 }
+            }
+        }
+        
+        // Chat Conversations Methods
+        public List<ChatConversation> GetChatConversations()
+        {
+            var conversations = new List<ChatConversation>();
+            using (var conn = GetConnectionForRead())
+            {
+                conn.Open();
+                using (var cmd = new SQLiteCommand(@"
+                    SELECT Id, UserId, Username, DateDebut, DateDernierMessage, NombreMessages 
+                    FROM ChatConversations 
+                    ORDER BY DateDernierMessage DESC", conn))
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        conversations.Add(new ChatConversation
+                        {
+                            Id = reader.GetInt32(0),
+                            UserId = reader.GetInt32(1),
+                            Username = reader.GetString(2),
+                            DateDebut = DateTime.Parse(reader.GetString(3)),
+                            DateDernierMessage = DateTime.Parse(reader.GetString(4)),
+                            NombreMessages = reader.GetInt32(5)
+                        });
+                    }
+                }
+            }
+            return conversations;
+        }
+        
+        public ChatConversation GetChatConversation(int conversationId)
+        {
+            using (var conn = GetConnectionForRead())
+            {
+                conn.Open();
+                using (var cmd = new SQLiteCommand(@"
+                    SELECT Id, UserId, Username, DateDebut, DateDernierMessage, NombreMessages 
+                    FROM ChatConversations 
+                    WHERE Id = @Id", conn))
+                {
+                    cmd.Parameters.AddWithValue("@Id", conversationId);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return new ChatConversation
+                            {
+                                Id = reader.GetInt32(0),
+                                UserId = reader.GetInt32(1),
+                                Username = reader.GetString(2),
+                                DateDebut = DateTime.Parse(reader.GetString(3)),
+                                DateDernierMessage = DateTime.Parse(reader.GetString(4)),
+                                NombreMessages = reader.GetInt32(5)
+                            };
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+        
+        public int CreateChatConversation(int userId, string username)
+        {
+            using (var conn = GetConnectionForWrite())
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    var now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                    cmd.CommandText = @"
+                        INSERT INTO ChatConversations (UserId, Username, DateDebut, DateDernierMessage, NombreMessages)
+                        VALUES (@UserId, @Username, @DateDebut, @DateDernierMessage, 0);
+                        SELECT last_insert_rowid();
+                    ";
+                    cmd.Parameters.AddWithValue("@UserId", userId);
+                    cmd.Parameters.AddWithValue("@Username", username);
+                    cmd.Parameters.AddWithValue("@DateDebut", now);
+                    cmd.Parameters.AddWithValue("@DateDernierMessage", now);
+                    
+                    return Convert.ToInt32(cmd.ExecuteScalar());
+                }
+            }
+        }
+        
+        public void UpdateChatConversation(int conversationId)
+        {
+            using (var conn = GetConnectionForWrite())
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                        UPDATE ChatConversations 
+                        SET DateDernierMessage = @DateDernierMessage,
+                            NombreMessages = (SELECT COUNT(*) FROM ChatMessages WHERE ConversationId = @ConversationId)
+                        WHERE Id = @ConversationId
+                    ";
+                    cmd.Parameters.AddWithValue("@ConversationId", conversationId);
+                    cmd.Parameters.AddWithValue("@DateDernierMessage", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+        
+        public List<ChatMessageDB> GetChatMessages(int conversationId)
+        {
+            var messages = new List<ChatMessageDB>();
+            using (var conn = GetConnectionForRead())
+            {
+                conn.Open();
+                using (var cmd = new SQLiteCommand(@"
+                    SELECT Id, ConversationId, UserId, Username, IsUser, Message, DateMessage, Reaction 
+                    FROM ChatMessages 
+                    WHERE ConversationId = @ConversationId 
+                    ORDER BY DateMessage ASC", conn))
+                {
+                    cmd.Parameters.AddWithValue("@ConversationId", conversationId);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            messages.Add(new ChatMessageDB
+                            {
+                                Id = reader.GetInt32(0),
+                                ConversationId = reader.GetInt32(1),
+                                UserId = reader.GetInt32(2),
+                                Username = reader.GetString(3),
+                                IsUser = reader.GetInt32(4) == 1,
+                                Message = reader.GetString(5),
+                                DateMessage = DateTime.Parse(reader.GetString(6)),
+                                Reaction = reader.IsDBNull(7) ? null : reader.GetString(7)
+                            });
+                        }
+                    }
+                }
+            }
+            return messages;
+        }
+        
+        public void AddChatMessage(ChatMessageDB message)
+        {
+            using (var conn = GetConnectionForWrite())
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                        INSERT INTO ChatMessages (ConversationId, UserId, Username, IsUser, Message, DateMessage, Reaction)
+                        VALUES (@ConversationId, @UserId, @Username, @IsUser, @Message, @DateMessage, @Reaction);
+                        SELECT last_insert_rowid();
+                    ";
+                    cmd.Parameters.AddWithValue("@ConversationId", message.ConversationId);
+                    cmd.Parameters.AddWithValue("@UserId", message.UserId);
+                    cmd.Parameters.AddWithValue("@Username", message.Username);
+                    cmd.Parameters.AddWithValue("@IsUser", message.IsUser ? 1 : 0);
+                    cmd.Parameters.AddWithValue("@Message", message.Message);
+                    cmd.Parameters.AddWithValue("@DateMessage", message.DateMessage.ToString("yyyy-MM-dd HH:mm:ss"));
+                    cmd.Parameters.AddWithValue("@Reaction", (object)message.Reaction ?? DBNull.Value);
+                    
+                    message.Id = Convert.ToInt32(cmd.ExecuteScalar());
+                }
+                
+                // Mettre à jour la conversation
+                UpdateChatConversation(message.ConversationId);
             }
         }
     }

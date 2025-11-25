@@ -246,6 +246,7 @@ namespace BacklogManager.ViewModels
         private readonly BacklogService _backlogService;
         private readonly PermissionService _permissionService;
         private readonly CRAService _craService;
+        private readonly DispatcherTimer _refreshTimer;
         private int? _selectedDevId;
         private int? _selectedProjetId;
         private bool _isLoading;
@@ -401,6 +402,12 @@ namespace BacklogManager.ViewModels
             MettreEnAttenteCommand = new RelayCommand(item => MettreEnAttente((item as KanbanItemViewModel)?.Item ?? item as BacklogItem));
             ReactiverTacheCommand = new RelayCommand(item => ReactiverTache(item as BacklogItem));
             ArchiverTacheCommand = new RelayCommand(item => ArchiverTache(item as BacklogItem), _ => EstAdministrateur);
+
+            // Timer pour rafraîchir automatiquement toutes les 30 secondes
+            _refreshTimer = new DispatcherTimer();
+            _refreshTimer.Interval = TimeSpan.FromSeconds(30);
+            _refreshTimer.Tick += (s, e) => LoadItems();
+            _refreshTimer.Start();
 
             LoadFilterLists(); // Charger les listes une seule fois
             LoadItems();
@@ -697,6 +704,22 @@ namespace BacklogManager.ViewModels
                     System.Windows.MessageBoxButton.OK,
                     System.Windows.MessageBoxImage.Information);
             }
+        }
+
+        /// <summary>
+        /// Arrête le rafraîchissement automatique (appelé quand la vue n'est plus active)
+        /// </summary>
+        public void StopAutoRefresh()
+        {
+            _refreshTimer?.Stop();
+        }
+
+        /// <summary>
+        /// Redémarre le rafraîchissement automatique
+        /// </summary>
+        public void StartAutoRefresh()
+        {
+            _refreshTimer?.Start();
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

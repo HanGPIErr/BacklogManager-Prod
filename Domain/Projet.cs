@@ -8,6 +8,8 @@ namespace BacklogManager.Domain
         public string Nom { get; set; }
         public string Description { get; set; }
         public DateTime DateCreation { get; set; }
+        public DateTime? DateDebut { get; set; } // Date de début du projet
+        public DateTime? DateFinPrevue { get; set; } // Date de fin prévue du projet
         public bool Actif { get; set; }
         public string CouleurHex { get; set; } // Couleur pour identification visuelle (ex: "#FF5722")
 

@@ -52,7 +52,16 @@ namespace BacklogManager.Services
         void AddOrUpdateNotification(Notification notification);
         void DeleteNotification(int notificationId);
         void DeleteNotificationsLues();
+        void SupprimerToutesLesNotifications();
         void MarquerNotificationCommeLue(int notificationId);
         void MarquerToutesNotificationsCommeLues();
+        
+        // Chat Conversations
+        List<ChatConversation> GetChatConversations();
+        ChatConversation GetChatConversation(int conversationId);
+        int CreateChatConversation(int userId, string username);
+        void UpdateChatConversation(int conversationId);
+        List<ChatMessageDB> GetChatMessages(int conversationId);
+        void AddChatMessage(ChatMessageDB message);
     }
 }

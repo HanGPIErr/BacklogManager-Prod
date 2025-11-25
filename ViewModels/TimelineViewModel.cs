@@ -15,6 +15,7 @@ namespace BacklogManager.ViewModels
         private BacklogItem _item;
         private Dev _assignedDev;
         private Projet _projet;
+        private TimelineViewModel _parentViewModel;
 
         public BacklogItem Item
         {
@@ -34,6 +35,22 @@ namespace BacklogManager.ViewModels
             set { _projet = value; OnPropertyChanged(); }
         }
 
+        public TimelineViewModel ParentViewModel
+        {
+            get { return _parentViewModel; }
+            set { _parentViewModel = value; OnPropertyChanged(); }
+        }
+
+        public DateTime StartDate 
+        { 
+            get { return _parentViewModel?.StartDate ?? DateTime.Now; }
+        }
+        
+        public DateTime EndDate 
+        { 
+            get { return _parentViewModel?.EndDate ?? DateTime.Now.AddMonths(6); }
+        }
+
         public string DevName
         {
             get { return AssignedDev != null ? AssignedDev.Nom : "Non assigné"; }
@@ -49,7 +66,8 @@ namespace BacklogManager.ViewModels
             get
             {
                 if (Item == null || Item.DateFinAttendue == null) return 0;
-                return (Item.DateFinAttendue.Value - Item.DateCreation).Days;
+                var dateDebut = Item.DateDebut ?? Item.DateCreation;
+                return (Item.DateFinAttendue.Value - dateDebut).Days;
             }
         }
 
@@ -58,7 +76,8 @@ namespace BacklogManager.ViewModels
             get
             {
                 if (Item == null) return 0;
-                return (DateTime.Now - Item.DateCreation).Days;
+                var dateDebut = Item.DateDebut ?? Item.DateCreation;
+                return (DateTime.Now - dateDebut).Days;
             }
         }
 
@@ -109,8 +128,35 @@ namespace BacklogManager.ViewModels
             }
         }
 
+        public double BarreLeft
+        {
+            get
+            {
+                if (Item == null) return 0;
+                var dateDebut = Item.DateDebut ?? Item.DateCreation;
+                var totalDays = (EndDate - StartDate).TotalDays;
+                if (totalDays <= 0) return 0;
+                var offsetDays = (dateDebut - StartDate).TotalDays;
+                return Math.Max(0, Math.Min(100, (offsetDays / totalDays) * 100));
+            }
+        }
+
+        public double BarreWidth
+        {
+            get
+            {
+                if (Item == null || Item.DateFinAttendue == null) return 0;
+                var dateDebut = Item.DateDebut ?? Item.DateCreation;
+                var dateFin = Item.DateFinAttendue.Value;
+                var totalDays = (EndDate - StartDate).TotalDays;
+                if (totalDays <= 0) return 0;
+                var tacheDays = (dateFin - dateDebut).TotalDays;
+                return Math.Max(0, Math.Min(100 - BarreLeft, (tacheDays / totalDays) * 100));
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        public void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
@@ -230,13 +276,37 @@ namespace BacklogManager.ViewModels
         public DateTime StartDate
         {
             get { return _startDate; }
-            set { _startDate = value; OnPropertyChanged(); LoadProjetsTimeline(); }
+            set 
+            { 
+                _startDate = value; 
+                OnPropertyChanged();
+                // Notifier tous les TimelineItems que les dates ont changé
+                foreach (var item in TimelineItems)
+                {
+                    item.OnPropertyChanged(nameof(item.StartDate));
+                    item.OnPropertyChanged(nameof(item.BarreLeft));
+                    item.OnPropertyChanged(nameof(item.BarreWidth));
+                }
+                LoadProjetsTimeline();
+            }
         }
 
         public DateTime EndDate
         {
             get { return _endDate; }
-            set { _endDate = value; OnPropertyChanged(); LoadProjetsTimeline(); }
+            set 
+            { 
+                _endDate = value; 
+                OnPropertyChanged();
+                // Notifier tous les TimelineItems que les dates ont changé
+                foreach (var item in TimelineItems)
+                {
+                    item.OnPropertyChanged(nameof(item.EndDate));
+                    item.OnPropertyChanged(nameof(item.BarreLeft));
+                    item.OnPropertyChanged(nameof(item.BarreWidth));
+                }
+                LoadProjetsTimeline();
+            }
         }
 
         public string SelectedPeriode
@@ -322,8 +392,37 @@ namespace BacklogManager.ViewModels
             RefreshCommand = new RelayCommand(_ => { LoadItems(); LoadProjetsTimeline(); });
             ClearFiltersCommand = new RelayCommand(_ => ClearFilters());
 
-            _selectedAnnee = DateTime.Now.Year;
-            SelectedPeriode = "Année complète";
+            // Initialiser avec l'année qui contient des tâches planifiées
+            var allItems = _backlogService.GetAllBacklogItems();
+            var itemsAvecDates = allItems.Where(i => i.DateDebut.HasValue || i.DateFinAttendue.HasValue).ToList();
+            
+            if (itemsAvecDates.Any())
+            {
+                // Prendre l'année de la plus proche date de début ou fin
+                var dates = itemsAvecDates
+                    .SelectMany(i => new[] { i.DateDebut, i.DateFinAttendue })
+                    .Where(d => d.HasValue)
+                    .Select(d => d.Value)
+                    .ToList();
+                    
+                if (dates.Any())
+                {
+                    var minDate = dates.Min();
+                    var maxDate = dates.Max();
+                    // Prendre l'année qui contient le plus de tâches, ou la plus proche
+                    _selectedAnnee = (minDate > DateTime.Now) ? minDate.Year : DateTime.Now.Year;
+                }
+                else
+                {
+                    _selectedAnnee = DateTime.Now.Year;
+                }
+            }
+            else
+            {
+                _selectedAnnee = DateTime.Now.Year;
+            }
+            
+            SelectedPeriode = "6 derniers mois";
             LoadItems();
         }
 
@@ -353,8 +452,9 @@ namespace BacklogManager.ViewModels
                     EndDate = StartDate.AddMonths(3).AddDays(-1);
                     break;
                 case "6 derniers mois":
-                    StartDate = new DateTime(SelectedAnnee, 1, 1);
-                    EndDate = new DateTime(SelectedAnnee, 6, 30);
+                    // Calculer les 6 derniers mois depuis aujourd'hui
+                    EndDate = new DateTime(today.Year, today.Month, DateTime.DaysInMonth(today.Year, today.Month));
+                    StartDate = EndDate.AddMonths(-6).AddDays(1);
                     break;
                 case "Année complète":
                     StartDate = new DateTime(SelectedAnnee, 1, 1);
@@ -368,9 +468,29 @@ namespace BacklogManager.ViewModels
 
         public void LoadItems()
         {
-            var allItems = _backlogService.GetAllBacklogItems();
             var devs = _backlogService.GetAllDevs();
             var projets = _backlogService.GetAllProjets();
+            
+            // Recalculer les DateDebut depuis les CRA pour toutes les tâches
+            var craService = new CRAService(_backlogService.Database);
+            var allItemsForUpdate = _backlogService.GetAllBacklogItems();
+            foreach (var item in allItemsForUpdate.Where(i => i.Id > 0))
+            {
+                var cras = craService.GetCRAsByBacklogItem(item.Id);
+                if (cras.Any())
+                {
+                    // Prendre la date du PREMIER CRA (le plus ancien)
+                    var premierCRA = cras.OrderBy(c => c.Date).First();
+                    if (item.DateDebut != premierCRA.Date)
+                    {
+                        item.DateDebut = premierCRA.Date;
+                        _backlogService.SaveBacklogItem(item);
+                    }
+                }
+            }
+            
+            // Recharger APRÈS les mises à jour pour avoir les bonnes dates
+            var allItems = _backlogService.GetAllBacklogItems();
 
             // Charger les devs seulement si la collection est vide (éviter les doublons)
             if (Devs.Count == 0)
@@ -419,7 +539,8 @@ namespace BacklogManager.ViewModels
                 {
                     Item = item,
                     AssignedDev = dev,
-                    Projet = projet
+                    Projet = projet,
+                    ParentViewModel = this
                 };
 
                 TimelineItems.Add(viewModel);
@@ -471,11 +592,16 @@ namespace BacklogManager.ViewModels
 
                 if (!taches.Any()) continue;
 
-                var dateDebut = taches.Min(t => t.DateCreation);
-                var dateFin = taches.Where(t => t.DateFinAttendue.HasValue)
-                                    .Select(t => t.DateFinAttendue.Value)
-                                    .DefaultIfEmpty(DateTime.Now.AddMonths(3))
-                                    .Max();
+                // Utiliser les dates du projet si disponibles, sinon calculer depuis les tâches
+                var dateDebut = projet.DateDebut ?? 
+                               (taches.Where(t => t.DateDebut.HasValue).Any()
+                                   ? taches.Where(t => t.DateDebut.HasValue).Min(t => t.DateDebut.Value)
+                                   : taches.Min(t => t.DateCreation));
+                                   
+                var dateFin = projet.DateFinPrevue ?? 
+                             (taches.Where(t => t.DateFinAttendue.HasValue).Any() 
+                                ? taches.Where(t => t.DateFinAttendue.HasValue).Max(t => t.DateFinAttendue.Value)
+                                : DateTime.Now.AddMonths(3));
 
                 var nbTachesTotal = taches.Count;
                 var nbTachesTerminees = taches.Count(t => t.Statut == Statut.Termine);

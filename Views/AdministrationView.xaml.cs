@@ -99,5 +99,23 @@ namespace BacklogManager.Views
             // Charger le contenu (utiliser GestionEquipePage à la place)
             FrameProjetsEquipe.Content = new GestionEquipePage(_database);
         }
+
+        private void BtnOuvrirHistoriqueChat_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var chatHistoryService = new ChatHistoryService(_database);
+                var historiqueWindow = new ChatHistoriqueAdminWindow(chatHistoryService)
+                {
+                    Owner = Window.GetWindow(this)
+                };
+                historiqueWindow.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erreur lors de l'ouverture de l'historique des conversations : {ex.Message}", 
+                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
     }
 }

@@ -57,8 +57,8 @@
                 <TextBox x:Name="ChiffrageTextBox" Padding="10" FontSize="14" BorderBrush="#CCCCCC" BorderThickness="1"
                          ToolTip="Estimation initiale en jours (1j = 8h)"/>
 
-                <TextBlock x:Name="DateDebutLabel" Text="Date de début" FontWeight="SemiBold" Margin="0,15,0,2" FontSize="13" Visibility="Collapsed"/>
-                <DatePicker x:Name="DateDebutDatePicker" Padding="10" FontSize="14" BorderBrush="#CCCCCC" BorderThickness="1" Visibility="Collapsed"/>
+                <TextBlock x:Name="DateDebutLabel" Text="Date de début" FontWeight="SemiBold" Margin="0,15,0,2" FontSize="13"/>
+                <DatePicker x:Name="DateDebutDatePicker" Padding="10" FontSize="14" BorderBrush="#CCCCCC" BorderThickness="1"/>
 
                 <TextBlock Text="Temps réel passé (calculé automatiquement)" FontWeight="SemiBold" Margin="0,15,0,2" FontSize="13"/>
                 <StackPanel Orientation="Horizontal">

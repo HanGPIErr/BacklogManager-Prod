@@ -78,10 +78,25 @@
                         <CheckBox Content="Projets actifs uniquement" IsChecked="{Binding FilterActifsOnly}" 
                                   FontSize="12" Foreground="#333" Margin="0,0,0,8"/>
                         
-                        <TextBlock Text="Trier par:" FontSize="11" Foreground="#666" Margin="0,0,0,3"/>
-                        <ComboBox ItemsSource="{Binding OptionsTriDisponibles}" 
-                                  SelectedItem="{Binding TriSelection}" 
-                                  FontSize="12" Padding="5"/>
+                        <TextBlock Text="Trier par:" FontSize="11" Foreground="#666" Margin="0,0,0,5"/>
+                        <Grid>
+                            <ComboBox x:Name="CbTri" ItemsSource="{Binding OptionsTriDisponibles}" 
+                                      SelectedItem="{Binding TriSelection}" 
+                                      FontSize="12" Padding="8,6" BorderBrush="#CCCCCC" BorderThickness="1"/>
+                            <TextBlock Text="-- Sélectionner un tri --" FontSize="12" Foreground="#999" 
+                                       Padding="10,7" IsHitTestVisible="False">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ElementName=CbTri, Path=SelectedItem}" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
                     </StackPanel>
                 </StackPanel>
 
@@ -189,17 +204,76 @@
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="Auto"/>
                                         </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
 
                                         <!-- Nom du Projet -->
-                                        <TextBlock Grid.Row="0" Text="{Binding Projet.Nom}" FontWeight="Bold" 
+                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Projet.Nom}" FontWeight="Bold" 
                                                    FontSize="14" Foreground="#1A1919" TextWrapping="Wrap"/>
+                                        
+                                        <!-- Boutons d'action admin -->
+                                        <StackPanel Grid.Row="0" Grid.Column="1" Grid.RowSpan="3" Orientation="Horizontal" 
+                                                    VerticalAlignment="Top" Margin="10,0,0,0"
+                                                    Visibility="{Binding DataContext.PeutCreerProjetsVisibility, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                            <Button Content="✏️" ToolTip="Modifier le projet" 
+                                                    Click="BtnModifierProjet_Click" Tag="{Binding Projet}"
+                                                    Width="28" Height="28" Background="#E3F2FD" Foreground="#1976D2"
+                                                    BorderThickness="0" FontSize="12" Cursor="Hand" Margin="0,0,4,0">
+                                                <Button.Style>
+                                                    <Style TargetType="Button">
+                                                        <Setter Property="Template">
+                                                            <Setter.Value>
+                                                                <ControlTemplate TargetType="Button">
+                                                                    <Border Background="{TemplateBinding Background}" CornerRadius="4" 
+                                                                            Padding="{TemplateBinding Padding}">
+                                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                    </Border>
+                                                                </ControlTemplate>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                        <Style.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="Background" Value="#BBDEFB"/>
+                                                            </Trigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Button.Style>
+                                            </Button>
+                                            
+                                            <Button Content="🗑️" ToolTip="Supprimer le projet" 
+                                                    Click="BtnSupprimerProjet_Click" Tag="{Binding Projet}"
+                                                    Width="28" Height="28" Background="#FFEBEE" Foreground="#C62828"
+                                                    BorderThickness="0" FontSize="12" Cursor="Hand">
+                                                <Button.Style>
+                                                    <Style TargetType="Button">
+                                                        <Setter Property="Template">
+                                                            <Setter.Value>
+                                                                <ControlTemplate TargetType="Button">
+                                                                    <Border Background="{TemplateBinding Background}" CornerRadius="4" 
+                                                                            Padding="{TemplateBinding Padding}">
+                                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                    </Border>
+                                                                </ControlTemplate>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                        <Style.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="Background" Value="#FFCDD2"/>
+                                                            </Trigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Button.Style>
+                                            </Button>
+                                        </StackPanel>
 
                                         <!-- Date de création -->
-                                        <TextBlock Grid.Row="1" Text="{Binding DateCreationFormatee}" 
+                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding DateCreationFormatee}" 
                                                    FontSize="11" Foreground="#999" Margin="0,3,0,8"/>
 
                                         <!-- Stats -->
-                                        <StackPanel Grid.Row="2" Orientation="Horizontal">
+                                        <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal">
                                             <Border Background="#9E9E9E" CornerRadius="3" Padding="5,2" Margin="0,0,5,0">
                                                 <StackPanel Orientation="Horizontal">
                                                     <TextBlock Text="📋 " FontSize="10"/>
@@ -247,7 +321,7 @@
 
                 <!-- Header -->
                 <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,15">
-                    <TextBlock FontSize="16" FontWeight="Bold" Foreground="#1A1919">
+                    <TextBlock FontSize="16" FontWeight="Bold" Foreground="#1A1919" VerticalAlignment="Center">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
                                 <Setter Property="Text" Value="📝 TÂCHES"/>
@@ -260,7 +334,38 @@
                         </TextBlock.Style>
                     </TextBlock>
                     <TextBlock Text="{Binding SelectedProjet.Projet.Nom}" FontSize="16" 
-                               Foreground="#00915A" Margin="10,0,0,0" FontWeight="SemiBold"/>
+                               Foreground="#00915A" Margin="10,0,0,0" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    
+                    <!-- Bouton tri -->
+                    <Button Content="🔄 Inverser tri" Click="BtnInverserTri_Click"
+                            Background="#F5F5F5" Foreground="#666" FontSize="11" FontWeight="SemiBold"
+                            Padding="10,5" Margin="15,0,0,0" BorderThickness="1" BorderBrush="#E0E0E0"
+                            Cursor="Hand" VerticalAlignment="Center">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" 
+                                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                                    CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#E0E0E0"/>
+                                    </Trigger>
+                                    <DataTrigger Binding="{Binding SelectedProjet}" Value="{x:Null}">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
                 </StackPanel>
 
 
@@ -282,6 +387,60 @@
                                         <StackPanel Grid.Column="0">
                                             <TextBlock Text="{Binding Titre}" FontWeight="SemiBold" FontSize="13" 
                                                        TextWrapping="Wrap" Margin="0,0,0,5"/>
+
+                                            <!-- Dates et Développeur -->
+                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                                <TextBlock Text="📅 " FontSize="11" Foreground="#666" VerticalAlignment="Center"/>
+                                                <TextBlock Text="{Binding DateCreation, StringFormat='Créé le {0:dd/MM/yyyy}'}" 
+                                                           FontSize="11" Foreground="#666" VerticalAlignment="Center"/>
+                                                
+                                                <TextBlock FontSize="11" Foreground="#666" VerticalAlignment="Center" Margin="5,0,0,0">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Text" Value="{Binding DateDebut, StringFormat=' • Début: {0:dd/MM/yyyy}'}"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding DateDebut}" Value="{x:Null}">
+                                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                                
+                                                <TextBlock FontSize="11" Foreground="#666" VerticalAlignment="Center" Margin="5,0,0,0">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Text" Value="{Binding DateFinPrevue, StringFormat=' • Échéance: {0:dd/MM/yyyy}'}"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding DateFinPrevue}" Value="{x:Null}">
+                                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                                
+                                                <!-- Développeur assigné en étiquette -->
+                                                <Border CornerRadius="3" Padding="5,2" Margin="8,0,0,0" Background="#E8F5E9">
+                                                    <Border.Style>
+                                                        <Style TargetType="Border">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding DevAssigneNom}" Value="{x:Null}">
+                                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding DevAssigneNom}" Value="">
+                                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Border.Style>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="👤 " FontSize="10" Foreground="#2E7D32" VerticalAlignment="Center"/>
+                                                        <TextBlock Text="{Binding DevAssigneNom}" FontSize="10" Foreground="#2E7D32" 
+                                                                   FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                                    </StackPanel>
+                                                </Border>
+                                            </StackPanel>
 
                                             <StackPanel Orientation="Horizontal">
                                                 <Border CornerRadius="3" Padding="5,2" Margin="0,0,5,0">

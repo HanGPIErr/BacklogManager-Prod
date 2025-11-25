@@ -69,6 +69,27 @@ namespace BacklogManager.ViewModels
         public string TotalAffiche => TotalHeures > 0 ? $"{TotalJours:F1}j" : "-";
     }
 
+    public class TacheTimelineViewModel
+    {
+        public string Titre { get; set; }
+        public Statut Statut { get; set; }
+        public string DevAssigneNom { get; set; }
+        public int? Complexite { get; set; }
+        public DateTime DateCreation { get; set; }
+        public DateTime? DateFinAttendue { get; set; }
+        public double? ChiffrageJours { get; set; }
+        public double TempsReelHeures { get; set; }
+        public double TempsReelJours { get; set; }
+        public double ProgressionPourcentage { get; set; }
+        public double ProgressionLargeur { get; set; }
+        public bool EstEnRetard { get; set; }
+        
+        // Pour la timeline visuelle
+        public double PositionX { get; set; }
+        public double PositionY { get; set; }
+        public double LargeurBarre { get; set; }
+    }
+
     public class SuiviCRAViewModel : INotifyPropertyChanged
     {
         private readonly CRAService _craService;
@@ -76,17 +97,44 @@ namespace BacklogManager.ViewModels
         private readonly PermissionService _permissionService;
 
         private DateTime _moisCourant;
-        private string _modeAffichage; // "mois" ou "liste"
+        private string _modeAffichage; // "mois", "liste" ou "timeline"
         private Utilisateur _devSelectionne;
         private JourCRAViewModel _jourSelectionne;
         private DateTime _semaineDebut;
         private int _anneeCourante;
+        private Projet _projetSelectionne;
 
         public ObservableCollection<JourCRAViewModel> JoursCalendrier { get; set; }
         public ObservableCollection<MoisCRAViewModel> MoisAnnee { get; set; }
         public ObservableCollection<Utilisateur> Devs { get; set; }
         public ObservableCollection<DevCRAInfoViewModel> StatsDev { get; set; }
         public ObservableCollection<CRADetailViewModel> CRAsJourSelectionne { get; set; }
+        public ObservableCollection<Projet> Projets { get; set; }
+        public ObservableCollection<TacheTimelineViewModel> TachesProjetTimeline { get; set; }
+        public ObservableCollection<MoisCRAViewModel> MoisTimeline { get; set; }
+        
+        public double HauteurTimeline => TachesProjetTimeline.Count * 90 + 20; // 90px par tâche + marge
+
+        private double _positionDebutProjet;
+        public double PositionDebutProjet
+        {
+            get => _positionDebutProjet;
+            set { _positionDebutProjet = value; OnPropertyChanged(); }
+        }
+
+        private double _positionFinProjet;
+        public double PositionFinProjet
+        {
+            get => _positionFinProjet;
+            set { _positionFinProjet = value; OnPropertyChanged(); }
+        }
+
+        private bool _afficherMarqueursProjet;
+        public bool AfficherMarqueursProjet
+        {
+            get => _afficherMarqueursProjet;
+            set { _afficherMarqueursProjet = value; OnPropertyChanged(); }
+        }
 
         public int AnneeCourante
         {
@@ -140,11 +188,16 @@ namespace BacklogManager.ViewModels
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(EstModeMois));
                 OnPropertyChanged(nameof(EstModeListe));
+                OnPropertyChanged(nameof(EstModeTimeline));
                 OnPropertyChanged(nameof(PeriodeAffichage));
                 
                 if (value == "liste")
                 {
                     ChargerMoisAnnee();
+                }
+                else if (value == "timeline")
+                {
+                    ChargerTachesTimeline();
                 }
                 else
                 {
@@ -156,6 +209,21 @@ namespace BacklogManager.ViewModels
 
         public bool EstModeMois => ModeAffichage == "mois";
         public bool EstModeListe => ModeAffichage == "liste";
+        public bool EstModeTimeline => ModeAffichage == "timeline";
+
+        public Projet ProjetSelectionne
+        {
+            get => _projetSelectionne;
+            set
+            {
+                _projetSelectionne = value;
+                OnPropertyChanged();
+                if (EstModeTimeline)
+                {
+                    ChargerTachesTimeline();
+                }
+            }
+        }
 
         public DateTime SemaineDebut
         {
@@ -209,11 +277,16 @@ namespace BacklogManager.ViewModels
             Devs = new ObservableCollection<Utilisateur>();
             StatsDev = new ObservableCollection<DevCRAInfoViewModel>();
             CRAsJourSelectionne = new ObservableCollection<CRADetailViewModel>();
+            Projets = new ObservableCollection<Projet>();
+            TachesProjetTimeline = new ObservableCollection<TacheTimelineViewModel>();
+            MoisTimeline = new ObservableCollection<MoisCRAViewModel>();
 
             MoisCourant = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
             AnneeCourante = DateTime.Now.Year;
             ModeAffichage = "mois";
             SemaineDebut = GetLundiDeLaSemaine(DateTime.Now);
+
+            ChargerProjets();
 
             PeriodePrecedenteCommand = new RelayCommand(_ => 
             {
@@ -480,6 +553,166 @@ namespace BacklogManager.ViewModels
                     NombreJoursSaisis = joursUniques
                 });
             }
+        }
+
+        private void ChargerProjets()
+        {
+            Projets.Clear();
+            var projets = _backlogService.GetAllProjets().Where(p => p.Actif).ToList();
+            foreach (var projet in projets)
+            {
+                Projets.Add(projet);
+            }
+        }
+
+        private void ChargerTachesTimeline()
+        {
+            TachesProjetTimeline.Clear();
+            MoisTimeline.Clear();
+            
+            if (ProjetSelectionne == null)
+                return;
+
+            // Utiliser les dates du projet comme plage principale
+            DateTime dateMin, dateMax;
+            
+            if (ProjetSelectionne.DateDebut.HasValue)
+            {
+                dateMin = ProjetSelectionne.DateDebut.Value;
+            }
+            else
+            {
+                // Fallback: utiliser la DateDebut des tâches, sinon DateCreation
+                var tachesTemp = _backlogService.GetAllBacklogItemsIncludingArchived()
+                    .Where(t => t.ProjetId == ProjetSelectionne.Id)
+                    .ToList();
+                dateMin = tachesTemp.Any() 
+                    ? tachesTemp.Min(t => t.DateDebut ?? t.DateCreation) 
+                    : DateTime.Now;
+            }
+
+            if (ProjetSelectionne.DateFinPrevue.HasValue)
+            {
+                dateMax = ProjetSelectionne.DateFinPrevue.Value;
+            }
+            else
+            {
+                // Fallback: utiliser la date max des tâches + 3 mois
+                var tachesTemp = _backlogService.GetAllBacklogItemsIncludingArchived()
+                    .Where(t => t.ProjetId == ProjetSelectionne.Id)
+                    .ToList();
+                dateMax = tachesTemp.Any() 
+                    ? tachesTemp.Max(t => t.DateFinAttendue ?? t.DateDebut ?? t.DateCreation).AddMonths(3)
+                    : DateTime.Now.AddMonths(6);
+            }
+
+            // Normaliser au début du mois pour dateMin seulement
+            dateMin = new DateTime(dateMin.Year, dateMin.Month, 1);
+            // Pour dateMax, garder le mois complet (aller jusqu'à la fin du mois)
+            dateMax = new DateTime(dateMax.Year, dateMax.Month, DateTime.DaysInMonth(dateMax.Year, dateMax.Month));
+            
+            // Pas de marge avant, petite marge après
+            dateMax = dateMax.AddMonths(1);
+
+            // Générer les mois pour toute la durée du projet
+            var dateCourante = dateMin;
+            while (dateCourante <= dateMax)
+            {
+                MoisTimeline.Add(new MoisCRAViewModel
+                {
+                    Mois = dateCourante.Month,
+                    Annee = dateCourante.Year,
+                    NomMois = dateCourante.ToString("MMM").ToUpper()
+                });
+                dateCourante = dateCourante.AddMonths(1);
+            }
+
+            // Charger les tâches
+            var taches = _backlogService.GetAllBacklogItemsIncludingArchived()
+                .Where(t => t.ProjetId == ProjetSelectionne.Id)
+                .OrderBy(t => t.DateCreation)
+                .ToList();
+
+            if (!taches.Any())
+            {
+                OnPropertyChanged(nameof(HauteurTimeline));
+                return;
+            }
+
+            // Largeur par mois en pixels
+            const double largeurMois = 120;
+            var devs = _backlogService.GetAllUtilisateurs().ToDictionary(d => d.Id, d => d.Nom);
+
+            // Calculer les positions
+            int indexLigne = 0;
+            foreach (var tache in taches)
+            {
+                var tempsReel = _craService.GetTempsReelTache(tache.Id);
+                var progression = tache.ChiffrageHeures.HasValue && tache.ChiffrageHeures > 0
+                    ? (tempsReel / tache.ChiffrageHeures.Value) * 100
+                    : 0;
+
+                // Utiliser DateDebut si disponible, sinon DateCreation
+                var dateDebut = tache.DateDebut ?? tache.DateCreation;
+                var dateFin = tache.DateFinAttendue ?? dateDebut.AddDays(tache.ChiffrageJours.HasValue ? tache.ChiffrageJours.Value * 7 : 7);
+
+                // Calculer position X (début de la tâche)
+                var moisDepuisDebut = (dateDebut.Year - dateMin.Year) * 12 + (dateDebut.Month - dateMin.Month);
+                var jourDansMois = dateDebut.Day - 1;
+                var joursDansMois = DateTime.DaysInMonth(dateDebut.Year, dateDebut.Month);
+                var positionX = moisDepuisDebut * largeurMois + (jourDansMois / (double)joursDansMois * largeurMois);
+
+                // Calculer largeur (durée)
+                var dureeJours = (dateFin - dateDebut).TotalDays;
+                var largeurBarre = Math.Max(largeurMois / 4, (dureeJours / 30.0) * largeurMois); // Min 1/4 mois
+
+                var tacheVM = new TacheTimelineViewModel
+                {
+                    Titre = tache.Titre,
+                    Statut = tache.Statut,
+                    DevAssigneNom = tache.DevAssigneId.HasValue && devs.ContainsKey(tache.DevAssigneId.Value)
+                        ? devs[tache.DevAssigneId.Value]
+                        : null,
+                    Complexite = tache.Complexite,
+                    DateCreation = tache.DateCreation,
+                    DateFinAttendue = tache.DateFinAttendue,
+                    ChiffrageJours = tache.ChiffrageJours,
+                    TempsReelHeures = tempsReel,
+                    TempsReelJours = tempsReel / 8.0,
+                    ProgressionPourcentage = Math.Min(progression, 100),
+                    ProgressionLargeur = Math.Min(progression * 3, 300),
+                    EstEnRetard = tache.ChiffrageHeures.HasValue && tempsReel > tache.ChiffrageHeures.Value,
+                    PositionX = positionX,
+                    PositionY = indexLigne * 90 + 10,
+                    LargeurBarre = largeurBarre
+                };
+
+                TachesProjetTimeline.Add(tacheVM);
+                indexLigne++;
+            }
+
+            // Calculer les positions des marqueurs de début et fin du projet
+            if (ProjetSelectionne.DateDebut.HasValue)
+            {
+                var dateDebutProjet = ProjetSelectionne.DateDebut.Value;
+                var moisDepuisDebut = (dateDebutProjet.Year - dateMin.Year) * 12 + (dateDebutProjet.Month - dateMin.Month);
+                var jourDansMois = dateDebutProjet.Day - 1;
+                var joursDansMois = DateTime.DaysInMonth(dateDebutProjet.Year, dateDebutProjet.Month);
+                PositionDebutProjet = moisDepuisDebut * largeurMois + (jourDansMois / (double)joursDansMois * largeurMois);
+            }
+
+            if (ProjetSelectionne.DateFinPrevue.HasValue)
+            {
+                var dateFinProjet = ProjetSelectionne.DateFinPrevue.Value;
+                var moisDepuisDebut = (dateFinProjet.Year - dateMin.Year) * 12 + (dateFinProjet.Month - dateMin.Month);
+                var jourDansMois = dateFinProjet.Day - 1;
+                var joursDansMois = DateTime.DaysInMonth(dateFinProjet.Year, dateFinProjet.Month);
+                PositionFinProjet = moisDepuisDebut * largeurMois + (jourDansMois / (double)joursDansMois * largeurMois);
+            }
+
+            AfficherMarqueursProjet = ProjetSelectionne.DateDebut.HasValue || ProjetSelectionne.DateFinPrevue.HasValue;
+            
+            OnPropertyChanged(nameof(HauteurTimeline));
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

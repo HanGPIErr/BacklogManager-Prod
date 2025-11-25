@@ -37,9 +37,9 @@ namespace BacklogManager.Views
                     return;
                 }
 
-                if (!(button.Tag is BacklogItem tache))
+                if (!(button.Tag is TacheEnrichie tacheEnrichie))
                 {
-                    MessageBox.Show($"Tag is not BacklogItem: {button.Tag?.GetType().Name ?? "null"}", "Debug");
+                    MessageBox.Show($"Tag is not TacheEnrichie: {button.Tag?.GetType().Name ?? "null"}", "Debug");
                     return;
                 }
 
@@ -50,7 +50,7 @@ namespace BacklogManager.Views
                     return;
                 }
 
-                viewModel.ModifierTache(tache);
+                viewModel.ModifierTache(tacheEnrichie.Tache);
             }
             catch (System.Exception ex)
             {
@@ -61,10 +61,10 @@ namespace BacklogManager.Views
         private void SupprimerTache_Click(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;
-            if (button?.Tag is BacklogItem tache)
+            if (button?.Tag is TacheEnrichie tacheEnrichie)
             {
                 var result = MessageBox.Show(
-                    $"Êtes-vous sûr de vouloir supprimer la tâche '{tache.Titre}' ?",
+                    $"Êtes-vous sûr de vouloir supprimer la tâche '{tacheEnrichie.Titre}' ?",
                     "Confirmation de suppression",
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Warning);
@@ -74,10 +74,55 @@ namespace BacklogManager.Views
                     var viewModel = DataContext as ProjetsViewModel;
                     if (viewModel != null)
                     {
-                        viewModel.SupprimerTache(tache);
+                        viewModel.SupprimerTache(tacheEnrichie.Tache);
                     }
                 }
             }
+        }
+
+        private void BtnInverserTri_Click(object sender, RoutedEventArgs e)
+        {
+            var viewModel = DataContext as ProjetsViewModel;
+            viewModel?.InverserTriTaches();
+        }
+
+        private void BtnModifierProjet_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var projet = button?.Tag as Projet;
+            
+            if (projet != null)
+            {
+                var viewModel = DataContext as ProjetsViewModel;
+                viewModel?.ModifierProjet(projet);
+            }
+            
+            // Empêcher la propagation du clic vers la Border parente
+            e.Handled = true;
+        }
+
+        private void BtnSupprimerProjet_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var projet = button?.Tag as Projet;
+            
+            if (projet != null)
+            {
+                var result = MessageBox.Show(
+                    $"Êtes-vous sûr de vouloir supprimer le projet '{projet.Nom}' ?\n\nToutes les tâches associées perdront leur lien avec ce projet.",
+                    "Confirmation de suppression",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    var viewModel = DataContext as ProjetsViewModel;
+                    viewModel?.SupprimerProjet(projet);
+                }
+            }
+            
+            // Empêcher la propagation du clic vers la Border parente
+            e.Handled = true;
         }
     }
 }

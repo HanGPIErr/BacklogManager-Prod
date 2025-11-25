@@ -17,6 +17,7 @@ namespace BacklogManager.Services
         {
             InitializeRoles();
             InitializeUsers();
+            InitializeDevs();
             InitializeDefaultProjet();
             InitializeDefaultTasks();
         }
@@ -38,6 +39,8 @@ namespace BacklogManager.Services
                     PeutGererUtilisateurs = true,
                     PeutVoirKPI = true,
                     PeutGererReferentiels = true,
+                    PeutModifierTaches = true,
+                    PeutSupprimerTaches = true,
                     Actif = true
                 });
 
@@ -52,6 +55,8 @@ namespace BacklogManager.Services
                     PeutGererUtilisateurs = false,
                     PeutVoirKPI = true,
                     PeutGererReferentiels = false,
+                    PeutModifierTaches = false,
+                    PeutSupprimerTaches = false,
                     Actif = true
                 });
 
@@ -61,11 +66,13 @@ namespace BacklogManager.Services
                     Nom = "Chef de Projet / PO",
                     Type = RoleType.ChefDeProjet,
                     PeutCreerDemandes = true,
-                    PeutChiffrer = false,
+                    PeutChiffrer = true,
                     PeutPrioriser = true,
                     PeutGererUtilisateurs = false,
                     PeutVoirKPI = true,
                     PeutGererReferentiels = false,
+                    PeutModifierTaches = true,
+                    PeutSupprimerTaches = true,
                     Actif = true
                 });
 
@@ -80,6 +87,8 @@ namespace BacklogManager.Services
                     PeutGererUtilisateurs = false,
                     PeutVoirKPI = false,
                     PeutGererReferentiels = false,
+                    PeutModifierTaches = false,
+                    PeutSupprimerTaches = false,
                     Actif = true
                 });
             }
@@ -90,20 +99,111 @@ namespace BacklogManager.Services
             var utilisateurs = _database.GetUtilisateurs();
             var roles = _database.GetRoles();
 
-            if (!utilisateurs.Any())
-            {
-                var roleAdmin = roles.FirstOrDefault(r => r.Type == RoleType.Administrateur);
+            var roleAdmin = roles.FirstOrDefault(r => r.Type == RoleType.Administrateur);
+            var roleBA = roles.FirstOrDefault(r => r.Type == RoleType.BusinessAnalyst);
+            var roleCP = roles.FirstOrDefault(r => r.Type == RoleType.ChefDeProjet);
+            var roleDev = roles.FirstOrDefault(r => r.Type == RoleType.Developpeur);
 
-                // Créer un utilisateur administrateur par défaut
+            // Créer les utilisateurs de test s'ils n'existent pas déjà
+            if (!utilisateurs.Any(u => u.UsernameWindows == "admin.test"))
+            {
                 _database.AddOrUpdateUtilisateur(new Utilisateur
                 {
-                    UsernameWindows = "ADMIN",
+                    UsernameWindows = "admin.test",
                     Nom = "Administrateur",
-                    Prenom = "Système",
-                    Email = "admin@company.com",
+                    Prenom = "Test",
+                    Email = "admin.test@bnpparibas.com",
                     RoleId = roleAdmin?.Id ?? 1,
                     Actif = true,
                     DateCreation = DateTime.Now
+                });
+            }
+
+            if (!utilisateurs.Any(u => u.UsernameWindows == "ba.test"))
+            {
+                _database.AddOrUpdateUtilisateur(new Utilisateur
+                {
+                    UsernameWindows = "ba.test",
+                    Nom = "Analyst",
+                    Prenom = "Business",
+                    Email = "ba.test@bnpparibas.com",
+                    RoleId = roleBA?.Id ?? 2,
+                    Actif = true,
+                    DateCreation = DateTime.Now
+                });
+            }
+
+            if (!utilisateurs.Any(u => u.UsernameWindows == "po.test"))
+            {
+                _database.AddOrUpdateUtilisateur(new Utilisateur
+                {
+                    UsernameWindows = "po.test",
+                    Nom = "Owner",
+                    Prenom = "Product",
+                    Email = "po.test@bnpparibas.com",
+                    RoleId = roleCP?.Id ?? 3,
+                    Actif = true,
+                    DateCreation = DateTime.Now
+                });
+            }
+
+            if (!utilisateurs.Any(u => u.UsernameWindows == "dev.test"))
+            {
+                _database.AddOrUpdateUtilisateur(new Utilisateur
+                {
+                    UsernameWindows = "dev.test",
+                    Nom = "Développeur",
+                    Prenom = "Test",
+                    Email = "dev.test@bnpparibas.com",
+                    RoleId = roleDev?.Id ?? 4,
+                    Actif = true,
+                    DateCreation = DateTime.Now
+                });
+            }
+        }
+
+        private void InitializeDevs()
+        {
+            var devs = _database.GetDevs();
+
+            // Créer des devs de test s'ils n'existent pas déjà
+            if (!devs.Any(d => d.Nom == "Admin Test"))
+            {
+                _database.AddOrUpdateDev(new Dev
+                {
+                    Nom = "Admin Test",
+                    Initiales = "AT",
+                    Actif = true
+                });
+            }
+
+            if (!devs.Any(d => d.Nom == "Dev Test"))
+            {
+                _database.AddOrUpdateDev(new Dev
+                {
+                    Nom = "Dev Test",
+                    Initiales = "DT",
+                    Actif = true
+                });
+            }
+
+            if (!devs.Any(d => d.Nom == "BA Test"))
+            {
+                _database.AddOrUpdateDev(new Dev
+                {
+                    Nom = "BA Test",
+                    Initiales = "BA",
+                    Actif = true
+                });
+            }
+
+            if (!devs.Any(d => d.Nom == "PO Test"))
+            {
+                _database.AddOrUpdateDev(new Dev
+                {
+                    Nom = "PO Test",
+                    Initiales = "PO",
+                    Actif = true
                 });
             }
         }
@@ -129,9 +229,61 @@ namespace BacklogManager.Services
 
         private void InitializeDefaultTasks()
         {
-            // Ne plus créer de tâches génériques partagées
-            // Les devs créeront leurs propres instances de congés/support/etc.
-            // Le système auto-assignera le projet "Tâches administratives" selon le type
+            var backlogItems = _database.GetBacklogItems();
+            var projetAdmin = _database.GetProjets().FirstOrDefault(p => p.Nom == "Tâches administratives");
+            
+            if (projetAdmin == null) return;
+
+            // Créer la tâche "Congés" si elle n'existe pas
+            if (!backlogItems.Any(t => t.TypeDemande == TypeDemande.Conges))
+            {
+                _database.AddOrUpdateBacklogItem(new BacklogItem
+                {
+                    Titre = "Congés",
+                    Description = "Congés / Vacances",
+                    TypeDemande = TypeDemande.Conges,
+                    Statut = Statut.EnCours,
+                    Priorite = Priorite.Moyenne,
+                    ProjetId = projetAdmin.Id,
+                    DateCreation = DateTime.Now,
+                    DateDerniereMaj = DateTime.Now,
+                    EstArchive = false
+                });
+            }
+
+            // Créer la tâche "Non travaillé" si elle n'existe pas
+            if (!backlogItems.Any(t => t.TypeDemande == TypeDemande.NonTravaille))
+            {
+                _database.AddOrUpdateBacklogItem(new BacklogItem
+                {
+                    Titre = "Non travaillé",
+                    Description = "Absences, maladie, etc.",
+                    TypeDemande = TypeDemande.NonTravaille,
+                    Statut = Statut.EnCours,
+                    Priorite = Priorite.Moyenne,
+                    ProjetId = projetAdmin.Id,
+                    DateCreation = DateTime.Now,
+                    DateDerniereMaj = DateTime.Now,
+                    EstArchive = false
+                });
+            }
+
+            // Créer la tâche "Support" si elle n'existe pas
+            if (!backlogItems.Any(t => t.TypeDemande == TypeDemande.Support && string.IsNullOrEmpty(t.Description)))
+            {
+                _database.AddOrUpdateBacklogItem(new BacklogItem
+                {
+                    Titre = "Support / Aide",
+                    Description = "Support général",
+                    TypeDemande = TypeDemande.Support,
+                    Statut = Statut.EnCours,
+                    Priorite = Priorite.Moyenne,
+                    ProjetId = projetAdmin.Id,
+                    DateCreation = DateTime.Now,
+                    DateDerniereMaj = DateTime.Now,
+                    EstArchive = false
+                });
+            }
         }
     }
 }
