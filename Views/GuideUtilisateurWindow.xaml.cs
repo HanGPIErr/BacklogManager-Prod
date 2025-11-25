@@ -324,7 +324,30 @@ namespace BacklogManager.Views
                     "• Ce guide adapté à votre rôle\n" +
                     "• Tooltips en survolant les boutons\n" +
                     "• Votre administrateur système\n\n" +
-                    "Agent Project & Change vous fournit des informations claires et actionnables pour piloter efficacement." }
+                    "Agent Project & Change vous fournit des informations claires et actionnables pour piloter efficacement." },
+
+                { "Comment utiliser le Chat avec l'IA (Agent Project & Change) ?",
+                    "Le Chat IA est accessible via l'icône 🔔 Notifications en haut de l'écran.\n\n" +
+                    "**Configuration initiale (première utilisation) :**\n" +
+                    "1. Cliquez sur l'icône 🔔 Notifications\n" +
+                    "2. Cliquez sur le bouton 💬 'Discuter avec l'Agent IA'\n" +
+                    "3. Un écran vous demande de configurer votre token\n" +
+                    "4. Collez votre token d'accès API (Bearer token)\n" +
+                    "5. Cliquez sur 'Valider'\n\n" +
+                    "**Où obtenir le token ?**\n" +
+                    "Le token est fourni par votre administrateur système ou l'équipe IT.\n" +
+                    "Format : Bearer token pour l'API GenFactory AI\n" +
+                    "URL API : https://genfactory-ai.analytics.cib.echonet/genai/api/v2/chat/completions\n\n" +
+                    "**Utiliser le chat :**\n" +
+                    "• Posez vos questions directement dans la zone de texte\n" +
+                    "• L'IA connaît toutes les fonctionnalités de BacklogManager\n" +
+                    "• Elle adapte ses réponses selon votre rôle\n" +
+                    "• Exemples : 'Comment créer une tâche ?', 'Explique-moi le Kanban', 'Comment valider un CRA ?'\n\n" +
+                    "**Historique des conversations (Admin uniquement) :**\n" +
+                    "• Administration > Historique des chats IA\n" +
+                    "• Voir toutes les conversations par utilisateur\n" +
+                    "• Historique complet de tous les échanges\n\n" +
+                    "Le token est stocké localement et sécurisé. Vous pouvez le changer à tout moment." }
             };
         }
 

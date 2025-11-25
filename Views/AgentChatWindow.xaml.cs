@@ -12,6 +12,7 @@ using System.Windows.Input;
 using System.Text.Json;
 using BacklogManager.Services;
 using BacklogManager.Domain;
+using System.IO;
 
 namespace BacklogManager.Views
 {
@@ -20,6 +21,7 @@ namespace BacklogManager.Views
         private const string API_URL = "https://genfactory-ai.analytics.cib.echonet/genai/api/v2/chat/completions";
         private const string MODEL = "gpt-oss-120b";
         private const string TOKEN_KEY = "AgentChatToken";
+        private const string LOG_FILE = "chat_debug.log";
         
         private string _apiToken;
         private bool _needTokenConfiguration;
@@ -104,7 +106,7 @@ namespace BacklogManager.Views
             try
             {
                 // Charger le token depuis les paramètres locaux
-                _apiToken = Properties.Settings.Default[TOKEN_KEY]?.ToString();
+                _apiToken = Properties.Settings.Default[TOKEN_KEY]?.ToString()?.Trim();
                 
                 if (string.IsNullOrWhiteSpace(_apiToken))
                 {
@@ -274,7 +276,15 @@ namespace BacklogManager.Views
         {
             using (var client = new HttpClient())
             {
+                client.Timeout = TimeSpan.FromSeconds(60);
+                client.DefaultRequestHeaders.Clear();
+                
+                // Logging pour debug
+                LogDebug($"Token length: {_apiToken?.Length ?? 0}");
+                LogDebug($"Token first 20 chars: {(_apiToken?.Length >= 20 ? _apiToken.Substring(0, 20) : _apiToken)}");
+                
                 client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_apiToken}");
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
                 
                 // Construire l'historique de conversation pour le contexte
                 var conversationHistory = Messages
@@ -396,8 +406,30 @@ Réponds de manière concise mais complète, avec un ton chaleureux et encourage
                 var jsonContent = JsonSerializer.Serialize(requestBody);
                 var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
+                // Logging pour debug
+                LogDebug($"API URL: {API_URL}");
+                LogDebug($"Request body: {jsonContent.Substring(0, Math.Min(500, jsonContent.Length))}...");
+                LogDebug($"Authorization header: Bearer {_apiToken?.Substring(0, Math.Min(20, _apiToken?.Length ?? 0))}...");
+
                 var response = await client.PostAsync(API_URL, content);
-                response.EnsureSuccessStatusCode();
+                
+                // Gérer les erreurs HTTP avec plus de détails
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    var statusCode = (int)response.StatusCode;
+                    
+                    // Log détaillé pour debug
+                    LogDebug($"ERROR - Status Code: {statusCode}");
+                    LogDebug($"ERROR - Response: {errorContent}");
+                    LogDebug($"ERROR - Headers sent:");
+                    foreach (var header in client.DefaultRequestHeaders)
+                    {
+                        LogDebug($"  {header.Key}: {string.Join(", ", header.Value)}");
+                    }
+                    
+                    throw new Exception($"Le code d'état de réponse n'indique pas la réussite : {statusCode} ({response.StatusCode}).\n\nDétails : {errorContent}\n\nVérifiez que votre token est valide et que vous avez les droits d'accès à l'API.");
+                }
 
                 var responseBody = await response.Content.ReadAsStringAsync();
                 var jsonResponse = JsonDocument.Parse(responseBody);
@@ -451,6 +483,20 @@ Réponds de manière concise mais complète, avec un ton chaleureux et encourage
                 ChatVisible = false;
                 NeedTokenConfiguration = true;
                 TxtToken.Clear();
+            }
+        }
+
+        private void LogDebug(string message)
+        {
+            try
+            {
+                var logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, LOG_FILE);
+                var logMessage = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] {message}{Environment.NewLine}";
+                File.AppendAllText(logPath, logMessage);
+            }
+            catch
+            {
+                // Ignorer les erreurs de log
             }
         }
 
