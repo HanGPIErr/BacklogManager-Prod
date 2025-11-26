@@ -361,7 +361,7 @@ namespace BacklogManager
         {
             try
             {
-                var demandesView = new DemandesView(_authService, _permissionService);
+                var demandesView = new DemandesView(_database, _authService, _permissionService);
                 MainContentControl.Content = demandesView;
             }
             catch (System.Exception ex)

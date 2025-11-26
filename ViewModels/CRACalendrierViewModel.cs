@@ -8,6 +8,7 @@ using System.Windows.Input;
 using BacklogManager.Domain;
 using BacklogManager.Services;
 using BacklogManager.Shared;
+using System.Windows;
 
 namespace BacklogManager.ViewModels
 {
@@ -746,17 +747,25 @@ namespace BacklogManager.ViewModels
                     EstValide = false // À valider manuellement
                 };
 
-                _craService.SaveCRA(cra);
+                try
+                {
+                    Mouse.OverrideCursor = Cursors.Wait;
+                    _craService.SaveCRA(cra);
 
-                // Réinitialiser le formulaire
-                JoursASaisir = 0;
-                Commentaire = "";
-                TacheSelectionnee = null;
+                    // Réinitialiser le formulaire
+                    JoursASaisir = 0;
+                    Commentaire = "";
+                    TacheSelectionnee = null;
 
-                // Rafraîchir l'affichage
-                ChargerCalendrier();
-                ChargerCRAsJour();
-                ChargerTachesDisponibles();
+                    // Rafraîchir l'affichage
+                    ChargerCalendrier();
+                    ChargerCRAsJour();
+                    ChargerTachesDisponibles();
+                }
+                finally
+                {
+                    Mouse.OverrideCursor = null;
+                }
 
                 System.Windows.MessageBox.Show(
                     "CRA enregistré avec succès !",
@@ -830,10 +839,12 @@ namespace BacklogManager.ViewModels
             }
 
             // Calculer le nombre de jours ouvrés sur la période
+            // Les congés ne doivent être posés QUE sur les jours ouvrés (pas week-end ni jours fériés)
             var joursOuvres = new List<DateTime>();
             for (var date = dateDebut; date <= dateFin; date = date.AddDays(1))
             {
-                if (JoursFeriesService.EstJourOuvre(date) || estCongesOuNonTravaille) // Congés peuvent être sur week-ends/fériés
+                // Toujours vérifier que c'est un jour ouvré (même pour les congés)
+                if (JoursFeriesService.EstJourOuvre(date))
                 {
                     joursOuvres.Add(date);
                 }
@@ -868,6 +879,8 @@ namespace BacklogManager.ViewModels
 
             try
             {
+                Mouse.OverrideCursor = Cursors.Wait;
+                
                 int nombreCRAsCrees = 0;
                 int nombreCRAsIgnores = 0;
                 var aujourdhui = DateTime.Now.Date;
@@ -941,6 +954,10 @@ namespace BacklogManager.ViewModels
                     System.Windows.MessageBoxButton.OK,
                     System.Windows.MessageBoxImage.Error);
             }
+            finally
+            {
+                Mouse.OverrideCursor = null;
+            }
         }
 
         /// <summary>
@@ -950,6 +967,8 @@ namespace BacklogManager.ViewModels
         {
             try
             {
+                Mouse.OverrideCursor = Cursors.Wait;
+                
                 // IMPORTANT : Ne décaler QUE les tâches de travail, pas les congés/non travaillé
                 var crasATravailADecaler = crasADecaler
                     .Where(c => {
@@ -1031,6 +1050,10 @@ namespace BacklogManager.ViewModels
                     System.Windows.MessageBoxButton.OK,
                     System.Windows.MessageBoxImage.Error);
             }
+            finally
+            {
+                Mouse.OverrideCursor = null;
+            }
         }
 
         /// <summary>
@@ -1106,6 +1129,7 @@ namespace BacklogManager.ViewModels
             {
                 try
                 {
+                    Mouse.OverrideCursor = Cursors.Wait;
                     _craService.DeleteCRA(craVM.CRA.Id, _authService.CurrentUser.Id, _permissionService.EstAdministrateur);
                     ChargerCalendrier();
                     ChargerCRAsJour();
@@ -1124,6 +1148,10 @@ namespace BacklogManager.ViewModels
                         "Erreur",
                         System.Windows.MessageBoxButton.OK,
                         System.Windows.MessageBoxImage.Error);
+                }
+                finally
+                {
+                    Mouse.OverrideCursor = null;
                 }
             }
         }

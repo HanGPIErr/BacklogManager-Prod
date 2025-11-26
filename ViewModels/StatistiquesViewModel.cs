@@ -201,8 +201,11 @@ namespace BacklogManager.ViewModels
                 }
 
                 // Cartes rapides - Tâches
-                TotalTaches = taches.Count;
-                TachesTerminees = taches.Count(t => t.Statut == Statut.Termine);
+                // Compter les tâches archivées comme terminées (elles sont généralement finies)
+                var tachesArchivees = _backlogService.GetAllBacklogItems().Count(t => t.EstArchive);
+                
+                TotalTaches = taches.Count + tachesArchivees; // Total = actives + archivées
+                TachesTerminees = taches.Count(t => t.Statut == Statut.Termine) + tachesArchivees; // Terminées = statut Terminé + archivées
                 TachesEnCours = taches.Count(t => t.Statut == Statut.EnCours);
                 ProjetsActifs = projets.Count(p => p.Actif);
 
@@ -534,26 +537,60 @@ namespace BacklogManager.ViewModels
 
             foreach (var projet in projets.Where(p => p.Actif))
             {
-                var tachesProjet = taches.Where(t => t.ProjetId == projet.Id).ToList();
-                var totalProjet = tachesProjet.Count;
+                // Récupérer toutes les tâches du projet (y compris archivées)
+                var toutesLesTachesProjet = _backlogService.GetAllBacklogItems()
+                    .Where(t => t.ProjetId == projet.Id)
+                    .ToList();
+                
+                var tachesActivesProjet = toutesLesTachesProjet.Where(t => !t.EstArchive).ToList();
+                var tachesArchiveesProjet = toutesLesTachesProjet.Count(t => t.EstArchive);
+                
+                var totalProjet = toutesLesTachesProjet.Count; // Total = actives + archivées
 
                 if (totalProjet > 0)
                 {
-                    var termineesProjet = tachesProjet.Count(t => t.Statut == Statut.Termine);
+                    // Terminées = statut Terminé (actives) + archivées
+                    var termineesProjet = tachesActivesProjet.Count(t => t.Statut == Statut.Termine) + tachesArchiveesProjet;
                     var tauxCompletion = (termineesProjet * 100.0 / totalProjet);
 
                     // Calculer les heures CRA sur le projet
                     var heuresCRAProjet = CalculerHeuresCRAProjet(projet.Id);
+                    var joursCRAProjet = heuresCRAProjet / 8.0;
 
-                    CompletionParProjet.Add(new CompletionProjetViewModel
+                    CompletionProjetViewModel completion;
+                    if (heuresCRAProjet > 0)
                     {
-                        Projet = projet,
-                        NomProjet = projet.Nom,
-                        TotalTaches = totalProjet,
-                        TachesTerminees = termineesProjet,
-                        TauxCompletion = $"{tauxCompletion:F1}%",
-                        HeuresCRA = heuresCRAProjet > 0 ? heuresCRAProjet.ToString("F0") : "-"
-                    });
+                        // Afficher en jours si >= 1j, sinon en heures
+                        string affichageCRA;
+                        if (joursCRAProjet >= 1)
+                            affichageCRA = $"{joursCRAProjet:F1}j";
+                        else
+                            affichageCRA = $"{heuresCRAProjet:F1}h";
+
+                        completion = new CompletionProjetViewModel
+                        {
+                            Projet = projet,
+                            NomProjet = projet.Nom,
+                            TotalTaches = totalProjet,
+                            TachesTerminees = termineesProjet,
+                            TauxCompletion = $"{tauxCompletion:F1}%",
+                            HeuresCRA = affichageCRA
+                        };
+                    }
+                    else
+                    {
+                        completion = new CompletionProjetViewModel
+                        {
+                            Projet = projet,
+                            NomProjet = projet.Nom,
+                            TotalTaches = totalProjet,
+                            TachesTerminees = termineesProjet,
+                            TauxCompletion = $"{tauxCompletion:F1}%",
+                            HeuresCRA = "-"
+                        };
+                    }
+
+                    CompletionParProjet.Add(completion);
                 }
             }
 
@@ -570,12 +607,37 @@ namespace BacklogManager.ViewModels
         {
             try
             {
-                // CRA n'a pas de ProjetId direct, on ne peut pas filtrer par projet pour l'instant
-                // TODO: Ajouter ProjetId à CRA ou utiliser une autre logique
-                return 0;
+                // Récupérer toutes les tâches du projet
+                var tachesProjet = _backlogService.GetAllBacklogItems()
+                    .Where(t => t.ProjetId == projetId)
+                    .Select(t => t.Id)
+                    .ToList();
+
+                if (!tachesProjet.Any())
+                    return 0;
+
+                // Récupérer tous les CRA pour ces tâches
+                double totalHeures = 0;
+                
+                foreach (var tacheId in tachesProjet)
+                {
+                    var crasTache = _craService.GetCRAsByBacklogItem(tacheId);
+                    
+                    // Appliquer le filtre de période si défini
+                    if (DateDebutFiltre.HasValue && DateFinFiltre.HasValue)
+                    {
+                        crasTache = crasTache.Where(c => c.Date >= DateDebutFiltre.Value && 
+                                                         c.Date <= DateFinFiltre.Value).ToList();
+                    }
+                    
+                    totalHeures += crasTache.Sum(c => c.HeuresTravaillees);
+                }
+
+                return totalHeures;
             }
-            catch
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"[STATS] Erreur calcul heures CRA projet {projetId}: {ex.Message}");
                 return 0;
             }
         }

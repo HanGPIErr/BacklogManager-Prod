@@ -18,10 +18,10 @@ namespace BacklogManager.Views
         private List<DemandeViewModel> _toutesLesDemandes;
         private bool _afficherArchives = false;
 
-        public DemandesView(AuthenticationService authService, PermissionService permissionService)
+        public DemandesView(IDatabase database, AuthenticationService authService, PermissionService permissionService)
         {
             InitializeComponent();
-            _database = new SqliteDatabase();
+            _database = database;
             _authService = authService;
             _permissionService = permissionService;
             
@@ -29,6 +29,7 @@ namespace BacklogManager.Views
             ChargerDemandes();
             
             BtnNouvelleDemande.Click += BtnNouvelleDemande_Click;
+            BtnAnalyseEmail.Click += BtnAnalyseEmail_Click;
             BtnRefresh.Click += (s, e) => ChargerDemandes();
             CmbFiltreStatut.SelectionChanged += (s, e) => AppliquerFiltres();
             CmbFiltreCriticite.SelectionChanged += (s, e) => AppliquerFiltres();
@@ -261,6 +262,41 @@ namespace BacklogManager.Views
             {
                 MessageBox.Show(string.Format("Erreur lors de la création de la demande : {0}", ex.Message), 
                     "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void BtnAnalyseEmail_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var window = new AnalyseEmailDemandeWindow(_database, _authService);
+                window.Owner = Window.GetWindow(this);
+                if (window.ShowDialog() == true)
+                {
+                    ChargerDemandes();
+                    
+                    // Afficher un message de succès supplémentaire
+                    if (window.DemandeCreee != null)
+                    {
+                        MessageBox.Show(
+                            $"La demande a été créée avec succès via l'analyse IA !\n\n" +
+                            $"📝 Titre : {window.DemandeCreee.Titre}\n" +
+                            $"🏷️ Type : {window.DemandeCreee.Type}\n" +
+                            $"⚠️ Criticité : {window.DemandeCreee.Criticite}\n\n" +
+                            $"Elle apparaît maintenant dans votre liste de demandes.",
+                            "✅ Demande créée",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Information);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Erreur lors de l'analyse de l'email :\n\n{ex.Message}",
+                    "Erreur",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
             }
         }
 

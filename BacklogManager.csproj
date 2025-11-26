@@ -287,6 +287,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\AnalyseEmailDemandeWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\EditionDemandeWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -493,6 +497,9 @@
     </Compile>
     <Compile Include="Views\DemandesView.xaml.cs">
       <DependentUpon>DemandesView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\AnalyseEmailDemandeWindow.xaml.cs">
+      <DependentUpon>AnalyseEmailDemandeWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\EditionDemandeWindow.xaml.cs">
       <DependentUpon>EditionDemandeWindow.xaml</DependentUpon>

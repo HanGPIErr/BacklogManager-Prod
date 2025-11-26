@@ -1,0 +1,235 @@
+<Window x:Class="BacklogManager.Views.AnalyseEmailDemandeWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="📧 Analyse IA d'Email - Nouvelle Demande" 
+        Height="750" Width="1000"
+        WindowStartupLocation="CenterScreen"
+        Background="#F5F5F5"
+        ResizeMode="CanResize">
+
+    <Window.Resources>
+        <Style x:Key="SectionTitle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#2C3E50"/>
+            <Setter Property="Margin" Value="0,15,0,8"/>
+        </Style>
+
+        <Style x:Key="ActionButton" TargetType="Button">
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Padding" Value="20,0"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="6" 
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                BorderBrush="{TemplateBinding BorderBrush}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Opacity" Value="0.9"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- En-tête -->
+        <Border Grid.Row="0" Background="#6264A7" Padding="20,15">
+            <StackPanel>
+                <TextBlock Text="📧 Analyse IA d'Email pour Nouvelle Demande" 
+                          FontSize="20" FontWeight="Bold" Foreground="White"/>
+                <TextBlock Text="Collez le contenu d'un email et l'IA pré-remplira automatiquement les champs de la demande" 
+                          FontSize="12" Foreground="#E0E0E0" Margin="0,5,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Contenu principal -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="20">
+            <StackPanel>
+                <!-- Zone de saisie de l'email -->
+                <Border Background="White" CornerRadius="8" Padding="15" Margin="0,0,0,15"
+                        BorderBrush="#E0E0E0" BorderThickness="1">
+                    <StackPanel>
+                        <TextBlock Text="📨 Contenu de l'Email" Style="{StaticResource SectionTitle}"/>
+                        <TextBlock Text="Copiez-collez ici le contenu complet de l'email reçu" 
+                                  FontSize="11" Foreground="#757575" Margin="0,0,0,8"/>
+                        
+                        <TextBox x:Name="TxtEmail" 
+                                AcceptsReturn="True" 
+                                TextWrapping="Wrap" 
+                                VerticalScrollBarVisibility="Auto"
+                                Height="200"
+                                Padding="10"
+                                FontFamily="Consolas"
+                                FontSize="11"
+                                Background="#FAFAFA"
+                                BorderBrush="#BDBDBD"
+                                BorderThickness="1"/>
+
+                        <Button x:Name="BtnAnalyser" 
+                               Content="🤖 Analyser avec l'IA" 
+                               Style="{StaticResource ActionButton}"
+                               Background="#6264A7" 
+                               Foreground="White"
+                               HorizontalAlignment="Right"
+                               Margin="0,10,0,0"
+                               Click="BtnAnalyser_Click"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Zone de résultats (invisible au départ) -->
+                <Border x:Name="PanelResultats" 
+                        Visibility="Collapsed"
+                        Background="White" 
+                        CornerRadius="8" 
+                        Padding="20" 
+                        BorderBrush="#E0E0E0" 
+                        BorderThickness="1">
+                    <StackPanel>
+                        <TextBlock Text="✅ Analyse Terminée - Résultats" 
+                                  FontSize="16" 
+                                  FontWeight="Bold" 
+                                  Foreground="#27AE60" 
+                                  Margin="0,0,0,15"/>
+
+                        <!-- Titre -->
+                        <TextBlock Text="📝 Titre de la demande" Style="{StaticResource SectionTitle}"/>
+                        <TextBox x:Name="TxtTitreResult" Padding="10" Margin="0,0,0,10"/>
+
+                        <!-- Type et Criticité -->
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                <TextBlock Text="🏷️ Type" Style="{StaticResource SectionTitle}"/>
+                                <ComboBox x:Name="CmbTypeResult" Padding="10" Height="35"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                <TextBlock Text="⚠️ Criticité" Style="{StaticResource SectionTitle}"/>
+                                <ComboBox x:Name="CmbCriticiteResult" Padding="10" Height="35"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Description -->
+                        <TextBlock Text="📄 Description" Style="{StaticResource SectionTitle}"/>
+                        <TextBox x:Name="TxtDescriptionResult" 
+                                AcceptsReturn="True" 
+                                TextWrapping="Wrap" 
+                                Height="80" 
+                                Padding="10" 
+                                Margin="0,0,0,10"/>
+
+                        <!-- Spécifications -->
+                        <TextBlock Text="⚙️ Spécifications techniques" Style="{StaticResource SectionTitle}"/>
+                        <TextBox x:Name="TxtSpecificationsResult" 
+                                AcceptsReturn="True" 
+                                TextWrapping="Wrap" 
+                                Height="100" 
+                                Padding="10" 
+                                Margin="0,0,0,10"/>
+
+                        <!-- Contexte métier -->
+                        <TextBlock Text="🏢 Contexte métier" Style="{StaticResource SectionTitle}"/>
+                        <TextBox x:Name="TxtContexteResult" 
+                                AcceptsReturn="True" 
+                                TextWrapping="Wrap" 
+                                Height="80" 
+                                Padding="10" 
+                                Margin="0,0,0,10"/>
+
+                        <!-- Bénéfices attendus -->
+                        <TextBlock Text="💡 Bénéfices attendus" Style="{StaticResource SectionTitle}"/>
+                        <TextBox x:Name="TxtBeneficesResult" 
+                                AcceptsReturn="True" 
+                                TextWrapping="Wrap" 
+                                Height="60" 
+                                Padding="10" 
+                                Margin="0,0,0,10"/>
+
+                        <!-- Chiffrage estimé -->
+                        <TextBlock Text="⏱️ Chiffrage estimé (suggestion IA)" Style="{StaticResource SectionTitle}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox x:Name="TxtChiffrageResult" 
+                                    Width="100" 
+                                    Padding="10" 
+                                    Margin="0,0,5,0"/>
+                            <TextBlock Text="jours" 
+                                      VerticalAlignment="Center" 
+                                      Foreground="#757575" 
+                                      Margin="5,0,0,0"/>
+                            <TextBlock Text="(modifiable, c'est une estimation)" 
+                                      VerticalAlignment="Center" 
+                                      Foreground="#FF9800" 
+                                      FontStyle="Italic"
+                                      FontSize="11"
+                                      Margin="15,0,0,0"/>
+                        </StackPanel>
+
+                        <!-- Note explicative -->
+                        <Border Background="#FFF9C4" 
+                               CornerRadius="6" 
+                               Padding="12" 
+                               Margin="0,20,0,0"
+                               BorderBrush="#FBC02D" 
+                               BorderThickness="1">
+                            <StackPanel>
+                                <TextBlock Text="ℹ️ Note Importante" 
+                                          FontWeight="SemiBold" 
+                                          Foreground="#F57C00" 
+                                          Margin="0,0,0,5"/>
+                                <TextBlock TextWrapping="Wrap" 
+                                          FontSize="11" 
+                                          Foreground="#555">
+                                    <Run Text="Ces informations sont des suggestions générées par l'IA basées sur l'analyse de l'email. "/>
+                                    <Run Text="Veuillez les vérifier et les modifier si nécessaire avant de créer la demande. "/>
+                                    <Run Text="Le processus de validation habituel (BA, CP, chiffrage) restera inchangé." FontWeight="SemiBold"/>
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Pied de page avec boutons -->
+        <Border Grid.Row="2" Background="White" BorderBrush="#E0E0E0" BorderThickness="0,1,0,0" Padding="20,15">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button x:Name="BtnAnnuler" 
+                       Content="❌ Annuler" 
+                       Style="{StaticResource ActionButton}"
+                       Background="#95A5A6" 
+                       Foreground="White"
+                       Click="BtnAnnuler_Click"/>
+                
+                <Button x:Name="BtnCreerDemande" 
+                       Content="✅ Créer la Demande" 
+                       Style="{StaticResource ActionButton}"
+                       Background="#27AE60" 
+                       Foreground="White"
+                       IsEnabled="False"
+                       Click="BtnCreerDemande_Click"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

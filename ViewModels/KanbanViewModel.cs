@@ -8,6 +8,7 @@ using System.Windows.Threading;
 using BacklogManager.Domain;
 using BacklogManager.Services;
 using BacklogManager.Shared;
+using System.Windows;
 
 namespace BacklogManager.ViewModels
 {
@@ -564,8 +565,16 @@ namespace BacklogManager.ViewModels
 
             if (newStatus != item.Statut)
             {
-                _backlogService.UpdateBacklogItemStatus(item.Id, newStatus);
-                LoadItems();
+                try
+                {
+                    Mouse.OverrideCursor = Cursors.Wait;
+                    _backlogService.UpdateBacklogItemStatus(item.Id, newStatus);
+                    LoadItems();
+                }
+                finally
+                {
+                    Mouse.OverrideCursor = null;
+                }
             }
         }
 
@@ -595,8 +604,16 @@ namespace BacklogManager.ViewModels
 
             if (newStatus != item.Statut)
             {
-                _backlogService.UpdateBacklogItemStatus(item.Id, newStatus);
-                LoadItems();
+                try
+                {
+                    Mouse.OverrideCursor = Cursors.Wait;
+                    _backlogService.UpdateBacklogItemStatus(item.Id, newStatus);
+                    LoadItems();
+                }
+                finally
+                {
+                    Mouse.OverrideCursor = null;
+                }
             }
         }
 
@@ -622,8 +639,16 @@ namespace BacklogManager.ViewModels
                 return;
             }
 
-            _backlogService.UpdateBacklogItemStatus(item.Id, Statut.EnAttente);
-            LoadItems();
+            try
+            {
+                Mouse.OverrideCursor = Cursors.Wait;
+                _backlogService.UpdateBacklogItemStatus(item.Id, Statut.EnAttente);
+                LoadItems();
+            }
+            finally
+            {
+                Mouse.OverrideCursor = null;
+            }
         }
 
         private void ReactiverTache(BacklogItem item)
@@ -664,8 +689,16 @@ namespace BacklogManager.ViewModels
                 nouveauStatut = Statut.Afaire;
             }
 
-            _backlogService.UpdateBacklogItemStatus(item.Id, nouveauStatut);
-            LoadItems();
+            try
+            {
+                Mouse.OverrideCursor = Cursors.Wait;
+                _backlogService.UpdateBacklogItemStatus(item.Id, nouveauStatut);
+                LoadItems();
+            }
+            finally
+            {
+                Mouse.OverrideCursor = null;
+            }
         }
 
         public void SupprimerTache(BacklogItem task)
@@ -677,8 +710,16 @@ namespace BacklogManager.ViewModels
                 throw new UnauthorizedAccessException("Vous n'avez pas les permissions pour supprimer cette tâche.");
             }
 
-            _backlogService.DeleteBacklogItem(task.Id);
-            LoadItems();
+            try
+            {
+                Mouse.OverrideCursor = Cursors.Wait;
+                _backlogService.DeleteBacklogItem(task.Id);
+                LoadItems();
+            }
+            finally
+            {
+                Mouse.OverrideCursor = null;
+            }
         }
 
         private void ArchiverTache(BacklogItem item)
@@ -693,10 +734,18 @@ namespace BacklogManager.ViewModels
 
             if (result == System.Windows.MessageBoxResult.Yes)
             {
-                item.EstArchive = true;
-                item.DateDerniereMaj = DateTime.Now;
-                _backlogService.SaveBacklogItem(item);
-                LoadItems();
+                try
+                {
+                    Mouse.OverrideCursor = Cursors.Wait;
+                    item.EstArchive = true;
+                    item.DateDerniereMaj = DateTime.Now;
+                    _backlogService.SaveBacklogItem(item);
+                    LoadItems();
+                }
+                finally
+                {
+                    Mouse.OverrideCursor = null;
+                }
                 
                 System.Windows.MessageBox.Show(
                     "Tâche archivée avec succès !",
