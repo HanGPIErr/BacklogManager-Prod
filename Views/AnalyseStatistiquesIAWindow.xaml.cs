@@ -142,11 +142,12 @@ Patterns observés : surcharge, sous-utilisation, dépassements d'estimations, v
                 using (var httpClient = new HttpClient())
                 {
                     httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
+                    httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
                     httpClient.Timeout = TimeSpan.FromMinutes(2);
 
                     var requestBody = new
                     {
-                        model = "gpt-4o-mini",
+                        model = "gpt-oss-120b",
                         messages = new[]
                         {
                             new { role = "system", content = "Tu es Agent Project & Change, expert en analyse de données projet." },
@@ -159,8 +160,21 @@ Patterns observés : surcharge, sous-utilisation, dépassements d'estimations, v
                     var json = JsonSerializer.Serialize(requestBody);
                     var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                    var response = await httpClient.PostAsync("https://api.openai.com/v1/chat/completions", content);
-                    response.EnsureSuccessStatusCode();
+                    var response = await httpClient.PostAsync("https://genfactory-ai.analytics.cib.echonet/genai/api/v2/chat/completions", content);
+                    
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        var errorContent = await response.Content.ReadAsStringAsync();
+                        if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized || 
+                            response.StatusCode == System.Net.HttpStatusCode.Forbidden)
+                        {
+                            throw new Exception($"Erreur d'authentification API (Code {(int)response.StatusCode}).\n\n" +
+                                              "Votre token API est invalide ou a expiré.\n\n" +
+                                              "Veuillez vérifier votre token dans la section Chat avec l'IA.\n\n" +
+                                              $"Détails : {errorContent}");
+                        }
+                        throw new Exception($"Erreur API OpenAI (Code {(int)response.StatusCode}) : {errorContent}");
+                    }
 
                     var responseBody = await response.Content.ReadAsStringAsync();
                     using (var document = JsonDocument.Parse(responseBody))
