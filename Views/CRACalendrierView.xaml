@@ -117,7 +117,85 @@
                 </StackPanel>
 
                 <!-- Filtre dev et checkbox -->
-                <StackPanel Grid.Column="1" Orientation="Horizontal">
+<StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button Content="✓ Valider CRA à valider" Padding="12,8" Margin="0,0,8,0"
+                            Background="#FF9800" Foreground="White" FontSize="12" FontWeight="SemiBold"
+                            BorderThickness="0" Cursor="Hand" Click="BtnValiderCRAAValider_Click"
+                            ToolTip="Valide uniquement les CRA en orange (avant aujourd'hui et non validés)"
+                            Visibility="{Binding AfficherBoutonsValidation, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" 
+                                                    CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#F57C00"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    
+                    <Button Content="✓ Valider tous les CRA" Padding="12,8" Margin="0,0,8,0"
+                            Background="#00915A" Foreground="White" FontSize="12" FontWeight="SemiBold"
+                            BorderThickness="0" Cursor="Hand" Click="BtnValiderTousCRA_Click"
+                            ToolTip="Valide tous les CRA non validés du développeur"
+                            Visibility="{Binding AfficherBoutonsValidation, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" 
+                                                    CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#007A4D"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    
+                    <Button Content="✗ Annuler validation" Padding="12,8" Margin="0,0,15,0"
+                            Background="#E53935" Foreground="White" FontSize="12" FontWeight="SemiBold"
+                            BorderThickness="0" Cursor="Hand" Click="BtnAnnulerValidation_Click"
+                            ToolTip="Annule la validation d'un CRA validé"
+                            Visibility="{Binding AfficherBoutonsValidation, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" 
+                                                    CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#C62828"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    
                     <TextBlock Text="Développeur:" FontSize="13" VerticalAlignment="Center" Margin="0,0,10,0"
                                Visibility="{Binding AfficherSelecteurDev, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                     <ComboBox ItemsSource="{Binding Devs}" DisplayMemberPath="Nom"

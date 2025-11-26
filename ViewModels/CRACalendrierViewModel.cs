@@ -122,6 +122,7 @@ namespace BacklogManager.ViewModels
             {
                 _devSelectionne = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(AfficherBoutonsValidation)); // Notifier changement boutons validation
                 ChargerTachesDisponibles();
                 ChargerCalendrier();
             }
@@ -208,6 +209,8 @@ namespace BacklogManager.ViewModels
         public bool AfficherDateFin => SaisirSurPeriode;
         
         public bool AfficherSelecteurDev => Devs.Count > 1; // Afficher uniquement si plusieurs devs (admin)
+        
+        public bool AfficherBoutonsValidation => AfficherSelecteurDev && DevSelectionne != null; // Boutons visibles si admin ET dev sélectionné
 
         // Afficher la saisie sur période uniquement pour les congés et jours non travaillés
         public bool AfficherSaisiePeriode => TacheSelectionnee != null && 
@@ -352,8 +355,17 @@ namespace BacklogManager.ViewModels
                 Devs.Add(_authService.CurrentUser);
             }
 
-            // Sélectionner l'utilisateur connecté par défaut
-            DevSelectionne = Devs.FirstOrDefault(d => d.Id == _authService.CurrentUser.Id);
+            // Sélectionner l'utilisateur connecté par défaut UNIQUEMENT si pas admin (un seul dev dans la liste)
+            if (Devs.Count == 1)
+            {
+                DevSelectionne = Devs.First();
+            }
+            else
+            {
+                // Admin: ne rien sélectionner par défaut, forcer le choix
+                DevSelectionne = null;
+            }
+            
             OnPropertyChanged(nameof(AfficherSelecteurDev));
         }
 
@@ -364,27 +376,39 @@ namespace BacklogManager.ViewModels
             if (DevSelectionne == null) return;
 
             // Pour la saisie CRA, seulement les tâches non-archivées
-            var taches = _backlogService.GetAllBacklogItems();
+            var toutesLesTaches = _backlogService.GetAllBacklogItems();
 
             // Séparer les tâches normales et spéciales
             // Les tâches spéciales (Congés, Non travaillé, Support, Run) sont TOUJOURS disponibles pour tous
-            var tachesSpeciales = taches.Where(t => 
+            var tachesSpeciales = toutesLesTaches.Where(t => 
                 t.TypeDemande == TypeDemande.Conges || 
                 t.TypeDemande == TypeDemande.NonTravaille || 
                 t.TypeDemande == TypeDemande.Support || 
                 t.TypeDemande == TypeDemande.Run).ToList();
 
+            List<BacklogItem> taches;
             if (_afficherToutesLesTaches)
             {
-                // Toutes les tâches de "À faire" à "En test" (pas terminées) + tâches spéciales
-                var tachesNormales = taches.Where(t => t.Statut >= Statut.Afaire && t.Statut < Statut.Termine).ToList();
+                // Toutes les tâches de "À faire" à "En test" (pas terminées) SAUF les spéciales déjà dans la liste
+                var tachesNormales = toutesLesTaches.Where(t => 
+                    t.Statut >= Statut.Afaire && 
+                    t.Statut < Statut.Termine &&
+                    t.TypeDemande != TypeDemande.Conges &&
+                    t.TypeDemande != TypeDemande.NonTravaille &&
+                    t.TypeDemande != TypeDemande.Support &&
+                    t.TypeDemande != TypeDemande.Run).ToList();
                 taches = tachesNormales.Concat(tachesSpeciales).ToList();
             }
             else
             {
-                // Tâches assignées au dev (en cours/test) + TOUTES les tâches spéciales (pas de filtre sur dev)
-                var tachesNormales = taches.Where(t => t.DevAssigneId == DevSelectionne.Id && 
-                                          (t.Statut == Statut.EnCours || t.Statut == Statut.Test)).ToList();
+                // Tâches assignées au dev (en cours/test) SAUF les spéciales + TOUTES les tâches spéciales
+                var tachesNormales = toutesLesTaches.Where(t => 
+                    t.DevAssigneId == DevSelectionne.Id && 
+                    (t.Statut == Statut.EnCours || t.Statut == Statut.Test) &&
+                    t.TypeDemande != TypeDemande.Conges &&
+                    t.TypeDemande != TypeDemande.NonTravaille &&
+                    t.TypeDemande != TypeDemande.Support &&
+                    t.TypeDemande != TypeDemande.Run).ToList();
                 // Les tâches spéciales sont disponibles pour tous les devs (pas de filtre DevAssigneId)
                 taches = tachesNormales.Concat(tachesSpeciales).ToList();
             }
@@ -425,7 +449,10 @@ namespace BacklogManager.ViewModels
                 }
             }
 
-            foreach (var tache in tachesAvecChiffrage.OrderByDescending(t => t.Priorite).ThenBy(t => t.Titre))
+            // Dédupliquer par Id pour éviter les doublons dans la liste
+            var tachesUniques = tachesAvecChiffrage.GroupBy(t => t.Id).Select(g => g.First()).ToList();
+
+            foreach (var tache in tachesUniques.OrderByDescending(t => t.Priorite).ThenBy(t => t.Titre))
             {
                 TachesDisponibles.Add(tache);
             }
@@ -1527,6 +1554,144 @@ namespace BacklogManager.ViewModels
 
             // Icône unique pour tous les jours fériés
             return "/Images/jour-ferie.png";
+        }
+
+        /// <summary>
+        /// Valide tous les CRA non validés du développeur sélectionné
+        /// </summary>
+        public int ValiderTousLesCRADuDev()
+        {
+            if (DevSelectionne == null) return 0;
+
+            int nombreValidations = 0;
+
+            // Récupérer tous les CRA non validés du développeur sélectionné
+            var tousLesCRA = _craService.GetAllCRAs();
+            var craAValider = tousLesCRA.Where(c => 
+                !c.EstValide && 
+                c.DevId == DevSelectionne.Id).ToList();
+
+            foreach (var cra in craAValider)
+            {
+                _craService.ValiderCRA(cra.Id);
+                nombreValidations++;
+            }
+
+            // Rafraîchir l'affichage du calendrier
+            ChargerCalendrier();
+
+            return nombreValidations;
+        }
+
+        /// <summary>
+        /// Valide uniquement les CRA "à valider" (orange) du développeur sélectionné
+        /// Ce sont les CRA prévisionnels avant la date du jour et non validés
+        /// </summary>
+        public int ValiderCRAAValiderDuDev()
+        {
+            if (DevSelectionne == null) return 0;
+
+            int nombreValidations = 0;
+
+            // Récupérer tous les CRA du développeur sélectionné
+            var tousLesCRA = _craService.GetAllCRAs();
+            var craAValider = tousLesCRA.Where(c => 
+                c.DevId == DevSelectionne.Id && 
+                c.EstAValider).ToList(); // EstAValider = prévisionnels avant aujourd'hui et non validés
+
+            foreach (var cra in craAValider)
+            {
+                _craService.ValiderCRA(cra.Id);
+                nombreValidations++;
+            }
+
+            // Rafraîchir l'affichage du calendrier
+            ChargerCalendrier();
+
+            return nombreValidations;
+        }
+
+        /// <summary>
+        /// Expose GetAllCRAs pour les rapports
+        /// </summary>
+        public List<CRA> GetAllCRAs()
+        {
+            return _craService.GetAllCRAs();
+        }
+
+        /// <summary>
+        /// Génère un rapport sur le respect des dates de fin des tâches
+        /// Retourne des listes structurées pour affichage dans une fenêtre dédiée
+        /// </summary>
+        public (List<(string Nom, string Detail)> TachesRetard, List<(string Nom, string Detail)> TachesTemps) GenererRapportRespectDates(List<CRA> crasValides)
+        {
+            var tachesRetard = new List<(string Nom, string Detail)>();
+            var tachesTemps = new List<(string Nom, string Detail)>();
+
+            if (crasValides == null || !crasValides.Any()) 
+                return (tachesRetard, tachesTemps);
+
+            // Grouper les CRA par tâche
+            var craParTache = crasValides.GroupBy(c => c.BacklogItemId);
+
+            foreach (var groupe in craParTache)
+            {
+                var tache = _backlogService.GetBacklogItemById(groupe.Key);
+                if (tache == null || !tache.DateFinAttendue.HasValue) continue;
+
+                var dernierCRA = groupe.OrderByDescending(c => c.Date).First();
+                var dateFin = tache.DateFinAttendue.Value;
+                var dateFinTravail = dernierCRA.Date;
+
+                if (dateFinTravail > dateFin)
+                {
+                    var ecart = (dateFinTravail - dateFin).Days;
+                    tachesRetard.Add((
+                        tache.Titre,
+                        $"Écart: {ecart} jour{(ecart > 1 ? "s" : "")} • Attendu: {dateFin:dd/MM/yyyy} • Terminé: {dateFinTravail:dd/MM/yyyy}"
+                    ));
+                }
+                else
+                {
+                    tachesTemps.Add((
+                        tache.Titre,
+                        $"Terminé le: {dateFinTravail:dd/MM/yyyy} (Attendu: {dateFin:dd/MM/yyyy})"
+                    ));
+                }
+            }
+
+            return (tachesRetard, tachesTemps);
+        }
+
+        /// <summary>
+        /// Annule la validation de tous les CRA validés du développeur sélectionné
+        /// </summary>
+        public int AnnulerValidationCRADuDev()
+        {
+            if (DevSelectionne == null) return 0;
+
+            int nombreAnnulations = 0;
+
+            // Récupérer tous les CRA validés du développeur sélectionné
+            var tousLesCRA = _craService.GetAllCRAs();
+            var craValides = tousLesCRA.Where(c => 
+                c.EstValide && 
+                c.DevId == DevSelectionne.Id).ToList();
+
+            foreach (var cra in craValides)
+            {
+                // Remettre le CRA en mode non validé
+                cra.EstValide = false;
+                // IMPORTANT: Remettre EstPrevisionnel à true pour que les CRAs passés redeviennent orange (EstAValider)
+                cra.EstPrevisionnel = true;
+                _craService.SaveCRA(cra);
+                nombreAnnulations++;
+            }
+
+            // Rafraîchir l'affichage du calendrier
+            ChargerCalendrier();
+
+            return nombreAnnulations;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

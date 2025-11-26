@@ -269,7 +269,8 @@ namespace BacklogManager.Services
             }
 
             // Créer la tâche "Support" si elle n'existe pas
-            if (!backlogItems.Any(t => t.TypeDemande == TypeDemande.Support && string.IsNullOrEmpty(t.Description)))
+            var tachesSupport = backlogItems.Where(t => t.TypeDemande == TypeDemande.Support).ToList();
+            if (tachesSupport.Count == 0)
             {
                 _database.AddOrUpdateBacklogItem(new BacklogItem
                 {
@@ -283,6 +284,16 @@ namespace BacklogManager.Services
                     DateDerniereMaj = DateTime.Now,
                     EstArchive = false
                 });
+            }
+            else if (tachesSupport.Count > 1)
+            {
+                // Nettoyer les doublons - garder seulement le premier, archiver les autres
+                var premiereSupport = tachesSupport.OrderBy(t => t.Id).First();
+                foreach (var doublon in tachesSupport.Where(t => t.Id != premiereSupport.Id))
+                {
+                    doublon.EstArchive = true;
+                    _database.AddOrUpdateBacklogItem(doublon);
+                }
             }
         }
     }

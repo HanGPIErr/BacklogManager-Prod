@@ -71,6 +71,7 @@ namespace BacklogManager.ViewModels
 
     public class TacheTimelineViewModel
     {
+        public BacklogItem BacklogItem { get; set; } // Référence à l'item d'origine
         public string Titre { get; set; }
         public Statut Statut { get; set; }
         public string DevAssigneNom { get; set; }
@@ -668,6 +669,7 @@ namespace BacklogManager.ViewModels
 
                 var tacheVM = new TacheTimelineViewModel
                 {
+                    BacklogItem = tache, // Référence à l'item d'origine
                     Titre = tache.Titre,
                     Statut = tache.Statut,
                     DevAssigneNom = tache.DevAssigneId.HasValue && devs.ContainsKey(tache.DevAssigneId.Value)
@@ -713,6 +715,36 @@ namespace BacklogManager.ViewModels
             AfficherMarqueursProjet = ProjetSelectionne.DateDebut.HasValue || ProjetSelectionne.DateFinPrevue.HasValue;
             
             OnPropertyChanged(nameof(HauteurTimeline));
+        }
+
+        /// <summary>
+        /// Valide tous les CRA non validés de tous les développeurs
+        /// </summary>
+        public int ValiderTousLesCRA()
+        {
+            int nombreValidations = 0;
+
+            // Récupérer tous les CRA non validés
+            var tousLesCRA = _craService.GetAllCRAs();
+            var craAValider = tousLesCRA.Where(c => !c.EstValide).ToList();
+
+            foreach (var cra in craAValider)
+            {
+                _craService.ValiderCRA(cra.Id);
+                nombreValidations++;
+            }
+
+            // Rafraîchir l'affichage
+            if (ModeAffichage == "mois")
+            {
+                ChargerCalendrier();
+            }
+            else if (ModeAffichage == "liste")
+            {
+                ChargerMoisAnnee();
+            }
+
+            return nombreValidations;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

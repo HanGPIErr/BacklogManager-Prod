@@ -108,6 +108,35 @@
                                 </Style>
                             </Button.Style>
                         </Button>
+                        <Button Content="🤖 Analyse IA" 
+                                Click="BtnAnalyserIA_Click"
+                                Background="#667eea" Foreground="White" 
+                                Padding="15,10" FontWeight="SemiBold" FontSize="13"
+                                BorderThickness="0" Cursor="Hand" VerticalAlignment="Center"
+                                Margin="0,0,10,0">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Background" Value="#667eea"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}" 
+                                                        BorderThickness="0" 
+                                                        CornerRadius="6" 
+                                                        Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#5568d3"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
                         <Button Content="📄 Exporter PDF" 
                                 Command="{Binding ExporterPDFCommand}"
                                 Background="#FF6F00" Foreground="White" 

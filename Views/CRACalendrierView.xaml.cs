@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -142,6 +143,186 @@ namespace BacklogManager.Views
                 if (DataContext is CRACalendrierViewModel viewModel)
                 {
                     viewModel.JourSelectionne = jour;
+                }
+            }
+        }
+
+        private void BtnValiderTousCRA_Click(object sender, RoutedEventArgs e)
+        {
+            var viewModel = DataContext as CRACalendrierViewModel;
+            if (viewModel == null || viewModel.DevSelectionne == null) return;
+
+            var result = MessageBox.Show(
+                $"Voulez-vous vraiment valider TOUS les CRA non validés de {viewModel.DevSelectionne.Nom} ?\n\n" +
+                "Cette action validera tous les CRA (passés et futurs) et les verrouillera définitivement.",
+                "Confirmation validation globale",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    // Récupérer les CRA avant validation pour le rapport
+                    var tousLesCRA = viewModel.GetAllCRAs();
+                    var craAValider = tousLesCRA.Where(c => 
+                        !c.EstValide && 
+                        c.DevId == viewModel.DevSelectionne.Id).ToList();
+
+                    var nombreValidations = viewModel.ValiderTousLesCRADuDev();
+                    
+                    if (nombreValidations > 0)
+                    {
+                        // Générer le rapport
+                        var (tachesRetard, tachesTemps) = viewModel.GenererRapportRespectDates(craAValider);
+                        
+                        // Convertir en format pour la fenêtre
+                        var tachesRetardList = tachesRetard.Select(t => new RapportValidationWindow.TacheRapport 
+                        { 
+                            Nom = t.Nom, 
+                            Detail = t.Detail 
+                        }).ToList();
+                        
+                        var tachesTemplist = tachesTemps.Select(t => new RapportValidationWindow.TacheRapport 
+                        { 
+                            Nom = t.Nom, 
+                            Detail = t.Detail 
+                        }).ToList();
+                        
+                        // Afficher le rapport dans une fenêtre dédiée
+                        var rapportWindow = new RapportValidationWindow(nombreValidations, tachesRetardList, tachesTemplist);
+                        rapportWindow.Owner = Window.GetWindow(this);
+                        rapportWindow.ShowDialog();
+                    }
+                    else
+                    {
+                        MessageBox.Show(
+                            $"Aucun CRA en attente de validation pour {viewModel.DevSelectionne.Nom}.",
+                            "Information",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Information);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(
+                        $"Erreur lors de la validation : {ex.Message}",
+                        "Erreur",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void BtnValiderCRAAValider_Click(object sender, RoutedEventArgs e)
+        {
+            var viewModel = DataContext as CRACalendrierViewModel;
+            if (viewModel == null || viewModel.DevSelectionne == null) return;
+
+            var result = MessageBox.Show(
+                $"Voulez-vous valider les CRA en orange (à valider) de {viewModel.DevSelectionne.Nom} ?\n\n" +
+                "Cette action validera uniquement les CRA prévisionnels avant aujourd'hui.",
+                "Confirmation validation CRA à valider",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    // Récupérer les CRA avant validation pour le rapport
+                    var tousLesCRA = viewModel.GetAllCRAs();
+                    var craAValider = tousLesCRA.Where(c => 
+                        c.DevId == viewModel.DevSelectionne.Id && 
+                        c.EstAValider).ToList();
+
+                    var nombreValidations = viewModel.ValiderCRAAValiderDuDev();
+                    
+                    if (nombreValidations > 0)
+                    {
+                        // Générer le rapport
+                        var (tachesRetard, tachesTemps) = viewModel.GenererRapportRespectDates(craAValider);
+                        
+                        // Convertir en format pour la fenêtre
+                        var tachesRetardList = tachesRetard.Select(t => new RapportValidationWindow.TacheRapport 
+                        { 
+                            Nom = t.Nom, 
+                            Detail = t.Detail 
+                        }).ToList();
+                        
+                        var tachesTemplist = tachesTemps.Select(t => new RapportValidationWindow.TacheRapport 
+                        { 
+                            Nom = t.Nom, 
+                            Detail = t.Detail 
+                        }).ToList();
+                        
+                        // Afficher le rapport dans une fenêtre dédiée
+                        var rapportWindow = new RapportValidationWindow(nombreValidations, tachesRetardList, tachesTemplist);
+                        rapportWindow.Owner = Window.GetWindow(this);
+                        rapportWindow.ShowDialog();
+                    }
+                    else
+                    {
+                        MessageBox.Show(
+                            $"Aucun CRA à valider (orange) pour {viewModel.DevSelectionne.Nom}.",
+                            "Information",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Information);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(
+                        $"Erreur lors de la validation : {ex.Message}",
+                        "Erreur",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void BtnAnnulerValidation_Click(object sender, RoutedEventArgs e)
+        {
+            var viewModel = DataContext as CRACalendrierViewModel;
+            if (viewModel == null || viewModel.DevSelectionne == null) return;
+
+            var result = MessageBox.Show(
+                $"Voulez-vous annuler la validation de TOUS les CRA validés de {viewModel.DevSelectionne.Nom} ?\n\n" +
+                "Cette action remettra les CRA en mode non validé (modifiables).",
+                "Confirmation annulation validation",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    var nombreAnnulations = viewModel.AnnulerValidationCRADuDev();
+                    
+                    if (nombreAnnulations > 0)
+                    {
+                        MessageBox.Show(
+                            $"✅ {nombreAnnulations} CRA de {viewModel.DevSelectionne.Nom} ont été déverrouillés !",
+                            "Annulation réussie",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Information);
+                    }
+                    else
+                    {
+                        MessageBox.Show(
+                            $"Aucun CRA validé à annuler pour {viewModel.DevSelectionne.Nom}.",
+                            "Information",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Information);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(
+                        $"Erreur lors de l'annulation : {ex.Message}",
+                        "Erreur",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
                 }
             }
         }

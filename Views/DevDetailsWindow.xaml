@@ -51,11 +51,39 @@
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
+                    <Button Content="🤖 Analyse IA" Click="AnalyserIA_Click"
+                            Background="#667eea" Foreground="White" 
+                            Padding="12,8" FontWeight="SemiBold" FontSize="12"
+                            BorderThickness="0" Cursor="Hand" VerticalAlignment="Center"
+                            Margin="15,0,0,0">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background" Value="#667eea"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" 
+                                                    BorderThickness="0" 
+                                                    CornerRadius="6" 
+                                                    Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#5568d3"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
                     <Button Content="📄 Exporter PDF" Click="ExporterPDF_Click"
                             Background="#FF6F00" Foreground="White" 
                             Padding="12,8" FontWeight="SemiBold" FontSize="12"
                             BorderThickness="0" Cursor="Hand" VerticalAlignment="Center"
-                            Margin="30,0,0,0">
+                            Margin="15,0,0,0">
                         <Button.Style>
                             <Style TargetType="Button">
                                 <Setter Property="Background" Value="#FF6F00"/>

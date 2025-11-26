@@ -77,10 +77,11 @@ namespace BacklogManager.Services
             {
                 DataSource = _databasePath,
                 Version = 3,
-                JournalMode = isUncPath ? SQLiteJournalModeEnum.Delete : SQLiteJournalModeEnum.Wal,
+                JournalMode = isUncPath ? SQLiteJournalModeEnum.Delete : SQLiteJournalModeEnum.Delete, // DELETE pour réseau
                 Pooling = true,
-                BusyTimeout = 30000,
-                ReadOnly = true
+                BusyTimeout = 30000, // 30 secondes
+                ReadOnly = true,
+                SyncMode = SynchronizationModes.Full // Sécurité maximale
             };
             _readConnectionString = readBuilder.ConnectionString;
 
@@ -89,10 +90,11 @@ namespace BacklogManager.Services
             {
                 DataSource = _databasePath,
                 Version = 3,
-                JournalMode = isUncPath ? SQLiteJournalModeEnum.Delete : SQLiteJournalModeEnum.Wal,
+                JournalMode = isUncPath ? SQLiteJournalModeEnum.Delete : SQLiteJournalModeEnum.Delete, // DELETE pour réseau
                 Pooling = true,
-                BusyTimeout = 30000,
-                ReadOnly = false
+                BusyTimeout = 30000, // 30 secondes
+                ReadOnly = false,
+                SyncMode = SynchronizationModes.Full // Sécurité maximale
             };
             _writeConnectionString = writeBuilder.ConnectionString;
             
@@ -111,7 +113,59 @@ namespace BacklogManager.Services
 
         private SQLiteConnection GetConnectionForWrite()
         {
-            return new SQLiteConnection(_writeConnectionString);
+            var conn = new SQLiteConnection(_writeConnectionString);
+            
+            // Ouvrir avec retry pour gérer les locks
+            int retryCount = 0;
+            int maxRetries = 10; // Plus de tentatives pour l'ouverture
+            
+            while (true)
+            {
+                try
+                {
+                    conn.Open();
+                    
+                    // Configurer PRAGMA pour multi-utilisateurs
+                    using (var cmd = conn.CreateCommand())
+                    {
+                        cmd.CommandText = "PRAGMA busy_timeout = 30000;"; // 30 secondes
+                        cmd.ExecuteNonQuery();
+                        
+                        cmd.CommandText = "PRAGMA journal_mode = DELETE;"; // Plus safe pour réseau
+                        cmd.ExecuteNonQuery();
+                        
+                        cmd.CommandText = "PRAGMA synchronous = FULL;"; // Sécurité maximale
+                        cmd.ExecuteNonQuery();
+                    }
+                    
+                    return conn;
+                }
+                catch (SQLiteException ex) when (ex.ResultCode == SQLiteErrorCode.Busy || 
+                                                   ex.ResultCode == SQLiteErrorCode.Locked)
+                {
+                    retryCount++;
+                    if (retryCount >= maxRetries)
+                    {
+                        conn.Dispose();
+                        throw new Exception($"❌ La base de données est verrouillée par un autre utilisateur.\n\n" +
+                                          $"Impossible d'accéder après {maxRetries} tentatives.\n\n" +
+                                          $"Veuillez réessayer dans quelques instants.\n\n" +
+                                          $"Si le problème persiste, contactez l'administrateur.", ex);
+                    }
+                    
+                    // Attente exponentielle avec jitter pour éviter les collisions
+                    var baseDelay = 200 * (int)Math.Pow(1.5, retryCount - 1); // 200ms, 300ms, 450ms, 675ms...
+                    var jitter = new Random().Next(0, 100); // Ajouter du hasard
+                    System.Threading.Thread.Sleep(baseDelay + jitter);
+                    
+                    System.Diagnostics.Debug.WriteLine($"[SqliteDatabase] Retry #{retryCount} après {baseDelay + jitter}ms - {ex.Message}");
+                }
+                catch
+                {
+                    conn.Dispose();
+                    throw;
+                }
+            }
         }
 
         private SQLiteConnection GetConnectionForRead()
@@ -143,7 +197,6 @@ namespace BacklogManager.Services
                     // Appliquer les migrations sur base existante
                     using (var conn = GetConnectionForWrite())
                     {
-                        conn.Open();
                         
                         // Configuration pour multi-utilisateurs
                         using (var cmd = conn.CreateCommand())
@@ -170,8 +223,8 @@ namespace BacklogManager.Services
             }
         }
 
-        // Exécution avec retry en cas de lock
-        private T ExecuteWithRetry<T>(Func<T> action, int maxRetries = 5)
+        // Exécution avec retry en cas de lock ou erreur réseau
+        private T ExecuteWithRetry<T>(Func<T> action, int maxRetries = 10)
         {
             int retryCount = 0;
             while (true)
@@ -181,29 +234,85 @@ namespace BacklogManager.Services
                     return action();
                 }
                 catch (SQLiteException ex) when (ex.ResultCode == SQLiteErrorCode.Busy || 
-                                                   ex.ResultCode == SQLiteErrorCode.Locked)
+                                                   ex.ResultCode == SQLiteErrorCode.Locked ||
+                                                   ex.ResultCode == SQLiteErrorCode.IoErr)
                 {
                     retryCount++;
                     if (retryCount >= maxRetries)
                     {
-                        throw new Exception($"Database locked après {maxRetries} tentatives. Réessayez dans quelques instants.", ex);
+                        throw new Exception($"❌ Opération impossible après {maxRetries} tentatives.\n\n" +
+                                          $"La base de données est actuellement utilisée par un autre utilisateur.\n\n" +
+                                          $"Code erreur: {ex.ResultCode}\n" +
+                                          $"Message: {ex.Message}\n\n" +
+                                          $"Veuillez réessayer dans quelques instants.", ex);
                     }
-                    // Attente exponentielle: 100ms, 200ms, 400ms, 800ms, 1600ms
-                    System.Threading.Thread.Sleep(100 * (int)Math.Pow(2, retryCount - 1));
+                    // Attente exponentielle avec jitter: 100ms, 200ms, 400ms, 800ms...
+                    var baseDelay = 100 * (int)Math.Pow(2, retryCount - 1);
+                    var jitter = new Random().Next(0, 50);
+                    System.Threading.Thread.Sleep(baseDelay + jitter);
+                    
+                    System.Diagnostics.Debug.WriteLine($"[SqliteDatabase] ExecuteWithRetry #{retryCount} après {baseDelay + jitter}ms - {ex.ResultCode}: {ex.Message}");
+                }
+                catch (System.IO.IOException ioEx)
+                {
+                    // Erreurs réseau/fichier
+                    retryCount++;
+                    if (retryCount >= maxRetries)
+                    {
+                        throw new Exception($"❌ Erreur d'accès au fichier après {maxRetries} tentatives.\n\n" +
+                                          $"Vérifiez que le partage réseau est accessible.\n\n" +
+                                          $"Message: {ioEx.Message}", ioEx);
+                    }
+                    
+                    System.Threading.Thread.Sleep(500 * retryCount); // Attente plus longue pour les erreurs réseau
+                    System.Diagnostics.Debug.WriteLine($"[SqliteDatabase] IOException Retry #{retryCount} - {ioEx.Message}");
                 }
             }
         }
 
-        private void ExecuteWithRetry(Action action, int maxRetries = 5)
+        private void ExecuteWithRetry(Action action, int maxRetries = 10)
         {
             ExecuteWithRetry<object>(() => { action(); return null; }, maxRetries);
+        }
+
+        // Wrapper pour exécuter une transaction avec retry automatique
+        private T ExecuteInTransaction<T>(Func<SQLiteConnection, SQLiteTransaction, T> action)
+        {
+            return ExecuteWithRetry(() =>
+            {
+                using (var conn = GetConnectionForWrite())
+                {
+                    using (var transaction = conn.BeginTransaction())
+                    {
+                        try
+                        {
+                            var result = action(conn, transaction);
+                            transaction.Commit();
+                            return result;
+                        }
+                        catch
+                        {
+                            transaction.Rollback();
+                            throw;
+                        }
+                    }
+                }
+            });
+        }
+
+        private void ExecuteInTransaction(Action<SQLiteConnection, SQLiteTransaction> action)
+        {
+            ExecuteInTransaction<object>((conn, trans) =>
+            {
+                action(conn, trans);
+                return null;
+            });
         }
 
         private void CreateTables()
         {
             using (var conn = GetConnectionForWrite())
             {
-                conn.Open();
                 
                 // Configuration pour multi-utilisateurs
                 using (var cmd = conn.CreateCommand())
@@ -826,7 +935,6 @@ namespace BacklogManager.Services
         {
             using (var conn = GetConnectionForWrite())
             {
-                conn.Open();
                 using (var transaction = conn.BeginTransaction())
                 {
                     try
@@ -885,7 +993,6 @@ namespace BacklogManager.Services
         {
             using (var conn = GetConnectionForWrite())
             {
-                conn.Open();
                 using (var cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"UPDATE Roles SET 
@@ -918,7 +1025,6 @@ namespace BacklogManager.Services
         {
             using (var conn = GetConnectionForWrite())
             {
-                conn.Open();
                 using (var transaction = conn.BeginTransaction())
             {
                 try
@@ -984,7 +1090,6 @@ namespace BacklogManager.Services
         {
             using (var conn = GetConnectionForWrite())
             {
-                conn.Open();
                 using (var cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = "DELETE FROM Utilisateurs WHERE Id = @Id";
@@ -998,7 +1103,6 @@ namespace BacklogManager.Services
         {
             using (var conn = GetConnectionForWrite())
             {
-                conn.Open();
                 using (var transaction = conn.BeginTransaction())
             {
                 try
@@ -1077,7 +1181,6 @@ namespace BacklogManager.Services
         {
             using (var conn = GetConnectionForWrite())
             {
-                conn.Open();
                 using (var transaction = conn.BeginTransaction())
                 {
                     try
@@ -1243,7 +1346,6 @@ namespace BacklogManager.Services
         {
             using (var conn = GetConnectionForWrite())
             {
-                conn.Open();
                 using (var cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"INSERT INTO AuditLog (Action, UserId, Username, EntityType, EntityId, 
@@ -1389,7 +1491,6 @@ namespace BacklogManager.Services
         {
             using (var conn = GetConnectionForWrite())
             {
-                conn.Open();
                 using (var transaction = conn.BeginTransaction())
                 {
                     try
@@ -1464,7 +1565,6 @@ namespace BacklogManager.Services
         {
             using (var conn = GetConnectionForWrite())
             {
-                conn.Open();
                 using (var transaction = conn.BeginTransaction())
                 {
                     try
@@ -1517,7 +1617,6 @@ namespace BacklogManager.Services
         {
             using (var conn = GetConnectionForWrite())
             {
-                conn.Open();
                 using (var transaction = conn.BeginTransaction())
                 {
                     try
@@ -1569,7 +1668,6 @@ namespace BacklogManager.Services
         {
             using (var conn = GetConnectionForWrite())
             {
-                conn.Open();
                 using (var transaction = conn.BeginTransaction())
                 {
                     try
@@ -1618,7 +1716,6 @@ namespace BacklogManager.Services
         {
             using (var conn = GetConnectionForWrite())
             {
-                conn.Open();
                 using (var cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"INSERT INTO Commentaires 
@@ -1682,7 +1779,6 @@ namespace BacklogManager.Services
         {
             using (var conn = GetConnectionForWrite())
             {
-                conn.Open();
                 using (var cmd = conn.CreateCommand())
                 {
                     if (notification.Id == 0)
@@ -1722,7 +1818,6 @@ namespace BacklogManager.Services
         {
             using (var conn = GetConnectionForWrite())
             {
-                conn.Open();
                 using (var cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = "DELETE FROM Notifications WHERE Id = @Id";
@@ -1736,7 +1831,6 @@ namespace BacklogManager.Services
         {
             using (var conn = GetConnectionForWrite())
             {
-                conn.Open();
                 using (var cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = "DELETE FROM Notifications WHERE EstLue = 1";
@@ -1749,7 +1843,6 @@ namespace BacklogManager.Services
         {
             using (var conn = GetConnectionForWrite())
             {
-                conn.Open();
                 using (var cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = "UPDATE Notifications SET EstLue = 1 WHERE Id = @Id";
@@ -1763,7 +1856,6 @@ namespace BacklogManager.Services
         {
             using (var conn = GetConnectionForWrite())
             {
-                conn.Open();
                 using (var cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = "UPDATE Notifications SET EstLue = 1";
@@ -1776,7 +1868,6 @@ namespace BacklogManager.Services
         {
             using (var conn = GetConnectionForWrite())
             {
-                conn.Open();
                 using (var cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = "DELETE FROM Notifications";
@@ -1864,7 +1955,6 @@ namespace BacklogManager.Services
         {
             using (var conn = GetConnectionForWrite())
             {
-                conn.Open();
                 using (var cmd = conn.CreateCommand())
                 {
                     if (cra.Id == 0)
@@ -1919,7 +2009,6 @@ namespace BacklogManager.Services
         {
             using (var conn = GetConnectionForWrite())
             {
-                conn.Open();
                 using (var cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = "DELETE FROM CRA WHERE Id = @Id";
@@ -1994,7 +2083,6 @@ namespace BacklogManager.Services
         {
             using (var conn = GetConnectionForWrite())
             {
-                conn.Open();
                 using (var cmd = conn.CreateCommand())
                 {
                     var now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
@@ -2017,7 +2105,6 @@ namespace BacklogManager.Services
         {
             using (var conn = GetConnectionForWrite())
             {
-                conn.Open();
                 using (var cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
@@ -2072,7 +2159,6 @@ namespace BacklogManager.Services
         {
             using (var conn = GetConnectionForWrite())
             {
-                conn.Open();
                 using (var cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
@@ -2100,7 +2186,6 @@ namespace BacklogManager.Services
         {
             using (var conn = GetConnectionForWrite())
             {
-                conn.Open();
                 using (var transaction = conn.BeginTransaction())
                 {
                     try

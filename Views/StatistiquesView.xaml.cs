@@ -67,6 +67,52 @@ namespace BacklogManager.Views
             }
         }
 
+        private void BtnAnalyserIA_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            // Vérifier que le token API est configuré
+            var apiToken = BacklogManager.Properties.Settings.Default["AgentChatToken"]?.ToString()?.Trim();
+            if (string.IsNullOrWhiteSpace(apiToken))
+            {
+                var result = System.Windows.MessageBox.Show(
+                    "Pour utiliser l'analyse IA, vous devez d'abord configurer votre token API OpenAI.\n\n" +
+                    "Voulez-vous le configurer maintenant ?\n\n" +
+                    "Note : Rendez-vous dans la section 💬 Chat avec l'IA pour configurer votre token.",
+                    "Token API requis",
+                    System.Windows.MessageBoxButton.YesNo,
+                    System.Windows.MessageBoxImage.Information);
+                
+                if (result == System.Windows.MessageBoxResult.Yes)
+                {
+                    System.Windows.MessageBox.Show(
+                        "Allez dans la section '💬 Chat avec l'IA' du menu principal pour configurer votre token API.",
+                        "Configuration",
+                        System.Windows.MessageBoxButton.OK,
+                        System.Windows.MessageBoxImage.Information);
+                }
+                return;
+            }
+
+            if (DataContext is StatistiquesViewModel viewModel)
+            {
+                // Déterminer la description de la période
+                string periodeDescription = "Toutes les données";
+                
+                if (CboPeriode.SelectedIndex == 0)
+                    periodeDescription = "Année en cours";
+                else if (CboPeriode.SelectedIndex == 1)
+                    periodeDescription = "6 derniers mois";
+                else if (CboPeriode.SelectedIndex == 2)
+                    periodeDescription = "Mois en cours";
+                else if (CboPeriode.SelectedIndex == 3)
+                    periodeDescription = "3 derniers mois";
+                else if (CboPeriode.SelectedIndex == 4 && viewModel.DateDebutFiltre.HasValue && viewModel.DateFinFiltre.HasValue)
+                    periodeDescription = $"Du {viewModel.DateDebutFiltre.Value:dd/MM/yyyy} au {viewModel.DateFinFiltre.Value:dd/MM/yyyy}";
+
+                var analyseWindow = new AnalyseStatistiquesIAWindow(viewModel, periodeDescription);
+                analyseWindow.ShowDialog();
+            }
+        }
+
         // Event handlers pour les effets hover sur les cartes
         private void DevCard_MouseEnter(object sender, MouseEventArgs e)
         {

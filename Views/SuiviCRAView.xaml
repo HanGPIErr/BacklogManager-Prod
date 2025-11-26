@@ -264,6 +264,7 @@
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 
                                 <StackPanel Grid.Column="0">
@@ -275,12 +276,46 @@
                                                Foreground="#666" Margin="0,5,0,0" TextWrapping="Wrap"/>
                                 </StackPanel>
                                 
-                                <StackPanel Grid.Column="2" HorizontalAlignment="Right">
+                                <StackPanel Grid.Column="2" HorizontalAlignment="Right" Margin="0,0,15,0">
                                     <TextBlock Text="{Binding TachesProjetTimeline.Count, StringFormat='{}{0} tâches'}" 
                                                FontSize="14" FontWeight="SemiBold" Foreground="#00915A"/>
                                     <TextBlock Text="Dates du projet à venir" FontSize="11" Foreground="#666" 
                                                Margin="0,3,0,0" FontStyle="Italic"/>
                                 </StackPanel>
+                                
+                                <!-- Bouton Analyse IA -->
+                                <Button Grid.Column="3" Padding="15,10" Margin="0"
+                                        Background="#667eea" Foreground="White" FontSize="13" FontWeight="SemiBold"
+                                        BorderThickness="0" Cursor="Hand" Click="BtnAnalyserProjetIA_Click"
+                                        ToolTip="Analyse IA : Deadlines, retards, recommandations"
+                                        VerticalAlignment="Center">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border Background="{TemplateBinding Background}" 
+                                                                CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <TextBlock Text="🤖" FontSize="16" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                                                <TextBlock Text="Analyser avec IA" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                                            </StackPanel>
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="#5568d3"/>
+                                                </Trigger>
+                                                <Trigger Property="IsEnabled" Value="False">
+                                                    <Setter Property="Background" Value="#CCCCCC"/>
+                                                    <Setter Property="Cursor" Value="Arrow"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
                             </Grid>
                         </Border>
 

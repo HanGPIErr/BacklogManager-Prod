@@ -262,6 +262,67 @@ namespace BacklogManager.Views
             return nom.Substring(0, Math.Min(2, nom.Length)).ToUpper();
         }
 
+        private void AnalyserIA_Click(object sender, RoutedEventArgs e)
+        {
+            // Vérifier que le token API est configuré
+            var apiToken = BacklogManager.Properties.Settings.Default["AgentChatToken"]?.ToString()?.Trim();
+            if (string.IsNullOrWhiteSpace(apiToken))
+            {
+                var result = MessageBox.Show(
+                    "Pour utiliser l'analyse IA, vous devez d'abord configurer votre token API OpenAI.\n\n" +
+                    "Voulez-vous le configurer maintenant ?\n\n" +
+                    "Note : Rendez-vous dans la section 💬 Chat avec l'IA pour configurer votre token.",
+                    "Token API requis",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Information);
+                
+                if (result == MessageBoxResult.Yes)
+                {
+                    MessageBox.Show(
+                        "Allez dans la section '💬 Chat avec l'IA' du menu principal pour configurer votre token API.",
+                        "Configuration",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                }
+                return;
+            }
+
+            // Déterminer la description de la période
+            string periodeDescription = "Toutes les données";
+            
+            if (CboPeriodeDev.SelectedIndex == 0)
+                periodeDescription = "Année en cours";
+            else if (CboPeriodeDev.SelectedIndex == 1)
+                periodeDescription = "6 derniers mois";
+            else if (CboPeriodeDev.SelectedIndex == 2)
+                periodeDescription = "Mois en cours";
+            else if (CboPeriodeDev.SelectedIndex == 3)
+                periodeDescription = "3 derniers mois";
+            else if (CboPeriodeDev.SelectedIndex == 4 && _dateDebutFiltre.HasValue && _dateFinFiltre.HasValue)
+                periodeDescription = $"Du {_dateDebutFiltre.Value:dd/MM/yyyy} au {_dateFinFiltre.Value:dd/MM/yyyy}";
+
+            // Préparer les stats du dev
+            var taches = _allTaches ?? new List<TacheDevViewModel>();
+            var cras = _craService.GetCRAsByDev(_dev.Id, _dateDebutFiltre, _dateFinFiltre);
+
+            var statsData = new
+            {
+                dev = _dev,
+                periode = periodeDescription,
+                taches = taches,
+                cras = cras,
+                totalTaches = int.Parse(TxtTotalTaches.Text),
+                enCours = int.Parse(TxtEnCours.Text),
+                terminees = int.Parse(TxtTerminees.Text),
+                charge = TxtCharge.Text,
+                tempsReel = TxtTempsReel.Text,
+                tauxRealisation = TxtTauxRealisation.Text
+            };
+
+            var analyseWindow = new AnalyseDevIAWindow(statsData, periodeDescription);
+            analyseWindow.ShowDialog();
+        }
+
         private void ExporterPDF_Click(object sender, RoutedEventArgs e)
         {
             try
