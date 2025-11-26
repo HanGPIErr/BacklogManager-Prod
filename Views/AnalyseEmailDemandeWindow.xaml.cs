@@ -136,7 +136,9 @@ namespace BacklogManager.Views
 
                     MessageBox.Show(
                         "✅ Analyse terminée avec succès !\n\n" +
-                        "Veuillez vérifier et ajuster les informations si nécessaire avant de créer la demande.",
+                        "⚠️ IMPORTANT : Le chiffrage est laissé à 0.\n" +
+                        "Seul le développeur peut estimer le temps nécessaire selon la stack technique et les contraintes.\n\n" +
+                        "Veuillez vérifier et ajuster les autres informations si nécessaire avant de créer la demande.",
                         "Succès",
                         MessageBoxButton.OK,
                         MessageBoxImage.Information);
@@ -180,13 +182,8 @@ namespace BacklogManager.Views
 5. **Spécifications** : Détails techniques (codes, références, contraintes, règles métier)
 6. **ContexteMetier** : Contexte business/métier, enjeux, acteurs impliqués
 7. **BeneficesAttendus** : Bénéfices, gains, objectifs de la demande
-8. **ChiffrageEstime** : Estimation en jours (0.5 à 10 jours selon la complexité)
 
-**Règles d'estimation du chiffrage** :
-- Simple (configuration, paramétrage) : 0.5 - 1 jour
-- Moyen (développement standard, investigation) : 2 - 3 jours
-- Complexe (intégration, multiples systèmes) : 3 - 5 jours
-- Très complexe (refonte, architecture) : 5 - 10 jours
+**IMPORTANT** : NE PAS estimer le chiffrage. Laisse ChiffrageEstimeJours à 0 - seul le développeur peut chiffrer correctement selon la stack technique, les contraintes et son expertise.
 
 **Format de réponse** : JSON strict avec cette structure exacte :
 ```json
@@ -198,7 +195,7 @@ namespace BacklogManager.Views
   ""Specifications"": ""..."",
   ""ContexteMetier"": ""..."",
   ""BeneficesAttendus"": ""..."",
-  ""ChiffrageEstimeJours"": 2.5
+  ""ChiffrageEstimeJours"": 0
 }
 ```
 
@@ -271,7 +268,7 @@ Analyse maintenant cet email et réponds UNIQUEMENT avec le JSON (pas de texte a
                         Specifications = root.GetProperty("Specifications").GetString(),
                         ContexteMetier = root.GetProperty("ContexteMetier").GetString(),
                         BeneficesAttendus = root.GetProperty("BeneficesAttendus").GetString(),
-                        ChiffrageEstimeJours = root.GetProperty("ChiffrageEstimeJours").GetDouble(),
+                        ChiffrageEstimeJours = 0, // Laissé à 0 - le dev chiffrera lui-même
                         Type = ParseType(root.GetProperty("Type").GetString()),
                         Criticite = ParseCriticite(root.GetProperty("Criticite").GetString()),
                         DateCreation = DateTime.Now,
