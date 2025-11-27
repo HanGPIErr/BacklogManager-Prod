@@ -100,9 +100,11 @@ namespace BacklogManager.Views
             var initiales = GetInitiales(_dev.Nom);
             TxtInitiales.Text = initiales;
 
-            // Charger toutes les tâches du dev
-            var taches = _backlogService.GetAllBacklogItems()
-                .Where(t => t.DevAssigneId == _dev.Id && !t.EstArchive)
+            // Charger toutes les tâches du dev (incluant les archivées) SAUF congés et non-travaillé
+            var taches = _backlogService.GetAllBacklogItemsIncludingArchived()
+                .Where(t => t.DevAssigneId == _dev.Id && 
+                            t.TypeDemande != TypeDemande.Conges && 
+                            t.TypeDemande != TypeDemande.NonTravaille)
                 .ToList();
 
             // Appliquer le filtre de période sur les tâches
@@ -116,10 +118,10 @@ namespace BacklogManager.Views
 
             // Métriques
             int total = taches.Count;
-            int afaire = taches.Count(t => t.Statut == Statut.Afaire);
-            int enCours = taches.Count(t => t.Statut == Statut.EnCours);
-            int enTest = taches.Count(t => t.Statut == Statut.Test);
-            int termine = taches.Count(t => t.Statut == Statut.Termine);
+            int afaire = taches.Count(t => t.Statut == Statut.Afaire && !t.EstArchive);
+            int enCours = taches.Count(t => t.Statut == Statut.EnCours && !t.EstArchive);
+            int enTest = taches.Count(t => t.Statut == Statut.Test && !t.EstArchive);
+            int termine = taches.Count(t => t.Statut == Statut.Termine || t.EstArchive); // Archivées = terminées
 
             double chargeJours = taches.Sum(t => t.ChiffrageHeures ?? 0) / 7.0;
             
@@ -222,8 +224,8 @@ namespace BacklogManager.Views
                 return new TacheDevViewModel
                 {
                     Titre = t.Titre,
-                    Statut = GetStatutDisplay(t.Statut),
-                    StatutColor = GetStatutColor(t.Statut),
+                    Statut = t.EstArchive ? "Archivé" : GetStatutDisplay(t.Statut),
+                    StatutColor = t.EstArchive ? new SolidColorBrush(Color.FromRgb(0, 145, 90)) : GetStatutColor(t.Statut),
                     ProjetNom = projets.FirstOrDefault(p => p.Id == t.ProjetId)?.Nom ?? "Sans projet",
                     ChiffrageJours = t.ChiffrageHeures.HasValue ? t.ChiffrageHeures.Value / 7.0 : 0,
                     TempsReelJours = crasTache / 8.0,

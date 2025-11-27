@@ -189,7 +189,10 @@ namespace BacklogManager.ViewModels
         {
             try
             {
-                var taches = _backlogService.GetAllBacklogItems();
+                // Charger toutes les tâches SAUF congés et non-travaillé
+                var taches = _backlogService.GetAllBacklogItems()
+                    .Where(t => t.TypeDemande != TypeDemande.Conges && t.TypeDemande != TypeDemande.NonTravaille)
+                    .ToList();
                 var projets = _backlogService.GetAllProjets();
                 var devs = _backlogService.GetAllDevs();
 
@@ -201,8 +204,9 @@ namespace BacklogManager.ViewModels
                 }
 
                 // Cartes rapides - Tâches
-                // Compter les tâches archivées comme terminées (elles sont généralement finies)
-                var tachesArchivees = _backlogService.GetAllBacklogItems().Count(t => t.EstArchive);
+                // Compter les tâches archivées comme terminées (SAUF congés et non-travaillé)
+                var tachesArchivees = _backlogService.GetAllBacklogItemsIncludingArchived()
+                    .Count(t => t.EstArchive && t.TypeDemande != TypeDemande.Conges && t.TypeDemande != TypeDemande.NonTravaille);
                 
                 TotalTaches = taches.Count + tachesArchivees; // Total = actives + archivées
                 TachesTerminees = taches.Count(t => t.Statut == Statut.Termine) + tachesArchivees; // Terminées = statut Terminé + archivées
@@ -419,7 +423,9 @@ namespace BacklogManager.ViewModels
                 new StatutStatsViewModel
                 {
                     Statut = "Terminé",
-                    Nombre = taches.Count(t => t.Statut == Statut.Termine),
+                    Nombre = taches.Count(t => t.Statut == Statut.Termine) + 
+                             _backlogService.GetAllBacklogItemsIncludingArchived()
+                                 .Count(t => t.EstArchive && t.TypeDemande != TypeDemande.Conges && t.TypeDemande != TypeDemande.NonTravaille),
                     Couleur = new SolidColorBrush(Color.FromRgb(76, 175, 80))
                 }
             };
@@ -451,7 +457,10 @@ namespace BacklogManager.ViewModels
             foreach (var dev in devs)
             {
                 var tachesDev = taches.Where(t => t.DevAssigneId == dev.Id).ToList();
-                var total = tachesDev.Count;
+                var tachesArchiveesDev = _backlogService.GetAllBacklogItemsIncludingArchived()
+                    .Count(t => t.EstArchive && t.DevAssigneId == dev.Id && 
+                                t.TypeDemande != TypeDemande.Conges && t.TypeDemande != TypeDemande.NonTravaille);
+                var total = tachesDev.Count + tachesArchiveesDev;
 
                 if (total > 0)
                 {
@@ -461,7 +470,7 @@ namespace BacklogManager.ViewModels
                         NomDev = dev.Nom,
                         AFaire = tachesDev.Count(t => t.Statut == Statut.Afaire),
                         EnCours = tachesDev.Count(t => t.Statut == Statut.EnCours),
-                        Terminees = tachesDev.Count(t => t.Statut == Statut.Termine),
+                        Terminees = tachesDev.Count(t => t.Statut == Statut.Termine) + tachesArchiveesDev,
                         Total = total
                     });
                 }
@@ -537,9 +546,11 @@ namespace BacklogManager.ViewModels
 
             foreach (var projet in projets.Where(p => p.Actif))
             {
-                // Récupérer toutes les tâches du projet (y compris archivées)
+                // Récupérer toutes les tâches du projet (y compris archivées) SAUF congés et non-travaillé
                 var toutesLesTachesProjet = _backlogService.GetAllBacklogItems()
-                    .Where(t => t.ProjetId == projet.Id)
+                    .Where(t => t.ProjetId == projet.Id && 
+                                t.TypeDemande != TypeDemande.Conges && 
+                                t.TypeDemande != TypeDemande.NonTravaille)
                     .ToList();
                 
                 var tachesActivesProjet = toutesLesTachesProjet.Where(t => !t.EstArchive).ToList();
@@ -607,9 +618,11 @@ namespace BacklogManager.ViewModels
         {
             try
             {
-                // Récupérer toutes les tâches du projet
+                // Récupérer toutes les tâches du projet SAUF congés et non-travaillé
                 var tachesProjet = _backlogService.GetAllBacklogItems()
-                    .Where(t => t.ProjetId == projetId)
+                    .Where(t => t.ProjetId == projetId && 
+                                t.TypeDemande != TypeDemande.Conges && 
+                                t.TypeDemande != TypeDemande.NonTravaille)
                     .Select(t => t.Id)
                     .ToList();
 
