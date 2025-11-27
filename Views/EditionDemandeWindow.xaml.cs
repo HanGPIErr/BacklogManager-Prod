@@ -37,8 +37,8 @@ namespace BacklogManager.Views
                     PanelSpecifications.Visibility = Visibility.Visible;
                 }
                 
-                // Afficher le panel d'arbitrage si la demande est en attente d'arbitrage et que l'utilisateur est Admin ou Chef de Projet
-                if (_demandeActuelle != null && _demandeActuelle.Statut == StatutDemande.EnAttenteArbitrage)
+                // Afficher le panel de validation manager si la demande est en attente de validation et que l'utilisateur est Admin ou Chef de Projet
+                if (_demandeActuelle != null && _demandeActuelle.Statut == StatutDemande.EnAttenteValidationManager)
                 {
                     var currentRole = _authService.GetCurrentUserRole();
                     if (currentRole != null && (currentRole.Type == Domain.RoleType.Administrateur || currentRole.Type == Domain.RoleType.ChefDeProjet))
@@ -221,10 +221,10 @@ namespace BacklogManager.Views
                     {
                         _demandeActuelle.ChiffrageEstimeJours = (double)jours;
                         
-                        // Si un chiffrage est fourni et qu'on est en attente de chiffrage, passer à En attente d'arbitrage
+                        // Si un chiffrage est fourni et qu'on est en attente de chiffrage, passer à En attente validation manager
                         if (_demandeActuelle.Statut == StatutDemande.EnAttenteChiffrage)
                         {
-                            _demandeActuelle.Statut = StatutDemande.EnAttenteArbitrage;
+                            _demandeActuelle.Statut = StatutDemande.EnAttenteValidationManager;
                             _demandeActuelle.DateValidationChiffrage = DateTime.Now;
                         }
                     }
@@ -332,7 +332,7 @@ namespace BacklogManager.Views
                         DateModification = DateTime.Now,
                         TypeModification = Domain.TypeModification.Modification,
                         NouvelleValeur = "Acceptée",
-                        AncienneValeur = "En attente d'arbitrage",
+                        AncienneValeur = "En attente validation manager",
                         ChampModifie = "Statut"
                     };
                     _database.AddHistorique(historique);
@@ -455,7 +455,7 @@ namespace BacklogManager.Views
                         DateModification = DateTime.Now,
                         TypeModification = Domain.TypeModification.Modification,
                         NouvelleValeur = "Refusée: " + _demandeActuelle.JustificationRefus,
-                        AncienneValeur = "En attente d'arbitrage",
+                        AncienneValeur = "En attente validation manager",
                         ChampModifie = "Statut"
                     };
                     _database.AddHistorique(historique);

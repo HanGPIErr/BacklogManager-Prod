@@ -75,8 +75,8 @@ namespace BacklogManager.Views
                     return "En attente spécification";
                 case StatutDemande.EnAttenteChiffrage:
                     return "En attente chiffrage";
-                case StatutDemande.EnAttenteArbitrage:
-                    return "En attente arbitrage";
+                case StatutDemande.EnAttenteValidationManager:
+                    return "En attente validation manager";
                 case StatutDemande.Acceptee:
                     return "Acceptée";
                 case StatutDemande.PlanifieeEnUS:

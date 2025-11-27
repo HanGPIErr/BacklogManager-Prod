@@ -126,15 +126,15 @@
                     </StackPanel>
                 </Border>
                 
-                <!-- Section arbitrage (visible pour Admin/Chef de Projet si demande en attente d'arbitrage) -->
+                <!-- Section validation manager (visible pour Admin/Chef de Projet si demande en attente de validation) -->
                 <Border x:Name="PanelArbitrage" Background="#FFF3E0" BorderBrush="#FF9800" 
                        BorderThickness="2" CornerRadius="5" Padding="15" Margin="0,0,0,15"
                        Visibility="Collapsed">
                     <StackPanel>
-                        <TextBlock Text="⚖️ ARBITRAGE DE LA DEMANDE" FontWeight="Bold" FontSize="14" 
+                        <TextBlock Text="💼 VALIDATION MANAGER" FontWeight="Bold" FontSize="14" 
                                   Foreground="#FF6B00" Margin="0,0,0,10"/>
                         
-                        <TextBlock Text="Cette demande est en attente d'arbitrage. Décidez d'accepter ou de refuser la demande." 
+                        <TextBlock Text="Cette demande est en attente de validation manager. Décidez d'accepter ou de refuser le lancement du projet." 
                                   Foreground="#666666" FontSize="12" Margin="0,0,0,10" TextWrapping="Wrap"/>
                         
                         <StackPanel Orientation="Horizontal" Margin="0,5,0,0">

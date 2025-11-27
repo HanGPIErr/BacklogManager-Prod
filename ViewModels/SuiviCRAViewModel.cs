@@ -137,6 +137,34 @@ namespace BacklogManager.ViewModels
             set { _afficherMarqueursProjet = value; OnPropertyChanged(); }
         }
 
+        private bool _extensionProjetDetectee;
+        public bool ExtensionProjetDetectee
+        {
+            get => _extensionProjetDetectee;
+            set { _extensionProjetDetectee = value; OnPropertyChanged(); }
+        }
+
+        private string _messageExtension;
+        public string MessageExtension
+        {
+            get => _messageExtension;
+            set { _messageExtension = value; OnPropertyChanged(); }
+        }
+
+        private DateTime? _dateDebutExtension;
+        public DateTime? DateDebutExtension
+        {
+            get => _dateDebutExtension;
+            set { _dateDebutExtension = value; OnPropertyChanged(); }
+        }
+
+        private DateTime? _dateFinExtension;
+        public DateTime? DateFinExtension
+        {
+            get => _dateFinExtension;
+            set { _dateFinExtension = value; OnPropertyChanged(); }
+        }
+
         public int AnneeCourante
         {
             get => _anneeCourante;
@@ -266,6 +294,7 @@ namespace BacklogManager.ViewModels
         public ICommand ChangerModeCommand { get; }
         public ICommand JourSelectionnCommand { get; }
         public ICommand MoisSelectionnCommand { get; }
+        public ICommand ValiderExtensionProjetCommand { get; }
 
         public SuiviCRAViewModel(CRAService craService, BacklogService backlogService, PermissionService permissionService)
         {
@@ -324,10 +353,25 @@ namespace BacklogManager.ViewModels
                     ModeAffichage = "mois"; // Basculer vers la vue mois
                 }
             });
+            
+            ValiderExtensionProjetCommand = new RelayCommand(_ => ValiderExtensionProjet());
 
             ChargerDevs();
             ChargerCalendrier();
             ChargerStatsDev();
+        }
+
+        private void ValiderExtensionProjet()
+        {
+            if (ProjetSelectionne == null || !DateDebutExtension.HasValue || !DateFinExtension.HasValue)
+                return;
+
+            // Mettre à jour les dates du projet
+            ProjetSelectionne.DateFinPrevue = DateFinExtension.Value;
+            _backlogService.SaveProjet(ProjetSelectionne);
+
+            // Rafraîchir la timeline
+            ChargerTachesTimeline();
         }
 
         private DateTime GetLundiDeLaSemaine(DateTime date)
@@ -570,26 +614,38 @@ namespace BacklogManager.ViewModels
         {
             TachesProjetTimeline.Clear();
             MoisTimeline.Clear();
+            ExtensionProjetDetectee = false;
+            MessageExtension = string.Empty;
+            DateDebutExtension = null;
+            DateFinExtension = null;
             
             if (ProjetSelectionne == null)
+            {
+                OnPropertyChanged(nameof(HauteurTimeline));
                 return;
+            }
 
-            // Utiliser les dates du projet comme plage principale
+            // Récupérer toutes les tâches du projet
+            var tachesTemp = _backlogService.GetAllBacklogItemsIncludingArchived()
+                .Where(t => t.ProjetId == ProjetSelectionne.Id)
+                .ToList();
+
+            if (!tachesTemp.Any())
+            {
+                OnPropertyChanged(nameof(HauteurTimeline));
+                return;
+            }
+
+            // Définir les dates de base (période initiale du projet)
             DateTime dateMin, dateMax;
-            
+
             if (ProjetSelectionne.DateDebut.HasValue)
             {
                 dateMin = ProjetSelectionne.DateDebut.Value;
             }
             else
             {
-                // Fallback: utiliser la DateDebut des tâches, sinon DateCreation
-                var tachesTemp = _backlogService.GetAllBacklogItemsIncludingArchived()
-                    .Where(t => t.ProjetId == ProjetSelectionne.Id)
-                    .ToList();
-                dateMin = tachesTemp.Any() 
-                    ? tachesTemp.Min(t => t.DateDebut ?? t.DateCreation) 
-                    : DateTime.Now;
+                dateMin = tachesTemp.Min(t => t.DateDebut ?? t.DateCreation);
             }
 
             if (ProjetSelectionne.DateFinPrevue.HasValue)
@@ -598,24 +654,47 @@ namespace BacklogManager.ViewModels
             }
             else
             {
-                // Fallback: utiliser la date max des tâches + 3 mois
-                var tachesTemp = _backlogService.GetAllBacklogItemsIncludingArchived()
-                    .Where(t => t.ProjetId == ProjetSelectionne.Id)
-                    .ToList();
-                dateMax = tachesTemp.Any() 
-                    ? tachesTemp.Max(t => t.DateFinAttendue ?? t.DateDebut ?? t.DateCreation).AddMonths(3)
-                    : DateTime.Now.AddMonths(6);
+                dateMax = tachesTemp.Max(t => t.DateFinAttendue ?? t.DateDebut ?? t.DateCreation).AddMonths(3);
             }
 
-            // Normaliser au début du mois pour dateMin seulement
+            // Normaliser au début du mois
             dateMin = new DateTime(dateMin.Year, dateMin.Month, 1);
-            // Pour dateMax, garder le mois complet (aller jusqu'à la fin du mois)
             dateMax = new DateTime(dateMax.Year, dateMax.Month, DateTime.DaysInMonth(dateMax.Year, dateMax.Month));
-            
-            // Pas de marge avant, petite marge après
-            dateMax = dateMax.AddMonths(1);
 
-            // Générer les mois pour toute la durée du projet
+            // DÉTECTION D'EXTENSION : Vérifier s'il y a des tâches après la date de fin du projet avec un gap significatif
+            const int JOURS_GAP_MINIMUM = 30; // 1 mois minimum pour considérer une extension
+            var tachesApresFinProjet = tachesTemp
+                .Where(t => (t.DateDebut ?? t.DateCreation) > dateMax.AddDays(JOURS_GAP_MINIMUM))
+                .OrderBy(t => t.DateDebut ?? t.DateCreation)
+                .ToList();
+
+            bool hasExtension = tachesApresFinProjet.Any();
+            DateTime? dateDebutExtensionCalc = null;
+            DateTime? dateMaxExtensionCalc = null;
+
+            if (hasExtension)
+            {
+                // Calculer la période d'extension
+                dateDebutExtensionCalc = tachesApresFinProjet.Min(t => t.DateDebut ?? t.DateCreation);
+                dateMaxExtensionCalc = tachesApresFinProjet.Max(t => t.DateFinAttendue ?? t.DateDebut ?? t.DateCreation);
+
+                // Normaliser
+                dateDebutExtensionCalc = new DateTime(dateDebutExtensionCalc.Value.Year, dateDebutExtensionCalc.Value.Month, 1);
+                dateMaxExtensionCalc = new DateTime(dateMaxExtensionCalc.Value.Year, dateMaxExtensionCalc.Value.Month, 
+                    DateTime.DaysInMonth(dateMaxExtensionCalc.Value.Year, dateMaxExtensionCalc.Value.Month));
+
+                // Calculer le gap en mois
+                int gapMois = ((dateDebutExtensionCalc.Value.Year - dateMax.Year) * 12) + 
+                              (dateDebutExtensionCalc.Value.Month - dateMax.Month);
+
+                ExtensionProjetDetectee = true;
+                MessageExtension = $"⚠️ {tachesApresFinProjet.Count} tâche(s) détectée(s) {gapMois} mois après la fin du projet. " +
+                                   $"Extension suggérée : {dateDebutExtensionCalc.Value:dd/MM/yyyy} - {dateMaxExtensionCalc.Value:dd/MM/yyyy}";
+                DateDebutExtension = dateDebutExtensionCalc;
+                DateFinExtension = dateMaxExtensionCalc;
+            }
+
+            // Générer les mois UNIQUEMENT pour les périodes actives (sans le gap)
             var dateCourante = dateMin;
             while (dateCourante <= dateMax)
             {
@@ -628,23 +707,31 @@ namespace BacklogManager.ViewModels
                 dateCourante = dateCourante.AddMonths(1);
             }
 
-            // Charger les tâches
-            var taches = _backlogService.GetAllBacklogItemsIncludingArchived()
-                .Where(t => t.ProjetId == ProjetSelectionne.Id)
-                .OrderBy(t => t.DateCreation)
-                .ToList();
-
-            if (!taches.Any())
+            // Si extension, ajouter les mois de l'extension (séparés visuellement)
+            if (hasExtension && dateDebutExtensionCalc.HasValue && dateMaxExtensionCalc.HasValue)
             {
-                OnPropertyChanged(nameof(HauteurTimeline));
-                return;
+                dateCourante = dateDebutExtensionCalc.Value;
+                while (dateCourante <= dateMaxExtensionCalc.Value)
+                {
+                    MoisTimeline.Add(new MoisCRAViewModel
+                    {
+                        Mois = dateCourante.Month,
+                        Annee = dateCourante.Year,
+                        NomMois = dateCourante.ToString("MMM").ToUpper()
+                    });
+                    dateCourante = dateCourante.AddMonths(1);
+                }
             }
 
-            // Largeur par mois en pixels
+            // Charger les tâches avec calcul de position ajusté
+            var taches = tachesTemp.OrderBy(t => t.DateCreation).ToList();
+
             const double largeurMois = 120;
             var devs = _backlogService.GetAllUtilisateurs().ToDictionary(d => d.Id, d => d.Nom);
 
-            // Calculer les positions
+            // Calculer combien de mois dans la période initiale
+            int nbMoisPeriode1 = ((dateMax.Year - dateMin.Year) * 12) + (dateMax.Month - dateMin.Month) + 1;
+
             int indexLigne = 0;
             foreach (var tache in taches)
             {
@@ -653,19 +740,35 @@ namespace BacklogManager.ViewModels
                     ? (tempsReel / tache.ChiffrageHeures.Value) * 100
                     : 0;
 
-                // Utiliser DateDebut si disponible, sinon DateCreation
                 var dateDebut = tache.DateDebut ?? tache.DateCreation;
                 var dateFin = tache.DateFinAttendue ?? dateDebut.AddDays(tache.ChiffrageJours.HasValue ? tache.ChiffrageJours.Value * 7 : 7);
 
-                // Calculer position X (début de la tâche)
-                var moisDepuisDebut = (dateDebut.Year - dateMin.Year) * 12 + (dateDebut.Month - dateMin.Month);
-                var jourDansMois = dateDebut.Day - 1;
-                var joursDansMois = DateTime.DaysInMonth(dateDebut.Year, dateDebut.Month);
-                var positionX = moisDepuisDebut * largeurMois + (jourDansMois / (double)joursDansMois * largeurMois);
+                // Calculer position X en fonction de si la tâche est dans la période 1 ou l'extension
+                double positionX;
+                bool estDansExtension = hasExtension && dateDebut > dateMax.AddDays(JOURS_GAP_MINIMUM);
 
-                // Calculer largeur (durée)
+                if (estDansExtension && dateDebutExtensionCalc.HasValue)
+                {
+                    // Tâche dans l'extension : calculer depuis le début de l'extension
+                    // Offset = largeur de la période 1 (on colle directement après)
+                    var offsetExtension = nbMoisPeriode1 * largeurMois;
+                    var moisDepuisDebutExt = (dateDebut.Year - dateDebutExtensionCalc.Value.Year) * 12 + 
+                                             (dateDebut.Month - dateDebutExtensionCalc.Value.Month);
+                    var jourDansMois = dateDebut.Day - 1;
+                    var joursDansMois = DateTime.DaysInMonth(dateDebut.Year, dateDebut.Month);
+                    positionX = offsetExtension + moisDepuisDebutExt * largeurMois + (jourDansMois / (double)joursDansMois * largeurMois);
+                }
+                else
+                {
+                    // Tâche dans la période initiale
+                    var moisDepuisDebut = (dateDebut.Year - dateMin.Year) * 12 + (dateDebut.Month - dateMin.Month);
+                    var jourDansMois = dateDebut.Day - 1;
+                    var joursDansMois = DateTime.DaysInMonth(dateDebut.Year, dateDebut.Month);
+                    positionX = moisDepuisDebut * largeurMois + (jourDansMois / (double)joursDansMois * largeurMois);
+                }
+
                 var dureeJours = (dateFin - dateDebut).TotalDays;
-                var largeurBarre = Math.Max(largeurMois / 4, (dureeJours / 30.0) * largeurMois); // Min 1/4 mois
+                var largeurBarre = Math.Max(largeurMois / 4, (dureeJours / 30.0) * largeurMois);
 
                 var tacheVM = new TacheTimelineViewModel
                 {

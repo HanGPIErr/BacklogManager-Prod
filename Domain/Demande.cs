@@ -6,7 +6,7 @@ namespace BacklogManager.Domain
     {
         EnAttenteSpecification,
         EnAttenteChiffrage,
-        EnAttenteArbitrage,
+        EnAttenteValidationManager,
         Acceptee,
         Refusee,
         PlanifieeEnUS,
