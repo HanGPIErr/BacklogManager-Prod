@@ -45,6 +45,9 @@ namespace BacklogManager.Views
             TxtCriticite.Text = demande.Criticite.ToString();
             TxtStatut.Text = FormatStatut(demande.Statut);
             
+            TxtContexte.Text = !string.IsNullOrWhiteSpace(demande.ContexteMetier) ? demande.ContexteMetier : "Non renseigné";
+            TxtBenefices.Text = !string.IsNullOrWhiteSpace(demande.BeneficesAttendus) ? demande.BeneficesAttendus : "Non renseigné";
+            
             TxtDemandeur.Text = ObtenirNomUtilisateur(demande.DemandeurId, utilisateurs);
             TxtBA.Text = ObtenirNomUtilisateur(demande.BusinessAnalystId, utilisateurs);
             TxtCP.Text = ObtenirNomUtilisateur(demande.ChefProjetId, utilisateurs);
