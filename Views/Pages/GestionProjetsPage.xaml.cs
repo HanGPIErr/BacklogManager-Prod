@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using BacklogManager.Services;
@@ -24,7 +25,7 @@ namespace BacklogManager.Views.Pages
         {
             try
             {
-                var projets = _database.GetProjets();
+                var projets = _backlogService.GetProjetsActifs(); // Par défaut, afficher les projets actifs
                 LstProjets.ItemsSource = projets;
             }
             catch (Exception ex)
@@ -34,11 +35,48 @@ namespace BacklogManager.Views.Pages
             }
         }
 
+        private void CmbFiltreStatut_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (CmbFiltreStatut == null || CmbFiltreStatut.SelectedIndex == -1)
+                return;
+
+            if (_backlogService == null || LstProjets == null)
+                return;
+
+            try
+            {
+                System.Collections.Generic.List<Domain.Projet> projets = null;
+                
+                switch (CmbFiltreStatut.SelectedIndex)
+                {
+                    case 0: // Projets actifs
+                        projets = _backlogService.GetProjetsActifs();
+                        break;
+                    case 1: // Projets archivés
+                        projets = _backlogService.GetProjetsArchives();
+                        break;
+                    case 2: // Tous les projets
+                        projets = _backlogService.GetAllProjets();
+                        break;
+                }
+                
+                LstProjets.ItemsSource = null;
+                LstProjets.ItemsSource = projets;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erreur lors du filtrage des projets: {ex.Message}", 
+                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         private void BtnNouveauProjet_Click(object sender, RoutedEventArgs e)
         {
             var window = new GestionProjetsWindow(_backlogService);
-            window.ShowDialog();
-            ChargerProjets();
+            if (window.ShowDialog() == true)
+            {
+                BtnActualiser_Click(sender, e); // Rafraîchir avec le filtre actuel
+            }
         }
 
         private void BtnModifierProjet_Click(object sender, RoutedEventArgs e)
@@ -50,14 +88,22 @@ namespace BacklogManager.Views.Pages
             }
             
             var projet = LstProjets.SelectedItem as Domain.Projet;
-            var window = new GestionProjetsWindow(_backlogService);
+            var window = new EditProjetWindow(_backlogService, projet);
             window.ShowDialog();
-            ChargerProjets();
+            BtnActualiser_Click(sender, e); // Rafraîchir avec le filtre actuel
         }
 
         private void BtnActualiser_Click(object sender, RoutedEventArgs e)
         {
-            ChargerProjets();
+            // Recharger en fonction du filtre actuel
+            if (CmbFiltreStatut != null && CmbFiltreStatut.SelectedIndex >= 0)
+            {
+                CmbFiltreStatut_SelectionChanged(CmbFiltreStatut, null);
+            }
+            else
+            {
+                ChargerProjets();
+            }
         }
 
         private void LstProjets_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)

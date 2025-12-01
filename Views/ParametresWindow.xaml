@@ -33,11 +33,11 @@
             <Border.Effect>
                 <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.2" Color="#00915A"/>
             </Border.Effect>
-            <StackPanel>
-                <TextBlock Text="⚙️ PARAMÈTRES SYSTÈME" FontSize="20" FontWeight="Bold" Foreground="#1A1919"/>
+            <WrapPanel Orientation="Horizontal">
+                <TextBlock Text="⚙️ PARAMÈTRES SYSTÈME" FontSize="20" FontWeight="Bold" Foreground="#1A1919" Margin="0,0,15,5"/>
                 <TextBlock Text="Configuration de l'application et gestion des données" 
                            FontSize="13" Foreground="#6D6D6D" Margin="0,5,0,0"/>
-            </StackPanel>
+            </WrapPanel>
         </Border>
 
         <!-- Contenu -->
@@ -79,7 +79,7 @@
                         <TextBlock Text="📤 Export / Import des données" Style="{StaticResource SectionTitle}"/>
                         
                         <TextBlock Text="Export des données (base complète):" FontWeight="SemiBold" Margin="0,0,0,10"/>
-                        <WrapPanel>
+                        <WrapPanel Orientation="Horizontal">
                             <Button x:Name="BtnExportSQLite" Content="💾 Exporter SQLite (.db)" 
                                     Background="#00915A" Foreground="White" 
                                     Click="BtnExportSQLite_Click" Margin="0,0,5,5"/>
@@ -97,7 +97,7 @@
                                 Click="BtnExportCSV_Click" Width="220" HorizontalAlignment="Left"/>
 
                         <TextBlock Text="Import des données:" FontWeight="SemiBold" Margin="0,15,0,10"/>
-                        <WrapPanel>
+                        <WrapPanel Orientation="Horizontal">
                             <Button x:Name="BtnImportSQLite" Content="📥 Importer SQLite (.db)" 
                                     Background="#E67E22" Foreground="White" 
                                     Click="BtnImportSQLite_Click" Margin="0,0,5,5"/>
@@ -215,11 +215,11 @@
         <!-- Boutons de bas de page -->
         <Border Grid.Row="2" Background="White" Padding="15" Margin="0,15,0,0" 
                 BorderBrush="#E0E0E0" BorderThickness="0,1,0,0">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button x:Name="BtnFermer" Content="✅ Fermer" 
                         Background="#95A5A6" Foreground="White"
                         Click="BtnFermer_Click"/>
-            </StackPanel>
+            </WrapPanel>
         </Border>
     </Grid>
 </Window>

@@ -20,13 +20,8 @@
             <Border.Effect>
                 <DropShadowEffect BlurRadius="15" ShadowDepth="0" Opacity="0.1" Color="#00915A"/>
             </Border.Effect>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-
-                <StackPanel Grid.Column="0">
+            <WrapPanel Orientation="Horizontal">
+                <StackPanel Margin="0,0,20,10">
                     <TextBlock Text="📊 SUIVI DES CRA" FontSize="24" FontWeight="Bold" 
                                Foreground="#00915A" Margin="0,0,0,5"/>
                     <TextBlock Text="Vue administrative - Tracking détaillé par développeur" 
@@ -34,13 +29,13 @@
                 </StackPanel>
 
                 <!-- Sélection développeur -->
-                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <TextBlock Text="Développeur:" FontSize="13" VerticalAlignment="Center" Margin="0,0,10,0" Foreground="#666"/>
                     <ComboBox ItemsSource="{Binding Devs}" DisplayMemberPath="Nom"
                               SelectedItem="{Binding DevSelectionne}"
                               Width="200" Padding="10,8" FontSize="13"/>
-                </StackPanel>
-            </Grid>
+                </WrapPanel>
+            </WrapPanel>
         </Border>
 
         <!-- Navigation et mode d'affichage -->
@@ -48,15 +43,9 @@
             <Border.Effect>
                 <DropShadowEffect BlurRadius="15" ShadowDepth="0" Opacity="0.1" Color="#00915A"/>
             </Border.Effect>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-
+            <WrapPanel Orientation="Horizontal">
                 <!-- Mode d'affichage -->
-                <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,0,20,0">
+                <WrapPanel Orientation="Horizontal" Margin="0,0,20,10">
                     <Button Content="📅 Mois" Command="{Binding ChangerModeCommand}" CommandParameter="mois"
                             Padding="15,8" Margin="0,0,5,0" FontSize="12" FontWeight="SemiBold" Cursor="Hand"
                             BorderThickness="0">
@@ -137,10 +126,10 @@
                             </Style>
                         </Button.Style>
                     </Button>
-                </StackPanel>
+                </WrapPanel>
 
                 <!-- Navigation période -->
-                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
+                <WrapPanel Orientation="Horizontal" Margin="0,0,20,10">
                     <Button Content="◀" Command="{Binding PeriodePrecedenteCommand}"
                             Padding="12,8" Margin="0,0,15,0" Background="#F0F0F0" BorderThickness="0" 
                             FontSize="14" FontWeight="Bold" Cursor="Hand">
@@ -215,12 +204,12 @@
                             </Style>
                         </Button.Style>
                     </Button>
-                </StackPanel>
+                </WrapPanel>
 
                 <!-- Sélecteur de projet (mode Timeline uniquement) -->
-                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                    <StackPanel.Style>
-                        <Style TargetType="StackPanel">
+                <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <WrapPanel.Style>
+                        <Style TargetType="WrapPanel">
                             <Setter Property="Visibility" Value="Collapsed"/>
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding EstModeTimeline}" Value="True">
@@ -228,13 +217,13 @@
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
-                    </StackPanel.Style>
+                    </WrapPanel.Style>
                     <TextBlock Text="Projet:" FontSize="13" VerticalAlignment="Center" Margin="0,0,10,0" Foreground="#666"/>
                     <ComboBox ItemsSource="{Binding Projets}" DisplayMemberPath="Nom"
                               SelectedItem="{Binding ProjetSelectionne}"
                               Width="250" Padding="10,8" FontSize="13"/>
-                </StackPanel>
-            </Grid>
+                </WrapPanel>
+            </WrapPanel>
         </Border>
 
         <!-- Contenu principal -->
@@ -259,15 +248,8 @@
                     <StackPanel>
                         <!-- En-tête avec info projet -->
                         <Border Background="#F5F5F5" CornerRadius="6" Padding="15" Margin="0,0,0,20">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                
-                                <StackPanel Grid.Column="0">
+                            <WrapPanel Orientation="Horizontal">
+                                <StackPanel Margin="0,0,20,10">
                                     <TextBlock FontSize="18" FontWeight="Bold" Foreground="#00915A">
                                         <Run Text="📊 "/>
                                         <Run Text="{Binding ProjetSelectionne.Nom, FallbackValue='Sélectionnez un projet'}"/>
@@ -276,7 +258,7 @@
                                                Foreground="#666" Margin="0,5,0,0" TextWrapping="Wrap"/>
                                 </StackPanel>
                                 
-                                <StackPanel Grid.Column="2" HorizontalAlignment="Right" Margin="0,0,15,0">
+                                <StackPanel Margin="0,0,15,10">
                                     <TextBlock Text="{Binding TachesProjetTimeline.Count, StringFormat='{}{0} tâches'}" 
                                                FontSize="14" FontWeight="SemiBold" Foreground="#00915A"/>
                                     <TextBlock Text="Dates du projet à venir" FontSize="11" Foreground="#666" 
@@ -284,7 +266,7 @@
                                 </StackPanel>
                                 
                                 <!-- Bouton Analyse IA -->
-                                <Button Grid.Column="3" Padding="15,10" Margin="0"
+                                <Button Padding="15,10" Margin="0,0,0,10"
                                         Background="#667eea" Foreground="White" FontSize="13" FontWeight="SemiBold"
                                         BorderThickness="0" Cursor="Hand" Click="BtnAnalyserProjetIA_Click"
                                         ToolTip="Analyse IA : Deadlines, retards, recommandations"
@@ -316,7 +298,7 @@
                                         </Style>
                                     </Button.Style>
                                 </Button>
-                            </Grid>
+                            </WrapPanel>
                         </Border>
                         
                         <!-- Message d'extension projet détectée -->

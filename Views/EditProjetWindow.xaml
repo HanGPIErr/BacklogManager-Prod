@@ -87,9 +87,14 @@
 
                     <!-- Statut actif -->
                     <Border Background="#E8F5E9" CornerRadius="4" Padding="15" Margin="0,0,0,12">
-                        <CheckBox x:Name="ChkActif" Content="✅ Projet actif" 
-                                  IsChecked="True" FontSize="14" FontWeight="SemiBold" 
-                                  Foreground="#2E7D32" VerticalAlignment="Center"/>
+                        <StackPanel>
+                            <CheckBox x:Name="ChkActif" Content="✅ Projet actif" 
+                                      IsChecked="True" FontSize="14" FontWeight="SemiBold" 
+                                      Foreground="#2E7D32" VerticalAlignment="Center"/>
+                            <TextBlock Text="⚠️ Décochez pour archiver le projet" 
+                                       FontSize="11" Foreground="#E65100" 
+                                       FontStyle="Italic" Margin="25,5,0,0"/>
+                        </StackPanel>
                     </Border>
 
                     <!-- Message d'erreur -->

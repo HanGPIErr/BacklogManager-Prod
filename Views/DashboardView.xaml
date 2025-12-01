@@ -61,7 +61,7 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <!-- Header avec Bonjour + Date + BNP Branding -->
+            <!-- Header avec Bonjour + Date + BNP Branding - Responsive -->
             <Border Grid.Row="0" Style="{StaticResource MainCard}">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -75,7 +75,7 @@
                             Margin="0,0,20,0" VerticalAlignment="Stretch"/>
                     
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock FontSize="28" FontWeight="Bold" Foreground="#1A1919">
+                        <TextBlock FontSize="28" FontWeight="Bold" Foreground="#1A1919" TextWrapping="Wrap">
                             <Run Text="👋 Bonjour, "/>
                             <Run Text="{Binding NomUtilisateur}" Foreground="#00915A"/>
                         </TextBlock>
@@ -85,8 +85,8 @@
                         </TextBlock>
                     </StackPanel>
                     
-                    <!-- Bouton Guide + Quick stats -->
-                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <!-- Bouton Guide + Quick stats - Responsive -->
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0">
                         <Button x:Name="BtnVoirGuide" Content="📖 Voir le guide" 
                                 Height="38" Padding="18,0" Margin="0,0,15,0"
                                 Background="#0078D7" Foreground="White" FontWeight="SemiBold"
@@ -132,17 +132,18 @@
                 </Grid>
             </Border>
 
-            <!-- STATISTIQUES EN CARTES (KPI) -->
-            <Grid Grid.Row="1" Margin="0,0,0,20">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
+            <!-- STATISTIQUES EN CARTES (KPI) - Responsive avec WrapPanel -->
+            <ItemsControl Grid.Row="1" Margin="0,0,0,20">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.Items>
                 
                 <!-- Tâches terminées -->
-                <Border Grid.Column="0" Style="{StaticResource MainCard}" Margin="0,0,10,0" Padding="20,18">
+                <Border Style="{StaticResource MainCard}" Margin="0,0,10,10" Padding="20,18" 
+                        MinWidth="200" Width="240">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -169,7 +170,8 @@
                 </Border>
                 
                 <!-- Tâches en cours -->
-                <Border Grid.Column="1" Style="{StaticResource MainCard}" Margin="5,0,5,0" Padding="20,18">
+                <Border Style="{StaticResource MainCard}" Margin="0,0,10,10" Padding="20,18" 
+                        MinWidth="200" Width="240">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -183,7 +185,8 @@
                 </Border>
                 
                 <!-- Tâches urgentes -->
-                <Border Grid.Column="2" Style="{StaticResource MainCard}" Margin="5,0,5,0" Padding="20,18">
+                <Border Style="{StaticResource MainCard}" Margin="0,0,10,10" Padding="20,18" 
+                        MinWidth="200" Width="240">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -197,7 +200,8 @@
                 </Border>
                 
                 <!-- Projets actifs -->
-                <Border Grid.Column="3" Style="{StaticResource MainCard}" Margin="10,0,0,0" Padding="20,18">
+                <Border Style="{StaticResource MainCard}" Margin="0,0,10,10" Padding="20,18" 
+                        MinWidth="200" Width="240">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -209,7 +213,9 @@
                                    FontSize="32" FontWeight="Bold" Foreground="#FF9800"/>
                     </Grid>
                 </Border>
-            </Grid>
+                
+                </ItemsControl.Items>
+            </ItemsControl>
             
             <!-- STATISTIQUES PROJETS -->
             <Border Grid.Row="2" Style="{StaticResource MainCard}">

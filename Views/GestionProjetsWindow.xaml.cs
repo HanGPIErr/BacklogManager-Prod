@@ -71,6 +71,7 @@ namespace BacklogManager.Views
 
         private void BtnFermer_Click(object sender, RoutedEventArgs e)
         {
+            DialogResult = true; // Indiquer que des modifications ont pu être faites
             Close();
         }
     }

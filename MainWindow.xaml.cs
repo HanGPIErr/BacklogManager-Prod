@@ -42,6 +42,14 @@ namespace BacklogManager
             // Initialiser l'EmailService
             _emailService = new EmailService(_backlogService, _authService);
             
+            // Exposer les services dans App pour NotificationsView
+            var app = Application.Current as App;
+            if (app != null)
+            {
+                app.NotificationService = _notificationService;
+                app.EmailService = _emailService;
+            }
+            
             // Initialiser le CRAService
             var craService = new CRAService(_database);
             
@@ -282,11 +290,14 @@ namespace BacklogManager
         {
             try
             {
-                var window = new NotificationsWindow(_notificationService, _emailService);
-                window.Owner = this;
-                window.ShowDialog();
+                var notificationsView = new Views.NotificationsView();
+                var contentControl = (System.Windows.Controls.ContentControl)this.FindName("MainContentControl");
+                if (contentControl != null)
+                {
+                    contentControl.Content = notificationsView;
+                }
                 
-                // Mettre à jour le badge après fermeture
+                // Mettre à jour le badge
                 MettreAJourBadgeNotifications();
             }
             catch (System.Exception ex)

@@ -13,7 +13,14 @@
             <Border.Effect>
                 <DropShadowEffect Color="#E0E0E0" BlurRadius="10" ShadowDepth="2" Opacity="0.2" Direction="270"/>
             </Border.Effect>
-            <StackPanel Orientation="Horizontal">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
                 <Button Click="BtnNouveauProjet_Click"
                         Background="#00915A" Foreground="White" Padding="18,10" 
                         BorderThickness="0" Cursor="Hand" FontWeight="Bold" FontSize="13">
@@ -78,7 +85,20 @@
                         </Style>
                     </Button.Style>
                 </Button>
-            </StackPanel>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="Afficher :" FontSize="13" FontWeight="SemiBold" 
+                               Foreground="#1A1919" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <ComboBox x:Name="CmbFiltreStatut" Width="150" Padding="10,8" 
+                              FontSize="13" SelectedIndex="0"
+                              SelectionChanged="CmbFiltreStatut_SelectionChanged">
+                        <ComboBoxItem Content="📂 Projets actifs"/>
+                        <ComboBoxItem Content="📦 Projets archivés"/>
+                        <ComboBoxItem Content="📁 Tous les projets"/>
+                    </ComboBox>
+                </StackPanel>
+            </Grid>
         </Border>
 
         <!-- Liste projets moderne -->
@@ -121,12 +141,12 @@
                     </Style>
                 </DataGrid.CellStyle>
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="🏷️ Code" Binding="{Binding Code}" Width="110" FontWeight="SemiBold"/>
+                    <DataGridTextColumn Header="🆔 ID" Binding="{Binding Id}" Width="80" FontWeight="SemiBold"/>
                     <DataGridTextColumn Header="📁 Nom du projet" Binding="{Binding Nom}" Width="*" FontWeight="SemiBold"/>
+                    <DataGridTextColumn Header="📝 Description" Binding="{Binding Description}" Width="250"/>
                     <DataGridTextColumn Header="📅 Date début" Binding="{Binding DateDebut, StringFormat=dd/MM/yyyy}" Width="130"/>
-                    <DataGridTextColumn Header="📅 Date fin" Binding="{Binding DateFin, StringFormat=dd/MM/yyyy}" Width="130"/>
-                    <DataGridTextColumn Header="⏱️ Charge (j)" Binding="{Binding ChargeJours}" Width="120" FontWeight="SemiBold"/>
-                    <DataGridTemplateColumn Header="✅ Statut" Width="120">
+                    <DataGridTextColumn Header="🏁 Date fin prévue" Binding="{Binding DateFinPrevue, StringFormat=dd/MM/yyyy}" Width="150"/>
+                    <DataGridTemplateColumn Header="✅ Statut" Width="130">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Border x:Name="StatusBadge" CornerRadius="12" Padding="10,5" HorizontalAlignment="Center">
@@ -139,9 +159,9 @@
                                         <Setter TargetName="StatusText" Property="Text" Value="✅ Actif"/>
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding Actif}" Value="False">
-                                        <Setter TargetName="StatusBadge" Property="Background" Value="#F5F5F5"/>
-                                        <Setter TargetName="StatusText" Property="Foreground" Value="#757575"/>
-                                        <Setter TargetName="StatusText" Property="Text" Value="⏸️ Inactif"/>
+                                        <Setter TargetName="StatusBadge" Property="Background" Value="#FFE0B2"/>
+                                        <Setter TargetName="StatusText" Property="Foreground" Value="#E65100"/>
+                                        <Setter TargetName="StatusText" Property="Text" Value="📦 Archivé"/>
                                     </DataTrigger>
                                 </DataTemplate.Triggers>
                             </DataTemplate>

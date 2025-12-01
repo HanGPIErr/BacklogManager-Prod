@@ -22,30 +22,21 @@
                 <Border.Effect>
                     <DropShadowEffect Color="#E0E0E0" BlurRadius="15" ShadowDepth="2" Opacity="0.3" Direction="270"/>
                 </Border.Effect>
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    
-                    <Border Grid.Row="0" Grid.Column="0" Background="#00915A" Width="5" CornerRadius="2" 
-                            Margin="0,0,20,0" VerticalAlignment="Stretch"/>
-                    
-                    <StackPanel Grid.Row="0" Grid.Column="1">
-                        <TextBlock FontSize="28" FontWeight="Bold" Foreground="#1A1919">
-                            <Run Text="📝 "/>
-                            <Run Text="DEMANDES" Foreground="#00915A"/>
-                        </TextBlock>
-                        <TextBlock Text="Gestion des demandes utilisateurs et suivi des traitements" 
-                                   FontSize="14" Foreground="#666666" Margin="0,5,0,0"/>
-                    </StackPanel>
-                    
-                    <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal">
+                <StackPanel>
+                    <WrapPanel Orientation="Horizontal" Margin="0,0,0,20">
+                        <Border Background="#00915A" Width="5" CornerRadius="2" 
+                                Margin="0,0,20,0" Height="60" VerticalAlignment="Top"/>
+                        
+                        <StackPanel Margin="0,0,20,10">
+                            <TextBlock FontSize="28" FontWeight="Bold" Foreground="#1A1919">
+                                <Run Text="📝 "/>
+                                <Run Text="DEMANDES" Foreground="#00915A"/>
+                            </TextBlock>
+                            <TextBlock Text="Gestion des demandes utilisateurs et suivi des traitements" 
+                                       FontSize="14" Foreground="#666666" Margin="0,5,0,0"/>
+                        </StackPanel>
+                        
+                        <WrapPanel Orientation="Horizontal">
                         <Button x:Name="BtnAnalyseEmail"
                                 Content="📧 Créer depuis Email (IA)" 
                                 Height="42" Padding="18,0" Margin="0,0,10,0"
@@ -104,12 +95,12 @@
                                 </Style>
                             </Button.Style>
                         </Button>
-                    </StackPanel>
+                    </WrapPanel>
+                    </WrapPanel>
                     
                     <!-- Onglets de navigation -->
-                    <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,20,0,0" 
-                            Background="#F5F5F5" CornerRadius="25" Padding="4">
-                        <StackPanel Orientation="Horizontal">
+                    <Border Background="#F5F5F5" CornerRadius="25" Padding="4">
+                        <WrapPanel Orientation="Horizontal">
                             <Button x:Name="BtnOngletActives" Content="📋 Demandes actives" 
                                     Background="#00915A" Foreground="White" 
                                     FontSize="13" FontWeight="Bold" Padding="18,8"
@@ -161,9 +152,9 @@
                                     </Style>
                                 </Button.Style>
                             </Button>
-                        </StackPanel>
+                        </WrapPanel>
                     </Border>
-                </Grid>
+                </StackPanel>
             </Border>
 
             <!-- Filtres Section -->
@@ -171,52 +162,40 @@
                 <Border.Effect>
                     <DropShadowEffect Color="#E0E0E0" BlurRadius="12" ShadowDepth="1" Opacity="0.25" Direction="270"/>
                 </Border.Effect>
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    
-                    <!-- Ligne 1 -->
-                    <Grid Grid.Row="0" Margin="0,0,0,15">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <StackPanel Grid.Column="0" Margin="0,0,15,0">
+                <StackPanel>
+                    <!-- Filtres -->
+                    <WrapPanel Orientation="Horizontal" Margin="0,0,0,15">
+                        <StackPanel Margin="0,0,15,10" MinWidth="180">
                             <TextBlock Text="📊 Statut" FontSize="12" FontWeight="SemiBold" Foreground="#666" Margin="0,0,0,6"/>
                             <ComboBox x:Name="CmbFiltreStatut" Height="38" FontSize="13" 
                                      BorderBrush="#DDD" BorderThickness="1" Padding="12,0"
                                      Background="White" SelectedIndex="0"/>
                         </StackPanel>
                         
-                        <StackPanel Grid.Column="1" Margin="0,0,15,0">
+                        <StackPanel Margin="0,0,15,10" MinWidth="180">
                             <TextBlock Text="⚠️ Criticité" FontSize="12" FontWeight="SemiBold" Foreground="#666" Margin="0,0,0,6"/>
                             <ComboBox x:Name="CmbFiltreCriticite" Height="38" FontSize="13"
                                      BorderBrush="#DDD" BorderThickness="1" Padding="12,0"
                                      Background="White" SelectedIndex="0"/>
                         </StackPanel>
                         
-                        <StackPanel Grid.Column="2" Margin="0,0,15,0">
+                        <StackPanel Margin="0,0,15,10" MinWidth="180">
                             <TextBlock Text="📅 Date de" FontSize="12" FontWeight="SemiBold" Foreground="#666" Margin="0,0,0,6"/>
                             <DatePicker x:Name="DpDateDebut" Height="38" FontSize="13"
                                        BorderBrush="#DDD" BorderThickness="1" Padding="12,0"
                                        Background="White"/>
                         </StackPanel>
                         
-                        <StackPanel Grid.Column="3">
+                        <StackPanel Margin="0,0,0,10" MinWidth="180">
                             <TextBlock Text="📅 Date à" FontSize="12" FontWeight="SemiBold" Foreground="#666" Margin="0,0,0,6"/>
                             <DatePicker x:Name="DpDateFin" Height="38" FontSize="13"
                                        BorderBrush="#DDD" BorderThickness="1" Padding="12,0"
-                                       Background="White" Width="180"/>
+                                       Background="White"/>
                         </StackPanel>
-                    </Grid>
+                    </WrapPanel>
                     
-                    <!-- Ligne 2 - Boutons Action -->
-                    <StackPanel Grid.Row="1" Orientation="Horizontal">
+                    <!-- Boutons Action -->
+                    <WrapPanel Orientation="Horizontal">
                         <Button x:Name="BtnRefresh" Content="🔄 Actualiser" 
                                Height="36" Padding="18,0" Margin="0,0,10,0"
                                Background="#00915A" Foreground="White" FontWeight="SemiBold"
@@ -266,8 +245,8 @@
                                 </Style>
                             </Button.Style>
                         </Button>
-                    </StackPanel>
-                </Grid>
+                    </WrapPanel>
+                </StackPanel>
             </Border>
             
             <!-- Liste des demandes -->
@@ -441,7 +420,7 @@
                                 </Grid>
                                 
                                 <!-- Actions -->
-                                <StackPanel Grid.Row="3" Orientation="Horizontal">
+                                <WrapPanel Grid.Row="3" Orientation="Horizontal">
                                     <Button Content="🎯 Créer tâche" Height="34" Padding="14,0" Margin="0,0,8,0"
                                            Background="#FF6F00" Foreground="White" BorderThickness="0"
                                            FontSize="12" Cursor="Hand" Tag="{Binding Id}" FontWeight="SemiBold"
@@ -593,7 +572,7 @@
                                             </Style>
                                         </Button.Style>
                                     </Button>
-                                </StackPanel>
+                                </WrapPanel>
                             </Grid>
                         </Border>
                     </DataTemplate>

@@ -146,11 +146,11 @@
                                                 <TextBlock Text="✅ ACTIF" FontSize="9" FontWeight="Bold" 
                                                            Foreground="White"/>
                                             </Border>
-                                            <Border Background="#999999" CornerRadius="12" 
+                                            <Border Background="#FF9800" CornerRadius="12" 
                                                     Padding="8,3" Margin="0,0,12,0"
                                                     VerticalAlignment="Center"
                                                     Visibility="{Binding Actif, Converter={StaticResource InverseBooleanToVisibilityConverter}}">
-                                                <TextBlock Text="❌ INACTIF" FontSize="9" FontWeight="Bold" 
+                                                <TextBlock Text="📦 ARCHIVÉ" FontSize="9" FontWeight="Bold" 
                                                            Foreground="White"/>
                                             </Border>
                                             <Button Content="✏️" ToolTip="Modifier le projet"

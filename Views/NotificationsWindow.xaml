@@ -17,13 +17,8 @@
             <Border.Effect>
                 <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.18" Color="#00915A"/>
             </Border.Effect>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                
-                <StackPanel Grid.Column="0" Orientation="Horizontal">
+            <WrapPanel Orientation="Horizontal">
+                <StackPanel Orientation="Horizontal" Margin="0,0,20,10">
                     <TextBlock Text="🔔" FontSize="28" VerticalAlignment="Center" Margin="0,0,10,0"/>
                     <StackPanel>
                         <TextBlock Text="CENTRE DE NOTIFICATIONS" FontSize="22" FontWeight="Bold" Foreground="#1A1919"/>
@@ -36,7 +31,7 @@
                     </StackPanel>
                 </StackPanel>
 
-                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <Button x:Name="BtnMarquerToutesLues" Content="✓ Tout marquer comme lu" 
                             Click="BtnMarquerToutesLues_Click"
                             Padding="12,8" Margin="0,0,10,0" Background="#00915A" Foreground="White" 
@@ -86,8 +81,8 @@
                             </Style>
                         </Button.Style>
                     </Button>
-                </StackPanel>
-            </Grid>
+                </WrapPanel>
+            </WrapPanel>
         </Border>
 
         <!-- Filtres -->
@@ -95,28 +90,28 @@
             <Border.Effect>
                 <DropShadowEffect BlurRadius="8" ShadowDepth="0" Opacity="0.12" Color="#00915A"/>
             </Border.Effect>
-            <StackPanel Orientation="Horizontal">
+            <WrapPanel Orientation="Horizontal">
                 <TextBlock Text="🔍 Filtrer:" FontWeight="Bold" FontSize="13" 
-                           VerticalAlignment="Center" Margin="0,0,15,0" Foreground="#555"/>
+                           VerticalAlignment="Center" Margin="0,0,15,10" Foreground="#555"/>
                 
                 <RadioButton x:Name="RadioTous" Content="Toutes" IsChecked="True" 
                              Checked="Filtre_Changed" GroupName="TypeFiltre"
-                             FontSize="12" Margin="0,0,15,0" VerticalAlignment="Center"/>
+                             FontSize="12" Margin="0,0,15,10" VerticalAlignment="Center"/>
                 <RadioButton x:Name="RadioNonLues" Content="Non lues uniquement" 
                              Checked="Filtre_Changed" GroupName="TypeFiltre"
-                             FontSize="12" Margin="0,0,15,0" VerticalAlignment="Center"/>
+                             FontSize="12" Margin="0,0,15,10" VerticalAlignment="Center"/>
                 
-                <Rectangle Width="2" Height="20" Fill="#E0E0E0" Margin="10,0,15,0"/>
+                <Rectangle Width="2" Height="20" Fill="#E0E0E0" Margin="10,0,15,10"/>
                 
                 <CheckBox x:Name="ChkUrgent" Content="🔴 Urgent" Checked="Filtre_Changed" Unchecked="Filtre_Changed"
-                          FontSize="12" Margin="0,0,15,0" VerticalAlignment="Center"/>
+                          FontSize="12" Margin="0,0,15,10" VerticalAlignment="Center"/>
                 <CheckBox x:Name="ChkAttention" Content="🟠 Attention" Checked="Filtre_Changed" Unchecked="Filtre_Changed"
-                          FontSize="12" Margin="0,0,15,0" VerticalAlignment="Center"/>
+                          FontSize="12" Margin="0,0,15,10" VerticalAlignment="Center"/>
                 <CheckBox x:Name="ChkInfo" Content="🔵 Info" Checked="Filtre_Changed" Unchecked="Filtre_Changed"
-                          FontSize="12" Margin="0,0,15,0" VerticalAlignment="Center"/>
+                          FontSize="12" Margin="0,0,15,10" VerticalAlignment="Center"/>
                 <CheckBox x:Name="ChkSuccess" Content="✅ Succès" Checked="Filtre_Changed" Unchecked="Filtre_Changed"
-                          FontSize="12" VerticalAlignment="Center"/>
-            </StackPanel>
+                          FontSize="12" Margin="0,0,0,10" VerticalAlignment="Center"/>
+            </WrapPanel>
         </Border>
 
         <!-- Liste des notifications -->
@@ -270,7 +265,7 @@
             <Border.Effect>
                 <DropShadowEffect BlurRadius="8" ShadowDepth="0" Opacity="0.12" Color="#00915A"/>
             </Border.Effect>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button x:Name="BtnActualiser" Content="🔄 Actualiser" 
                         Click="BtnActualiser_Click"
                         Padding="15,8" Margin="0,0,10,0" Background="#00915A" Foreground="White" 
@@ -320,7 +315,7 @@
                         </Style>
                     </Button.Style>
                 </Button>
-            </StackPanel>
+            </WrapPanel>
         </Border>
     </Grid>
 </Window>

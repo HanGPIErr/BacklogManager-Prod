@@ -9,6 +9,9 @@ namespace BacklogManager
 {
     public partial class App : Application
     {
+        public NotificationService NotificationService { get; set; }
+        public EmailService EmailService { get; set; }
+        
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);

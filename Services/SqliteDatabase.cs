@@ -1373,7 +1373,7 @@ namespace BacklogManager.Services
             using (var conn = GetConnection())
             {
                 conn.Open();
-                using (var cmd = new SQLiteCommand("SELECT Id, Nom, Description, DateCreation, DateDebut, DateFin, CouleurHex, Actif FROM Projets WHERE Actif = 1 ORDER BY DateCreation DESC", conn))
+                using (var cmd = new SQLiteCommand("SELECT Id, Nom, Description, DateCreation, DateDebut, DateFin, CouleurHex, Actif FROM Projets ORDER BY DateCreation DESC", conn))
                 using (var reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())

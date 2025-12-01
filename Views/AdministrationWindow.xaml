@@ -16,11 +16,11 @@
             <Border.Effect>
                 <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.15" Color="#00915A"/>
             </Border.Effect>
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="⚙️ ADMINISTRATION" FontSize="24" FontWeight="Bold" Foreground="#1A1919"/>
+            <WrapPanel Orientation="Horizontal">
+                <TextBlock Text="⚙️ ADMINISTRATION" FontSize="24" FontWeight="Bold" Foreground="#1A1919" Margin="0,0,20,5"/>
                 <TextBlock Text="Gestion des utilisateurs, rôles et paramètres" FontSize="14" 
-                           Foreground="#6D6D6D" VerticalAlignment="Bottom" Margin="20,0,0,3"/>
-            </StackPanel>
+                           Foreground="#6D6D6D" VerticalAlignment="Bottom" Margin="0,0,0,8"/>
+            </WrapPanel>
         </Border>
 
         <!-- Tabs Navigation avec Regroupement Logique -->
@@ -74,18 +74,18 @@
                         </Grid.RowDefinitions>
                         
                         <!-- Sous-navigation -->
-                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,15">
+                        <WrapPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,15">
                             <Button x:Name="BtnSousOngletUtilisateurs" Content="👥 Utilisateurs" 
                                     Background="#00915A" Foreground="White" 
                                     FontSize="13" FontWeight="SemiBold" Padding="15,8"
-                                    Margin="0,0,10,0" BorderThickness="0" Cursor="Hand"
+                                    Margin="0,0,10,5" BorderThickness="0" Cursor="Hand"
                                     Click="BtnSousOngletUtilisateurs_Click"/>
                             <Button x:Name="BtnSousOngletRoles" Content="🎭 Rôles" 
                                     Background="#E0E0E0" Foreground="#6D6D6D" 
                                     FontSize="13" FontWeight="Normal" Padding="15,8"
-                                    BorderThickness="0" Cursor="Hand"
+                                    Margin="0,0,10,5" BorderThickness="0" Cursor="Hand"
                                     Click="BtnSousOngletRoles_Click"/>
-                        </StackPanel>
+                        </WrapPanel>
                         
                         <!-- Contenu dynamique -->
                         <Frame x:Name="FrameUtilisateursRoles" Grid.Row="1" NavigationUIVisibility="Hidden"/>
@@ -103,18 +103,18 @@
                         </Grid.RowDefinitions>
                         
                         <!-- Sous-navigation -->
-                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,15">
+                        <WrapPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,15">
                             <Button x:Name="BtnSousOngletProjets" Content="📊 Projets" 
                                     Background="#00915A" Foreground="White" 
                                     FontSize="13" FontWeight="SemiBold" Padding="15,8"
-                                    Margin="0,0,10,0" BorderThickness="0" Cursor="Hand"
+                                    Margin="0,0,10,5" BorderThickness="0" Cursor="Hand"
                                     Click="BtnSousOngletProjets_Click"/>
                             <Button x:Name="BtnSousOngletEquipe" Content="👥 Équipe" 
                                     Background="#E0E0E0" Foreground="#6D6D6D" 
                                     FontSize="13" FontWeight="Normal" Padding="15,8"
-                                    BorderThickness="0" Cursor="Hand"
+                                    Margin="0,0,10,5" BorderThickness="0" Cursor="Hand"
                                     Click="BtnSousOngletEquipe_Click"/>
-                        </StackPanel>
+                        </WrapPanel>
                         
                         <!-- Contenu dynamique -->
                         <Frame x:Name="FrameProjetsEquipe" Grid.Row="1" NavigationUIVisibility="Hidden"/>

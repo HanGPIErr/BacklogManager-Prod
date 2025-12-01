@@ -149,7 +149,17 @@ namespace BacklogManager.Services
 
         public List<Projet> GetAllProjets()
         {
+            return _database.GetProjets(); // Retourner tous les projets (actifs et archivés)
+        }
+
+        public List<Projet> GetProjetsActifs()
+        {
             return _database.GetProjets().Where(x => x.Actif).ToList();
+        }
+
+        public List<Projet> GetProjetsArchives()
+        {
+            return _database.GetProjets().Where(x => !x.Actif).ToList();
         }
 
         public Projet SaveProjet(Projet projet)
