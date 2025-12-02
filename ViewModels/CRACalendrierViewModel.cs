@@ -372,20 +372,29 @@ namespace BacklogManager.ViewModels
 
         private void ChargerTachesDisponibles()
         {
+            // Toujours vider la liste au début pour éviter les doublons
             TachesDisponibles.Clear();
             
-            if (DevSelectionne == null) return;
+            if (DevSelectionne == null)
+            {
+                return;
+            }
 
             // Pour la saisie CRA, seulement les tâches non-archivées
             var toutesLesTaches = _backlogService.GetAllBacklogItems();
 
             // Séparer les tâches normales et spéciales
             // Les tâches spéciales (Congés, Non travaillé, Support, Run) sont TOUJOURS disponibles pour tous
-            var tachesSpeciales = toutesLesTaches.Where(t => 
-                t.TypeDemande == TypeDemande.Conges || 
-                t.TypeDemande == TypeDemande.NonTravaille || 
-                t.TypeDemande == TypeDemande.Support || 
-                t.TypeDemande == TypeDemande.Run).ToList();
+            // MAIS on ne garde qu'UNE SEULE tâche par type spécial pour éviter les doublons
+            var tachesSpecialesParType = toutesLesTaches
+                .Where(t => 
+                    t.TypeDemande == TypeDemande.Conges || 
+                    t.TypeDemande == TypeDemande.NonTravaille || 
+                    t.TypeDemande == TypeDemande.Support || 
+                    t.TypeDemande == TypeDemande.Run)
+                .GroupBy(t => t.TypeDemande)
+                .Select(g => g.First())
+                .ToList();
 
             List<BacklogItem> taches;
             if (_afficherToutesLesTaches)
@@ -398,20 +407,20 @@ namespace BacklogManager.ViewModels
                     t.TypeDemande != TypeDemande.NonTravaille &&
                     t.TypeDemande != TypeDemande.Support &&
                     t.TypeDemande != TypeDemande.Run).ToList();
-                taches = tachesNormales.Concat(tachesSpeciales).ToList();
+                taches = tachesNormales.Concat(tachesSpecialesParType).ToList();
             }
             else
             {
-                // Tâches assignées au dev (en cours/test) SAUF les spéciales + TOUTES les tâches spéciales
+                // Tâches assignées au dev (à faire/en cours/test) SAUF les spéciales + TOUTES les tâches spéciales
                 var tachesNormales = toutesLesTaches.Where(t => 
                     t.DevAssigneId == DevSelectionne.Id && 
-                    (t.Statut == Statut.EnCours || t.Statut == Statut.Test) &&
+                    (t.Statut == Statut.Afaire || t.Statut == Statut.EnCours || t.Statut == Statut.Test) &&
                     t.TypeDemande != TypeDemande.Conges &&
                     t.TypeDemande != TypeDemande.NonTravaille &&
                     t.TypeDemande != TypeDemande.Support &&
                     t.TypeDemande != TypeDemande.Run).ToList();
                 // Les tâches spéciales sont disponibles pour tous les devs (pas de filtre DevAssigneId)
-                taches = tachesNormales.Concat(tachesSpeciales).ToList();
+                taches = tachesNormales.Concat(tachesSpecialesParType).ToList();
             }
 
             // Filtrer les tâches qui ont encore des jours à saisir
@@ -437,6 +446,9 @@ namespace BacklogManager.ViewModels
                     var heuresSaisies = _craService.GetHeuresSaisiesPourTache(tache.Id);
                     var heuresRestantes = tache.ChiffrageHeures.Value - heuresSaisies;
                     
+                    // DEBUG: Log pour diagnostiquer le problème
+                    System.Diagnostics.Debug.WriteLine($"Tâche #{tache.Id} '{tache.Titre}': Chiffrage={tache.ChiffrageHeures}h, Saisies={heuresSaisies}h, Restantes={heuresRestantes}h");
+                    
                     // Si il reste au moins 0.5h à saisir, afficher la tâche
                     if (heuresRestantes >= 0.5)
                     {
@@ -450,10 +462,41 @@ namespace BacklogManager.ViewModels
                 }
             }
 
-            // Dédupliquer par Id pour éviter les doublons dans la liste
-            var tachesUniques = tachesAvecChiffrage.GroupBy(t => t.Id).Select(g => g.First()).ToList();
+            // Dédupliquer STRICTEMENT : 
+            // - Pour les tâches spéciales : une seule par TypeDemande
+            // - Pour les tâches normales : une seule par Id
+            var tachesFinales = new List<BacklogItem>();
+            var typesSpeciauxVus = new HashSet<TypeDemande>();
+            var idsVus = new HashSet<int>();
 
-            foreach (var tache in tachesUniques.OrderByDescending(t => t.Priorite).ThenBy(t => t.Titre))
+            foreach (var tache in tachesAvecChiffrage.OrderByDescending(t => t.Priorite).ThenBy(t => t.Titre))
+            {
+                bool estTacheSpeciale = tache.TypeDemande == TypeDemande.Conges || 
+                                       tache.TypeDemande == TypeDemande.NonTravaille || 
+                                       tache.TypeDemande == TypeDemande.Support || 
+                                       tache.TypeDemande == TypeDemande.Run;
+
+                if (estTacheSpeciale)
+                {
+                    // Pour les tâches spéciales : une seule par type
+                    if (!typesSpeciauxVus.Contains(tache.TypeDemande))
+                    {
+                        typesSpeciauxVus.Add(tache.TypeDemande);
+                        tachesFinales.Add(tache);
+                    }
+                }
+                else
+                {
+                    // Pour les tâches normales : une seule par Id
+                    if (!idsVus.Contains(tache.Id))
+                    {
+                        idsVus.Add(tache.Id);
+                        tachesFinales.Add(tache);
+                    }
+                }
+            }
+
+            foreach (var tache in tachesFinales)
             {
                 TachesDisponibles.Add(tache);
             }
@@ -996,8 +1039,8 @@ namespace BacklogManager.ViewModels
                     // Si le CRA est dans la période de congés
                     if (cra.Date >= debutConges && cra.Date <= finConges)
                     {
-                        // Trouver le prochain jour ouvré disponible
-                        while (!JoursFeriesService.EstJourOuvre(dateDecalage))
+                        // Trouver le prochain jour ouvré disponible (sans férié, weekend ET sans congé existant)
+                        while (!JoursFeriesService.EstJourOuvre(dateDecalage) || ADejaCongesCeJour(cra.DevId, dateDecalage))
                         {
                             dateDecalage = dateDecalage.AddDays(1);
                         }
@@ -1012,7 +1055,7 @@ namespace BacklogManager.ViewModels
                         while (chargeTotal > 8.0)
                         {
                             dateDecalage = dateDecalage.AddDays(1);
-                            while (!JoursFeriesService.EstJourOuvre(dateDecalage))
+                            while (!JoursFeriesService.EstJourOuvre(dateDecalage) || ADejaCongesCeJour(cra.DevId, dateDecalage))
                             {
                                 dateDecalage = dateDecalage.AddDays(1);
                             }
@@ -1080,6 +1123,21 @@ namespace BacklogManager.ViewModels
         }
 
         /// <summary>
+        /// Vérifie si le dev a déjà un congé ou jour non travaillé à cette date
+        /// </summary>
+        private bool ADejaCongesCeJour(int devId, DateTime date)
+        {
+            var crasDuJour = _craService.GetCRAsByDev(devId, date, date);
+            
+            return crasDuJour.Any(c => {
+                var tache = _backlogService.GetBacklogItemById(c.BacklogItemId);
+                return tache != null && 
+                       (tache.TypeDemande == TypeDemande.Conges || 
+                        tache.TypeDemande == TypeDemande.NonTravaille);
+            });
+        }
+
+        /// <summary>
         /// Trouve les jours disponibles avec décalage automatique si nécessaire
         /// </summary>
         private System.Collections.Generic.List<DateTime> TrouverJoursDisponibles(
@@ -1131,9 +1189,11 @@ namespace BacklogManager.ViewModels
                 {
                     Mouse.OverrideCursor = Cursors.Wait;
                     _craService.DeleteCRA(craVM.CRA.Id, _authService.CurrentUser.Id, _permissionService.EstAdministrateur);
-                    ChargerCalendrier();
-                    ChargerCRAsJour();
-                    ChargerTachesDisponibles();
+                    
+                    // Force le rechargement complet des données
+                    ChargerTachesDisponibles();  // D'abord les tâches disponibles
+                    ChargerCalendrier();         // Puis le calendrier
+                    ChargerCRAsJour();           // Et enfin les CRAs du jour
 
                     System.Windows.MessageBox.Show(
                         "CRA supprimé avec succès !",
