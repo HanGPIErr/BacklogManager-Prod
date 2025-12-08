@@ -2,6 +2,7 @@ using System.Windows.Controls;
 using System.Windows;
 using BacklogManager.ViewModels;
 using System.Linq;
+using System.Windows.Input;
 
 namespace BacklogManager.Views
 {
@@ -17,6 +18,17 @@ namespace BacklogManager.Views
             if (sender is ScrollViewer scrollViewer && TimelineHeaderScroll != null)
             {
                 TimelineHeaderScroll.ScrollToHorizontalOffset(scrollViewer.HorizontalOffset);
+            }
+        }
+
+        private void TacheTimeline_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is Border border && border.Tag is TacheTimelineViewModel tache)
+            {
+                // Ouvrir la fenêtre d'aperçu de la tâche
+                var apercuWindow = new AperçuTacheTimelineWindow(tache);
+                apercuWindow.Owner = Window.GetWindow(this);
+                apercuWindow.ShowDialog();
             }
         }
 

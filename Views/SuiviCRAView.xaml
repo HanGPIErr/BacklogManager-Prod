@@ -467,7 +467,10 @@
                                                 <Border Background="White" BorderBrush="#00915A" BorderThickness="2" 
                                                         CornerRadius="6" Padding="10" Margin="5"
                                                         Width="{Binding LargeurBarre}"
-                                                        Height="80">
+                                                        Height="80"
+                                                        Cursor="Hand"
+                                                        Tag="{Binding}"
+                                                        MouseDown="TacheTimeline_MouseDown">
                                                     <Border.Style>
                                                         <Style TargetType="Border">
                                                             <Setter Property="Background" Value="White"/>

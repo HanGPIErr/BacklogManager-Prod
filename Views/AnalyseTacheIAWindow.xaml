@@ -1,0 +1,140 @@
+<Window x:Class="BacklogManager.Views.AnalyseTacheIAWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="🤖 Analyse IA de la tâche" 
+        Height="700" Width="900"
+        Background="#F5F7FA"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResize">
+
+    <Border Background="White" CornerRadius="12" Margin="20" Padding="30">
+        <Border.Effect>
+            <DropShadowEffect Color="#E0E0E0" BlurRadius="20" ShadowDepth="0" Opacity="0.4"/>
+        </Border.Effect>
+
+        <Grid>
+            <!-- Panel de chargement -->
+            <Border x:Name="PanelChargement" Background="White" CornerRadius="8">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <TextBlock Text="🤖" FontSize="64" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+                    <TextBlock Text="Analyse en cours..." FontSize="20" FontWeight="Bold" 
+                               Foreground="#00915A" HorizontalAlignment="Center"/>
+                    <TextBlock Text="L'IA analyse la tâche et génère des recommandations..." 
+                               FontSize="14" Foreground="#666" HorizontalAlignment="Center" Margin="0,10,0,20"/>
+                    <ProgressBar IsIndeterminate="True" Height="6" Width="300" 
+                                 Foreground="#00915A" Background="#E0E0E0"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Panel de résultat -->
+            <ScrollViewer x:Name="PanelResultat" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <!-- En-tête avec score -->
+                    <Border Background="#667eea" CornerRadius="8" Padding="20,15" Margin="0,0,0,20">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="🤖 ANALYSE IA" FontSize="16" FontWeight="Bold" 
+                                           Foreground="White" Margin="0,0,0,5"/>
+                                <TextBlock x:Name="TxtTitreTache" FontSize="18" FontWeight="SemiBold" 
+                                           Foreground="White" TextWrapping="Wrap"/>
+                            </StackPanel>
+                            
+                            <Border x:Name="BorderScore" Grid.Column="1" Background="White" 
+                                    CornerRadius="50" Width="80" Height="80" 
+                                    VerticalAlignment="Center" Margin="15,0,0,0">
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock x:Name="TxtScore" FontSize="28" FontWeight="Bold" 
+                                               Foreground="#667eea" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="/100" FontSize="12" Foreground="#999" 
+                                               HorizontalAlignment="Center" Margin="0,-5,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </Border>
+
+                    <!-- Bilan général -->
+                    <Border Background="#E8F5E9" CornerRadius="8" Padding="20" Margin="0,0,0,15">
+                        <StackPanel>
+                            <TextBlock Text="📊 BILAN GÉNÉRAL" FontSize="14" FontWeight="Bold" 
+                                       Foreground="#2E7D32" Margin="0,0,0,10"/>
+                            <TextBlock x:Name="TxtBilan" TextWrapping="Wrap" FontSize="13" 
+                                       Foreground="#333" LineHeight="22"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Analyse détaillée -->
+                    <Border Background="#F5F5F5" CornerRadius="8" Padding="20" Margin="0,0,0,15">
+                        <StackPanel>
+                            <TextBlock Text="🔍 ANALYSE DÉTAILLÉE" FontSize="14" FontWeight="Bold" 
+                                       Foreground="#00915A" Margin="0,0,0,10"/>
+                            <TextBlock x:Name="TxtAnalyse" TextWrapping="Wrap" FontSize="13" 
+                                       Foreground="#333" LineHeight="22"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Points d'attention -->
+                    <Border Background="#FFF3E0" CornerRadius="8" Padding="20" Margin="0,0,0,15">
+                        <StackPanel>
+                            <TextBlock Text="⚠️ POINTS D'ATTENTION" FontSize="14" FontWeight="Bold" 
+                                       Foreground="#E65100" Margin="0,0,0,10"/>
+                            <TextBlock x:Name="TxtPointsAttention" TextWrapping="Wrap" FontSize="13" 
+                                       Foreground="#333" LineHeight="22"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Recommandations -->
+                    <Border Background="#E3F2FD" CornerRadius="8" Padding="20" Margin="0,0,0,15">
+                        <StackPanel>
+                            <TextBlock Text="💡 RECOMMANDATIONS" FontSize="14" FontWeight="Bold" 
+                                       Foreground="#1565C0" Margin="0,0,0,10"/>
+                            <TextBlock x:Name="TxtRecommandations" TextWrapping="Wrap" FontSize="13" 
+                                       Foreground="#333" LineHeight="22"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Actions prioritaires -->
+                    <Border Background="#F3E5F5" CornerRadius="8" Padding="20" Margin="0,0,0,20">
+                        <StackPanel>
+                            <TextBlock Text="🎯 ACTIONS PRIORITAIRES" FontSize="14" FontWeight="Bold" 
+                                       Foreground="#6A1B9A" Margin="0,0,0,10"/>
+                            <TextBlock x:Name="TxtActions" TextWrapping="Wrap" FontSize="13" 
+                                       Foreground="#333" LineHeight="22"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Bouton Fermer -->
+                    <Button Content="✓ Fermer" Click="BtnFermer_Click"
+                            Height="45" Background="#00915A" Foreground="White"
+                            FontSize="14" FontWeight="Bold" BorderThickness="0"
+                            Cursor="Hand">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" 
+                                                    CornerRadius="8" Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" 
+                                                                  VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#007843"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Border>
+</Window>

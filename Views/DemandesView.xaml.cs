@@ -161,6 +161,7 @@ namespace BacklogManager.Views
                     BusinessAnalyst = ObtenirNomUtilisateur(d.BusinessAnalystId, utilisateurs),
                     ChefProjet = ObtenirNomUtilisateur(d.ChefProjetId, utilisateurs),
                     ProjetNom = d.ProjetId.HasValue ? projets.FirstOrDefault(p => p.Id == d.ProjetId.Value)?.Nom ?? "-" : "-",
+                    ProjetId = d.ProjetId,
                     DateCreation = d.DateCreation,
                     EstAcceptee = d.Statut == StatutDemande.Acceptee,
                     EstArchivee = d.EstArchivee
@@ -336,6 +337,15 @@ namespace BacklogManager.Views
             }
         }
 
+        private void BtnCreerProjetClick(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            if (button?.Tag is int demandeId)
+            {
+                CreerProjetPourDemande(demandeId);
+            }
+        }
+
         private void AfficherDetails(int demandeId)
         {
             try
@@ -449,6 +459,80 @@ namespace BacklogManager.Views
             }
         }
 
+        private void CreerProjetPourDemande(int demandeId)
+        {
+            try
+            {
+                var demande = _database.GetDemandes().FirstOrDefault(d => d.Id == demandeId);
+                if (demande == null)
+                {
+                    MessageBox.Show("Demande introuvable.", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                // Vérifier si la demande a déjà un projet
+                if (demande.ProjetId.HasValue)
+                {
+                    MessageBox.Show("Cette demande est déjà associée à un projet.", "Information", 
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+
+                // Créer le projet
+                var backlogService = new BacklogService(_database);
+                var window = new EditProjetWindow(backlogService);
+                window.Owner = Window.GetWindow(this);
+                window.Title = "Créer un projet pour la demande";
+
+                if (window.ShowDialog() == true)
+                {
+                    // Récupérer le dernier projet créé
+                    var projets = _database.GetProjets().OrderByDescending(p => p.DateCreation).ToList();
+                    if (projets.Any())
+                    {
+                        var nouveauProjet = projets.First();
+                        
+                        // Associer le projet à la demande
+                        demande.ProjetId = nouveauProjet.Id;
+                        _database.AddOrUpdateDemande(demande);
+
+                        // Historique
+                        var utilisateur = _authService.CurrentUser;
+                        if (utilisateur != null)
+                        {
+                            var historique = new HistoriqueModification
+                            {
+                                TypeEntite = "Demande",
+                                EntiteId = demande.Id,
+                                UtilisateurId = utilisateur.Id,
+                                DateModification = DateTime.Now,
+                                TypeModification = Domain.TypeModification.Modification,
+                                NouvelleValeur = string.Format("Projet '{0}' créé et associé", nouveauProjet.Nom),
+                                AncienneValeur = "Aucun projet",
+                                ChampModifie = "ProjetId"
+                            };
+                            _database.AddHistorique(historique);
+                        }
+
+                        MessageBox.Show(
+                            string.Format("Projet '{0}' créé et associé avec succès !\n\nVous pouvez maintenant créer une tâche.", 
+                                nouveauProjet.Nom),
+                            "Succès",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Information);
+
+                        // Recharger les demandes
+                        ChargerDemandes();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("Erreur lors de la création du projet : {0}", ex.Message),
+                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         private void CreerTacheDepuisDemande(int demandeId)
         {
             try
@@ -457,6 +541,14 @@ namespace BacklogManager.Views
                 if (demande == null)
                 {
                     MessageBox.Show("Demande introuvable.", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                // Vérifier que la demande a un projet
+                if (!demande.ProjetId.HasValue)
+                {
+                    MessageBox.Show("Cette demande n'a pas de projet associé.\n\nVeuillez d'abord créer un projet.", 
+                        "Projet manquant", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -476,7 +568,8 @@ namespace BacklogManager.Views
                     DevAssigneId = demande.DevChiffreurId, // Récupérer le dev de la demande
                     DemandeId = demande.Id, // Lien vers la demande d'origine
                     DateFinAttendue = demande.DatePrevisionnelleImplementation,
-                    ChiffrageHeures = demande.ChiffrageEstimeJours.HasValue ? demande.ChiffrageEstimeJours.Value * 8.0 : (double?)null
+                    // ChiffrageHeures laissé vide : le développeur décide du chiffrage lui-même
+                    ChiffrageHeures = null
                 };
 
                 // Créer les services nécessaires
@@ -623,9 +716,13 @@ namespace BacklogManager.Views
         public string BusinessAnalyst { get; set; }
         public string ChefProjet { get; set; }
         public string ProjetNom { get; set; }
+        public int? ProjetId { get; set; }
         public DateTime DateCreation { get; set; }
         public bool EstAcceptee { get; set; }
         public bool EstArchivee { get; set; }
+        public bool AProjet => ProjetId.HasValue;
+        public bool EstAccepteeSansProjet => EstAcceptee && !AProjet;
+        public bool EstAccepteeAvecProjet => EstAcceptee && AProjet;
     }
 
     // Convertisseur pour les couleurs de statut

@@ -1,0 +1,224 @@
+<Window x:Class="BacklogManager.Views.AperçuTacheTimelineWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="📋 Aperçu de la tâche" 
+        Height="600" Width="700"
+        Background="#F5F7FA"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResize">
+
+    <Window.Resources>
+        <Style x:Key="InfoLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="#999"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,0,0,5"/>
+        </Style>
+        <Style x:Key="InfoValue" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="#333"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+    </Window.Resources>
+
+    <Border Background="White" CornerRadius="12" Margin="20" Padding="25">
+        <Border.Effect>
+            <DropShadowEffect Color="#E0E0E0" BlurRadius="20" ShadowDepth="0" Opacity="0.4"/>
+        </Border.Effect>
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <!-- En-tête -->
+                <Border Background="#00915A" CornerRadius="8" Padding="20,15" Margin="0,0,0,20">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="📋 DÉTAILS DE LA TÂCHE" FontSize="16" 
+                                       FontWeight="Bold" Foreground="White" Margin="0,0,0,8"/>
+                            <TextBlock x:Name="TxtTitre" FontSize="20" FontWeight="Bold" 
+                                       Foreground="White" TextWrapping="Wrap"/>
+                        </StackPanel>
+                        
+                        <Border Grid.Column="1" x:Name="BadgeStatut" CornerRadius="6" 
+                                Padding="12,8" VerticalAlignment="Top" Margin="15,0,0,0">
+                            <TextBlock x:Name="TxtStatut" FontSize="12" FontWeight="Bold" 
+                                       Foreground="White"/>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <!-- Description -->
+                <Border Background="#F9FAFB" CornerRadius="8" Padding="15" Margin="0,0,0,15">
+                    <StackPanel>
+                        <TextBlock Text="DESCRIPTION" Style="{StaticResource InfoLabel}"/>
+                        <TextBlock x:Name="TxtDescription" Style="{StaticResource InfoValue}"
+                                   Foreground="#555" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Informations principales -->
+                <Grid Margin="0,0,0,15">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <!-- Colonne gauche -->
+                    <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                        <Border Background="#E3F2FD" CornerRadius="8" Padding="15" Margin="0,0,0,10">
+                            <StackPanel>
+                                <TextBlock Text="👤 DÉVELOPPEUR ASSIGNÉ" Style="{StaticResource InfoLabel}"/>
+                                <TextBlock x:Name="TxtDevAssigne" Style="{StaticResource InfoValue}"
+                                           Foreground="#1976D2"/>
+                            </StackPanel>
+                        </Border>
+                        
+                        <Border Background="#FFF3E0" CornerRadius="8" Padding="15" Margin="0,0,0,10">
+                            <StackPanel>
+                                <TextBlock Text="⚡ PRIORITÉ" Style="{StaticResource InfoLabel}"/>
+                                <TextBlock x:Name="TxtPriorite" Style="{StaticResource InfoValue}"
+                                           Foreground="#F57C00"/>
+                            </StackPanel>
+                        </Border>
+                        
+                        <Border Background="#F3E5F5" CornerRadius="8" Padding="15">
+                            <StackPanel>
+                                <TextBlock Text="🎨 TYPE" Style="{StaticResource InfoLabel}"/>
+                                <TextBlock x:Name="TxtType" Style="{StaticResource InfoValue}"
+                                           Foreground="#7B1FA2"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                    
+                    <!-- Colonne droite -->
+                    <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                        <Border Background="#E8F5E9" CornerRadius="8" Padding="15" Margin="0,0,0,10">
+                            <StackPanel>
+                                <TextBlock Text="📅 DATE CRÉATION" Style="{StaticResource InfoLabel}"/>
+                                <TextBlock x:Name="TxtDateCreation" Style="{StaticResource InfoValue}"
+                                           Foreground="#388E3C"/>
+                            </StackPanel>
+                        </Border>
+                        
+                        <Border Background="#FFEBEE" CornerRadius="8" Padding="15" Margin="0,0,0,10">
+                            <StackPanel>
+                                <TextBlock Text="🎯 DATE FIN ATTENDUE" Style="{StaticResource InfoLabel}"/>
+                                <TextBlock x:Name="TxtDateFin" Style="{StaticResource InfoValue}"
+                                           Foreground="#D32F2F"/>
+                            </StackPanel>
+                        </Border>
+                        
+                        <Border Background="#E1F5FE" CornerRadius="8" Padding="15">
+                            <StackPanel>
+                                <TextBlock Text="🔢 COMPLEXITÉ" Style="{StaticResource InfoLabel}"/>
+                                <TextBlock x:Name="TxtComplexite" Style="{StaticResource InfoValue}"
+                                           Foreground="#0277BD"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+
+                <!-- Chiffrage et Temps -->
+                <Border Background="#FFF9C4" BorderBrush="#FBC02D" BorderThickness="2" 
+                        CornerRadius="8" Padding="15" Margin="0,0,0,15">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="⏱️ CHIFFRAGE" Style="{StaticResource InfoLabel}"/>
+                            <TextBlock x:Name="TxtChiffrage" FontSize="18" FontWeight="Bold" 
+                                       Foreground="#F57F17"/>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="✅ TEMPS RÉEL" Style="{StaticResource InfoLabel}"/>
+                            <TextBlock x:Name="TxtTempsReel" FontSize="18" FontWeight="Bold" 
+                                       Foreground="#00897B"/>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="📊 PROGRESSION" Style="{StaticResource InfoLabel}"/>
+                            <TextBlock x:Name="TxtProgression" FontSize="18" FontWeight="Bold" 
+                                       Foreground="#00915A"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- Barre de progression -->
+                <Border Background="#F5F5F5" CornerRadius="8" Height="30" Margin="0,0,0,20">
+                    <Border x:Name="BarreProgression" Background="#4CAF50" 
+                            CornerRadius="8" HorizontalAlignment="Left"/>
+                </Border>
+
+                <!-- Boutons d'action -->
+                <Grid Margin="0,0,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <Button Grid.Column="0" Content="🤖 Analyser avec IA" Click="BtnAnalyserIA_Click"
+                            Height="45" Background="#667eea" Foreground="White" Margin="0,0,5,0"
+                            FontSize="14" FontWeight="Bold" BorderThickness="0"
+                            Cursor="Hand">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" 
+                                                    CornerRadius="8" Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" 
+                                                                  VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#5568d3"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    
+                    <Button Grid.Column="1" Content="✓ Fermer" Click="BtnFermer_Click"
+                            Height="45" Background="#00915A" Foreground="White" Margin="5,0,0,0"
+                            FontSize="14" FontWeight="Bold" BorderThickness="0"
+                            Cursor="Hand">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" 
+                                                    CornerRadius="8" Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" 
+                                                                  VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#007843"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
+    </Border>
+</Window>

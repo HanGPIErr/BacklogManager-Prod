@@ -165,6 +165,8 @@ namespace BacklogManager.ViewModels
             set { _dateFinExtension = value; OnPropertyChanged(); }
         }
 
+        private List<BacklogItem> _tachesExtension; // Tâches à migrer vers le nouveau projet
+
         public int AnneeCourante
         {
             get => _anneeCourante;
@@ -363,15 +365,140 @@ namespace BacklogManager.ViewModels
 
         private void ValiderExtensionProjet()
         {
-            if (ProjetSelectionne == null || !DateDebutExtension.HasValue || !DateFinExtension.HasValue)
+            if (ProjetSelectionne == null || !DateDebutExtension.HasValue || !DateFinExtension.HasValue || _tachesExtension == null || !_tachesExtension.Any())
+            {
+                System.Windows.MessageBox.Show(
+                    "Impossible de valider l'extension : données manquantes.",
+                    "Erreur",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Warning);
                 return;
+            }
 
-            // Mettre à jour les dates du projet
-            ProjetSelectionne.DateFinPrevue = DateFinExtension.Value;
-            _backlogService.SaveProjet(ProjetSelectionne);
+            try
+            {
+                // 1. DÉTECTION DE VERSION
+                string nomProjetActuel = ProjetSelectionne.Nom ?? "Projet";
+                if (string.IsNullOrWhiteSpace(nomProjetActuel))
+                    nomProjetActuel = "Projet";
 
-            // Rafraîchir la timeline
-            ChargerTachesTimeline();
+                string nomNouveauProjet;
+                int versionActuelle = 1;
+
+                // Extraire version si elle existe (format : "Nom V2", "Nom V3", etc.)
+                var regexVersion = new System.Text.RegularExpressions.Regex(@"\s+V(\d+)$");
+                var match = regexVersion.Match(nomProjetActuel);
+                
+                if (match.Success)
+                {
+                    versionActuelle = int.Parse(match.Groups[1].Value);
+                    nomNouveauProjet = regexVersion.Replace(nomProjetActuel, $" V{versionActuelle + 1}");
+                }
+                else
+                {
+                    nomNouveauProjet = $"{nomProjetActuel} V2";
+                }
+
+                // 2. PRÉPARER LE NOUVEAU PROJET (sans le sauvegarder encore)
+                var nouveauProjet = new Projet
+                {
+                    Nom = nomNouveauProjet,
+                    Description = string.IsNullOrEmpty(ProjetSelectionne.Description) 
+                        ? $"Extension de {nomProjetActuel}"
+                        : $"Extension de {nomProjetActuel} - {ProjetSelectionne.Description}",
+                    DateDebut = DateDebutExtension.Value,
+                    DateFinPrevue = DateFinExtension.Value,
+                    DateCreation = DateTime.Now,
+                    Actif = true,
+                    CouleurHex = string.IsNullOrEmpty(ProjetSelectionne.CouleurHex) ? "#00915A" : ProjetSelectionne.CouleurHex
+                };
+
+                // 3. OUVRIR LA FENÊTRE D'ÉDITION POUR PERMETTRE À L'UTILISATEUR D'AJUSTER
+                var editWindow = new Views.EditProjetWindow(_backlogService, nouveauProjet);
+                if (editWindow.ShowDialog() == true)
+                {
+                    // L'utilisateur a validé, le projet est déjà sauvegardé par EditProjetWindow
+                    // Récupérer le projet créé
+                    var projetCree = _backlogService.GetAllProjets().FirstOrDefault(p => p.Nom == nomNouveauProjet);
+                    if (projetCree == null)
+                    {
+                        System.Windows.MessageBox.Show(
+                            "Erreur : le projet n'a pas pu être créé.",
+                            "Erreur",
+                            System.Windows.MessageBoxButton.OK,
+                            System.Windows.MessageBoxImage.Error);
+                        return;
+                    }
+
+                    // 4. MIGRER LES TÂCHES VERS LE NOUVEAU PROJET
+                    var utilisateurs = _backlogService.Database.GetUtilisateurs();
+                    var windowsUsername = System.Security.Principal.WindowsIdentity.GetCurrent().Name;
+                    if (windowsUsername.Contains(@"\"))
+                        windowsUsername = windowsUsername.Split('\\')[1];
+                    var utilisateurCourant = utilisateurs.FirstOrDefault(u => 
+                        u.UsernameWindows.Equals(windowsUsername, StringComparison.OrdinalIgnoreCase)) ?? utilisateurs.FirstOrDefault();
+                    int userId = utilisateurCourant?.Id ?? 1;
+
+                    int nbTachesMigrees = 0;
+                    foreach (var tache in _tachesExtension)
+                    {
+                        var ancienProjetId = tache.ProjetId;
+                        tache.ProjetId = projetCree.Id;
+                        _backlogService.SaveBacklogItem(tache);
+
+                        // Historique pour la migration
+                        _backlogService.Database.AddHistorique(new HistoriqueModification
+                        {
+                            TypeEntite = "BacklogItem",
+                            EntiteId = tache.Id,
+                            UtilisateurId = userId,
+                            DateModification = DateTime.Now,
+                            TypeModification = TypeModification.Modification,
+                            ChampModifie = "ProjetId",
+                            AncienneValeur = $"{ProjetSelectionne.Nom} (ID: {ancienProjetId})",
+                            NouvelleValeur = $"{nomNouveauProjet} (ID: {projetCree.Id})"
+                        });
+
+                        nbTachesMigrees++;
+                    }
+
+                    // 5. HISTORIQUE GLOBAL POUR L'EXTENSION
+                    _backlogService.Database.AddHistorique(new HistoriqueModification
+                    {
+                        TypeEntite = "Projet",
+                        EntiteId = projetCree.Id,
+                        UtilisateurId = userId,
+                        DateModification = DateTime.Now,
+                        TypeModification = TypeModification.Creation,
+                        ChampModifie = "Extension",
+                        AncienneValeur = ProjetSelectionne.Nom,
+                        NouvelleValeur = $"{nomNouveauProjet} - {nbTachesMigrees} tâches migrées"
+                    });
+
+                    // 6. RAFRAÎCHIR LA VUE
+                    ChargerProjets();
+                    ProjetSelectionne = projetCree; // Sélectionner le nouveau projet
+                    ChargerTachesTimeline();
+
+                    System.Windows.MessageBox.Show(
+                        $"✅ Extension validée !\n\n" +
+                        $"Nouveau projet créé : {projetCree.Nom}\n" +
+                        $"Période : {projetCree.DateDebut?.ToString("dd/MM/yyyy") ?? "N/A"} - {projetCree.DateFinPrevue?.ToString("dd/MM/yyyy") ?? "N/A"}\n" +
+                        $"Tâches migrées : {nbTachesMigrees}",
+                        "Succès",
+                        System.Windows.MessageBoxButton.OK,
+                        System.Windows.MessageBoxImage.Information);
+                }
+                // Sinon l'utilisateur a annulé, on ne fait rien
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show(
+                    $"Erreur lors de l'extension du projet :\n{ex.Message}",
+                    "Erreur",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Error);
+            }
         }
 
         private DateTime GetLundiDeLaSemaine(DateTime date)
@@ -686,6 +813,9 @@ namespace BacklogManager.ViewModels
                 // Calculer le gap en mois
                 int gapMois = ((dateDebutExtensionCalc.Value.Year - dateMax.Year) * 12) + 
                               (dateDebutExtensionCalc.Value.Month - dateMax.Month);
+
+                // Stocker les tâches de l'extension pour la migration
+                _tachesExtension = tachesApresFinProjet;
 
                 ExtensionProjetDetectee = true;
                 MessageExtension = $"⚠️ {tachesApresFinProjet.Count} tâche(s) détectée(s) {gapMois} mois après la fin du projet. " +

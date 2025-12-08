@@ -421,11 +421,36 @@
                                 
                                 <!-- Actions -->
                                 <WrapPanel Grid.Row="3" Orientation="Horizontal">
+                                    <Button Content="📁 Créer projet" Height="34" Padding="14,0" Margin="0,0,8,0"
+                                           Background="#9C27B0" Foreground="White" BorderThickness="0"
+                                           FontSize="12" Cursor="Hand" Tag="{Binding Id}" FontWeight="SemiBold"
+                                           Click="BtnCreerProjetClick"
+                                           Visibility="{Binding EstAccepteeSansProjet, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border Background="{TemplateBinding Background}" CornerRadius="6" 
+                                                                    Padding="{TemplateBinding Padding}">
+                                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                            </Border>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="#7B1FA2"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
                                     <Button Content="🎯 Créer tâche" Height="34" Padding="14,0" Margin="0,0,8,0"
                                            Background="#FF6F00" Foreground="White" BorderThickness="0"
                                            FontSize="12" Cursor="Hand" Tag="{Binding Id}" FontWeight="SemiBold"
                                            Click="BtnCreerTacheClick"
-                                           Visibility="{Binding EstAcceptee, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                           Visibility="{Binding EstAccepteeAvecProjet, Converter={StaticResource BooleanToVisibilityConverter}}">
                                         <Button.Style>
                                             <Style TargetType="Button">
                                                 <Setter Property="Template">

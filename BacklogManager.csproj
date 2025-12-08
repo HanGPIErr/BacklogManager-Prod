@@ -195,6 +195,14 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\AnalyseTacheIAWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\AperçuTacheTimelineWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\SuiviCRAView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -391,11 +399,17 @@
     <Compile Include="Views\AnalyseStatistiquesIAWindow.xaml.cs">
       <DependentUpon>AnalyseStatistiquesIAWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\AnalyseTacheIAWindow.xaml.cs">
+      <DependentUpon>AnalyseTacheIAWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\AnalyseDevIAWindow.xaml.cs">
       <DependentUpon>AnalyseDevIAWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\CRACalendrierView.xaml.cs">
       <DependentUpon>CRACalendrierView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\AperçuTacheTimelineWindow.xaml.cs">
+      <DependentUpon>AperçuTacheTimelineWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\RapportValidationWindow.xaml.cs">
       <DependentUpon>RapportValidationWindow.xaml</DependentUpon>
