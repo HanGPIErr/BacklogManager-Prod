@@ -544,10 +544,10 @@ namespace BacklogManager.ViewModels
         {
             CompletionParProjet.Clear();
 
-            foreach (var projet in projets.Where(p => p.Actif))
+            foreach (var projet in projets.Where(p => p.Actif && p.Nom != "Tâches administratives"))
             {
                 // Récupérer toutes les tâches du projet (y compris archivées) SAUF congés et non-travaillé
-                var toutesLesTachesProjet = _backlogService.GetAllBacklogItems()
+                var toutesLesTachesProjet = _backlogService.GetAllBacklogItemsIncludingArchived()
                     .Where(t => t.ProjetId == projet.Id && 
                                 t.TypeDemande != TypeDemande.Conges && 
                                 t.TypeDemande != TypeDemande.NonTravaille)

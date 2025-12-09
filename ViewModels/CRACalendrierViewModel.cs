@@ -336,18 +336,32 @@ namespace BacklogManager.ViewModels
         {
             Devs.Clear();
             
-            // Si l'utilisateur est admin, montrer tous les utilisateurs actifs, sinon seulement lui-même
+            // Si l'utilisateur est admin, montrer uniquement les Dev et BA (ceux qui saisissent des CRA), sinon seulement lui-même
             if (_permissionService.EstAdministrateur)
             {
-                // Récupérer TOUS les utilisateurs actifs (peu importe le rôle)
+                // Récupérer tous les utilisateurs actifs avec leurs rôles
                 var users = _backlogService.Database.GetUtilisateurs()
                     .Where(u => u.Actif)
-                    .OrderBy(u => u.Nom)
                     .ToList();
-                    
+                
+                var roles = _backlogService.Database.GetRoles();
+                
+                // Filtrer uniquement les Développeurs et Business Analysts
                 foreach (var user in users)
                 {
-                    Devs.Add(user);
+                    var role = roles.FirstOrDefault(r => r.Id == user.RoleId);
+                    if (role != null && (role.Type == RoleType.Developpeur || role.Type == RoleType.BusinessAnalyst))
+                    {
+                        Devs.Add(user);
+                    }
+                }
+                
+                // Trier par nom
+                var devsList = Devs.OrderBy(d => d.Nom).ToList();
+                Devs.Clear();
+                foreach (var dev in devsList)
+                {
+                    Devs.Add(dev);
                 }
             }
             else

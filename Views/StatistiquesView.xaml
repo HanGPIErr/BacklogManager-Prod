@@ -8,15 +8,22 @@
         
         <!-- Style des cartes -->
         <Style x:Key="StatCardStyle" TargetType="Border">
-            <Setter Property="Background" Value="White"/>
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#FFFFFF" Offset="0"/>
+                        <GradientStop Color="#FAFAFA" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
             <Setter Property="BorderBrush" Value="#E0E0E0"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="CornerRadius" Value="10"/>
             <Setter Property="Padding" Value="20"/>
             <Setter Property="Margin" Value="10"/>
             <Setter Property="Effect">
                 <Setter.Value>
-                    <DropShadowEffect Color="#CCCCCC" BlurRadius="10" ShadowDepth="2" Opacity="0.3"/>
+                    <DropShadowEffect Color="#D0D0D0" BlurRadius="16" ShadowDepth="0" Opacity="0.2"/>
                 </Setter.Value>
             </Setter>
         </Style>
@@ -26,20 +33,30 @@
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <StackPanel Margin="20">
                 <!-- En-tête -->
-                <Grid Margin="0,0,0,30">
+                <Border CornerRadius="10" Padding="25" Margin="0,0,0,25">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="#00915A" Offset="0"/>
+                            <GradientStop Color="#00A566" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="16" ShadowDepth="2" Opacity="0.2" Color="#00915A"/>
+                    </Border.Effect>
+                <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0">
                         <TextBlock Text="📊 Tableau de bord" 
-                                   FontSize="28" FontWeight="Bold" Foreground="#00915A"/>
+                                   FontSize="28" FontWeight="Bold" Foreground="White"/>
                         <TextBlock Text="Vue d'ensemble des performances et statistiques" 
-                                   FontSize="14" Foreground="#666666" Margin="0,5,0,0"/>
+                                   FontSize="14" Foreground="White" Opacity="0.9" Margin="0,5,0,0"/>
                         <!-- Filtres de période -->
                         <StackPanel Orientation="Horizontal" Margin="0,15,0,0">
-                            <TextBlock Text="🗓 Période :" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#666" Margin="0,0,10,0"/>
-                            <ComboBox x:Name="CboPeriode" Width="180" VerticalAlignment="Center"
+                            <TextBlock Text="🗓 Période :" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="White" Margin="0,0,10,0"/>
+                            <ComboBox x:Name="CboPeriode" Width="180" VerticalAlignment="Center" Background="White"
                                       SelectedIndex="{Binding PeriodeSelectionneeIndex, Mode=TwoWay}"
                                       SelectionChanged="CboPeriode_SelectionChanged">
                                 <ComboBoxItem Content="📅 Année en cours"/>
@@ -81,20 +98,21 @@
                     <StackPanel Grid.Column="1" Orientation="Horizontal">
                         <Button Content="🔄 Rafraîchir" 
                                 Command="{Binding RafraichirCommand}"
-                                Background="#00915A" Foreground="White" 
+                                Background="White" Foreground="#00915A" 
                                 Padding="15,10" FontWeight="SemiBold" FontSize="13"
-                                BorderThickness="0" Cursor="Hand" VerticalAlignment="Center"
+                                BorderThickness="2" BorderBrush="White" Cursor="Hand" VerticalAlignment="Center"
                                 Margin="0,0,10,0">
                             <Button.Style>
                                 <Style TargetType="Button">
-                                    <Setter Property="Background" Value="#00915A"/>
                                     <Setter Property="Template">
                                         <Setter.Value>
                                             <ControlTemplate TargetType="Button">
-                                                <Border Background="{TemplateBinding Background}" 
-                                                        BorderThickness="0" 
-                                                        CornerRadius="6" 
+                                                <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+                                                        CornerRadius="8" 
                                                         Padding="{TemplateBinding Padding}">
+                                                    <Border.Effect>
+                                                        <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.2" Color="White"/>
+                                                    </Border.Effect>
                                                     <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
                                             </ControlTemplate>
@@ -102,7 +120,7 @@
                                     </Setter>
                                     <Style.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Background" Value="#007A4D"/>
+                                            <Setter Property="Background" Value="#F0F0F0"/>
                                         </Trigger>
                                     </Style.Triggers>
                                 </Style>
@@ -110,20 +128,21 @@
                         </Button>
                         <Button Content="🤖 Analyse IA" 
                                 Click="BtnAnalyserIA_Click"
-                                Background="#667eea" Foreground="White" 
+                                Background="White" Foreground="#667eea" 
                                 Padding="15,10" FontWeight="SemiBold" FontSize="13"
-                                BorderThickness="0" Cursor="Hand" VerticalAlignment="Center"
+                                BorderThickness="2" BorderBrush="White" Cursor="Hand" VerticalAlignment="Center"
                                 Margin="0,0,10,0">
                             <Button.Style>
                                 <Style TargetType="Button">
-                                    <Setter Property="Background" Value="#667eea"/>
                                     <Setter Property="Template">
                                         <Setter.Value>
                                             <ControlTemplate TargetType="Button">
-                                                <Border Background="{TemplateBinding Background}" 
-                                                        BorderThickness="0" 
-                                                        CornerRadius="6" 
+                                                <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+                                                        CornerRadius="8" 
                                                         Padding="{TemplateBinding Padding}">
+                                                    <Border.Effect>
+                                                        <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.2" Color="White"/>
+                                                    </Border.Effect>
                                                     <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
                                             </ControlTemplate>
@@ -131,7 +150,7 @@
                                     </Setter>
                                     <Style.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Background" Value="#5568d3"/>
+                                            <Setter Property="Background" Value="#F0F0F0"/>
                                         </Trigger>
                                     </Style.Triggers>
                                 </Style>
@@ -139,19 +158,20 @@
                         </Button>
                         <Button Content="📄 Exporter PDF" 
                                 Command="{Binding ExporterPDFCommand}"
-                                Background="#FF6F00" Foreground="White" 
+                                Background="White" Foreground="#FF6F00" 
                                 Padding="15,10" FontWeight="SemiBold" FontSize="13"
-                                BorderThickness="0" Cursor="Hand" VerticalAlignment="Center">
+                                BorderThickness="2" BorderBrush="White" Cursor="Hand" VerticalAlignment="Center">
                             <Button.Style>
                                 <Style TargetType="Button">
-                                    <Setter Property="Background" Value="#FF6F00"/>
                                     <Setter Property="Template">
                                         <Setter.Value>
                                             <ControlTemplate TargetType="Button">
-                                                <Border Background="{TemplateBinding Background}" 
-                                                        BorderThickness="0" 
-                                                        CornerRadius="6" 
+                                                <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+                                                        CornerRadius="8" 
                                                         Padding="{TemplateBinding Padding}">
+                                                    <Border.Effect>
+                                                        <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.2" Color="White"/>
+                                                    </Border.Effect>
                                                     <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
                                             </ControlTemplate>
@@ -159,7 +179,7 @@
                                     </Setter>
                                     <Style.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Background" Value="#E66300"/>
+                                            <Setter Property="Background" Value="#F0F0F0"/>
                                         </Trigger>
                                     </Style.Triggers>
                                 </Style>
@@ -167,6 +187,7 @@
                         </Button>
                     </StackPanel>
                 </Grid>
+                </Border>
 
                 <!-- Cartes de statistiques rapides -->
                 <WrapPanel Margin="0,0,0,20">
@@ -419,8 +440,11 @@
                     <StackPanel>
                         <TextBlock Text="📁 Avancement des projets" 
                                    FontSize="16" FontWeight="Bold" Foreground="#1A1919" Margin="0,0,0,5"/>
-                        <TextBlock Text="Tâches terminées et temps CRA saisi par projet" 
-                                   FontSize="11" Foreground="#666666" FontStyle="Italic" Margin="0,0,0,15"/>
+                        <TextBlock FontSize="11" Foreground="#666666" Margin="0,0,0,15">
+                            <Run Text="Tâches terminées (incluant archivées) et temps CRA saisi par projet" FontStyle="Italic"/>
+                            <LineBreak/>
+                            <Run Text="💡 Les tâches archivées sont comptées comme terminées" FontSize="10" Foreground="#00915A" FontWeight="SemiBold"/>
+                        </TextBlock>
                         <ItemsControl ItemsSource="{Binding CompletionParProjet}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
@@ -463,6 +487,9 @@
                                                 <StackPanel Grid.Column="1" HorizontalAlignment="Center">
                                                     <TextBlock FontSize="11" Foreground="#666">
                                                         <Run Text="✅ Terminées :"/><Run Text=" "/><Run Text="{Binding TachesTerminees}" FontWeight="SemiBold"/>
+                                                    </TextBlock>
+                                                    <TextBlock FontSize="9" Foreground="#00915A" FontStyle="Italic" Margin="0,2,0,0">
+                                                        <Run Text="(+ archivées)"/>
                                                     </TextBlock>
                                                 </StackPanel>
                                                 <StackPanel Grid.Column="2" HorizontalAlignment="Right">

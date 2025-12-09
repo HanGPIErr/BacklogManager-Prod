@@ -33,14 +33,46 @@
                            VerticalAlignment="Center" Margin="0,0,10,0"/>
                 
                 <TextBlock Text="Dev:" FontSize="13" VerticalAlignment="Center" Margin="10,0,5,0"/>
-                <ComboBox ItemsSource="{Binding Devs}" DisplayMemberPath="Nom"
-                          SelectedValue="{Binding SelectedDevId}" SelectedValuePath="Id" 
-                          Width="150" Padding="8,5" Margin="0,0,15,0"/>
+                <Grid Width="150" Margin="0,0,15,0">
+                    <ComboBox x:Name="CbKanbanDev" ItemsSource="{Binding Devs}" DisplayMemberPath="Nom"
+                              SelectedValue="{Binding SelectedDevId}" SelectedValuePath="Id" 
+                              Height="32" Padding="8,5" Background="White" BorderBrush="#DDD" BorderThickness="1"/>
+                    <TextBlock Text="Tous les développeurs" IsHitTestVisible="False" 
+                               Foreground="#999" FontSize="12" Margin="10,0,0,0"
+                               VerticalAlignment="Center">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ElementName=CbKanbanDev, Path=SelectedIndex}" Value="-1">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </Grid>
                 
                 <TextBlock Text="Projet:" FontSize="13" VerticalAlignment="Center" Margin="10,0,5,0"/>
-                <ComboBox ItemsSource="{Binding Projets}" DisplayMemberPath="Nom"
-                          SelectedValue="{Binding SelectedProjetId}" SelectedValuePath="Id" 
-                          Width="150" Padding="8,5" Margin="0,0,15,0"/>
+                <Grid Width="150" Margin="0,0,15,0">
+                    <ComboBox x:Name="CbKanbanProjet" ItemsSource="{Binding Projets}" DisplayMemberPath="Nom"
+                              SelectedValue="{Binding SelectedProjetId}" SelectedValuePath="Id" 
+                              Height="32" Padding="8,5" Background="White" BorderBrush="#DDD" BorderThickness="1"/>
+                    <TextBlock Text="Tous les projets" IsHitTestVisible="False" 
+                               Foreground="#999" FontSize="12" Margin="10,0,0,0"
+                               VerticalAlignment="Center">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ElementName=CbKanbanProjet, Path=SelectedIndex}" Value="-1">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </Grid>
                 
                 <Button Content="?? Actualiser" Command="{Binding RefreshCommand}"
                         Padding="10,5" Margin="0,0,10,0" Background="#00915A" Foreground="White" 

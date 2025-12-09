@@ -417,19 +417,15 @@ namespace BacklogManager.ViewModels
         private void LoadFilterLists()
         {
             var devs = _backlogService.GetAllDevs();
-            var projets = _backlogService.GetAllProjets();
+            var projets = _backlogService.GetAllProjets().Where(p => p.Actif).ToList();
 
             Devs.Clear();
-            // Ajouter une option "Tous" pour permettre de désélectionner
-            Devs.Add(new Dev { Id = 0, Nom = "-- Tous les développeurs --" });
             foreach (var dev in devs)
             {
                 Devs.Add(dev);
             }
 
             Projets.Clear();
-            // Ajouter une option "Tous" pour permettre de désélectionner
-            Projets.Add(new Projet { Id = 0, Nom = "-- Tous les projets --" });
             foreach (var projet in projets)
             {
                 Projets.Add(projet);
@@ -442,7 +438,7 @@ namespace BacklogManager.ViewModels
                 .Where(i => i.EstVisibleDansKanban && !i.EstArchive) // Filtrer les tâches non-Kanban ET archivées
                 .ToList();
             var devs = _backlogService.GetAllDevs();
-            var projets = _backlogService.GetAllProjets();
+            var projets = _backlogService.GetAllProjets().Where(p => p.Actif).ToList();
 
             // Debug: afficher les données avant filtre
             System.Diagnostics.Debug.WriteLine($"[KANBAN] Items avant filtre: {allItems.Count}");

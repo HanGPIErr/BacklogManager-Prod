@@ -16,32 +16,44 @@
         </Grid.RowDefinitions>
 
         <!-- En-tête -->
-        <Border Grid.Row="0" Background="White" CornerRadius="8" Padding="20" Margin="0,0,0,15">
+        <Border Grid.Row="0" CornerRadius="10" Padding="20" Margin="0,0,0,15">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                    <GradientStop Color="#00915A" Offset="0"/>
+                    <GradientStop Color="#00A566" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.Background>
             <Border.Effect>
-                <DropShadowEffect BlurRadius="15" ShadowDepth="0" Opacity="0.1" Color="#00915A"/>
+                <DropShadowEffect BlurRadius="16" ShadowDepth="2" Opacity="0.2" Color="#00915A"/>
             </Border.Effect>
             <WrapPanel Orientation="Horizontal">
                 <StackPanel Margin="0,0,20,10">
                     <TextBlock Text="📊 SUIVI DES CRA" FontSize="24" FontWeight="Bold" 
-                               Foreground="#00915A" Margin="0,0,0,5"/>
+                               Foreground="White" Margin="0,0,0,5"/>
                     <TextBlock Text="Vue administrative - Tracking détaillé par développeur" 
-                               FontSize="13" Foreground="#666" Opacity="0.8"/>
+                               FontSize="13" Foreground="White" Opacity="0.9"/>
                 </StackPanel>
 
                 <!-- Sélection développeur -->
                 <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="Développeur:" FontSize="13" VerticalAlignment="Center" Margin="0,0,10,0" Foreground="#666"/>
+                    <TextBlock Text="Développeur:" FontSize="13" VerticalAlignment="Center" Margin="0,0,10,0" Foreground="White" FontWeight="SemiBold"/>
                     <ComboBox ItemsSource="{Binding Devs}" DisplayMemberPath="Nom"
                               SelectedItem="{Binding DevSelectionne}"
-                              Width="200" Padding="10,8" FontSize="13"/>
+                              Width="200" Padding="10,8" FontSize="13" Background="White" BorderBrush="White" BorderThickness="2"/>
                 </WrapPanel>
             </WrapPanel>
         </Border>
 
         <!-- Navigation et mode d'affichage -->
-        <Border Grid.Row="1" Background="White" CornerRadius="8" Padding="15" Margin="0,0,0,15">
+        <Border Grid.Row="1" CornerRadius="10" Padding="15" Margin="0,0,0,15">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#FFFFFF" Offset="0"/>
+                    <GradientStop Color="#FAFAFA" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.Background>
             <Border.Effect>
-                <DropShadowEffect BlurRadius="15" ShadowDepth="0" Opacity="0.1" Color="#00915A"/>
+                <DropShadowEffect BlurRadius="16" ShadowDepth="0" Opacity="0.2" Color="#D0D0D0"/>
             </Border.Effect>
             <WrapPanel Orientation="Horizontal">
                 <!-- Mode d'affichage -->
@@ -51,12 +63,12 @@
                             BorderThickness="0">
                         <Button.Style>
                             <Style TargetType="Button">
-                                <Setter Property="Background" Value="#E0E0E0"/>
+                                <Setter Property="Background" Value="#E8E8E8"/>
                                 <Setter Property="Foreground" Value="#666"/>
                                 <Setter Property="Template">
                                     <Setter.Value>
                                         <ControlTemplate TargetType="Button">
-                                            <Border Background="{TemplateBinding Background}" CornerRadius="6" 
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="8" 
                                                     Padding="{TemplateBinding Padding}">
                                                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                             </Border>
@@ -65,9 +77,19 @@
                                 </Setter>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding EstModeMois}" Value="True">
-                                        <Setter Property="Background" Value="#00915A"/>
+                                        <Setter Property="Background">
+                                            <Setter.Value>
+                                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                    <GradientStop Color="#00915A" Offset="0"/>
+                                                    <GradientStop Color="#00A566" Offset="1"/>
+                                                </LinearGradientBrush>
+                                            </Setter.Value>
+                                        </Setter>
                                         <Setter Property="Foreground" Value="White"/>
                                     </DataTrigger>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#D0D0D0"/>
+                                    </Trigger>
                                 </Style.Triggers>
                             </Style>
                         </Button.Style>
@@ -78,12 +100,12 @@
                             BorderThickness="0">
                         <Button.Style>
                             <Style TargetType="Button">
-                                <Setter Property="Background" Value="#E0E0E0"/>
+                                <Setter Property="Background" Value="#E8E8E8"/>
                                 <Setter Property="Foreground" Value="#666"/>
                                 <Setter Property="Template">
                                     <Setter.Value>
                                         <ControlTemplate TargetType="Button">
-                                            <Border Background="{TemplateBinding Background}" CornerRadius="6" 
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="8" 
                                                     Padding="{TemplateBinding Padding}">
                                                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                             </Border>
@@ -92,9 +114,19 @@
                                 </Setter>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding EstModeListe}" Value="True">
-                                        <Setter Property="Background" Value="#00915A"/>
+                                        <Setter Property="Background">
+                                            <Setter.Value>
+                                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                    <GradientStop Color="#00915A" Offset="0"/>
+                                                    <GradientStop Color="#00A566" Offset="1"/>
+                                                </LinearGradientBrush>
+                                            </Setter.Value>
+                                        </Setter>
                                         <Setter Property="Foreground" Value="White"/>
                                     </DataTrigger>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#D0D0D0"/>
+                                    </Trigger>
                                 </Style.Triggers>
                             </Style>
                         </Button.Style>
@@ -105,12 +137,12 @@
                             BorderThickness="0">
                         <Button.Style>
                             <Style TargetType="Button">
-                                <Setter Property="Background" Value="#E0E0E0"/>
+                                <Setter Property="Background" Value="#E8E8E8"/>
                                 <Setter Property="Foreground" Value="#666"/>
                                 <Setter Property="Template">
                                     <Setter.Value>
                                         <ControlTemplate TargetType="Button">
-                                            <Border Background="{TemplateBinding Background}" CornerRadius="6" 
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="8" 
                                                     Padding="{TemplateBinding Padding}">
                                                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                             </Border>
@@ -119,9 +151,19 @@
                                 </Setter>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding EstModeTimeline}" Value="True">
-                                        <Setter Property="Background" Value="#00915A"/>
+                                        <Setter Property="Background">
+                                            <Setter.Value>
+                                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                    <GradientStop Color="#00915A" Offset="0"/>
+                                                    <GradientStop Color="#00A566" Offset="1"/>
+                                                </LinearGradientBrush>
+                                            </Setter.Value>
+                                        </Setter>
                                         <Setter Property="Foreground" Value="White"/>
                                     </DataTrigger>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#D0D0D0"/>
+                                    </Trigger>
                                 </Style.Triggers>
                             </Style>
                         </Button.Style>
@@ -131,15 +173,26 @@
                 <!-- Navigation période -->
                 <WrapPanel Orientation="Horizontal" Margin="0,0,20,10">
                     <Button Content="◀" Command="{Binding PeriodePrecedenteCommand}"
-                            Padding="12,8" Margin="0,0,15,0" Background="#F0F0F0" BorderThickness="0" 
-                            FontSize="14" FontWeight="Bold" Cursor="Hand">
+                            Padding="12,8" Margin="0,0,15,0" BorderThickness="0" 
+                            FontSize="14" FontWeight="Bold" Cursor="Hand" Foreground="White">
                         <Button.Style>
                             <Style TargetType="Button">
+                                <Setter Property="Background">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#00915A" Offset="0"/>
+                                            <GradientStop Color="#00A566" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
                                 <Setter Property="Template">
                                     <Setter.Value>
                                         <ControlTemplate TargetType="Button">
-                                            <Border Background="{TemplateBinding Background}" CornerRadius="6" 
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="8" 
                                                     Padding="{TemplateBinding Padding}">
+                                                <Border.Effect>
+                                                    <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.2" Color="#00915A"/>
+                                                </Border.Effect>
                                                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                             </Border>
                                         </ControlTemplate>
@@ -147,7 +200,7 @@
                                 </Setter>
                                 <Style.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="#D0D0D0"/>
+                                        <Setter Property="Opacity" Value="0.85"/>
                                     </Trigger>
                                 </Style.Triggers>
                             </Style>
@@ -158,15 +211,26 @@
                                Foreground="#00915A" VerticalAlignment="Center" MinWidth="250" TextAlignment="Center"/>
 
                     <Button Content="▶" Command="{Binding PeriodeSuivanteCommand}"
-                            Padding="12,8" Margin="15,0,15,0" Background="#F0F0F0" BorderThickness="0" 
-                            FontSize="14" FontWeight="Bold" Cursor="Hand">
+                            Padding="12,8" Margin="15,0,15,0" BorderThickness="0" 
+                            FontSize="14" FontWeight="Bold" Cursor="Hand" Foreground="White">
                         <Button.Style>
                             <Style TargetType="Button">
+                                <Setter Property="Background">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#00915A" Offset="0"/>
+                                            <GradientStop Color="#00A566" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
                                 <Setter Property="Template">
                                     <Setter.Value>
                                         <ControlTemplate TargetType="Button">
-                                            <Border Background="{TemplateBinding Background}" CornerRadius="6" 
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="8" 
                                                     Padding="{TemplateBinding Padding}">
+                                                <Border.Effect>
+                                                    <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.2" Color="#00915A"/>
+                                                </Border.Effect>
                                                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                             </Border>
                                         </ControlTemplate>
@@ -174,7 +238,7 @@
                                 </Setter>
                                 <Style.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="#D0D0D0"/>
+                                        <Setter Property="Opacity" Value="0.85"/>
                                     </Trigger>
                                 </Style.Triggers>
                             </Style>
@@ -182,14 +246,14 @@
                     </Button>
 
                     <Button Content="🎯 Aujourd'hui" Command="{Binding AujourdhuiCommand}"
-                            Padding="12,8" Background="#E8F5E9" Foreground="#00915A" BorderThickness="0" 
+                            Padding="12,8" Background="#E8F5E9" Foreground="#00915A" BorderThickness="1" BorderBrush="#00915A"
                             FontSize="12" FontWeight="SemiBold" Cursor="Hand">
                         <Button.Style>
                             <Style TargetType="Button">
                                 <Setter Property="Template">
                                     <Setter.Value>
                                         <ControlTemplate TargetType="Button">
-                                            <Border Background="{TemplateBinding Background}" CornerRadius="6" 
+                                            <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8" 
                                                     Padding="{TemplateBinding Padding}">
                                                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                             </Border>
@@ -229,7 +293,13 @@
         <!-- Contenu principal -->
         <Grid Grid.Row="2">
             <!-- Mode Timeline Projet -->
-            <Border Background="White" CornerRadius="8" Padding="20">
+            <Border CornerRadius="10" Padding="20">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#FFFFFF" Offset="0"/>
+                        <GradientStop Color="#FAFAFA" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
                 <Border.Style>
                     <Style TargetType="Border">
                         <Setter Property="Visibility" Value="Collapsed"/>
@@ -241,7 +311,7 @@
                     </Style>
                 </Border.Style>
                 <Border.Effect>
-                    <DropShadowEffect BlurRadius="15" ShadowDepth="0" Opacity="0.1" Color="#00915A"/>
+                    <DropShadowEffect BlurRadius="16" ShadowDepth="0" Opacity="0.2" Color="#D0D0D0"/>
                 </Border.Effect>
                 
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -630,9 +700,15 @@
             </Grid.ColumnDefinitions>
 
             <!-- Calendrier -->
-            <Border Grid.Column="0" Background="White" CornerRadius="8" Padding="15" Margin="0,0,10,0">
+            <Border Grid.Column="0" CornerRadius="10" Padding="15" Margin="0,0,10,0">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#FFFFFF" Offset="0"/>
+                        <GradientStop Color="#FAFAFA" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
                 <Border.Effect>
-                    <DropShadowEffect BlurRadius="15" ShadowDepth="0" Opacity="0.1" Color="#00915A"/>
+                    <DropShadowEffect BlurRadius="16" ShadowDepth="0" Opacity="0.2" Color="#D0D0D0"/>
                 </Border.Effect>
                 <Grid>
                     <Grid.RowDefinitions>
@@ -870,7 +946,13 @@
             <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
                 <StackPanel>
                     <!-- Statistiques par dev -->
-                    <Border Background="White" CornerRadius="8" Padding="15" Margin="0,0,0,10">
+                    <Border CornerRadius="10" Padding="15" Margin="0,0,0,10">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#FFFFFF" Offset="0"/>
+                                <GradientStop Color="#FAFAFA" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
                         <Border.Effect>
                             <DropShadowEffect BlurRadius="15" ShadowDepth="0" Opacity="0.1" Color="#00915A"/>
                         </Border.Effect>
@@ -937,9 +1019,15 @@
                     </Border>
 
                     <!-- Détail jour sélectionné -->
-                    <Border Background="White" CornerRadius="8" Padding="15">
+                    <Border CornerRadius="10" Padding="15">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#FFFFFF" Offset="0"/>
+                                <GradientStop Color="#FAFAFA" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
                         <Border.Effect>
-                            <DropShadowEffect BlurRadius="15" ShadowDepth="0" Opacity="0.1" Color="#00915A"/>
+                            <DropShadowEffect BlurRadius="16" ShadowDepth="0" Opacity="0.2" Color="#D0D0D0"/>
                         </Border.Effect>
                         <StackPanel>
                             <TextBlock Text="📅 DÉTAIL DU JOUR" FontSize="14" FontWeight="Bold" 

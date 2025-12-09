@@ -10,43 +10,94 @@
     <UserControl.Resources>
         <shared:BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         
-        <!-- Style pour les cartes principales -->
+        <!-- Style pour les cartes principales avec effet glassmorphism -->
         <Style x:Key="MainCard" TargetType="Border">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="CornerRadius" Value="12"/>
-            <Setter Property="Padding" Value="30,25"/>
-            <Setter Property="Margin" Value="0,0,0,20"/>
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#FFFFFF" Offset="0"/>
+                        <GradientStop Color="#FAFAFA" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="Padding" Value="32,28"/>
+            <Setter Property="Margin" Value="0,0,0,24"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#E8E8E8"/>
             <Setter Property="Effect">
                 <Setter.Value>
-                    <DropShadowEffect Color="#E0E0E0" BlurRadius="15" ShadowDepth="2" Opacity="0.3" Direction="270"/>
+                    <DropShadowEffect Color="#D0D0D0" BlurRadius="20" ShadowDepth="0" Opacity="0.25"/>
                 </Setter.Value>
             </Setter>
         </Style>
         
-        <!-- Style pour les boutons "Voir tout" -->
-        <Style x:Key="ViewAllButton" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Foreground" Value="#00915A"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Padding" Value="10,5"/>
-            <Setter Property="Template">
+        <!-- Style pour les KPI cards avec animation -->
+        <Style x:Key="KPICard" TargetType="Border">
+            <Setter Property="CornerRadius" Value="14"/>
+            <Setter Property="Padding" Value="22,20"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#E8E8E8"/>
+            <Setter Property="Effect">
                 <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
-                                CornerRadius="6" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
+                    <DropShadowEffect Color="#D0D0D0" BlurRadius="16" ShadowDepth="0" Opacity="0.2"/>
                 </Setter.Value>
             </Setter>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#E8F5E9"/>
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect Color="#00915A" BlurRadius="20" ShadowDepth="0" Opacity="0.3"/>
+                        </Setter.Value>
+                    </Setter>
                 </Trigger>
             </Style.Triggers>
+        </Style>
+        
+        <!-- Style pour les boutons "Voir tout" modernisé -->
+        <Style x:Key="ViewAllButton" TargetType="Button">
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="#00915A" Offset="0"/>
+                        <GradientStop Color="#00A566" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Padding" Value="18,10"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" 
+                                CornerRadius="8" Padding="{TemplateBinding Padding}">
+                            <Border.Effect>
+                                <DropShadowEffect Color="#00915A" BlurRadius="12" ShadowDepth="0" Opacity="0.3"/>
+                            </Border.Effect>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect Color="#00915A" BlurRadius="16" ShadowDepth="0" Opacity="0.5"/>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter TargetName="border" Property="RenderTransform">
+                                    <Setter.Value>
+                                        <ScaleTransform ScaleX="1.05" ScaleY="1.05"/>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter TargetName="border" Property="RenderTransformOrigin" Value="0.5,0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
     </UserControl.Resources>
     
@@ -61,36 +112,37 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <!-- Header avec Bonjour + Date + BNP Branding - Responsive -->
+            <!-- Header avec Bonjour + Date + BNP Branding - Moderne -->
             <Border Grid.Row="0" Style="{StaticResource MainCard}">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#00915A" Offset="0"/>
+                        <GradientStop Color="#00A566" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     
-                    <!-- Logo/Accent BNP -->
-                    <Border Grid.Column="0" Background="#00915A" Width="5" CornerRadius="2" 
-                            Margin="0,0,20,0" VerticalAlignment="Stretch"/>
-                    
-                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock FontSize="28" FontWeight="Bold" Foreground="#1A1919" TextWrapping="Wrap">
+                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                        <TextBlock FontSize="32" FontWeight="Bold" Foreground="White" TextWrapping="Wrap">
                             <Run Text="👋 Bonjour, "/>
-                            <Run Text="{Binding NomUtilisateur}" Foreground="#00915A"/>
+                            <Run Text="{Binding NomUtilisateur}"/>
                         </TextBlock>
-                        <TextBlock FontSize="14" Foreground="#666666" Margin="0,5,0,0">
+                        <TextBlock FontSize="15" Foreground="#E0F2E9" Margin="0,8,0,0" Opacity="0.95">
                             <Run Text="📅 "/>
                             <Run Text="{Binding DateAujourdhui}"/>
                         </TextBlock>
                     </StackPanel>
                     
-                    <!-- Bouton Guide + Quick stats - Responsive -->
-                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0">
-                        <Button x:Name="BtnVoirGuide" Content="📖 Voir le guide" 
-                                Height="38" Padding="18,0" Margin="0,0,15,0"
-                                Background="#0078D7" Foreground="White" FontWeight="SemiBold"
-                                BorderThickness="0" Cursor="Hand" FontSize="13"
+                    <!-- Boutons d'action -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0">
+                        <Button x:Name="BtnVoirGuide" Content="📖 Guide" 
+                                Height="42" Padding="20,0" Margin="0,0,12,0"
+                                Background="White" Foreground="#00915A" FontWeight="Bold"
+                                BorderThickness="0" Cursor="Hand" FontSize="14"
                                 Click="BtnVoirGuide_Click">
                             <Button.Style>
                                 <Style TargetType="Button">
@@ -98,10 +150,7 @@
                                         <Setter.Value>
                                             <ControlTemplate TargetType="Button">
                                                 <Border Background="{TemplateBinding Background}" 
-                                                       CornerRadius="6" Padding="{TemplateBinding Padding}">
-                                                    <Border.Effect>
-                                                        <DropShadowEffect BlurRadius="8" ShadowDepth="0" Opacity="0.3" Color="#0078D7"/>
-                                                    </Border.Effect>
+                                                       CornerRadius="10" Padding="{TemplateBinding Padding}">
                                                     <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
                                             </ControlTemplate>
@@ -109,22 +158,21 @@
                                     </Setter>
                                     <Style.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Background" Value="#005A9E"/>
+                                            <Setter Property="Background" Value="#F0F9F4"/>
                                         </Trigger>
                                     </Style.Triggers>
                                 </Style>
                             </Button.Style>
                         </Button>
                         
-                        <Border Background="#E8F5E9" CornerRadius="8" 
-                                Padding="15,10">
+                        <Border Background="White" CornerRadius="10" Padding="18,12" Opacity="0.95">
                             <StackPanel>
-                                <TextBlock Text="Productivité du jour" FontSize="11" 
+                                <TextBlock Text="{Binding MetriqueLabel}" FontSize="11" 
                                            Foreground="#00915A" FontWeight="SemiBold"/>
-                                <TextBlock FontSize="20" FontWeight="Bold" Foreground="#00915A" 
-                                           Margin="0,3,0,0" HorizontalAlignment="Center">
-                                    <Run Text="{Binding TauxProductivite, Mode=OneWay}"/>
-                                    <Run Text="%" FontSize="14"/>
+                                <TextBlock FontSize="24" FontWeight="Bold" Foreground="#00915A" 
+                                           Margin="0,4,0,0" HorizontalAlignment="Center">
+                                    <Run Text="{Binding MetriqueValeur, Mode=OneWay}"/>
+                                    <Run Text="{Binding MetriqueSuffixe, Mode=OneWay}" FontSize="16"/>
                                 </TextBlock>
                             </StackPanel>
                         </Border>
@@ -142,26 +190,37 @@
                 <ItemsControl.Items>
                 
                 <!-- Tâches terminées -->
-                <Border Style="{StaticResource MainCard}" Margin="0,0,10,10" Padding="20,18" 
-                        MinWidth="200" Width="240">
+                <Border Style="{StaticResource KPICard}" Margin="0,0,12,12" Padding="22,20" 
+                        MinWidth="220" Width="255">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#FFFFFF" Offset="0"/>
+                            <GradientStop Color="#E8F5E9" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
-                        <TextBlock Grid.Row="0" Text="✅ Terminées" FontSize="13" 
-                                   Foreground="#666666" Margin="0,0,0,8"/>
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,12">
+                            <Border Background="#E8F5E9" CornerRadius="8" Padding="8,4" Margin="0,0,8,0">
+                                <TextBlock Text="✅" FontSize="16"/>
+                            </Border>
+                            <TextBlock Text="Terminées" FontSize="14" 
+                                       Foreground="#666666" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        </StackPanel>
                         <Grid Grid.Row="1">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" FontSize="32" FontWeight="Bold" 
+                            <TextBlock Grid.Column="0" FontSize="38" FontWeight="Bold" 
                                        Foreground="#00915A" VerticalAlignment="Center">
                                 <Run Text="{Binding NbTachesTerminees, Mode=OneWay}"/>
                             </TextBlock>
-                            <TextBlock Grid.Column="1" FontSize="14" Foreground="#999999" 
-                                       VerticalAlignment="Bottom" Margin="5,0,0,5">
+                            <TextBlock Grid.Column="1" FontSize="16" Foreground="#999999" 
+                                       VerticalAlignment="Bottom" Margin="8,0,0,8">
                                 <Run Text="/ "/>
                                 <Run Text="{Binding NbTachesTotal, Mode=OneWay}"/>
                             </TextBlock>
@@ -170,47 +229,80 @@
                 </Border>
                 
                 <!-- Tâches en cours -->
-                <Border Style="{StaticResource MainCard}" Margin="0,0,10,10" Padding="20,18" 
-                        MinWidth="200" Width="240">
+                <Border Style="{StaticResource KPICard}" Margin="0,0,12,12" Padding="22,20" 
+                        MinWidth="220" Width="255">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#FFFFFF" Offset="0"/>
+                            <GradientStop Color="#E3F2FD" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
-                        <TextBlock Grid.Row="0" Text="🔄 En cours" FontSize="13" 
-                                   Foreground="#666666" Margin="0,0,0,8"/>
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,12">
+                            <Border Background="#E3F2FD" CornerRadius="8" Padding="8,4" Margin="0,0,8,0">
+                                <TextBlock Text="🔄" FontSize="16"/>
+                            </Border>
+                            <TextBlock Text="En cours" FontSize="14" 
+                                       Foreground="#666666" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        </StackPanel>
                         <TextBlock Grid.Row="1" Text="{Binding NbTachesEnCours, Mode=OneWay}" 
-                                   FontSize="32" FontWeight="Bold" Foreground="#2196F3"/>
+                                   FontSize="38" FontWeight="Bold" Foreground="#2196F3"/>
                     </Grid>
                 </Border>
                 
                 <!-- Tâches urgentes -->
-                <Border Style="{StaticResource MainCard}" Margin="0,0,10,10" Padding="20,18" 
-                        MinWidth="200" Width="240">
+                <Border Style="{StaticResource KPICard}" Margin="0,0,12,12" Padding="22,20" 
+                        MinWidth="220" Width="255">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#FFFFFF" Offset="0"/>
+                            <GradientStop Color="#FFEBEE" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
-                        <TextBlock Grid.Row="0" Text="⚡ Urgentes" FontSize="13" 
-                                   Foreground="#666666" Margin="0,0,0,8"/>
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,12">
+                            <Border Background="#FFEBEE" CornerRadius="8" Padding="8,4" Margin="0,0,8,0">
+                                <TextBlock Text="⚡" FontSize="16"/>
+                            </Border>
+                            <TextBlock Text="Urgentes" FontSize="14" 
+                                       Foreground="#666666" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        </StackPanel>
                         <TextBlock Grid.Row="1" Text="{Binding NbTachesUrgentes, Mode=OneWay}" 
-                                   FontSize="32" FontWeight="Bold" Foreground="#FF5722"/>
+                                   FontSize="38" FontWeight="Bold" Foreground="#FF5722"/>
                     </Grid>
                 </Border>
                 
                 <!-- Projets actifs -->
-                <Border Style="{StaticResource MainCard}" Margin="0,0,10,10" Padding="20,18" 
-                        MinWidth="200" Width="240">
+                <Border Style="{StaticResource KPICard}" Margin="0,0,12,12" Padding="22,20" 
+                        MinWidth="220" Width="255">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#FFFFFF" Offset="0"/>
+                            <GradientStop Color="#FFF3E0" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
-                        <TextBlock Grid.Row="0" Text="📁 Projets" FontSize="13" 
-                                   Foreground="#666666" Margin="0,0,0,8"/>
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,12">
+                            <Border Background="#FFF3E0" CornerRadius="8" Padding="8,4" Margin="0,0,8,0">
+                                <TextBlock Text="📁" FontSize="16"/>
+                            </Border>
+                            <TextBlock Text="Projets" FontSize="14" 
+                                       Foreground="#666666" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        </StackPanel>
                         <TextBlock Grid.Row="1" Text="{Binding NbProjetsActifs, Mode=OneWay}" 
-                                   FontSize="32" FontWeight="Bold" Foreground="#FF9800"/>
+                                   FontSize="38" FontWeight="Bold" Foreground="#FF9800"/>
                     </Grid>
                 </Border>
                 
@@ -220,9 +312,20 @@
             <!-- STATISTIQUES PROJETS -->
             <Border Grid.Row="2" Style="{StaticResource MainCard}">
                 <StackPanel>
-                    <TextBlock FontSize="20" FontWeight="Bold" Foreground="#1A1919" Margin="0,0,0,20">
-                        <Run Text="📊 APERÇU DES PROJETS"/>
-                    </TextBlock>
+                    <Grid Margin="0,0,0,24">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Background="#F0F9F4" CornerRadius="10" 
+                                Padding="12,8" Margin="0,0,12,0">
+                            <TextBlock Text="📊" FontSize="20"/>
+                        </Border>
+                        <TextBlock Grid.Column="1" FontSize="22" FontWeight="Bold" 
+                                   Foreground="#1A1919" VerticalAlignment="Center">
+                            <Run Text="APERÇU DES PROJETS"/>
+                        </TextBlock>
+                    </Grid>
                     
                     <ItemsControl ItemsSource="{Binding StatistiquesProjetsList}">
                         <ItemsControl.ItemsPanel>
@@ -233,8 +336,8 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Button Background="Transparent" BorderThickness="0" 
-                                        Padding="0" Margin="0,0,15,15" Cursor="Hand"
-                                        Width="280" Height="180"
+                                        Padding="0" Margin="0,0,16,16" Cursor="Hand"
+                                        Width="290" Height="190"
                                         Tag="{Binding}"
                                         Click="ProjetCard_Click">
                                     <Button.Style>
@@ -242,19 +345,38 @@
                                             <Setter Property="Template">
                                                 <Setter.Value>
                                                     <ControlTemplate TargetType="Button">
-                                                        <Border x:Name="border" Background="#F9F9F9" 
-                                                                CornerRadius="8" Padding="20,15" 
-                                                                BorderBrush="#E0E0E0" BorderThickness="1">
+                                                        <Border x:Name="border" CornerRadius="12" Padding="22,18" 
+                                                                BorderThickness="1">
+                                                            <Border.Background>
+                                                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                                    <GradientStop Color="#FFFFFF" Offset="0"/>
+                                                                    <GradientStop Color="#F9F9F9" Offset="1"/>
+                                                                </LinearGradientBrush>
+                                                            </Border.Background>
+                                                            <Border.BorderBrush>
+                                                                <SolidColorBrush Color="#E0E0E0"/>
+                                                            </Border.BorderBrush>
+                                                            <Border.Effect>
+                                                                <DropShadowEffect Color="#D0D0D0" BlurRadius="12" ShadowDepth="0" Opacity="0.2"/>
+                                                            </Border.Effect>
                                                             <ContentPresenter/>
                                                         </Border>
                                                         <ControlTemplate.Triggers>
                                                             <Trigger Property="IsMouseOver" Value="True">
-                                                                <Setter TargetName="border" Property="Background" Value="#E8F5E9"/>
-                                                                <Setter TargetName="border" Property="BorderBrush" Value="#00915A"/>
                                                                 <Setter TargetName="border" Property="BorderThickness" Value="2"/>
-                                                            </Trigger>
-                                                            <Trigger Property="IsPressed" Value="True">
-                                                                <Setter TargetName="border" Property="Background" Value="#C8E6C9"/>
+                                                                <Setter TargetName="border" Property="BorderBrush">
+                                                                    <Setter.Value>
+                                                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                                            <GradientStop Color="#00915A" Offset="0"/>
+                                                                            <GradientStop Color="#00A566" Offset="1"/>
+                                                                        </LinearGradientBrush>
+                                                                    </Setter.Value>
+                                                                </Setter>
+                                                                <Setter TargetName="border" Property="Effect">
+                                                                    <Setter.Value>
+                                                                        <DropShadowEffect Color="#00915A" BlurRadius="20" ShadowDepth="0" Opacity="0.3"/>
+                                                                    </Setter.Value>
+                                                                </Setter>
                                                             </Trigger>
                                                         </ControlTemplate.Triggers>
                                                     </ControlTemplate>
@@ -272,31 +394,33 @@
                                         </Grid.RowDefinitions>
                                         
                                         <!-- En-tête projet -->
-                                        <Grid Grid.Row="0" Margin="0,0,0,10">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                            </Grid.ColumnDefinitions>
-                                            
+                                        <Grid Grid.Row="0" Margin="0,0,0,12">
                                             <StackPanel Orientation="Horizontal">
-                                                <Border Width="4" Background="{Binding CouleurProjet}" 
-                                                        CornerRadius="2" Margin="0,0,8,0"/>
-                                                <TextBlock Text="{Binding NomProjet}" FontSize="14" 
-                                                           FontWeight="SemiBold" Foreground="#1A1919" 
+                                                <Border Width="5" Height="24" Background="{Binding CouleurProjet}" 
+                                                        CornerRadius="3" Margin="0,0,10,0"/>
+                                                <TextBlock Text="{Binding NomProjet}" FontSize="15" 
+                                                           FontWeight="Bold" Foreground="#1A1919" 
                                                            VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
                                                            ToolTip="{Binding NomProjet}"/>
                                             </StackPanel>
                                         </Grid>
                                         
                                         <!-- Badges -->
-                                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10">
-                                            <Border Background="#E8F5E9" CornerRadius="4" Padding="6,3" Margin="0,0,6,0">
-                                                <TextBlock FontSize="10" Foreground="#00915A" FontWeight="SemiBold">
+                                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,12">
+                                            <Border Background="#F0F9F4" CornerRadius="6" Padding="8,4" Margin="0,0,8,0">
+                                                <TextBlock FontSize="11" Foreground="#00915A" FontWeight="Bold">
                                                     <Run Text="{Binding NbTachesTotal}"/>
                                                     <Run Text=" tâches"/>
                                                 </TextBlock>
                                             </Border>
-                                            <Border Background="#E3F2FD" CornerRadius="4" Padding="6,3">
-                                                <TextBlock FontSize="10" Foreground="#2196F3" FontWeight="SemiBold">
+                                            <Border CornerRadius="6" Padding="8,4">
+                                                <Border.Background>
+                                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                        <GradientStop Color="#E3F2FD" Offset="0"/>
+                                                        <GradientStop Color="#BBDEFB" Offset="1"/>
+                                                    </LinearGradientBrush>
+                                                </Border.Background>
+                                                <TextBlock FontSize="11" Foreground="#1976D2" FontWeight="Bold">
                                                     <Run Text="{Binding ProgressionPourcentage, StringFormat='{}{0:F0}%'}"/>
                                                 </TextBlock>
                                             </Border>
@@ -346,12 +470,19 @@
                                             </StackPanel>
                                         </Grid>
                                         
-                                        <!-- Barre de progression -->
+                                        <!-- Barre de progression avec gradient -->
                                         <Grid Grid.Row="3">
-                                            <Border Background="#E0E0E0" Height="6" CornerRadius="3"/>
-                                            <Border Background="#00915A" Height="6" CornerRadius="3" 
+                                            <Border Background="#F0F0F0" Height="8" CornerRadius="4"/>
+                                            <Border Height="8" CornerRadius="4" 
                                                     HorizontalAlignment="Left"
-                                                    Width="{Binding ProgressionLargeurCarte}"/>
+                                                    Width="{Binding ProgressionLargeurCarte}">
+                                                <Border.Background>
+                                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                        <GradientStop Color="#00915A" Offset="0"/>
+                                                        <GradientStop Color="#00C853" Offset="1"/>
+                                                    </LinearGradientBrush>
+                                                </Border.Background>
+                                            </Border>
                                         </Grid>
                                     </Grid>
                                 </Button>

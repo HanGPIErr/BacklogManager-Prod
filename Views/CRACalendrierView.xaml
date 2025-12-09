@@ -18,21 +18,33 @@
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="White" CornerRadius="6" Padding="15" Margin="0,0,0,15">
+        <Border Grid.Row="0" CornerRadius="10" Padding="20,15" Margin="0,0,0,15">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                    <GradientStop Color="#00915A" Offset="0"/>
+                    <GradientStop Color="#00A566" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.Background>
             <Border.Effect>
-                <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.15" Color="#00915A"/>
+                <DropShadowEffect BlurRadius="16" ShadowDepth="2" Opacity="0.2" Color="#00915A"/>
             </Border.Effect>
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="⏱️ SAISIE CRA" FontSize="22" FontWeight="Bold" Foreground="#1A1919"/>
-                <TextBlock Text="BNP Paribas" FontSize="16" Foreground="#00915A" 
+                <TextBlock Text="⏱️ SAISIE CRA" FontSize="22" FontWeight="Bold" Foreground="White"/>
+                <TextBlock Text="BNP Paribas" FontSize="16" Foreground="White" Opacity="0.9"
                            VerticalAlignment="Center" Margin="15,0,0,0" FontWeight="Medium"/>
             </StackPanel>
         </Border>
 
         <!-- Contrôles calendrier -->
-        <Border Grid.Row="1" Background="White" CornerRadius="6" Padding="15" Margin="0,0,0,15">
+        <Border Grid.Row="1" CornerRadius="10" Padding="15" Margin="0,0,0,15">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#FFFFFF" Offset="0"/>
+                    <GradientStop Color="#FAFAFA" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.Background>
             <Border.Effect>
-                <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.15" Color="#00915A"/>
+                <DropShadowEffect BlurRadius="16" ShadowDepth="0" Opacity="0.2" Color="#D0D0D0"/>
             </Border.Effect>
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -43,14 +55,25 @@
                 <!-- Navigation mois -->
                 <WrapPanel Grid.Column="0" Orientation="Horizontal">
                     <Button Content="◀" Command="{Binding MoisPrecedentCommand}"
-                            Width="40" Height="40" Background="#00915A" Foreground="White" 
+                            Width="40" Height="40" Foreground="White" 
                             BorderThickness="0" FontSize="16" FontWeight="Bold" Cursor="Hand" Margin="0,0,10,0">
                         <Button.Style>
                             <Style TargetType="Button">
+                                <Setter Property="Background">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#00915A" Offset="0"/>
+                                            <GradientStop Color="#00A566" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
                                 <Setter Property="Template">
                                     <Setter.Value>
                                         <ControlTemplate TargetType="Button">
-                                            <Border Background="{TemplateBinding Background}" CornerRadius="6">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                                                <Border.Effect>
+                                                    <DropShadowEffect BlurRadius="8" ShadowDepth="0" Opacity="0.2" Color="#00915A"/>
+                                                </Border.Effect>
                                                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                             </Border>
                                         </ControlTemplate>
@@ -69,14 +92,25 @@
                                Foreground="#00915A" VerticalAlignment="Center" MinWidth="200" TextAlignment="Center"/>
 
                     <Button Content="▶" Command="{Binding MoisSuivantCommand}"
-                            Width="40" Height="40" Background="#00915A" Foreground="White" 
+                            Width="40" Height="40" Foreground="White" 
                             BorderThickness="0" FontSize="16" FontWeight="Bold" Cursor="Hand" Margin="10,0,15,0">
                         <Button.Style>
                             <Style TargetType="Button">
+                                <Setter Property="Background">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#00915A" Offset="0"/>
+                                            <GradientStop Color="#00A566" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
                                 <Setter Property="Template">
                                     <Setter.Value>
                                         <ControlTemplate TargetType="Button">
-                                            <Border Background="{TemplateBinding Background}" CornerRadius="6">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                                                <Border.Effect>
+                                                    <DropShadowEffect BlurRadius="8" ShadowDepth="0" Opacity="0.2" Color="#00915A"/>
+                                                </Border.Effect>
                                                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                             </Border>
                                         </ControlTemplate>
@@ -217,9 +251,15 @@
             </Grid.ColumnDefinitions>
 
             <!-- Calendrier -->
-            <Border Grid.Column="0" Background="White" CornerRadius="6" Padding="15" Margin="0,0,10,0">
+            <Border Grid.Column="0" CornerRadius="10" Padding="15" Margin="0,0,10,0">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#FFFFFF" Offset="0"/>
+                        <GradientStop Color="#FAFAFA" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
                 <Border.Effect>
-                    <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.15" Color="#00915A"/>
+                    <DropShadowEffect BlurRadius="16" ShadowDepth="0" Opacity="0.2" Color="#D0D0D0"/>
                 </Border.Effect>
                 <Grid>
                     <Grid.RowDefinitions>

@@ -331,6 +331,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\ParametresView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Domain\BacklogItem.cs" />
@@ -542,6 +546,9 @@
     </Compile>
     <Compile Include="Views\ParametresWindow.xaml.cs">
       <DependentUpon>ParametresWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ParametresView.xaml.cs">
+      <DependentUpon>ParametresView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Shared\RelayCommand.cs" />
     <Compile Include="Shared\BooleanToVisibilityConverter.cs" />

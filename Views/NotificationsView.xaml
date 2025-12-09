@@ -18,20 +18,26 @@
             </Grid.RowDefinitions>
 
             <!-- Header avec branding BNP Paribas -->
-            <Border Grid.Row="0" Background="White" CornerRadius="6" Padding="20" Margin="0,0,0,15">
+            <Border Grid.Row="0" CornerRadius="10" Padding="20" Margin="0,0,0,15">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="#00915A" Offset="0"/>
+                        <GradientStop Color="#00A566" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
                 <Border.Effect>
-                    <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.18" Color="#00915A"/>
+                    <DropShadowEffect BlurRadius="16" ShadowDepth="2" Opacity="0.2" Color="#00915A"/>
                 </Border.Effect>
                 <WrapPanel Orientation="Horizontal">
                     <StackPanel Orientation="Horizontal" Margin="0,0,20,10">
                         <TextBlock Text="🔔" FontSize="28" VerticalAlignment="Center" Margin="0,0,10,0"/>
                         <StackPanel>
-                            <TextBlock Text="CENTRE DE NOTIFICATIONS" FontSize="22" FontWeight="Bold" Foreground="#1A1919"/>
+                            <TextBlock Text="CENTRE DE NOTIFICATIONS" FontSize="22" FontWeight="Bold" Foreground="White"/>
                             <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-                                <TextBlock Text="BNP Paribas" FontSize="14" Foreground="#00915A" FontWeight="Medium"/>
-                                <Rectangle Width="2" Height="16" Fill="#E0E0E0" Margin="10,0"/>
+                                <TextBlock Text="BNP Paribas" FontSize="14" Foreground="White" FontWeight="Medium" Opacity="0.9"/>
+                                <Rectangle Width="2" Height="16" Fill="White" Margin="10,0" Opacity="0.6"/>
                                 <TextBlock x:Name="TxtCountNotifications" Text="0 notification(s) non lue(s)" 
-                                         FontSize="13" Foreground="#666" FontWeight="SemiBold"/>
+                                         FontSize="13" Foreground="White" FontWeight="SemiBold" Opacity="0.9"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
@@ -39,15 +45,18 @@
                     <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <Button x:Name="BtnMarquerToutesLues" Content="✓ Tout marquer comme lu" 
                                 Click="BtnMarquerToutesLues_Click"
-                                Padding="12,8" Margin="0,0,10,0" Background="#00915A" Foreground="White" 
-                                BorderThickness="0" FontSize="12" FontWeight="SemiBold" Cursor="Hand">
+                                Padding="12,8" Margin="0,0,10,0" Background="White" Foreground="#00915A" 
+                                BorderThickness="2" BorderBrush="White" FontSize="12" FontWeight="SemiBold" Cursor="Hand">
                             <Button.Style>
                                 <Style TargetType="Button">
                                     <Setter Property="Template">
                                         <Setter.Value>
                                             <ControlTemplate TargetType="Button">
-                                                <Border Background="{TemplateBinding Background}" CornerRadius="5" 
+                                                <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8" 
                                                         Padding="{TemplateBinding Padding}">
+                                                    <Border.Effect>
+                                                        <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.2" Color="White"/>
+                                                    </Border.Effect>
                                                     <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
                                             </ControlTemplate>
@@ -55,7 +64,7 @@
                                     </Setter>
                                     <Style.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Background" Value="#007A4D"/>
+                                            <Setter Property="Background" Value="#F0F0F0"/>
                                         </Trigger>
                                     </Style.Triggers>
                                 </Style>
@@ -64,15 +73,18 @@
 
                         <Button x:Name="BtnSupprimerLues" Content="🗑️ Supprimer lues" 
                                 Click="BtnSupprimerLues_Click"
-                                Padding="12,8" Background="#E0E0E0" Foreground="#333" 
-                                BorderThickness="0" FontSize="12" FontWeight="SemiBold" Cursor="Hand">
+                                Padding="12,8" Background="White" Foreground="#666" 
+                                BorderThickness="2" BorderBrush="White" FontSize="12" FontWeight="SemiBold" Cursor="Hand">
                             <Button.Style>
                                 <Style TargetType="Button">
                                     <Setter Property="Template">
                                         <Setter.Value>
                                             <ControlTemplate TargetType="Button">
-                                                <Border Background="{TemplateBinding Background}" CornerRadius="5" 
+                                                <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8" 
                                                         Padding="{TemplateBinding Padding}">
+                                                    <Border.Effect>
+                                                        <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.2" Color="White"/>
+                                                    </Border.Effect>
                                                     <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
                                             </ControlTemplate>
@@ -80,7 +92,7 @@
                                     </Setter>
                                     <Style.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Background" Value="#D0D0D0"/>
+                                            <Setter Property="Background" Value="#F0F0F0"/>
                                         </Trigger>
                                     </Style.Triggers>
                                 </Style>
@@ -91,9 +103,15 @@
             </Border>
 
             <!-- Filtres -->
-            <Border Grid.Row="1" Background="White" CornerRadius="6" Padding="15" Margin="0,0,0,15">
+            <Border Grid.Row="1" CornerRadius="10" Padding="15" Margin="0,0,0,15">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#FFFFFF" Offset="0"/>
+                        <GradientStop Color="#FAFAFA" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
                 <Border.Effect>
-                    <DropShadowEffect BlurRadius="8" ShadowDepth="0" Opacity="0.12" Color="#00915A"/>
+                    <DropShadowEffect BlurRadius="16" ShadowDepth="0" Opacity="0.2" Color="#D0D0D0"/>
                 </Border.Effect>
                 <WrapPanel Orientation="Horizontal">
                     <TextBlock Text="🔍 Filtrer:" FontWeight="Bold" FontSize="13" 
@@ -123,11 +141,11 @@
             <ItemsControl x:Name="ListeNotifications" Grid.Row="2">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border Background="{Binding CouleurFond}" CornerRadius="8" Padding="15" Margin="0,0,0,12"
-                                BorderThickness="2" BorderBrush="{Binding CouleurTexte}" Cursor="Hand"
+                        <Border Background="{Binding CouleurFond}" CornerRadius="10" Padding="15" Margin="0,0,0,12"
+                                BorderThickness="1" BorderBrush="{Binding CouleurTexte}" Cursor="Hand"
                                 MouseLeftButtonUp="Notification_Click">
                             <Border.Effect>
-                                <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.15" Color="Gray"/>
+                                <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.18" Color="#D0D0D0"/>
                             </Border.Effect>
                             <Border.Style>
                                 <Style TargetType="Border">
@@ -136,7 +154,12 @@
                                             <Setter Property="Opacity" Value="0.6"/>
                                         </DataTrigger>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="BorderThickness" Value="3"/>
+                                            <Setter Property="BorderThickness" Value="2"/>
+                                            <Setter Property="Effect">
+                                                <Setter.Value>
+                                                    <DropShadowEffect BlurRadius="16" ShadowDepth="2" Opacity="0.25" Color="#00915A"/>
+                                                </Setter.Value>
+                                            </Setter>
                                         </Trigger>
                                     </Style.Triggers>
                                 </Style>

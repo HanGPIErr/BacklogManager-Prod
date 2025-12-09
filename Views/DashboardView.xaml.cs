@@ -18,6 +18,7 @@ namespace BacklogManager.Views
         private readonly AuthenticationService _authService;
         private readonly AuditLogService _auditLogService;
         private readonly CRAService _craService;
+        private readonly PermissionService _permissionService;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -86,8 +87,26 @@ namespace BacklogManager.Views
         public int TauxProductivite
         {
             get => _tauxProductivite;
-            set { _tauxProductivite = value; OnPropertyChanged(); }
+            set { _tauxProductivite = value; OnPropertyChanged(); OnPropertyChanged(nameof(MetriqueValeur)); }
         }
+
+        private int _nbCRAsAValider;
+        public int NbCRAsAValider
+        {
+            get => _nbCRAsAValider;
+            set { _nbCRAsAValider = value; OnPropertyChanged(); OnPropertyChanged(nameof(MetriqueValeur)); }
+        }
+
+        private bool _estAdmin;
+        public bool EstAdmin
+        {
+            get => _estAdmin;
+            set { _estAdmin = value; OnPropertyChanged(); OnPropertyChanged(nameof(MetriqueLabel)); OnPropertyChanged(nameof(MetriqueValeur)); OnPropertyChanged(nameof(MetriqueSuffixe)); }
+        }
+
+        public string MetriqueLabel => EstAdmin ? "CRA à valider" : "Respect deadline";
+        public string MetriqueValeur => EstAdmin ? NbCRAsAValider.ToString() : TauxProductivite.ToString();
+        public string MetriqueSuffixe => EstAdmin ? "" : "%";
 
         private ObservableCollection<ActiviteViewModel> _activitesRecentes;
         public ObservableCollection<ActiviteViewModel> ActivitesRecentes
@@ -105,13 +124,14 @@ namespace BacklogManager.Views
 
         public bool AucunProjet => StatistiquesProjetsList == null || StatistiquesProjetsList.Count == 0;
 
-        public DashboardView(BacklogService backlogService, NotificationService notificationService, AuthenticationService authService)
+        public DashboardView(BacklogService backlogService, NotificationService notificationService, AuthenticationService authService, PermissionService permissionService)
         {
             _backlogService = backlogService;
             _notificationService = notificationService;
             _authService = authService;
             _auditLogService = authService.GetAuditLogService();
             _craService = new CRAService(backlogService.Database);
+            _permissionService = permissionService;
 
             // Initialiser les collections AVANT InitializeComponent
             TachesUrgentes = new ObservableCollection<TacheUrgenteViewModel>();
@@ -175,11 +195,29 @@ namespace BacklogManager.Views
             
             NbProjetsActifs = projets.Count(p => p.Actif);
             
-            // Taux de productivité (% tâches terminées aujourd'hui)
-            var aujourdhui = DateTime.Today;
-            var tachesTermineesAujourdhui = allTaches.Count(t => 
-                t.DateFin.HasValue && t.DateFin.Value.Date == aujourdhui && t.Statut == Statut.Termine);
-            TauxProductivite = NbTachesEnCours > 0 ? (tachesTermineesAujourdhui * 100) / NbTachesEnCours : 100;
+            // Métrique intelligente selon le rôle
+            if (_permissionService.IsAdmin || _permissionService.IsChefDeProjet)
+            {
+                // Pour Admin/CP : Nombre de CRA à valider
+                var tousLesCRAs = _craService?.GetAllCRAs() ?? new List<CRA>();
+                NbCRAsAValider = tousLesCRAs.Count(c => c.EstAValider);
+                EstAdmin = true;
+            }
+            else
+            {
+                // Pour Développeurs : Taux de respect des deadlines (tâches en cours)
+                var tachesEnCours = allTaches.Where(t => t.Statut == Statut.EnCours && t.DateFinAttendue.HasValue).ToList();
+                if (tachesEnCours.Any())
+                {
+                    var tachesDansLesTemps = tachesEnCours.Count(t => t.DateFinAttendue.Value >= DateTime.Now);
+                    TauxProductivite = (tachesDansLesTemps * 100) / tachesEnCours.Count;
+                }
+                else
+                {
+                    TauxProductivite = 100; // Aucune tâche en cours = 100%
+                }
+                EstAdmin = false;
+            }
             
             // Statistiques des projets
             ChargerStatistiquesProjets(projets, allTaches);

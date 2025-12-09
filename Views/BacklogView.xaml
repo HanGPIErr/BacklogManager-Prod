@@ -5,9 +5,15 @@
              Background="#F5F5F5">
     <Grid Margin="15">
         <!-- Main Content Area - Full Width -->
-        <Border Background="White" CornerRadius="8" Padding="0">
+        <Border CornerRadius="12" Padding="0">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#FFFFFF" Offset="0"/>
+                    <GradientStop Color="#FAFAFA" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.Background>
             <Border.Effect>
-                <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.15" Color="#00915A"/>
+                <DropShadowEffect BlurRadius="16" ShadowDepth="0" Opacity="0.2" Color="#D0D0D0"/>
             </Border.Effect>
             
             <Grid>
@@ -17,9 +23,15 @@
                 </Grid.RowDefinitions>
                 
                 <!-- Header with Tab-like Navigation -->
-                <Border Grid.Row="0" Background="White" BorderBrush="#E0E0E0" BorderThickness="0,0,0,1" Padding="20,18">
+                <Border Grid.Row="0" BorderBrush="#E8E8E8" BorderThickness="0,0,0,1" Padding="20,18">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="#00915A" Offset="0"/>
+                            <GradientStop Color="#00A566" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
                     <Border.Effect>
-                        <DropShadowEffect BlurRadius="8" ShadowDepth="0" Opacity="0.08" Color="#00915A"/>
+                        <DropShadowEffect BlurRadius="12" ShadowDepth="2" Opacity="0.2" Color="#00915A"/>
                     </Border.Effect>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -31,21 +43,25 @@
                         <!-- Title & Navigation Tabs - Responsive -->
                         <StackPanel Grid.Column="0">
                             <TextBlock Text="📊 BACKLOG MANAGER" FontSize="18" FontWeight="Bold" 
-                                       Foreground="#1A1919" VerticalAlignment="Center" Margin="0,0,0,10"/>
+                                       Foreground="White" VerticalAlignment="Center" Margin="0,0,0,10"/>
                             <WrapPanel Orientation="Horizontal">
                             
                             <Button x:Name="BtnVueTaches" Content="📋 Tâches" 
-                                    Background="#00915A" Foreground="White" 
+                                    Foreground="#00915A" 
                                     FontSize="13" FontWeight="Bold" Padding="18,8"
                                     Margin="0,0,8,0" BorderThickness="0" Cursor="Hand"
                                     Click="BtnVueTaches_Click">
                                 <Button.Style>
                                     <Style TargetType="Button">
+                                        <Setter Property="Background" Value="White"/>
                                         <Setter Property="Template">
                                             <Setter.Value>
                                                 <ControlTemplate TargetType="Button">
-                                                    <Border Background="{TemplateBinding Background}" CornerRadius="6" 
+                                                    <Border Background="{TemplateBinding Background}" CornerRadius="8" 
                                                             Padding="{TemplateBinding Padding}">
+                                                        <Border.Effect>
+                                                            <DropShadowEffect BlurRadius="8" ShadowDepth="0" Opacity="0.25" Color="White"/>
+                                                        </Border.Effect>
                                                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                     </Border>
                                                 </ControlTemplate>
@@ -53,7 +69,7 @@
                                         </Setter>
                                         <Style.Triggers>
                                             <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter Property="Background" Value="#007843"/>
+                                                <Setter Property="Background" Value="#F0F9F4"/>
                                             </Trigger>
                                         </Style.Triggers>
                                     </Style>
@@ -61,16 +77,16 @@
                             </Button>
                             
                             <Button x:Name="BtnVueProjets" Content="📁 Projets" 
-                                    Background="#F5F5F5" Foreground="#666" 
+                                    Background="Transparent" Foreground="White" 
                                     FontSize="13" FontWeight="SemiBold" Padding="18,8"
-                                    BorderThickness="0" Cursor="Hand"
+                                    BorderThickness="0" Cursor="Hand" Opacity="0.8"
                                     Click="BtnVueProjets_Click">
                                 <Button.Style>
                                     <Style TargetType="Button">
                                         <Setter Property="Template">
                                             <Setter.Value>
                                                 <ControlTemplate TargetType="Button">
-                                                    <Border Background="{TemplateBinding Background}" CornerRadius="6" 
+                                                    <Border Background="{TemplateBinding Background}" CornerRadius="8" 
                                                             Padding="{TemplateBinding Padding}">
                                                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                     </Border>
@@ -79,7 +95,8 @@
                                         </Setter>
                                         <Style.Triggers>
                                             <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter Property="Background" Value="#E0E0E0"/>
+                                                <Setter Property="Background" Value="#FFFFFF20"/>
+                                                <Setter Property="Opacity" Value="1"/>
                                             </Trigger>
                                         </Style.Triggers>
                                     </Style>
@@ -87,9 +104,9 @@
                             </Button>
                             
                             <Button x:Name="BtnVueArchives" Content="📦 Archives" 
-                                    Background="#F5F5F5" Foreground="#666" 
+                                    Background="Transparent" Foreground="White" 
                                     FontSize="13" FontWeight="SemiBold" Padding="18,8"
-                                    BorderThickness="0" Cursor="Hand"
+                                    BorderThickness="0" Cursor="Hand" Opacity="0.8"
                                     Click="BtnVueArchives_Click"
                                     Visibility="{Binding EstAdministrateur, Converter={StaticResource BooleanToVisibilityConverter}}">
                                 <Button.Style>
@@ -97,7 +114,7 @@
                                         <Setter Property="Template">
                                             <Setter.Value>
                                                 <ControlTemplate TargetType="Button">
-                                                    <Border Background="{TemplateBinding Background}" CornerRadius="6" 
+                                                    <Border Background="{TemplateBinding Background}" CornerRadius="8" 
                                                             Padding="{TemplateBinding Padding}">
                                                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                     </Border>
@@ -106,7 +123,8 @@
                                         </Setter>
                                         <Style.Triggers>
                                             <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter Property="Background" Value="#E0E0E0"/>
+                                                <Setter Property="Background" Value="#FFFFFF20"/>
+                                                <Setter Property="Opacity" Value="1"/>
                                             </Trigger>
                                         </Style.Triggers>
                                     </Style>
@@ -266,46 +284,156 @@
                                     <!-- Type Filter -->
                                     <StackPanel Margin="0,0,0,10">
                                         <TextBlock Text="📝 Type" FontSize="11" FontWeight="SemiBold" Foreground="#666" Margin="0,0,0,4"/>
-                                        <ComboBox ItemsSource="{Binding Source={x:Type local:TypeDemande}, Converter={StaticResource EnumToCollectionConverter}}"
-                                                  SelectedItem="{Binding SelectedType}" 
-                                                  Height="36" FontSize="12" BorderBrush="#DDD" BorderThickness="1" Padding="10,0"
-                                                  Background="White"/>
+                                        <Grid>
+                                            <ComboBox x:Name="CbType" ItemsSource="{Binding Source={x:Type local:TypeDemande}, Converter={StaticResource EnumToCollectionConverter}}"
+                                                      SelectedItem="{Binding SelectedType}" 
+                                                      Height="36" FontSize="12" BorderBrush="#DDD" BorderThickness="1" Padding="10,0"
+                                                      Background="White">
+                                                <ComboBox.ItemContainerStyle>
+                                                    <Style TargetType="ComboBoxItem">
+                                                        <Setter Property="Padding" Value="10,8"/>
+                                                    </Style>
+                                                </ComboBox.ItemContainerStyle>
+                                            </ComboBox>
+                                            <TextBlock Text="Tous les types" IsHitTestVisible="False" 
+                                                       Foreground="#999" FontSize="12" Margin="12,0,0,0"
+                                                       VerticalAlignment="Center">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding SelectedType}" Value="{x:Null}">
+                                                                <Setter Property="Visibility" Value="Visible"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Grid>
                                     </StackPanel>
 
                                     <!-- Priorite Filter -->
                                     <StackPanel Margin="0,0,0,10">
                                         <TextBlock Text="⚡ Priorité" FontSize="11" FontWeight="SemiBold" Foreground="#666" Margin="0,0,0,4"/>
-                                        <ComboBox ItemsSource="{Binding Source={x:Type local:Priorite}, Converter={StaticResource EnumToCollectionConverter}}"
-                                                  SelectedItem="{Binding SelectedPriorite}" 
-                                                  Height="36" FontSize="12" BorderBrush="#DDD" BorderThickness="1" Padding="10,0"
-                                                  Background="White"/>
+                                        <Grid>
+                                            <ComboBox x:Name="CbPriorite" ItemsSource="{Binding Source={x:Type local:Priorite}, Converter={StaticResource EnumToCollectionConverter}}"
+                                                      SelectedItem="{Binding SelectedPriorite}" 
+                                                      Height="36" FontSize="12" BorderBrush="#DDD" BorderThickness="1" Padding="10,0"
+                                                      Background="White">
+                                                <ComboBox.ItemContainerStyle>
+                                                    <Style TargetType="ComboBoxItem">
+                                                        <Setter Property="Padding" Value="10,8"/>
+                                                    </Style>
+                                                </ComboBox.ItemContainerStyle>
+                                            </ComboBox>
+                                            <TextBlock Text="Toutes les priorités" IsHitTestVisible="False" 
+                                                       Foreground="#999" FontSize="12" Margin="12,0,0,0"
+                                                       VerticalAlignment="Center">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding SelectedPriorite}" Value="{x:Null}">
+                                                                <Setter Property="Visibility" Value="Visible"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Grid>
                                     </StackPanel>
 
                                     <!-- Statut Filter -->
                                     <StackPanel Margin="0,0,0,10">
                                         <TextBlock Text="📊 Statut" FontSize="11" FontWeight="SemiBold" Foreground="#666" Margin="0,0,0,4"/>
-                                        <ComboBox ItemsSource="{Binding Source={x:Type local:Statut}, Converter={StaticResource EnumToCollectionConverter}}"
-                                                  SelectedItem="{Binding SelectedStatut}" 
-                                                  Height="36" FontSize="12" BorderBrush="#DDD" BorderThickness="1" Padding="10,0"
-                                                  Background="White"/>
+                                        <Grid>
+                                            <ComboBox x:Name="CbStatut" ItemsSource="{Binding Source={x:Type local:Statut}, Converter={StaticResource EnumToCollectionConverter}}"
+                                                      SelectedItem="{Binding SelectedStatut}" 
+                                                      Height="36" FontSize="12" BorderBrush="#DDD" BorderThickness="1" Padding="10,0"
+                                                      Background="White">
+                                                <ComboBox.ItemContainerStyle>
+                                                    <Style TargetType="ComboBoxItem">
+                                                        <Setter Property="Padding" Value="10,8"/>
+                                                    </Style>
+                                                </ComboBox.ItemContainerStyle>
+                                            </ComboBox>
+                                            <TextBlock Text="Tous les statuts" IsHitTestVisible="False" 
+                                                       Foreground="#999" FontSize="12" Margin="12,0,0,0"
+                                                       VerticalAlignment="Center">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding SelectedStatut}" Value="{x:Null}">
+                                                                <Setter Property="Visibility" Value="Visible"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Grid>
                                     </StackPanel>
 
                                     <!-- Dev Filter -->
                                     <StackPanel Margin="0,0,0,10">
                                         <TextBlock Text="👤 Développeur" FontSize="11" FontWeight="SemiBold" Foreground="#666" Margin="0,0,0,4"/>
-                                        <ComboBox ItemsSource="{Binding Devs}" DisplayMemberPath="Nom"
-                                                  SelectedValue="{Binding SelectedDevId}" SelectedValuePath="Id"
-                                                  Height="36" FontSize="12" BorderBrush="#DDD" BorderThickness="1" Padding="10,0"
-                                                  Background="White"/>
+                                        <Grid>
+                                            <ComboBox x:Name="CbDev" ItemsSource="{Binding Devs}" DisplayMemberPath="Nom"
+                                                      SelectedValue="{Binding SelectedDevId}" SelectedValuePath="Id"
+                                                      Height="36" FontSize="12" BorderBrush="#DDD" BorderThickness="1" Padding="10,0"
+                                                      Background="White">
+                                                <ComboBox.ItemContainerStyle>
+                                                    <Style TargetType="ComboBoxItem">
+                                                        <Setter Property="Padding" Value="10,8"/>
+                                                    </Style>
+                                                </ComboBox.ItemContainerStyle>
+                                            </ComboBox>
+                                            <TextBlock Text="Tous les développeurs" IsHitTestVisible="False" 
+                                                       Foreground="#999" FontSize="12" Margin="12,0,0,0"
+                                                       VerticalAlignment="Center">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding SelectedDevId}" Value="{x:Null}">
+                                                                <Setter Property="Visibility" Value="Visible"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Grid>
                                     </StackPanel>
 
                                     <!-- Projet Filter -->
                                     <StackPanel Margin="0,0,0,10">
                                         <TextBlock Text="📁 Projet" FontSize="11" FontWeight="SemiBold" Foreground="#666" Margin="0,0,0,4"/>
-                                        <ComboBox ItemsSource="{Binding Projets}" DisplayMemberPath="Nom"
-                                                  SelectedValue="{Binding SelectedProjetId}" SelectedValuePath="Id"
-                                                  Height="36" FontSize="12" BorderBrush="#DDD" BorderThickness="1" Padding="10,0"
-                                                  Background="White"/>
+                                        <Grid>
+                                            <ComboBox x:Name="CbProjet" ItemsSource="{Binding Projets}" DisplayMemberPath="Nom"
+                                                      SelectedValue="{Binding SelectedProjetId}" SelectedValuePath="Id"
+                                                      Height="36" FontSize="12" BorderBrush="#DDD" BorderThickness="1" Padding="10,0"
+                                                      Background="White">
+                                                <ComboBox.ItemContainerStyle>
+                                                    <Style TargetType="ComboBoxItem">
+                                                        <Setter Property="Padding" Value="10,8"/>
+                                                    </Style>
+                                                </ComboBox.ItemContainerStyle>
+                                            </ComboBox>
+                                            <TextBlock Text="Tous les projets" IsHitTestVisible="False" 
+                                                       Foreground="#999" FontSize="12" Margin="12,0,0,0"
+                                                       VerticalAlignment="Center">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding SelectedProjetId}" Value="{x:Null}">
+                                                                <Setter Property="Visibility" Value="Visible"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Grid>
                                     </StackPanel>
 
                                     <!-- Reset Button -->

@@ -18,40 +18,43 @@
             </Grid.RowDefinitions>
 
             <!-- Header -->
-            <Border Grid.Row="0" Background="White" CornerRadius="12" Padding="30,25" Margin="0,0,0,20">
+            <Border Grid.Row="0" CornerRadius="10" Padding="30,25" Margin="0,0,0,20">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="#00915A" Offset="0"/>
+                        <GradientStop Color="#00A566" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
                 <Border.Effect>
-                    <DropShadowEffect Color="#E0E0E0" BlurRadius="15" ShadowDepth="2" Opacity="0.3" Direction="270"/>
+                    <DropShadowEffect BlurRadius="16" ShadowDepth="2" Opacity="0.2" Color="#00915A"/>
                 </Border.Effect>
                 <StackPanel>
                     <WrapPanel Orientation="Horizontal" Margin="0,0,0,20">
-                        <Border Background="#00915A" Width="5" CornerRadius="2" 
-                                Margin="0,0,20,0" Height="60" VerticalAlignment="Top"/>
-                        
                         <StackPanel Margin="0,0,20,10">
-                            <TextBlock FontSize="28" FontWeight="Bold" Foreground="#1A1919">
+                            <TextBlock FontSize="28" FontWeight="Bold" Foreground="White">
                                 <Run Text="📝 "/>
-                                <Run Text="DEMANDES" Foreground="#00915A"/>
+                                <Run Text="DEMANDES"/>
                             </TextBlock>
                             <TextBlock Text="Gestion des demandes utilisateurs et suivi des traitements" 
-                                       FontSize="14" Foreground="#666666" Margin="0,5,0,0"/>
+                                       FontSize="14" Foreground="White" Opacity="0.9" Margin="0,5,0,0"/>
                         </StackPanel>
                         
                         <WrapPanel Orientation="Horizontal">
                         <Button x:Name="BtnAnalyseEmail"
                                 Content="📧 Créer depuis Email (IA)" 
                                 Height="42" Padding="18,0" Margin="0,0,10,0"
-                                Background="#6264A7" Foreground="White" FontWeight="SemiBold"
-                                BorderThickness="0" Cursor="Hand" FontSize="13"
+                                Background="#FFFFFF" Foreground="#6264A7" FontWeight="SemiBold"
+                                BorderThickness="2" BorderBrush="White" Cursor="Hand" FontSize="13"
                                 Click="BtnAnalyseEmail_Click">
                             <Button.Style>
                                 <Style TargetType="Button">
                                     <Setter Property="Template">
                                         <Setter.Value>
                                             <ControlTemplate TargetType="Button">
-                                                <Border Background="{TemplateBinding Background}" 
+                                                <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
                                                        CornerRadius="8" Padding="{TemplateBinding Padding}">
                                                     <Border.Effect>
-                                                        <DropShadowEffect BlurRadius="8" ShadowDepth="0" Opacity="0.3" Color="#6264A7"/>
+                                                        <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.2" Color="White"/>
                                                     </Border.Effect>
                                                     <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
@@ -60,7 +63,7 @@
                                     </Setter>
                                     <Style.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Background" Value="#4F51A3"/>
+                                            <Setter Property="Background" Value="#F0F0F0"/>
                                         </Trigger>
                                     </Style.Triggers>
                                 </Style>
@@ -70,17 +73,17 @@
                         <Button x:Name="BtnNouvelleDemande"
                                 Content="➕ Nouvelle demande" 
                                 Height="42" Padding="22,0" Margin="0"
-                                Background="#00915A" Foreground="White" FontWeight="Bold"
-                                BorderThickness="0" Cursor="Hand" FontSize="14">
+                                Background="White" Foreground="#00915A" FontWeight="Bold"
+                                BorderThickness="2" BorderBrush="White" Cursor="Hand" FontSize="14">
                             <Button.Style>
                                 <Style TargetType="Button">
                                     <Setter Property="Template">
                                         <Setter.Value>
                                             <ControlTemplate TargetType="Button">
-                                                <Border Background="{TemplateBinding Background}" 
+                                                <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
                                                        CornerRadius="8" Padding="{TemplateBinding Padding}">
                                                     <Border.Effect>
-                                                        <DropShadowEffect BlurRadius="8" ShadowDepth="0" Opacity="0.3" Color="#00915A"/>
+                                                        <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.25" Color="White"/>
                                                     </Border.Effect>
                                                     <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
@@ -89,7 +92,7 @@
                                     </Setter>
                                     <Style.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Background" Value="#007843"/>
+                                            <Setter Property="Background" Value="#F0F0F0"/>
                                         </Trigger>
                                     </Style.Triggers>
                                 </Style>
@@ -99,10 +102,10 @@
                     </WrapPanel>
                     
                     <!-- Onglets de navigation -->
-                    <Border Background="#F5F5F5" CornerRadius="25" Padding="4">
+                    <Border Background="White" CornerRadius="25" Padding="4" Opacity="0.95">
                         <WrapPanel Orientation="Horizontal">
                             <Button x:Name="BtnOngletActives" Content="📋 Demandes actives" 
-                                    Background="#00915A" Foreground="White" 
+                                    Background="White" Foreground="#00915A" 
                                     FontSize="13" FontWeight="Bold" Padding="18,8"
                                     Margin="0,0,4,0" BorderThickness="0" Cursor="Hand"
                                     Click="BtnOngletActives_Click">
@@ -113,6 +116,9 @@
                                                 <ControlTemplate TargetType="Button">
                                                     <Border Background="{TemplateBinding Background}" CornerRadius="20" 
                                                             Padding="{TemplateBinding Padding}">
+                                                        <Border.Effect>
+                                                            <DropShadowEffect BlurRadius="6" ShadowDepth="1" Opacity="0.15" Color="#00915A"/>
+                                                        </Border.Effect>
                                                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                     </Border>
                                                 </ControlTemplate>
@@ -120,7 +126,7 @@
                                         </Setter>
                                         <Style.Triggers>
                                             <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter Property="Background" Value="#007843"/>
+                                                <Setter Property="Background" Value="#F5F5F5"/>
                                             </Trigger>
                                         </Style.Triggers>
                                     </Style>
@@ -128,16 +134,16 @@
                             </Button>
                             
                             <Button x:Name="BtnOngletArchives" Content="📦 Archives" 
-                                    Background="Transparent" Foreground="#666" 
+                                    Background="#33FFFFFF" Foreground="White" 
                                     FontSize="13" FontWeight="SemiBold" Padding="18,8"
-                                    BorderThickness="0" Cursor="Hand"
+                                    BorderThickness="1" BorderBrush="#55FFFFFF" Cursor="Hand"
                                     Click="BtnOngletArchives_Click">
                                 <Button.Style>
                                     <Style TargetType="Button">
                                         <Setter Property="Template">
                                             <Setter.Value>
                                                 <ControlTemplate TargetType="Button">
-                                                    <Border Background="{TemplateBinding Background}" CornerRadius="20" 
+                                                    <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="20" 
                                                             Padding="{TemplateBinding Padding}">
                                                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                     </Border>
@@ -146,7 +152,8 @@
                                         </Setter>
                                         <Style.Triggers>
                                             <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter Property="Background" Value="#E0E0E0"/>
+                                                <Setter Property="Background" Value="#55FFFFFF"/>
+                                                <Setter Property="BorderBrush" Value="#88FFFFFF"/>
                                             </Trigger>
                                         </Style.Triggers>
                                     </Style>
@@ -158,9 +165,15 @@
             </Border>
 
             <!-- Filtres Section -->
-            <Border Grid.Row="1" Background="White" CornerRadius="10" Padding="20,18" Margin="0,0,0,20">
+            <Border Grid.Row="1" CornerRadius="10" Padding="20,18" Margin="0,0,0,20">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#FFFFFF" Offset="0"/>
+                        <GradientStop Color="#FAFAFA" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
                 <Border.Effect>
-                    <DropShadowEffect Color="#E0E0E0" BlurRadius="12" ShadowDepth="1" Opacity="0.25" Direction="270"/>
+                    <DropShadowEffect BlurRadius="16" ShadowDepth="0" Opacity="0.2" Color="#D0D0D0"/>
                 </Border.Effect>
                 <StackPanel>
                     <!-- Filtres -->
@@ -253,19 +266,26 @@
             <ItemsControl x:Name="ListeDemandes" Grid.Row="2">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border Background="White" BorderBrush="#E0E0E0" BorderThickness="2" 
+                        <Border BorderBrush="#E0E0E0" BorderThickness="1" 
                                CornerRadius="10" Margin="0,0,0,15" Padding="22,18" Cursor="Hand">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#FFFFFF" Offset="0"/>
+                                    <GradientStop Color="#FAFAFA" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
                             <Border.Effect>
-                                <DropShadowEffect BlurRadius="8" ShadowDepth="0" Opacity="0.1" Color="Gray"/>
+                                <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.15" Color="#D0D0D0"/>
                             </Border.Effect>
                             <Border.Style>
                                 <Style TargetType="Border">
                                     <Style.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
                                             <Setter Property="BorderBrush" Value="#00915A"/>
+                                            <Setter Property="BorderThickness" Value="2"/>
                                             <Setter Property="Effect">
                                                 <Setter.Value>
-                                                    <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.25" Color="#00915A"/>
+                                                    <DropShadowEffect BlurRadius="16" ShadowDepth="2" Opacity="0.25" Color="#00915A"/>
                                                 </Setter.Value>
                                             </Setter>
                                         </Trigger>

@@ -147,8 +147,8 @@ namespace BacklogManager
             BtnDemandes.Visibility = _permissionService.PeutCreerDemandes ? Visibility.Visible : Visibility.Collapsed;
             BtnStatistiques.Visibility = _permissionService.PeutVoirKPI ? Visibility.Visible : Visibility.Collapsed;
             
-            // Le bouton Paramètres est réservé à l'Administrateur uniquement
-            BtnParametres.Visibility = _permissionService.EstAdministrateur ? Visibility.Visible : Visibility.Collapsed;
+            // Le bouton Paramètres est maintenant accessible à tous (préférences personnelles)
+            BtnParametres.Visibility = Visibility.Visible;
             
             // Masquer toute la section ADMINISTRATION si pas d'accès
             TxtHeaderAdmin.Visibility = hasAdminAccess ? Visibility.Visible : Visibility.Collapsed;
@@ -266,17 +266,14 @@ namespace BacklogManager
         {
             try
             {
-                // Vérifier que seul l'Administrateur peut accéder aux paramètres
-                if (!_permissionService.EstAdministrateur)
+                // Maintenant accessible à tous pour les préférences personnelles
+                // Les sections sensibles (export/import, maintenance) sont masquées pour les non-admins dans la vue
+                var parametresView = new ParametresView(_database, _permissionService);
+                var contentControl = (System.Windows.Controls.ContentControl)this.FindName("MainContentControl");
+                if (contentControl != null)
                 {
-                    MessageBox.Show("Accès refusé.\n\nSeul le rôle Administrateur peut accéder aux paramètres système.", 
-                        "Paramètres - Accès restreint", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
+                    contentControl.Content = parametresView;
                 }
-
-                var window = new ParametresWindow(_database);
-                window.Owner = this;
-                window.ShowDialog();
             }
             catch (System.Exception ex)
             {
@@ -310,7 +307,7 @@ namespace BacklogManager
 
         private void BtnDashboard_Click(object sender, RoutedEventArgs e)
         {
-            var dashboardView = new Views.DashboardView(_backlogService, _notificationService, _authService);
+            var dashboardView = new Views.DashboardView(_backlogService, _notificationService, _authService, _permissionService);
             // Trouver le ContentControl dans le XAML et mettre à jour son contenu
             var contentControl = (System.Windows.Controls.ContentControl)this.FindName("MainContentControl");
             if (contentControl != null)

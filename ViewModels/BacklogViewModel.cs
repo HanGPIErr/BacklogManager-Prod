@@ -321,7 +321,7 @@ namespace BacklogManager.ViewModels
                 Devs.Add(user);
             }
 
-            var projets = _backlogService.GetAllProjets();
+            var projets = _backlogService.GetAllProjets().Where(p => p.Actif).ToList();
             Projets.Clear();
             foreach (var projet in projets)
             {
