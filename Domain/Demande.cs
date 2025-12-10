@@ -47,5 +47,19 @@ namespace BacklogManager.Domain
         public DateTime? DatePrevisionnelleImplementation { get; set; }
         public string JustificationRefus { get; set; }
         public bool EstArchivee { get; set; }
+        
+        // Phase 2 : Enrichissement avec structure Programme
+        public int? ProgrammeId { get; set; } // Programme associé
+        public string Priorite { get; set; } // "Top High", "High", "Medium", "Low"
+        public string Drivers { get; set; } // JSON array : ["Automation", "Efficiency Gains", ...]
+        public string Ambition { get; set; } // "Automation Rate Increase", "Workload Gain", etc.
+        public string Beneficiaires { get; set; } // JSON array : ["SGI", "TFSC", "Transversal"]
+        public string GainsTemps { get; set; } // "X heures/semaine", "X jours/mois", "X% workload"
+        public string GainsFinanciers { get; set; } // "X€ mensuels/annuels" ou "N/A"
+        public string LeadProjet { get; set; } // "GTTO", "CCI", "Autre"
+        public string TypeProjet { get; set; } // "Data", "Digital", "Regulatory", "Run", "Transformation"
+        public string Categorie { get; set; } // "BAU", "TRANSFO"
+        public bool EstImplemente { get; set; } // Implémentation oui/non
+        public System.Collections.Generic.List<int> EquipesAssigneesIds { get; set; } = new System.Collections.Generic.List<int>(); // Équipes assignées à la demande
     }
 }

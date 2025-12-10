@@ -86,6 +86,8 @@ namespace BacklogManager.ViewModels
         private bool _filterActifsOnly;
         private string _triSelection;
         private bool _triDecroissant = true; // Plus récent en premier par défaut
+        private string _prioriteSelectionnee;
+        private string _statutRAGSelectionne;
 
         public ObservableCollection<ProjetItemViewModel> Projets { get; set; }
         public ObservableCollection<ProjetItemViewModel> ProjetsFiltres { get; set; }
@@ -124,7 +126,31 @@ namespace BacklogManager.ViewModels
             }
         }
 
+        public string PrioriteSelectionnee
+        {
+            get { return _prioriteSelectionnee; }
+            set
+            {
+                _prioriteSelectionnee = value;
+                OnPropertyChanged();
+                AppliquerFiltres();
+            }
+        }
+
+        public string StatutRAGSelectionne
+        {
+            get { return _statutRAGSelectionne; }
+            set
+            {
+                _statutRAGSelectionne = value;
+                OnPropertyChanged();
+                AppliquerFiltres();
+            }
+        }
+
         public ObservableCollection<string> OptionsTriDisponibles { get; set; }
+        public ObservableCollection<string> PrioritesDisponibles { get; set; }
+        public ObservableCollection<string> StatutsRAGDisponibles { get; set; }
 
         public ProjetItemViewModel SelectedProjet
         {
@@ -170,8 +196,29 @@ namespace BacklogManager.ViewModels
                 "Nb tâches (moins)"
             };
 
+            // Priorités projets (nouvelles valeurs)
+            PrioritesDisponibles = new ObservableCollection<string>
+            {
+                "-- Toutes --",
+                "Top High",
+                "High",
+                "Medium",
+                "Low"
+            };
+
+            // Statuts RAG
+            StatutsRAGDisponibles = new ObservableCollection<string>
+            {
+                "-- Tous --",
+                "Green",
+                "Amber",
+                "Red"
+            };
+
             _filterActifsOnly = true;
             _triSelection = "Date (plus récent)";
+            _prioriteSelectionnee = "-- Toutes --";
+            _statutRAGSelectionne = "-- Tous --";
 
             AjouterProjetCommand = new RelayCommand(_ => AjouterProjet(), _ => CanAjouterProjet());
             RefreshCommand = new RelayCommand(_ => LoadProjets());
@@ -235,6 +282,20 @@ namespace BacklogManager.ViewModels
                     (p.Projet.Description ?? "").ToLower().Contains(search));
             }
 
+            // Filtre Priorité (nouvelles valeurs: Top High, High, Medium, Low)
+            if (!string.IsNullOrWhiteSpace(PrioriteSelectionnee) && PrioriteSelectionnee != "-- Toutes --")
+            {
+                projetsFiltered = projetsFiltered.Where(p => 
+                    p.Projet.Priorite != null && p.Projet.Priorite.Equals(PrioriteSelectionnee, StringComparison.OrdinalIgnoreCase));
+            }
+
+            // Filtre Statut RAG
+            if (!string.IsNullOrWhiteSpace(StatutRAGSelectionne) && StatutRAGSelectionne != "-- Tous --")
+            {
+                projetsFiltered = projetsFiltered.Where(p => 
+                    p.Projet.StatutRAG != null && p.Projet.StatutRAG.Equals(StatutRAGSelectionne, StringComparison.OrdinalIgnoreCase));
+            }
+
             // Tri
             switch (TriSelection)
             {
@@ -270,6 +331,8 @@ namespace BacklogManager.ViewModels
             SearchText = "";
             FilterActifsOnly = true;
             TriSelection = "Date (plus récent)";
+            PrioriteSelectionnee = "-- Toutes --";
+            StatutRAGSelectionne = "-- Tous --";
         }
 
         private void LoadTachesProjet()

@@ -43,6 +43,12 @@ namespace BacklogManager.Views
                 {
                     CboRole.SelectedIndex = 0;
                 }
+                
+                // Charger les équipes
+                var equipes = _database.GetAllEquipes().Where(e => e.Actif).OrderBy(e => e.Nom).ToList();
+                // Ajouter une option "Aucune équipe" au début
+                equipes.Insert(0, new Equipe { Id = 0, Nom = "-- Aucune équipe --", Code = "" });
+                CboEquipe.ItemsSource = equipes;
             }
             catch (Exception ex)
             {
@@ -61,6 +67,12 @@ namespace BacklogManager.Views
                 TxtUsernameWindows.Text = _utilisateur.UsernameWindows ?? "";
                 ChkActif.IsChecked = _utilisateur.Actif;
                 CboRole.SelectedValue = _utilisateur.RoleId;
+                CboEquipe.SelectedValue = _utilisateur.EquipeId.HasValue ? _utilisateur.EquipeId.Value : 0;
+            }
+            else
+            {
+                // Pour un nouvel utilisateur, sélectionner "Aucune équipe" par défaut
+                CboEquipe.SelectedValue = 0;
             }
         }
 
@@ -140,11 +152,16 @@ namespace BacklogManager.Views
                     oldValue = $"Nom: {_utilisateur.Nom} {_utilisateur.Prenom}, Email: {_utilisateur.Email}, Role: {_utilisateur.RoleId}, Actif: {_utilisateur.Actif}";
                 }
 
+                var equipeId = CboEquipe.SelectedValue != null && (int)CboEquipe.SelectedValue > 0 
+                    ? (int?)CboEquipe.SelectedValue 
+                    : null;
+
                 _utilisateur.Nom = TxtNom.Text.Trim();
                 _utilisateur.Prenom = TxtPrenom.Text.Trim();
                 _utilisateur.Email = TxtEmail.Text.Trim();
                 _utilisateur.UsernameWindows = TxtUsernameWindows.Text.Trim();
                 _utilisateur.RoleId = (int)CboRole.SelectedValue;
+                _utilisateur.EquipeId = equipeId;
                 _utilisateur.Actif = ChkActif.IsChecked ?? true;
 
                 if (_isNewUser)

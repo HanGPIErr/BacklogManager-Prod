@@ -28,7 +28,7 @@ namespace BacklogManager.Views
             {
                 // Charger la première page de chaque groupe par défaut
                 FrameUtilisateursRoles.Content = new GestionUtilisateursPage(_database, _auditLogService);
-                FrameProjetsEquipe.Content = new GestionProjetsPage(_database, _auditLogService);
+                FrameProjetsEquipe.Content = new GestionProgrammesPage(_database); // Charger Programmes par défaut
                 FrameAudit.Content = new AuditLogPage(_database, _auditLogService);
             }
             catch (Exception ex)
@@ -70,6 +70,25 @@ namespace BacklogManager.Views
         }
 
         // Gestion des sous-onglets Projets & Équipe
+        private void BtnSousOngletProgrammes_Click(object sender, RoutedEventArgs e)
+        {
+            // Mettre à jour les styles des boutons
+            BtnSousOngletProgrammes.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00915A"));
+            BtnSousOngletProgrammes.Foreground = Brushes.White;
+            BtnSousOngletProgrammes.FontWeight = FontWeights.SemiBold;
+
+            BtnSousOngletProjets.Background = Brushes.Transparent;
+            BtnSousOngletProjets.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#6D6D6D"));
+            BtnSousOngletProjets.FontWeight = FontWeights.Normal;
+
+            BtnSousOngletEquipes.Background = Brushes.Transparent;
+            BtnSousOngletEquipes.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#6D6D6D"));
+            BtnSousOngletEquipes.FontWeight = FontWeights.Normal;
+
+            // Charger le contenu
+            FrameProjetsEquipe.Content = new GestionProgrammesPage(_database);
+        }
+
         private void BtnSousOngletProjets_Click(object sender, RoutedEventArgs e)
         {
             // Mettre à jour les styles des boutons
@@ -77,27 +96,35 @@ namespace BacklogManager.Views
             BtnSousOngletProjets.Foreground = Brushes.White;
             BtnSousOngletProjets.FontWeight = FontWeights.SemiBold;
 
-            BtnSousOngletDevs.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E0E0E0"));
-            BtnSousOngletDevs.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#6D6D6D"));
-            BtnSousOngletDevs.FontWeight = FontWeights.Normal;
+            BtnSousOngletProgrammes.Background = Brushes.Transparent;
+            BtnSousOngletProgrammes.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#6D6D6D"));
+            BtnSousOngletProgrammes.FontWeight = FontWeights.Normal;
+
+            BtnSousOngletEquipes.Background = Brushes.Transparent;
+            BtnSousOngletEquipes.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#6D6D6D"));
+            BtnSousOngletEquipes.FontWeight = FontWeights.Normal;
 
             // Charger le contenu
             FrameProjetsEquipe.Content = new GestionProjetsPage(_database, _auditLogService);
         }
 
-        private void BtnSousOngletDevs_Click(object sender, RoutedEventArgs e)
+        private void BtnSousOngletEquipes_Click(object sender, RoutedEventArgs e)
         {
             // Mettre à jour les styles des boutons
-            BtnSousOngletDevs.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00915A"));
-            BtnSousOngletDevs.Foreground = Brushes.White;
-            BtnSousOngletDevs.FontWeight = FontWeights.SemiBold;
+            BtnSousOngletEquipes.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00915A"));
+            BtnSousOngletEquipes.Foreground = Brushes.White;
+            BtnSousOngletEquipes.FontWeight = FontWeights.SemiBold;
 
-            BtnSousOngletProjets.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E0E0E0"));
+            BtnSousOngletProgrammes.Background = Brushes.Transparent;
+            BtnSousOngletProgrammes.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#6D6D6D"));
+            BtnSousOngletProgrammes.FontWeight = FontWeights.Normal;
+
+            BtnSousOngletProjets.Background = Brushes.Transparent;
             BtnSousOngletProjets.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#6D6D6D"));
             BtnSousOngletProjets.FontWeight = FontWeights.Normal;
 
-            // Charger le contenu (utiliser GestionEquipePage à la place)
-            FrameProjetsEquipe.Content = new GestionEquipePage(_database);
+            // Charger le contenu avec la nouvelle page de gestion des équipes
+            FrameProjetsEquipe.Content = new GestionEquipesPage(_database);
         }
 
         private void BtnOuvrirHistoriqueChat_Click(object sender, RoutedEventArgs e)

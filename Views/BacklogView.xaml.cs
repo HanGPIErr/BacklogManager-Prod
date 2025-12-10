@@ -46,6 +46,12 @@ namespace BacklogManager.Views
             BtnVueTaches.Foreground = Brushes.White;
             BtnVueTaches.FontWeight = FontWeights.SemiBold;
 
+            // Afficher les filtres et restaurer la largeur de colonne
+            FiltersSidebar.Visibility = Visibility.Visible;
+            FiltersColumn.Width = new GridLength(1, GridUnitType.Auto);
+            FiltersColumn.MinWidth = 280;
+            FiltersColumn.MaxWidth = 320;
+
             // Désactiver le bouton Projets
             BtnVueProjets.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E0E0E0"));
             BtnVueProjets.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#6D6D6D"));
@@ -55,6 +61,12 @@ namespace BacklogManager.Views
             BtnNouvelleTache.Visibility = Visibility.Visible;
             BtnTacheSpeciale.Visibility = Visibility.Visible;
             BtnNouveauProjet.Visibility = Visibility.Collapsed;
+
+            // Afficher la barre de filtres (pour tâches)
+            if (FiltersSidebar != null)
+            {
+                FiltersSidebar.Visibility = Visibility.Visible;
+            }
 
             // Afficher la vue des tâches, cacher projets
             if (TachesScrollViewer != null)
@@ -89,6 +101,15 @@ namespace BacklogManager.Views
             BtnNouveauProjet.Visibility = Visibility.Visible;
             BtnNouvelleTache.Visibility = Visibility.Collapsed;
             BtnTacheSpeciale.Visibility = Visibility.Collapsed;
+
+            // Cacher la barre de filtres (pour tâches uniquement) et réduire la largeur de colonne
+            if (FiltersSidebar != null)
+            {
+                FiltersSidebar.Visibility = Visibility.Collapsed;
+                FiltersColumn.Width = new GridLength(0);
+                FiltersColumn.MinWidth = 0;
+                FiltersColumn.MaxWidth = 0;
+            }
 
             // Cacher la vue des tâches
             if (TachesScrollViewer != null)
@@ -151,6 +172,15 @@ namespace BacklogManager.Views
             BtnNouveauProjet.Visibility = Visibility.Collapsed;
             BtnNouvelleTache.Visibility = Visibility.Collapsed;
             BtnTacheSpeciale.Visibility = Visibility.Collapsed;
+
+            // Cacher la barre de filtres (pour tâches uniquement) et réduire la largeur de colonne
+            if (FiltersSidebar != null)
+            {
+                FiltersSidebar.Visibility = Visibility.Collapsed;
+                FiltersColumn.Width = new GridLength(0);
+                FiltersColumn.MinWidth = 0;
+                FiltersColumn.MaxWidth = 0;
+            }
 
             // Cacher la vue des tâches
             if (TachesScrollViewer != null)

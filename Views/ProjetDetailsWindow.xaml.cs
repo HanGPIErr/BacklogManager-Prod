@@ -32,6 +32,9 @@ namespace BacklogManager.Views
             TxtNomProjet.Text = _projet.Nom;
             TxtDescription.Text = string.IsNullOrEmpty(_projet.Description) ? "Aucune description" : _projet.Description;
 
+            // Charger et afficher les équipes assignées
+            ChargerEquipes();
+
             // Charger toutes les tâches du projet (y compris archivées)
             var taches = _backlogService.GetAllBacklogItems()
                 .Where(t => t.ProjetId == _projet.Id)
@@ -207,6 +210,34 @@ namespace BacklogManager.Views
                     return new SolidColorBrush(Color.FromRgb(76, 175, 80)); // Vert
                 default:
                     return new SolidColorBrush(Color.FromRgb(158, 158, 158)); // Gris
+            }
+        }
+
+        private void ChargerEquipes()
+        {
+            if (_projet.EquipesAssigneesIds != null && _projet.EquipesAssigneesIds.Count > 0)
+            {
+                var toutesEquipes = _backlogService.Database.GetAllEquipes();
+                var equipesAssignees = toutesEquipes
+                    .Where(e => _projet.EquipesAssigneesIds.Contains(e.Id))
+                    .Select(e => new { Nom = e.Nom })
+                    .ToList();
+
+                if (equipesAssignees.Count > 0)
+                {
+                    ListeEquipes.ItemsSource = equipesAssignees;
+                    TxtAucuneEquipe.Visibility = Visibility.Collapsed;
+                }
+                else
+                {
+                    ListeEquipes.ItemsSource = null;
+                    TxtAucuneEquipe.Visibility = Visibility.Visible;
+                }
+            }
+            else
+            {
+                ListeEquipes.ItemsSource = null;
+                TxtAucuneEquipe.Visibility = Visibility.Visible;
             }
         }
     }

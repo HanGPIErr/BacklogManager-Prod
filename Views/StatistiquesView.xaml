@@ -505,6 +505,122 @@
                         </ItemsControl>
                     </StackPanel>
                 </Border>
+
+                <!-- NOUVELLES STATISTIQUES ÉQUIPES -->
+                
+                <!-- Répartition des ressources par équipe -->
+                <Border Style="{StaticResource StatCardStyle}" Margin="10,0,10,20">
+                    <StackPanel>
+                        <TextBlock Text="🏢 Répartition des ressources par équipe" 
+                                   FontSize="16" FontWeight="Bold" Foreground="#1A1919" Margin="0,0,0,5"/>
+                        <TextBlock Text="Nombre de membres actifs (hors managers) par équipe" 
+                                   FontSize="11" Foreground="#666666" FontStyle="Italic" Margin="0,0,0,15"/>
+                        <ItemsControl ItemsSource="{Binding RessourcesParEquipe}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Columns="3" HorizontalAlignment="Stretch"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="#F9F9F9" CornerRadius="8" Padding="12" Margin="5"
+                                            BorderBrush="#E0E0E0" BorderThickness="1">
+                                        <StackPanel>
+                                            <!-- En-tête équipe -->
+                                            <Grid Margin="0,0,0,8">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Border Background="#E7F5F1" CornerRadius="16" Padding="6,3" Margin="0,0,8,0">
+                                                        <TextBlock Text="🏢" FontSize="12"/>
+                                                    </Border>
+                                                    <TextBlock Text="{Binding NomEquipe}" FontWeight="Bold" FontSize="12" 
+                                                               Foreground="#1A1919" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                                </StackPanel>
+                                            </Grid>
+                                            
+                                            <!-- Nombre de membres - grand -->
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,5">
+                                                <TextBlock Text="{Binding NbMembres}" FontWeight="Bold" FontSize="28" 
+                                                           Foreground="#00915A" VerticalAlignment="Center"/>
+                                                <TextBlock Text=" membres" FontSize="11" Foreground="#666" 
+                                                           VerticalAlignment="Center" Margin="4,0,0,0"/>
+                                            </StackPanel>
+                                            
+                                            <!-- Barre comparative -->
+                                            <Grid Height="20" Margin="0,8,0,8">
+                                                <Border Background="#E0E0E0" CornerRadius="4"/>
+                                                <Border Background="#00915A" CornerRadius="4" HorizontalAlignment="Left"
+                                                        Width="{Binding LargeurBarre, Mode=OneWay}" Height="20"/>
+                                            </Grid>
+                                            
+                                            <!-- Détails compacts -->
+                                            <StackPanel>
+                                                <TextBlock FontSize="10" Foreground="#666" HorizontalAlignment="Center" Margin="0,2">
+                                                    <Run Text="📊"/><Run Text=" "/><Run Text="{Binding NbProjets}" FontWeight="SemiBold"/><Run Text=" projets"/>
+                                                </TextBlock>
+                                                <TextBlock FontSize="10" Foreground="#666" HorizontalAlignment="Center" Margin="0,2">
+                                                    <Run Text="⚖️"/><Run Text=" "/><Run Text="{Binding ChargeParMembre, Mode=OneWay, StringFormat='{}{0:F1}'}" FontWeight="SemiBold"/><Run Text=" proj/membre"/>
+                                                </TextBlock>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <!-- Distribution de charge entre équipes -->
+                <Border Style="{StaticResource StatCardStyle}" Margin="10,0,10,20">
+                    <StackPanel>
+                        <TextBlock Text="⚖️ Équilibre de charge entre équipes" 
+                                   FontSize="16" FontWeight="Bold" Foreground="#1A1919" Margin="0,0,0,5"/>
+                        <TextBlock Text="Nombre de projets assignés par équipe (une équipe peut gérer plusieurs projets)" 
+                                   FontSize="11" Foreground="#666666" FontStyle="Italic" Margin="0,0,0,15"/>
+                        <ItemsControl ItemsSource="{Binding ChargeParEquipe}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Columns="2" HorizontalAlignment="Stretch"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="#F9F9F9" CornerRadius="8" Padding="15" Margin="5"
+                                            BorderBrush="#E0E0E0" BorderThickness="1">
+                                        <StackPanel>
+                                            <!-- En-tête avec code équipe uniquement -->
+                                            <Border Background="#E7F5F1" CornerRadius="16" Padding="8,4" Margin="0,0,0,10"
+                                                    HorizontalAlignment="Left">
+                                                <TextBlock FontWeight="Bold" FontSize="11" Foreground="#00915A">
+                                                    <Run Text="{Binding CodeEquipe}"/>
+                                                </TextBlock>
+                                            </Border>
+                                            
+                                            <!-- Nombre de projets - grand et centré -->
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,5,0,10">
+                                                <TextBlock Text="{Binding NbProjets}" FontWeight="Bold" FontSize="32" 
+                                                           Foreground="{Binding CouleurBarre}" VerticalAlignment="Center"/>
+                                                <TextBlock Text=" projets" FontSize="13" Foreground="#666" 
+                                                           VerticalAlignment="Center" Margin="5,0,0,0"/>
+                                            </StackPanel>
+                                            
+                                            <!-- Barre de progression horizontale -->
+                                            <Grid Height="24" Margin="0,5">
+                                                <Border Background="#E0E0E0" CornerRadius="6"/>
+                                                <Border Background="{Binding CouleurBarre}" CornerRadius="6" HorizontalAlignment="Left"
+                                                        Width="{Binding LargeurBarre}" Height="24">
+                                                    <Border.Effect>
+                                                        <DropShadowEffect Color="{Binding CouleurBarre}" BlurRadius="8" 
+                                                                         ShadowDepth="0" Opacity="0.3"/>
+                                                    </Border.Effect>
+                                                </Border>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
             </StackPanel>
         </ScrollViewer>
     </Grid>

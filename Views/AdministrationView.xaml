@@ -186,10 +186,34 @@
                             <!-- Sous-navigation avec style pill -->
                             <Border Grid.Row="0" Background="#F5F5F5" CornerRadius="25" Padding="5" Margin="0,0,0,25">
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                                    <Button x:Name="BtnSousOngletProjets" 
+                                    <Button x:Name="BtnSousOngletProgrammes" 
                                             Background="#00915A" Foreground="White" 
                                             FontSize="13" FontWeight="SemiBold" Padding="22,10"
                                             Margin="0" BorderThickness="0" Cursor="Hand"
+                                            Click="BtnSousOngletProgrammes_Click">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border Background="{TemplateBinding Background}" 
+                                                                    CornerRadius="20" Padding="{TemplateBinding Padding}">
+                                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                            </Border>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Style>
+                                        </Button.Style>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="📊" Margin="0,0,6,0"/>
+                                            <TextBlock Text="Programmes"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button x:Name="BtnSousOngletProjets" 
+                                            Background="Transparent" Foreground="#6D6D6D" 
+                                            FontSize="13" FontWeight="Normal" Padding="22,10"
+                                            Margin="5,0,0,0" BorderThickness="0" Cursor="Hand"
                                             Click="BtnSousOngletProjets_Click">
                                         <Button.Style>
                                             <Style TargetType="Button">
@@ -210,11 +234,11 @@
                                             <TextBlock Text="Projets"/>
                                         </StackPanel>
                                     </Button>
-                                    <Button x:Name="BtnSousOngletDevs" 
+                                    <Button x:Name="BtnSousOngletEquipes" 
                                             Background="Transparent" Foreground="#6D6D6D" 
                                             FontSize="13" FontWeight="Normal" Padding="22,10"
                                             Margin="5,0,0,0" BorderThickness="0" Cursor="Hand"
-                                            Click="BtnSousOngletDevs_Click">
+                                            Click="BtnSousOngletEquipes_Click">
                                         <Button.Style>
                                             <Style TargetType="Button">
                                                 <Setter Property="Template">
@@ -230,8 +254,8 @@
                                             </Style>
                                         </Button.Style>
                                         <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="👨‍💻" Margin="0,0,6,0"/>
-                                            <TextBlock Text="Développeurs"/>
+                                            <TextBlock Text="🏢" Margin="0,0,6,0"/>
+                                            <TextBlock Text="Équipes"/>
                                         </StackPanel>
                                     </Button>
                                 </StackPanel>

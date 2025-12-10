@@ -64,5 +64,22 @@ namespace BacklogManager.Services
         List<ChatMessageDB> GetChatMessages(int conversationId);
         void AddChatMessage(ChatMessageDB message);
         void DeleteUserChatConversations(int userId);
+        
+        // Phase 1 : Gestion des Équipes
+        List<Equipe> GetAllEquipes();
+        Equipe GetEquipeById(int id);
+        void AjouterEquipe(Equipe equipe);
+        void ModifierEquipe(Equipe equipe);
+        List<Utilisateur> GetMembresByEquipe(int equipeId);
+        List<Projet> GetProjetsByEquipe(int equipeId);
+        List<BacklogItem> GetBacklogItemsByDevId(int devId);
+        
+        // Phase 2 : Gestion des Programmes
+        List<Programme> GetAllProgrammes();
+        Programme GetProgrammeById(int id);
+        void AjouterProgramme(Programme programme);
+        void ModifierProgramme(Programme programme);
+        void SupprimerProgramme(int id);
+        List<Projet> GetProjetsByProgramme(int programmeId);
     }
 }

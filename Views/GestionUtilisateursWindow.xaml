@@ -102,13 +102,32 @@
                                           DisplayMemberPath="Nom" SelectedValuePath="Id"/>
                             </StackPanel>
 
+                            <!-- Équipe -->
+                            <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,10,10">
+                                <TextBlock Text="🏢 Équipe" FontSize="11" Foreground="#666" Margin="0,0,0,5"/>
+                                <ComboBox x:Name="CmbEquipe" FontSize="13" Padding="8" Height="32"
+                                          DisplayMemberPath="Nom" SelectedValuePath="Id">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock>
+                                                <Run Text="🏢 " Foreground="#00915A"/>
+                                                <Run Text="{Binding Nom}" FontWeight="SemiBold"/>
+                                                <Run Text=" (" Foreground="#666"/>
+                                                <Run Text="{Binding Code}" Foreground="#666"/>
+                                                <Run Text=")" Foreground="#666"/>
+                                            </TextBlock>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </StackPanel>
+
                             <!-- Actif -->
-                            <CheckBox Grid.Row="2" Grid.Column="0" x:Name="ChkActif" 
+                            <CheckBox Grid.Row="3" Grid.Column="0" x:Name="ChkActif" 
                                       Content="Utilisateur actif" IsChecked="True" 
                                       FontSize="13" VerticalAlignment="Center"/>
 
                             <!-- Boutons -->
-                            <StackPanel Grid.Row="2" Grid.Column="2" Orientation="Horizontal" 
+                            <StackPanel Grid.Row="3" Grid.Column="2" Orientation="Horizontal" 
                                         HorizontalAlignment="Right">
                                 <Button x:Name="BtnAjouterUser" Content="➕ Ajouter" 
                                         Style="{StaticResource BNPButtonStyle}" 
@@ -138,10 +157,11 @@
                               SelectionChanged="DgUtilisateurs_SelectionChanged">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Username" Binding="{Binding UsernameWindows}" Width="100"/>
-                            <DataGridTextColumn Header="Nom" Binding="{Binding Nom}" Width="120"/>
-                            <DataGridTextColumn Header="Prénom" Binding="{Binding Prenom}" Width="120"/>
+                            <DataGridTextColumn Header="Nom" Binding="{Binding Nom}" Width="100"/>
+                            <DataGridTextColumn Header="Prénom" Binding="{Binding Prenom}" Width="100"/>
                             <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="*"/>
-                            <DataGridTextColumn Header="Rôle" Binding="{Binding RoleNom}" Width="150"/>
+                            <DataGridTextColumn Header="Rôle" Binding="{Binding RoleNom}" Width="120"/>
+                            <DataGridTextColumn Header="Équipe" Binding="{Binding EquipeNom}" Width="150"/>
                             <DataGridCheckBoxColumn Header="Actif" Binding="{Binding Actif}" Width="60"/>
                             <DataGridTemplateColumn Header="Actions" Width="120">
                                 <DataGridTemplateColumn.CellTemplate>

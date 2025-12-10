@@ -89,6 +89,32 @@
                         </StackPanel>
                     </Border>
 
+                    <!-- Équipe -->
+                    <Border Background="#FAFAFA" CornerRadius="4" Padding="15" Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Text="🏢 Équipe" FontWeight="Bold" FontSize="13" 
+                                       Foreground="#333333" Margin="0,0,0,8"/>
+                            <ComboBox x:Name="CboEquipe" SelectedValuePath="Id"
+                                      Padding="12,8" FontSize="14" BorderBrush="#CCCCCC" 
+                                      BorderThickness="1" Height="42"
+                                      VerticalContentAlignment="Center">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock FontSize="14">
+                                            <Run Text="🏢 " Foreground="#00915A"/>
+                                            <Run Text="{Binding Nom, Mode=OneWay}" FontWeight="SemiBold"/>
+                                            <Run Text=" (" Foreground="#666666"/>
+                                            <Run Text="{Binding Code, Mode=OneWay}" Foreground="#666666"/>
+                                            <Run Text=")" Foreground="#666666"/>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <TextBlock Text="Laissez vide si aucune équipe assignée" 
+                                       FontSize="11" Foreground="#999999" Margin="0,5,0,0" FontStyle="Italic"/>
+                        </StackPanel>
+                    </Border>
+
                     <!-- Statut actif -->
                     <Border Background="#E8F5E9" CornerRadius="4" Padding="15" Margin="0,0,0,12">
                         <CheckBox x:Name="ChkActif" Content="✅ Utilisateur actif" 

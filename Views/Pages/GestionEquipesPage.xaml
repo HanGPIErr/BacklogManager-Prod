@@ -1,0 +1,244 @@
+<Page x:Class="BacklogManager.Views.Pages.GestionEquipesPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Background="Transparent">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Actions -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,20">
+            <Button x:Name="BtnNouvelleEquipe" Content="➕ Nouvelle équipe" Click="BtnNouvelleEquipe_Click"
+                    Background="#00915A" Foreground="White" Padding="18,10" 
+                    BorderThickness="0" Cursor="Hand" FontWeight="SemiBold" FontSize="14">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}" 
+                                            CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#007A4D"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+            
+            <Button Content="🔄 Actualiser" Click="BtnActualiser_Click" Margin="10,0,0,0"
+                    Background="#6C757D" Foreground="White" Padding="18,10" 
+                    BorderThickness="0" Cursor="Hand" FontWeight="SemiBold" FontSize="14">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}" 
+                                            CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#5A6268"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </StackPanel>
+
+        <!-- Liste des équipes -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <ItemsControl x:Name="LstEquipes">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Background="White" CornerRadius="12" Padding="0" Margin="0,0,24,24" 
+                                Width="380" BorderBrush="#E8E8E8" BorderThickness="1" Cursor="Hand"
+                                MouseLeftButtonDown="Equipe_Click">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="16" ShadowDepth="0" Opacity="0.08" Color="#000000"/>
+                            </Border.Effect>
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Effect">
+                                        <Setter.Value>
+                                            <DropShadowEffect BlurRadius="16" ShadowDepth="0" Opacity="0.08" Color="#000000"/>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="BorderBrush" Value="#00915A"/>
+                                            <Setter Property="BorderThickness" Value="2"/>
+                                            <Setter Property="Effect">
+                                                <Setter.Value>
+                                                    <DropShadowEffect BlurRadius="20" ShadowDepth="0" Opacity="0.16" Color="#00915A"/>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <!-- En-tête coloré avec gradient -->
+                                <Border Grid.Row="0" CornerRadius="12,12,0,0" Padding="20,16">
+                                    <Border.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#00915A" Offset="0"/>
+                                            <GradientStop Color="#00C078" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Border.Background>
+                                    
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        
+                                        <!-- Nom de l'équipe -->
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="{Binding Nom}" 
+                                                       FontSize="19" FontWeight="Bold" Foreground="White" 
+                                                       TextTrimming="CharacterEllipsis"/>
+                                            <!-- Code -->
+                                            <Border Background="#FFE7B2" CornerRadius="4" 
+                                                    Padding="8,3" Margin="0,6,0,0" HorizontalAlignment="Left">
+                                                <TextBlock Text="{Binding Code}" 
+                                                           FontSize="11" FontWeight="SemiBold" 
+                                                           Foreground="#4A4A4A"/>
+                                            </Border>
+                                        </StackPanel>
+                                        
+                                        <!-- Icône équipe -->
+                                        <Border Grid.Column="1" Background="#FFFFFF25" CornerRadius="50" 
+                                                Width="50" Height="50" VerticalAlignment="Center">
+                                            <TextBlock Text="🏢" FontSize="26" 
+                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+
+                                <!-- Contenu principal -->
+                                <Grid Grid.Row="1" Margin="20,16,20,0">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    
+                                    <!-- Description -->
+                                    <TextBlock Grid.Row="0" Text="{Binding Description}" 
+                                               FontSize="13" Foreground="#555555" LineHeight="20"
+                                               TextWrapping="Wrap" 
+                                               MaxHeight="60" TextTrimming="CharacterEllipsis"/>
+
+                                    <!-- Manager -->
+                                    <Border Grid.Row="1" Background="#F8F9FA" CornerRadius="8" 
+                                            Padding="12,10" Margin="0,12,0,0">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Border Background="#E7F5F1" CornerRadius="20" 
+                                                    Width="32" Height="32" VerticalAlignment="Center">
+                                                <TextBlock Text="👤" FontSize="16" 
+                                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                                                <TextBlock Text="Manager" FontSize="10" 
+                                                           Foreground="#999999" FontWeight="SemiBold"/>
+                                                <TextBlock Text="{Binding ManagerNom}" FontSize="13" 
+                                                           Foreground="#333333" FontWeight="Medium" 
+                                                           Margin="0,2,0,0"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+
+                                <!-- Séparateur -->
+                                <Border Grid.Row="2" Height="1" Background="#F0F0F0" Margin="20,16,20,0"/>
+
+                                <!-- Statistiques en bas -->
+                                <Grid Grid.Row="3" Margin="20,0,20,20">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Nombre de membres -->
+                                    <Border Grid.Column="0" Background="Transparent" Padding="0,12">
+                                        <StackPanel HorizontalAlignment="Center">
+                                            <Border Background="#E7F5F1" CornerRadius="8" 
+                                                    Padding="10,6" HorizontalAlignment="Center">
+                                                <TextBlock Text="{Binding NombreMembres, Mode=OneWay}" 
+                                                           FontSize="20" FontWeight="Bold" Foreground="#00915A"
+                                                           HorizontalAlignment="Center"/>
+                                            </Border>
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,6,0,0">
+                                                <TextBlock Text="👥" FontSize="12" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                                                <TextBlock Text="Membres" FontSize="11" Foreground="#666666" 
+                                                           FontWeight="Medium" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <!-- Séparateur vertical -->
+                                    <Border Grid.Column="1" Width="1" Background="#F0F0F0" 
+                                            Margin="0,8,0,8" HorizontalAlignment="Center"/>
+
+                                    <!-- Nombre de projets -->
+                                    <Border Grid.Column="2" Background="Transparent" Padding="0,12">
+                                        <StackPanel HorizontalAlignment="Center">
+                                            <Border Background="#FFE7B2" CornerRadius="8" 
+                                                    Padding="10,6" HorizontalAlignment="Center">
+                                                <TextBlock Text="{Binding NombreProjets, Mode=OneWay}" 
+                                                           FontSize="20" FontWeight="Bold" Foreground="#D15F00"
+                                                           HorizontalAlignment="Center"/>
+                                            </Border>
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,6,0,0">
+                                                <TextBlock Text="📊" FontSize="12" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                                                <TextBlock Text="Projets" FontSize="11" Foreground="#666666" 
+                                                           FontWeight="Medium" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+        
+        <!-- Message si aucune équipe -->
+        <StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center"
+                    x:Name="PanelAucuneEquipe" Visibility="Collapsed">
+            <TextBlock Text="🏢" FontSize="64" HorizontalAlignment="Center" Foreground="#E0E0E0"/>
+            <TextBlock Text="Aucune équipe" FontSize="18" FontWeight="SemiBold" 
+                       Foreground="#666666" HorizontalAlignment="Center" Margin="0,10,0,5"/>
+            <TextBlock Text="Cliquez sur 'Nouvelle équipe' pour créer votre première équipe"
+                       FontSize="14" Foreground="#999999" HorizontalAlignment="Center"/>
+        </StackPanel>
+    </Grid>
+</Page>

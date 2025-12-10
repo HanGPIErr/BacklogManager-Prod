@@ -85,6 +85,7 @@ UTILISATEURS_TEST.txt
 # Documentation files
 *.md
 INTRODUCTION_PRESENTATION.md
+ROADMAP_EVOLUTION.md
 GUIDE_MISE_A_JOUR.txt
 
 # PowerShell scripts (optional)

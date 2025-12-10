@@ -102,6 +102,10 @@ namespace BacklogManager.ViewModels
         public ObservableCollection<ChargeDevViewModel> ChargeParDev { get; set; }
         public ObservableCollection<CRADevViewModel> CRAParDev { get; set; }
         public ObservableCollection<CompletionProjetViewModel> CompletionParProjet { get; set; }
+        
+        // Collections équipes
+        public ObservableCollection<RessourceEquipeViewModel> RessourcesParEquipe { get; set; }
+        public ObservableCollection<ChargeEquipeViewModel> ChargeParEquipe { get; set; }
 
         // Filtres de période
         private int _periodeSelectionneeIndex = 5; // Tout afficher par défaut
@@ -141,6 +145,8 @@ namespace BacklogManager.ViewModels
             ChargeParDev = new ObservableCollection<ChargeDevViewModel>();
             CRAParDev = new ObservableCollection<CRADevViewModel>();
             CompletionParProjet = new ObservableCollection<CompletionProjetViewModel>();
+            RessourcesParEquipe = new ObservableCollection<RessourceEquipeViewModel>();
+            ChargeParEquipe = new ObservableCollection<ChargeEquipeViewModel>();
 
             RafraichirCommand = new RelayCommand(param => ChargerStatistiques());
             AfficherDetailsDevCommand = new RelayCommand(param => AfficherDetailsDev(param as ChargeDevViewModel));
@@ -237,6 +243,9 @@ namespace BacklogManager.ViewModels
 
                 // Complétion par projet
                 ChargerCompletionParProjet(taches, projets);
+
+                // Statistiques équipes
+                ChargerStatistiquesEquipes(projets);
             }
             catch (Exception ex)
             {
@@ -655,6 +664,87 @@ namespace BacklogManager.ViewModels
             }
         }
 
+        private void ChargerStatistiquesEquipes(List<Projet> projets)
+        {
+            try
+            {
+                RessourcesParEquipe.Clear();
+                ChargeParEquipe.Clear();
+
+                var equipes = _database.GetAllEquipes().Where(e => e.Actif).ToList();
+                var utilisateurs = _database.GetUtilisateurs().Where(u => u.Actif).ToList();
+
+                if (!equipes.Any())
+                    return;
+
+                // 1. Répartition des ressources par équipe
+                var ressourcesStats = new List<RessourceEquipeViewModel>();
+                foreach (var equipe in equipes)
+                {
+                    var nbMembres = utilisateurs.Count(u => u.EquipeId == equipe.Id && u.Id != equipe.ManagerId);
+                    var nbProjets = 0;
+                    
+                    foreach (var projet in projets.Where(p => p.Actif && p.EquipesAssigneesIds != null && p.EquipesAssigneesIds.Count > 0))
+                    {
+                        if (projet.EquipesAssigneesIds.Contains(equipe.Id))
+                        {
+                            nbProjets++;
+                        }
+                    }
+
+                    ressourcesStats.Add(new RessourceEquipeViewModel
+                    {
+                        NomEquipe = equipe.Nom,
+                        NbMembres = nbMembres,
+                        NbProjets = nbProjets
+                    });
+                }
+
+                var maxMembres = ressourcesStats.Any() ? ressourcesStats.Max(r => r.NbMembres) : 1;
+                RessourceEquipeViewModel.SetMaxMembres(maxMembres);
+
+                foreach (var stat in ressourcesStats.OrderByDescending(r => r.NbMembres))
+                {
+                    RessourcesParEquipe.Add(stat);
+                }
+
+                // 2. Distribution de charge entre équipes
+                var chargeStats = new List<ChargeEquipeViewModel>();
+                foreach (var equipe in equipes)
+                {
+                    var nbProjets = 0;
+                    foreach (var projet in projets.Where(p => p.Actif && p.EquipesAssigneesIds != null && p.EquipesAssigneesIds.Count > 0))
+                    {
+                        if (projet.EquipesAssigneesIds.Contains(equipe.Id))
+                        {
+                            nbProjets++;
+                        }
+                    }
+
+                    chargeStats.Add(new ChargeEquipeViewModel
+                    {
+                        NomEquipe = equipe.Nom,
+                        CodeEquipe = equipe.Code,
+                        NbProjets = nbProjets
+                    });
+                }
+
+                var maxProjets = chargeStats.Any() ? chargeStats.Max(c => c.NbProjets) : 1;
+                ChargeEquipeViewModel.SetMaxProjets(maxProjets);
+
+                foreach (var stat in chargeStats.OrderByDescending(c => c.NbProjets))
+                {
+                    ChargeParEquipe.Add(stat);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[STATS] Erreur chargement stats équipes: {ex.Message}");
+            }
+        }
+
+
+
         private void AfficherDetailsDev(ChargeDevViewModel devStats)
         {
             if (devStats == null)
@@ -916,5 +1006,180 @@ namespace BacklogManager.ViewModels
             }
         }
         public string LabelCompletion => $"{TachesTerminees}/{TotalTaches}";
+    }
+
+    // ViewModels pour les statistiques d'équipes
+    public class RessourceEquipeViewModel : INotifyPropertyChanged
+    {
+        private string _nomEquipe;
+        private int _nbMembres;
+        private int _nbProjets;
+        
+        public string NomEquipe
+        {
+            get => _nomEquipe;
+            set { _nomEquipe = value; OnPropertyChanged(nameof(NomEquipe)); }
+        }
+        
+        public int NbMembres
+        {
+            get => _nbMembres;
+            set
+            {
+                _nbMembres = value;
+                OnPropertyChanged(nameof(NbMembres));
+                OnPropertyChanged(nameof(ChargeParMembre));
+                OnPropertyChanged(nameof(LargeurBarre));
+            }
+        }
+        
+        public int NbProjets
+        {
+            get => _nbProjets;
+            set
+            {
+                _nbProjets = value;
+                OnPropertyChanged(nameof(NbProjets));
+                OnPropertyChanged(nameof(ChargeParMembre));
+            }
+        }
+        
+        public double ChargeParMembre => NbMembres > 0 ? (double)NbProjets / NbMembres : 0;
+        
+        private static int _maxMembres = 1;
+        public static void SetMaxMembres(int max) => _maxMembres = max > 0 ? max : 1;
+        public double LargeurBarre => (NbMembres * 400.0 / _maxMembres);
+        
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
+
+    public class ChargeEquipeViewModel : INotifyPropertyChanged
+    {
+        private string _nomEquipe;
+        private string _codeEquipe;
+        private int _nbProjets;
+        
+        public string NomEquipe
+        {
+            get => _nomEquipe;
+            set { _nomEquipe = value; OnPropertyChanged(nameof(NomEquipe)); }
+        }
+        
+        public string CodeEquipe
+        {
+            get => _codeEquipe;
+            set { _codeEquipe = value; OnPropertyChanged(nameof(CodeEquipe)); }
+        }
+        
+        public int NbProjets
+        {
+            get => _nbProjets;
+            set
+            {
+                _nbProjets = value;
+                OnPropertyChanged(nameof(NbProjets));
+                OnPropertyChanged(nameof(LargeurBarre));
+                OnPropertyChanged(nameof(CouleurBarre));
+            }
+        }
+        
+        private static int _maxProjets = 1;
+        public static void SetMaxProjets(int max) => _maxProjets = max > 0 ? max : 1;
+        public double LargeurBarre => (NbProjets * 400.0 / _maxProjets);
+        
+        public string CouleurBarre
+        {
+            get
+            {
+                // Vert si charge légère, orange si moyenne, rouge si élevée
+                var ratio = _maxProjets > 0 ? (double)NbProjets / _maxProjets : 0;
+                if (ratio < 0.5) return "#4CAF50"; // Vert
+                if (ratio < 0.8) return "#FF9800"; // Orange
+                return "#F44336"; // Rouge
+            }
+        }
+        
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
+
+    public class RecommandationIAViewModel : INotifyPropertyChanged
+    {
+        private string _icone;
+        private string _titre;
+        private string _description;
+        private string _action;
+        private string _priorite;
+        private string _couleurBordure;
+        private string _couleurTitre;
+        private string _couleurFond;
+        
+        public string Icone
+        {
+            get => _icone;
+            set { _icone = value; OnPropertyChanged(nameof(Icone)); }
+        }
+        
+        public string Titre
+        {
+            get => _titre;
+            set { _titre = value; OnPropertyChanged(nameof(Titre)); }
+        }
+        
+        public string Description
+        {
+            get => _description;
+            set { _description = value; OnPropertyChanged(nameof(Description)); }
+        }
+        
+        public string Action
+        {
+            get => _action;
+            set
+            {
+                _action = value;
+                OnPropertyChanged(nameof(Action));
+                OnPropertyChanged(nameof(HasAction));
+            }
+        }
+        
+        public string Priorite
+        {
+            get => _priorite;
+            set { _priorite = value; OnPropertyChanged(nameof(Priorite)); }
+        }
+        
+        public string CouleurBordure
+        {
+            get => _couleurBordure;
+            set { _couleurBordure = value; OnPropertyChanged(nameof(CouleurBordure)); }
+        }
+        
+        public string CouleurTitre
+        {
+            get => _couleurTitre;
+            set { _couleurTitre = value; OnPropertyChanged(nameof(CouleurTitre)); }
+        }
+        
+        public string CouleurFond
+        {
+            get => _couleurFond;
+            set { _couleurFond = value; OnPropertyChanged(nameof(CouleurFond)); }
+        }
+        
+        public bool HasAction => !string.IsNullOrEmpty(Action);
+        
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 }

@@ -11,14 +11,30 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         
-        <!-- En-tête -->
-        <Border Grid.Row="0" Background="#00A651" Padding="20">
-            <StackPanel>
-                <TextBlock x:Name="TxtTitre" Text="NOUVELLE DEMANDE" FontSize="20" 
-                          FontWeight="Bold" Foreground="White"/>
-                <TextBlock Text="Formulaire de création/modification de demande" 
-                          FontSize="12" Foreground="White" Margin="0,5,0,0"/>
-            </StackPanel>
+        <!-- En-tête enrichi -->
+        <Border Grid.Row="0">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#00A651" Offset="0"/>
+                    <GradientStop Color="#00915A" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.Background>
+            <Grid Margin="25,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <TextBlock Grid.Column="0" Text="📝" FontSize="32" 
+                          VerticalAlignment="Center" Margin="0,0,15,0"/>
+                
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock x:Name="TxtTitre" Text="NOUVELLE DEMANDE" FontSize="20" 
+                              FontWeight="Bold" Foreground="White"/>
+                    <TextBlock Text="Complétez tous les champs obligatoires marqués d'un astérisque (*)" 
+                              FontSize="12" Foreground="#E0F2E9" Margin="0,3,0,0"/>
+                </StackPanel>
+            </Grid>
         </Border>
         
         <!-- Formulaire -->
@@ -26,15 +42,54 @@
             <StackPanel Margin="30,20">
                 
                 <!-- Titre -->
-                <TextBlock Text="Titre *" FontWeight="Bold" Margin="0,0,0,5"/>
-                <TextBox x:Name="TxtTitreDemande" Height="35" FontSize="13" 
-                        Padding="8" Margin="0,0,0,15"/>
+                <StackPanel Margin="0,0,0,15">
+                    <TextBlock FontWeight="Bold" Margin="0,0,0,5">
+                        <Run Text="Titre" Foreground="#1A1919"/>
+                        <Run Text=" *" Foreground="#F44336" FontWeight="Bold"/>
+                    </TextBlock>
+                    <TextBox x:Name="TxtTitreDemande" Height="40" FontSize="13" 
+                            Padding="12" BorderBrush="#E0E0E0" BorderThickness="1">
+                        <TextBox.Style>
+                            <Style TargetType="TextBox">
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="BorderBrush" Value="#00A651"/>
+                                    </Trigger>
+                                    <Trigger Property="IsFocused" Value="True">
+                                        <Setter Property="BorderBrush" Value="#00A651"/>
+                                        <Setter Property="BorderThickness" Value="2"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBox.Style>
+                    </TextBox>
+                </StackPanel>
                 
                 <!-- Description -->
-                <TextBlock Text="Description *" FontWeight="Bold" Margin="0,0,0,5"/>
-                <TextBox x:Name="TxtDescription" Height="100" FontSize="13" 
-                        TextWrapping="Wrap" AcceptsReturn="True" 
-                        VerticalScrollBarVisibility="Auto" Padding="8" Margin="0,0,0,15"/>
+                <StackPanel Margin="0,0,0,15">
+                    <TextBlock FontWeight="Bold" Margin="0,0,0,5">
+                        <Run Text="Description" Foreground="#1A1919"/>
+                        <Run Text=" *" Foreground="#F44336" FontWeight="Bold"/>
+                    </TextBlock>
+                    <TextBox x:Name="TxtDescription" Height="100" FontSize="13" 
+                            TextWrapping="Wrap" AcceptsReturn="True" 
+                            VerticalScrollBarVisibility="Auto" Padding="12" 
+                            BorderBrush="#E0E0E0" BorderThickness="1">
+                        <TextBox.Style>
+                            <Style TargetType="TextBox">
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="BorderBrush" Value="#00A651"/>
+                                    </Trigger>
+                                    <Trigger Property="IsFocused" Value="True">
+                                        <Setter Property="BorderBrush" Value="#00A651"/>
+                                        <Setter Property="BorderThickness" Value="2"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBox.Style>
+                    </TextBox>
+                </StackPanel>
                 
                 <!-- Spécifications (visible uniquement en modification) -->
                 <Border x:Name="PanelSpecifications" Background="#FFF9E6" BorderBrush="#FFD700" 
@@ -76,6 +131,139 @@
                         <ComboBox x:Name="CmbCriticite" Height="35" FontSize="13"/>
                     </StackPanel>
                 </Grid>
+                
+                <!-- SECTION PHASE 2: Programme & Classification -->
+                <Border Background="#E8F5E9" BorderBrush="#00A651" BorderThickness="1" 
+                       CornerRadius="5" Padding="15" Margin="0,0,0,15">
+                    <StackPanel>
+                        <TextBlock Text="PROGRAMME ET CLASSIFICATION" FontWeight="Bold" FontSize="14" 
+                                  Foreground="#00A651" Margin="0,0,0,15"/>
+                        
+                        <!-- Programme -->
+                        <TextBlock Text="Programme associé" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <ComboBox x:Name="CmbProgramme" Height="35" FontSize="13" Margin="0,0,0,15"/>
+                        
+                        <!-- Priorité, Type Projet, Catégorie -->
+                        <Grid Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Priorité *" FontWeight="Bold" Margin="0,0,0,5"/>
+                                <ComboBox x:Name="CmbPriorite" Height="35" FontSize="13"/>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Type Projet" FontWeight="Bold" Margin="0,0,0,5"/>
+                                <ComboBox x:Name="CmbTypeProjet" Height="35" FontSize="13"/>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="4">
+                                <TextBlock Text="Catégorie" FontWeight="Bold" Margin="0,0,0,5"/>
+                                <ComboBox x:Name="CmbCategorie" Height="35" FontSize="13"/>
+                            </StackPanel>
+                        </Grid>
+                        
+                        <!-- Lead Projet et Est Implémenté -->
+                        <Grid Margin="0,0,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Lead Projet" FontWeight="Bold" Margin="0,0,0,5"/>
+                                <ComboBox x:Name="CmbLeadProjet" Height="35" FontSize="13"/>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="2">
+                                <CheckBox x:Name="ChkEstImplemente" Content="Déjà implémenté" 
+                                         FontWeight="Bold" VerticalAlignment="Bottom" Margin="0,0,0,8"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+                
+                <!-- SECTION PHASE 2: Drivers & Ambition -->
+                <Border Background="#E3F2FD" BorderBrush="#2196F3" BorderThickness="1" 
+                       CornerRadius="5" Padding="15" Margin="0,0,0,15">
+                    <StackPanel>
+                        <TextBlock Text="DRIVERS ET AMBITION" FontWeight="Bold" FontSize="14" 
+                                  Foreground="#1976D2" Margin="0,0,0,15"/>
+                        
+                        <!-- Drivers (multi-sélection) -->
+                        <TextBlock Text="Drivers" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <TextBlock Text="Sélectionnez les drivers applicables (plusieurs choix possibles)" 
+                                  FontSize="11" Foreground="#666666" Margin="0,0,0,5"/>
+                        <StackPanel x:Name="PanelDrivers" Margin="0,0,0,15">
+                            <CheckBox x:Name="ChkDriverAutomation" Content="Automation" Margin="0,3"/>
+                            <CheckBox x:Name="ChkDriverEfficiency" Content="Efficiency Gains" Margin="0,3"/>
+                            <CheckBox x:Name="ChkDriverOptimization" Content="Process Optimization" Margin="0,3"/>
+                            <CheckBox x:Name="ChkDriverStandardization" Content="Standardization" Margin="0,3"/>
+                            <CheckBox x:Name="ChkDriverAucun" Content="Aucun" Margin="0,3"/>
+                        </StackPanel>
+                        
+                        <!-- Ambition -->
+                        <TextBlock Text="Ambition" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <ComboBox x:Name="CmbAmbition" Height="35" FontSize="13" Margin="0,0,0,15"/>
+                        
+                        <!-- Bénéficiaires -->
+                        <TextBlock Text="Bénéficiaires" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <TextBlock Text="Qui bénéficie de ce projet ? (plusieurs choix possibles)" 
+                                  FontSize="11" Foreground="#666666" Margin="0,0,0,5"/>
+                        <StackPanel x:Name="PanelBeneficiaires" Margin="0,0,0,0">
+                            <CheckBox x:Name="ChkBenefSGI" Content="SGI" Margin="0,3"/>
+                            <CheckBox x:Name="ChkBenefTFSC" Content="TFSC" Margin="0,3"/>
+                            <CheckBox x:Name="ChkBenefTransversal" Content="Transversal" Margin="0,3"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+                
+                <!-- SECTION PHASE 2: Gains -->
+                <Border Background="#FFF3E0" BorderBrush="#FF9800" BorderThickness="1" 
+                       CornerRadius="5" Padding="15" Margin="0,0,0,15">
+                    <StackPanel>
+                        <TextBlock Text="GAINS ATTENDUS" FontWeight="Bold" FontSize="14" 
+                                  Foreground="#F57C00" Margin="0,0,0,15"/>
+                        
+                        <!-- Gains Temps -->
+                        <TextBlock Text="Gains Temps *" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <TextBlock Text="Exemples: '15 heures/semaine', '3 jours/mois', '20% workload'" 
+                                  FontSize="11" Foreground="#666666" Margin="0,0,0,5"/>
+                        <TextBox x:Name="TxtGainsTemps" Height="35" FontSize="13" 
+                                Padding="8" Margin="0,0,0,15"/>
+                        
+                        <!-- Gains Financiers -->
+                        <TextBlock Text="Gains Financiers (optionnel)" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <TextBlock Text="Exemples: '45000€ annuels', '3500€ mensuels', 'N/A'" 
+                                  FontSize="11" Foreground="#666666" Margin="0,0,0,5"/>
+                        <TextBox x:Name="TxtGainsFinanciers" Height="35" FontSize="13" 
+                                Padding="8" Margin="0,0,0,0"/>
+                    </StackPanel>
+                </Border>
+                
+                <!-- SECTION PHASE 2: Équipes Assignées -->
+                <Border Background="#F3E5F5" BorderBrush="#9C27B0" BorderThickness="1" 
+                       CornerRadius="5" Padding="15" Margin="0,0,0,15">
+                    <StackPanel>
+                        <TextBlock Text="ÉQUIPES ASSIGNÉES" FontWeight="Bold" FontSize="14" 
+                                  Foreground="#7B1FA2" Margin="0,0,0,15"/>
+                        
+                        <!-- Équipes (multi-sélection) -->
+                        <TextBlock Text="Équipes concernées" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <TextBlock Text="Sélectionnez une ou plusieurs équipes (plusieurs choix possibles)" 
+                                  FontSize="11" Foreground="#666666" Margin="0,0,0,5"/>
+                        <StackPanel x:Name="PanelEquipes">
+                            <!-- CheckBoxes seront générées dynamiquement -->
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
                 
                 <!-- Contexte -->
                 <TextBlock Text="Contexte métier" FontWeight="Bold" Margin="0,0,0,5"/>
@@ -155,16 +343,71 @@
             </StackPanel>
         </ScrollViewer>
         
-        <!-- Boutons -->
+        <!-- Boutons améliorés -->
         <Border Grid.Row="2" Background="White" BorderBrush="#E0E0E0" BorderThickness="0,1,0,0" 
-               Padding="20">
+               Padding="25,20">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button x:Name="BtnAnnuler" Content="Annuler" Width="100" Height="35" 
-                       Margin="0,0,10,0" Background="#E0E0E0" Foreground="#333333" 
-                       BorderThickness="0" FontSize="13" FontWeight="Bold" Cursor="Hand"/>
-                <Button x:Name="BtnEnregistrer" Content="Enregistrer" Width="120" Height="35" 
+                <Button x:Name="BtnAnnuler" Width="120" Height="40" 
+                       Margin="0,0,12,0" Background="#F5F5F5" Foreground="#666666" 
+                       BorderBrush="#E0E0E0" BorderThickness="1" 
+                       FontSize="13" FontWeight="SemiBold" Cursor="Hand">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="{TemplateBinding Background}" 
+                                               BorderBrush="{TemplateBinding BorderBrush}"
+                                               BorderThickness="{TemplateBinding BorderThickness}"
+                                               CornerRadius="6" Padding="12,0">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="#EEEEEE"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Button.Style>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="✕ " FontSize="14" VerticalAlignment="Center"/>
+                        <TextBlock Text="Annuler" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                
+                <Button x:Name="BtnEnregistrer" Width="140" Height="40" 
                        Background="#00A651" Foreground="White" BorderThickness="0" 
-                       FontSize="13" FontWeight="Bold" Cursor="Hand"/>
+                       FontSize="13" FontWeight="SemiBold" Cursor="Hand">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="{TemplateBinding Background}" 
+                                               CornerRadius="6" Padding="12,0">
+                                            <Border.Effect>
+                                                <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.3" Color="#00A651"/>
+                                            </Border.Effect>
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="#00915A"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Button.Style>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="✓ " FontSize="14" VerticalAlignment="Center"/>
+                        <TextBlock Text="Enregistrer" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
             </StackPanel>
         </Border>
     </Grid>

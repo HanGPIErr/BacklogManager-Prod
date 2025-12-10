@@ -267,6 +267,30 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Pages\GestionEquipesPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Pages\DetailEquipeView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Pages\DetailProjetSteerCoView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\EquipeEditionWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Pages\GestionProgrammesPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ProgrammeEditionWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Pages\AuditLogPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -499,6 +523,28 @@
     <Compile Include="Views\Pages\GestionEquipePage.xaml.cs">
       <DependentUpon>GestionEquipePage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Pages\GestionEquipesPage.xaml.cs">
+      <DependentUpon>GestionEquipesPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Pages\DetailEquipeView.xaml.cs">
+      <DependentUpon>DetailEquipeView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Pages\DetailProjetSteerCoView.xaml.cs">
+      <DependentUpon>DetailProjetSteerCoView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\EquipeEditionWindow.xaml.cs">
+      <DependentUpon>EquipeEditionWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Pages\GestionProgrammesPage.xaml.cs">
+      <DependentUpon>GestionProgrammesPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ProgrammeEditionWindow.xaml.cs">
+      <DependentUpon>ProgrammeEditionWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Domain\Equipe.cs" />
+    <Compile Include="Domain\Programme.cs" />
+    <Compile Include="Services\EquipeService.cs" />
+    <Compile Include="Services\ProgrammeService.cs" />
     <Compile Include="Views\Pages\AuditLogPage.xaml.cs">
       <DependentUpon>AuditLogPage.xaml</DependentUpon>
     </Compile>
@@ -554,6 +600,7 @@
     <Compile Include="Shared\BooleanToVisibilityConverter.cs" />
     <Compile Include="Shared\ProgressWidthConverter.cs" />
     <Compile Include="Shared\InverseBooleanToVisibilityConverter.cs" />
+    <Compile Include="Converters\BarWidthConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

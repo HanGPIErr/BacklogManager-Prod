@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace BacklogManager.Domain
 {
@@ -12,6 +13,30 @@ namespace BacklogManager.Domain
         public DateTime? DateFinPrevue { get; set; } // Date de fin prévue du projet
         public bool Actif { get; set; }
         public string CouleurHex { get; set; } // Couleur pour identification visuelle (ex: "#FF5722")
+        
+        // Phase 1 : Gestion des équipes
+        public List<int> EquipesAssigneesIds { get; set; } = new List<int>(); // Plusieurs équipes possibles
+        
+        // Phase 2 : Gestion des programmes et enrichissement
+        public int? ProgrammeId { get; set; }
+        public Programme Programme { get; set; }
+        
+        // Phase 2 : Métadonnées enrichies
+        public bool EstImplemente { get; set; }                    // Implémentation : oui/non
+        public string TypeProjet { get; set; }                     // Data, Digital, Regulatory, Run, Transformation
+        public string Categorie { get; set; }                       // BAU, TRANSFO
+        public string Priorite { get; set; }                        // Top High, High, Medium, Low
+        public string Drivers { get; set; }                         // JSON array - Automation, Efficiency Gains, etc.
+        public string Ambition { get; set; }                        // Automation Rate Increase, Pricing Alignment, etc.
+        public string Beneficiaires { get; set; }                   // JSON array - SGI, TFSC, Transversal
+        public string GainsTemps { get; set; }                      // "X heures/semaine", "X jours/mois", etc.
+        public string GainsFinanciers { get; set; }                 // "X€ mensuels/annuels" ou "N/A"
+        public string LeadProjet { get; set; }                      // GTTO, CCI, Autre
+        public string Timeline { get; set; }                        // JSON - { milestones: [], progress: "" }
+        public string TargetDelivery { get; set; }                  // Ex: "Q3 2026"
+        public string PerimetreProchainComite { get; set; }         // Texte libre
+        public string NextActions { get; set; }                     // Texte libre
+        public string StatutRAG { get; set; }                       // "Green", "Amber", "Red"
 
         // Palette de couleurs prédéfinies pour projets
         public static readonly string[] CouleursPalette = new[]

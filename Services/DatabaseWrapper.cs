@@ -154,5 +154,22 @@ namespace BacklogManager.Services
         public List<ChatMessageDB> GetChatMessages(int conversationId) => ExecuteReadWithRetry(() => _database.GetChatMessages(conversationId), nameof(GetChatMessages));
         public void AddChatMessage(ChatMessageDB message) => ExecuteWriteWithRetry(() => _database.AddChatMessage(message), nameof(AddChatMessage));
         public void DeleteUserChatConversations(int userId) => ExecuteWriteWithRetry(() => _database.DeleteUserChatConversations(userId), nameof(DeleteUserChatConversations));
+        
+        // Phase 1 : Gestion des Équipes
+        public List<Equipe> GetAllEquipes() => ExecuteReadWithRetry(() => _database.GetAllEquipes(), nameof(GetAllEquipes));
+        public Equipe GetEquipeById(int id) => ExecuteReadWithRetry(() => _database.GetEquipeById(id), nameof(GetEquipeById));
+        public void AjouterEquipe(Equipe equipe) => ExecuteWriteWithRetry(() => _database.AjouterEquipe(equipe), nameof(AjouterEquipe));
+        public void ModifierEquipe(Equipe equipe) => ExecuteWriteWithRetry(() => _database.ModifierEquipe(equipe), nameof(ModifierEquipe));
+        public List<Utilisateur> GetMembresByEquipe(int equipeId) => ExecuteReadWithRetry(() => _database.GetMembresByEquipe(equipeId), nameof(GetMembresByEquipe));
+        public List<Projet> GetProjetsByEquipe(int equipeId) => ExecuteReadWithRetry(() => _database.GetProjetsByEquipe(equipeId), nameof(GetProjetsByEquipe));
+        public List<BacklogItem> GetBacklogItemsByDevId(int devId) => ExecuteReadWithRetry(() => _database.GetBacklogItemsByDevId(devId), nameof(GetBacklogItemsByDevId));
+        
+        // Phase 2 : Gestion des Programmes
+        public List<Programme> GetAllProgrammes() => ExecuteReadWithRetry(() => _database.GetAllProgrammes(), nameof(GetAllProgrammes));
+        public Programme GetProgrammeById(int id) => ExecuteReadWithRetry(() => _database.GetProgrammeById(id), nameof(GetProgrammeById));
+        public void AjouterProgramme(Programme programme) => ExecuteWriteWithRetry(() => _database.AjouterProgramme(programme), nameof(AjouterProgramme));
+        public void ModifierProgramme(Programme programme) => ExecuteWriteWithRetry(() => _database.ModifierProgramme(programme), nameof(ModifierProgramme));
+        public void SupprimerProgramme(int id) => ExecuteWriteWithRetry(() => _database.SupprimerProgramme(id), nameof(SupprimerProgramme));
+        public List<Projet> GetProjetsByProgramme(int programmeId) => ExecuteReadWithRetry(() => _database.GetProjetsByProgramme(programmeId), nameof(GetProjetsByProgramme));
     }
 }

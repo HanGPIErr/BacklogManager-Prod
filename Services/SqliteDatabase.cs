@@ -816,6 +816,198 @@ namespace BacklogManager.Services
                     ";
                     cmd.ExecuteNonQuery();
                 }
+                
+                // ========== PHASE 1 : Gestion des Équipes ==========
+                
+                // Vérifier et créer la table Equipes si elle n'existe pas
+                cmd.CommandText = @"SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='Equipes';";
+                var hasEquipesTable = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                
+                if (!hasEquipesTable)
+                {
+                    cmd.CommandText = @"
+                        CREATE TABLE Equipes (
+                            Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            Nom TEXT NOT NULL,
+                            Code TEXT NOT NULL UNIQUE,
+                            Description TEXT,
+                            PerimetreFonctionnel TEXT,
+                            ManagerId INTEGER,
+                            Contact TEXT,
+                            Actif INTEGER NOT NULL DEFAULT 1,
+                            DateCreation TEXT NOT NULL,
+                            FOREIGN KEY (ManagerId) REFERENCES Utilisateurs(Id)
+                        );
+                        
+                        CREATE INDEX IF NOT EXISTS idx_equipes_code ON Equipes(Code);
+                        CREATE INDEX IF NOT EXISTS idx_equipes_manager ON Equipes(ManagerId);
+                    ";
+                    cmd.ExecuteNonQuery();
+                    
+                    // Initialiser les 9 équipes prédéfinies
+                    cmd.CommandText = @"
+                        INSERT INTO Equipes (Nom, Code, Description, PerimetreFonctionnel, Actif, DateCreation)
+                        VALUES 
+                        ('Transformation & Implementation', 'TRANSFO_IMPLEM', 'Équipe de transformation et d''implémentation des projets stratégiques', 'Transformation digitale, implémentation de solutions', 1, datetime('now')),
+                        ('IT Assets Management', 'IT_ASSETS', 'Gestion des actifs IT et infrastructure', 'Gestion d''actifs, infrastructure IT', 1, datetime('now')),
+                        ('Process, Control & Compliance', 'PCC', 'Équipe en charge des processus, contrôles et conformité', 'Processus métier, contrôles, conformité réglementaire', 1, datetime('now')),
+                        ('Change BAU', 'CHANGE_BAU', 'Gestion du changement et support BAU', 'Change management, Business As Usual', 1, datetime('now')),
+                        ('Watchtower / Risk Monitoring', 'WATCHTOWER', 'Surveillance et monitoring des risques', 'Surveillance des risques, monitoring opérationnel', 1, datetime('now')),
+                        ('TCS / IM', 'TCS_IM', 'Third-Party & Integration Management', 'Gestion tiers et intégration de services', 1, datetime('now')),
+                        ('L1 Support / First Line', 'L1_SUPPORT', 'Support de premier niveau', 'Support utilisateur, first line', 1, datetime('now')),
+                        ('Data Office / Data Management', 'DATA_OFFICE', 'Gestion et gouvernance des données', 'Data management, gouvernance données', 1, datetime('now')),
+                        ('Tactical Solutions / Rapid Delivery', 'TACTICAL_SOLUTIONS', 'Solutions tactiques et livraison rapide', 'Solutions rapides, développement tactique', 1, datetime('now'));
+                    ";
+                    cmd.ExecuteNonQuery();
+                }
+                
+                // Vérifier et ajouter EquipeId si manquant dans Utilisateurs
+                cmd.CommandText = @"SELECT COUNT(*) FROM pragma_table_info('Utilisateurs') WHERE name='EquipeId';";
+                var hasEquipeId = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                
+                if (!hasEquipeId)
+                {
+                    cmd.CommandText = @"ALTER TABLE Utilisateurs ADD COLUMN EquipeId INTEGER REFERENCES Equipes(Id);";
+                    cmd.ExecuteNonQuery();
+                    
+                    // Créer un index pour la performance
+                    cmd.CommandText = @"CREATE INDEX IF NOT EXISTS idx_utilisateurs_equipe ON Utilisateurs(EquipeId);";
+                    cmd.ExecuteNonQuery();
+                }
+                
+                // Vérifier et ajouter EquipesAssigneesIds si manquant dans Projets
+                cmd.CommandText = @"SELECT COUNT(*) FROM pragma_table_info('Projets') WHERE name='EquipesAssigneesIds';";
+                var hasEquipesAssigneesIds = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                
+                if (!hasEquipesAssigneesIds)
+                {
+                    cmd.CommandText = @"ALTER TABLE Projets ADD COLUMN EquipesAssigneesIds TEXT;";
+                    cmd.ExecuteNonQuery();
+                    
+                    // Initialiser avec un tableau JSON vide pour les projets existants
+                    cmd.CommandText = @"UPDATE Projets SET EquipesAssigneesIds = '[]' WHERE EquipesAssigneesIds IS NULL;";
+                    cmd.ExecuteNonQuery();
+                }
+                
+                // ========== PHASE 2 : Gestion des Programmes ==========
+                
+                // Vérifier et créer la table Programmes si elle n'existe pas
+                cmd.CommandText = @"SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='Programmes';";
+                var hasProgrammesTable = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                
+                if (!hasProgrammesTable)
+                {
+                    cmd.CommandText = @"
+                        CREATE TABLE Programmes (
+                            Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            Nom TEXT NOT NULL,
+                            Code TEXT UNIQUE,
+                            Description TEXT,
+                            Objectifs TEXT,
+                            ResponsableId INTEGER,
+                            DateDebut TEXT,
+                            DateFinCible TEXT,
+                            StatutGlobal TEXT,
+                            Actif INTEGER NOT NULL DEFAULT 1,
+                            DateCreation TEXT NOT NULL,
+                            FOREIGN KEY (ResponsableId) REFERENCES Utilisateurs(Id)
+                        );
+                        
+                        CREATE INDEX IF NOT EXISTS idx_programmes_code ON Programmes(Code);
+                        CREATE INDEX IF NOT EXISTS idx_programmes_responsable ON Programmes(ResponsableId);
+                    ";
+                    cmd.ExecuteNonQuery();
+                    
+                    // Initialiser les 3 programmes prédéfinis
+                    cmd.CommandText = @"
+                        INSERT INTO Programmes (Nom, Code, Description, StatutGlobal, Actif, DateCreation)
+                        VALUES 
+                        ('DWINGS', 'DWG', 'Programme de digitalisation et automatisation', 'On Track', 1, datetime('now')),
+                        ('E2E BG Program', 'E2E_BG', 'Programme End-to-End Business Growth', 'On Track', 1, datetime('now')),
+                        ('TOM Europe', 'TOM_EUR', 'Target Operating Model Europe', 'On Track', 1, datetime('now'));
+                    ";
+                    cmd.ExecuteNonQuery();
+                }
+                
+                // Vérifier et ajouter ProgrammeId si manquant dans Projets
+                cmd.CommandText = @"SELECT COUNT(*) FROM pragma_table_info('Projets') WHERE name='ProgrammeId';";
+                var hasProgrammeId = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                
+                if (!hasProgrammeId)
+                {
+                    cmd.CommandText = @"ALTER TABLE Projets ADD COLUMN ProgrammeId INTEGER REFERENCES Programmes(Id);";
+                    cmd.ExecuteNonQuery();
+                    
+                    // Créer un index pour la performance
+                    cmd.CommandText = @"CREATE INDEX IF NOT EXISTS idx_projets_programme ON Projets(ProgrammeId);";
+                    cmd.ExecuteNonQuery();
+                }
+                
+                // ========== Enrichissement Projets avec champs Phase 2 ==========
+                
+                // Vérifier et ajouter les colonnes Phase 2 dans Projets
+                cmd.CommandText = @"SELECT COUNT(*) FROM pragma_table_info('Projets') WHERE name='Priorite';";
+                var hasProjetsPriorite = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                
+                if (!hasProjetsPriorite)
+                {
+                    cmd.CommandText = @"
+                        ALTER TABLE Projets ADD COLUMN EstImplemente INTEGER DEFAULT 0;
+                        ALTER TABLE Projets ADD COLUMN TypeProjet TEXT;
+                        ALTER TABLE Projets ADD COLUMN Categorie TEXT;
+                        ALTER TABLE Projets ADD COLUMN Priorite TEXT;
+                        ALTER TABLE Projets ADD COLUMN Drivers TEXT;
+                        ALTER TABLE Projets ADD COLUMN Ambition TEXT;
+                        ALTER TABLE Projets ADD COLUMN Beneficiaires TEXT;
+                        ALTER TABLE Projets ADD COLUMN GainsTemps TEXT;
+                        ALTER TABLE Projets ADD COLUMN GainsFinanciers TEXT;
+                        ALTER TABLE Projets ADD COLUMN LeadProjet TEXT;
+                        ALTER TABLE Projets ADD COLUMN Timeline TEXT;
+                        ALTER TABLE Projets ADD COLUMN TargetDelivery TEXT;
+                        ALTER TABLE Projets ADD COLUMN PerimetreProchainComite TEXT;
+                        ALTER TABLE Projets ADD COLUMN NextActions TEXT;
+                        ALTER TABLE Projets ADD COLUMN StatutRAG TEXT;
+                    ";
+                    cmd.ExecuteNonQuery();
+                }
+                
+                // ========== Enrichissement Demandes avec structure Programme ==========
+                
+                // Vérifier et ajouter ProgrammeId dans Demandes
+                cmd.CommandText = @"SELECT COUNT(*) FROM pragma_table_info('Demandes') WHERE name='ProgrammeId';";
+                var hasDemandesProgrammeId = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                
+                if (!hasDemandesProgrammeId)
+                {
+                    cmd.CommandText = @"
+                        ALTER TABLE Demandes ADD COLUMN ProgrammeId INTEGER REFERENCES Programmes(Id);
+                        ALTER TABLE Demandes ADD COLUMN Priorite TEXT;
+                        ALTER TABLE Demandes ADD COLUMN Drivers TEXT;
+                        ALTER TABLE Demandes ADD COLUMN Ambition TEXT;
+                        ALTER TABLE Demandes ADD COLUMN Beneficiaires TEXT;
+                        ALTER TABLE Demandes ADD COLUMN GainsTemps TEXT;
+                        ALTER TABLE Demandes ADD COLUMN GainsFinanciers TEXT;
+                        ALTER TABLE Demandes ADD COLUMN LeadProjet TEXT;
+                        ALTER TABLE Demandes ADD COLUMN TypeProjet TEXT;
+                        ALTER TABLE Demandes ADD COLUMN Categorie TEXT;
+                        ALTER TABLE Demandes ADD COLUMN EstImplemente INTEGER DEFAULT 0;
+                    ";
+                    cmd.ExecuteNonQuery();
+                    
+                    // Créer un index pour la performance
+                    cmd.CommandText = @"CREATE INDEX IF NOT EXISTS idx_demandes_programme ON Demandes(ProgrammeId);";
+                    cmd.ExecuteNonQuery();
+                }
+                
+                // Vérifier et ajouter EquipesAssigneesIds dans Demandes
+                cmd.CommandText = @"SELECT COUNT(*) FROM pragma_table_info('Demandes') WHERE name='EquipesAssigneesIds';";
+                var hasDemandesEquipesAssigneesIds = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                
+                if (!hasDemandesEquipesAssigneesIds)
+                {
+                    cmd.CommandText = @"ALTER TABLE Demandes ADD COLUMN EquipesAssigneesIds TEXT;";
+                    cmd.ExecuteNonQuery();
+                }
             }
         }
 
@@ -860,7 +1052,7 @@ namespace BacklogManager.Services
             using (var conn = GetConnection())
             {
                 conn.Open();
-                using (var cmd = new SQLiteCommand("SELECT * FROM Utilisateurs", conn))
+                using (var cmd = new SQLiteCommand("SELECT Id, UsernameWindows, Nom, Prenom, Email, RoleId, Actif, DateCreation, DateDerniereConnexion, EquipeId FROM Utilisateurs", conn))
                 using (var reader = cmd.ExecuteReader())
             {
                 while (reader.Read())
@@ -875,7 +1067,8 @@ namespace BacklogManager.Services
                         RoleId = reader.GetInt32(5),
                         Actif = reader.GetInt32(6) == 1,
                         DateCreation = DateTime.Parse(reader.GetString(7)),
-                        DateDerniereConnexion = reader.IsDBNull(8) ? (DateTime?)null : DateTime.Parse(reader.GetString(8))
+                        DateDerniereConnexion = reader.IsDBNull(8) ? (DateTime?)null : DateTime.Parse(reader.GetString(8)),
+                        EquipeId = reader.IsDBNull(9) ? (int?)null : reader.GetInt32(9)
                     });
                 }
             }
@@ -892,7 +1085,9 @@ namespace BacklogManager.Services
                 using (var cmd = new SQLiteCommand(@"SELECT Id, Titre, Description, Specifications, ContexteMetier, BeneficesAttendus,
                     DemandeurId, BusinessAnalystId, ChefProjetId, DevChiffreurId, ProjetId, Type, Criticite, Statut, DateCreation,
                     DateValidationChiffrage, DateAcceptation, DateLivraison, ChiffrageEstimeJours, 
-                    ChiffrageReelJours, DatePrevisionnelleImplementation, JustificationRefus, EstArchivee 
+                    ChiffrageReelJours, DatePrevisionnelleImplementation, JustificationRefus, EstArchivee,
+                    ProgrammeId, Priorite, Drivers, Ambition, Beneficiaires, GainsTemps, GainsFinanciers, 
+                    LeadProjet, TypeProjet, Categorie, EstImplemente, EquipesAssigneesIds 
                     FROM Demandes", conn))
                 using (var reader = cmd.ExecuteReader())
             {
@@ -922,7 +1117,21 @@ namespace BacklogManager.Services
                         ChiffrageReelJours = reader.IsDBNull(19) ? (double?)null : reader.GetDouble(19),
                         DatePrevisionnelleImplementation = reader.IsDBNull(20) ? (DateTime?)null : DateTime.Parse(reader.GetString(20)),
                         JustificationRefus = reader.IsDBNull(21) ? null : reader.GetString(21),
-                        EstArchivee = reader.GetInt32(22) == 1
+                        EstArchivee = reader.GetInt32(22) == 1,
+                        // Phase 2 : Nouveaux champs
+                        ProgrammeId = reader.IsDBNull(23) ? (int?)null : reader.GetInt32(23),
+                        Priorite = reader.IsDBNull(24) ? null : reader.GetString(24),
+                        Drivers = reader.IsDBNull(25) ? null : reader.GetString(25),
+                        Ambition = reader.IsDBNull(26) ? null : reader.GetString(26),
+                        Beneficiaires = reader.IsDBNull(27) ? null : reader.GetString(27),
+                        GainsTemps = reader.IsDBNull(28) ? null : reader.GetString(28),
+                        GainsFinanciers = reader.IsDBNull(29) ? null : reader.GetString(29),
+                        LeadProjet = reader.IsDBNull(30) ? null : reader.GetString(30),
+                        TypeProjet = reader.IsDBNull(31) ? null : reader.GetString(31),
+                        Categorie = reader.IsDBNull(32) ? null : reader.GetString(32),
+                        EstImplemente = !reader.IsDBNull(33) && reader.GetInt32(33) == 1,
+                        EquipesAssigneesIds = reader.IsDBNull(34) ? new List<int>() : 
+                            System.Text.Json.JsonSerializer.Deserialize<List<int>>(reader.GetString(34)) ?? new List<int>()
                     });
                 }
             }
@@ -1033,14 +1242,14 @@ namespace BacklogManager.Services
                     {
                         if (utilisateur.Id == 0)
                         {
-                            cmd.CommandText = @"INSERT INTO Utilisateurs (UsernameWindows, Nom, Prenom, Email, RoleId, Actif, DateCreation, DateDerniereConnexion)
-                                VALUES (@UsernameWindows, @Nom, @Prenom, @Email, @RoleId, @Actif, @DateCreation, @DateDerniereConnexion);
+                            cmd.CommandText = @"INSERT INTO Utilisateurs (UsernameWindows, Nom, Prenom, Email, RoleId, EquipeId, Actif, DateCreation, DateDerniereConnexion)
+                                VALUES (@UsernameWindows, @Nom, @Prenom, @Email, @RoleId, @EquipeId, @Actif, @DateCreation, @DateDerniereConnexion);
                                 SELECT last_insert_rowid();";
                         }
                         else
                         {
                             cmd.CommandText = @"UPDATE Utilisateurs SET UsernameWindows = @UsernameWindows, Nom = @Nom, Prenom = @Prenom,
-                                Email = @Email, RoleId = @RoleId, Actif = @Actif, DateDerniereConnexion = @DateDerniereConnexion
+                                Email = @Email, RoleId = @RoleId, EquipeId = @EquipeId, Actif = @Actif, DateDerniereConnexion = @DateDerniereConnexion
                                 WHERE Id = @Id";
                             cmd.Parameters.AddWithValue("@Id", utilisateur.Id);
                         }
@@ -1050,6 +1259,7 @@ namespace BacklogManager.Services
                         cmd.Parameters.AddWithValue("@Prenom", utilisateur.Prenom);
                         cmd.Parameters.AddWithValue("@Email", utilisateur.Email ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@RoleId", utilisateur.RoleId);
+                        cmd.Parameters.AddWithValue("@EquipeId", utilisateur.EquipeId.HasValue ? (object)utilisateur.EquipeId.Value : DBNull.Value);
                         cmd.Parameters.AddWithValue("@Actif", utilisateur.Actif ? 1 : 0);
                         cmd.Parameters.AddWithValue("@DateCreation", utilisateur.DateCreation.ToString("yyyy-MM-dd HH:mm:ss"));
                         cmd.Parameters.AddWithValue("@DateDerniereConnexion", utilisateur.DateDerniereConnexion?.ToString("yyyy-MM-dd HH:mm:ss") ?? (object)DBNull.Value);
@@ -1114,11 +1324,13 @@ namespace BacklogManager.Services
                             cmd.CommandText = @"INSERT INTO Demandes (Titre, Description, Specifications, ContexteMetier, BeneficesAttendus,
                                 DemandeurId, BusinessAnalystId, ChefProjetId, DevChiffreurId, ProjetId,
                                 Type, Criticite, Statut, DateCreation, DateValidationChiffrage, DateAcceptation, DateLivraison,
-                                ChiffrageEstimeJours, ChiffrageReelJours, DatePrevisionnelleImplementation, JustificationRefus, EstArchivee)
+                                ChiffrageEstimeJours, ChiffrageReelJours, DatePrevisionnelleImplementation, JustificationRefus, EstArchivee,
+                                ProgrammeId, Priorite, Drivers, Ambition, Beneficiaires, GainsTemps, GainsFinanciers, LeadProjet, TypeProjet, Categorie, EstImplemente, EquipesAssigneesIds)
                                 VALUES (@Titre, @Description, @Specifications, @ContexteMetier, @BeneficesAttendus,
                                 @DemandeurId, @BusinessAnalystId, @ChefProjetId, @DevChiffreurId, @ProjetId,
                                 @Type, @Criticite, @Statut, @DateCreation, @DateValidationChiffrage, @DateAcceptation, @DateLivraison,
-                                @ChiffrageEstimeJours, @ChiffrageReelJours, @DatePrevisionnelleImplementation, @JustificationRefus, @EstArchivee);
+                                @ChiffrageEstimeJours, @ChiffrageReelJours, @DatePrevisionnelleImplementation, @JustificationRefus, @EstArchivee,
+                                @ProgrammeId, @Priorite, @Drivers, @Ambition, @Beneficiaires, @GainsTemps, @GainsFinanciers, @LeadProjet, @TypeProjet, @Categorie, @EstImplemente, @EquipesAssigneesIds);
                                 SELECT last_insert_rowid();";
                         }
                         else
@@ -1129,7 +1341,10 @@ namespace BacklogManager.Services
                                 Type = @Type, Criticite = @Criticite, Statut = @Statut, DateValidationChiffrage = @DateValidationChiffrage,
                                 DateAcceptation = @DateAcceptation, DateLivraison = @DateLivraison, ChiffrageEstimeJours = @ChiffrageEstimeJours,
                                 ChiffrageReelJours = @ChiffrageReelJours, DatePrevisionnelleImplementation = @DatePrevisionnelleImplementation,
-                                JustificationRefus = @JustificationRefus, EstArchivee = @EstArchivee WHERE Id = @Id";
+                                JustificationRefus = @JustificationRefus, EstArchivee = @EstArchivee,
+                                ProgrammeId = @ProgrammeId, Priorite = @Priorite, Drivers = @Drivers, Ambition = @Ambition, Beneficiaires = @Beneficiaires,
+                                GainsTemps = @GainsTemps, GainsFinanciers = @GainsFinanciers, LeadProjet = @LeadProjet, TypeProjet = @TypeProjet, Categorie = @Categorie, EstImplemente = @EstImplemente, EquipesAssigneesIds = @EquipesAssigneesIds
+                                WHERE Id = @Id";
                             cmd.Parameters.AddWithValue("@Id", demande.Id);
                         }
 
@@ -1155,6 +1370,25 @@ namespace BacklogManager.Services
                         cmd.Parameters.AddWithValue("@DatePrevisionnelleImplementation", demande.DatePrevisionnelleImplementation?.ToString("yyyy-MM-dd HH:mm:ss") ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@JustificationRefus", demande.JustificationRefus ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@EstArchivee", demande.EstArchivee ? 1 : 0);
+                        
+                        // Phase 2 enrichment fields
+                        cmd.Parameters.AddWithValue("@ProgrammeId", demande.ProgrammeId ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@Priorite", demande.Priorite ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@Drivers", demande.Drivers ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@Ambition", demande.Ambition ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@Beneficiaires", demande.Beneficiaires ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@GainsTemps", demande.GainsTemps ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@GainsFinanciers", demande.GainsFinanciers ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@LeadProjet", demande.LeadProjet ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@TypeProjet", demande.TypeProjet ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@Categorie", demande.Categorie ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@EstImplemente", demande.EstImplemente ? 1 : 0);
+                        
+                        // Équipes assignées (List<int> -> JSON)
+                        var equipesJson = demande.EquipesAssigneesIds != null && demande.EquipesAssigneesIds.Count > 0 
+                            ? System.Text.Json.JsonSerializer.Serialize(demande.EquipesAssigneesIds) 
+                            : (object)DBNull.Value;
+                        cmd.Parameters.AddWithValue("@EquipesAssigneesIds", equipesJson);
 
                         if (demande.Id == 0)
                         {
@@ -1373,7 +1607,10 @@ namespace BacklogManager.Services
             using (var conn = GetConnection())
             {
                 conn.Open();
-                using (var cmd = new SQLiteCommand("SELECT Id, Nom, Description, DateCreation, DateDebut, DateFin, CouleurHex, Actif FROM Projets ORDER BY DateCreation DESC", conn))
+                using (var cmd = new SQLiteCommand(@"SELECT Id, Nom, Description, DateCreation, DateDebut, DateFin, CouleurHex, Actif,
+                    ProgrammeId, EstImplemente, TypeProjet, Categorie, Priorite, Drivers, Ambition, Beneficiaires,
+                    GainsTemps, GainsFinanciers, LeadProjet, Timeline, TargetDelivery, PerimetreProchainComite, NextActions, StatutRAG, EquipesAssigneesIds 
+                    FROM Projets ORDER BY DateCreation DESC", conn))
                 using (var reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
@@ -1387,7 +1624,26 @@ namespace BacklogManager.Services
                             DateDebut = reader.IsDBNull(4) ? (DateTime?)null : DateTime.Parse(reader.GetString(4)),
                             DateFinPrevue = reader.IsDBNull(5) ? (DateTime?)null : DateTime.Parse(reader.GetString(5)),
                             CouleurHex = reader.IsDBNull(6) ? "#00915A" : reader.GetString(6),
-                            Actif = reader.GetInt32(7) == 1
+                            Actif = reader.GetInt32(7) == 1,
+                            // Phase 2 fields
+                            ProgrammeId = reader.IsDBNull(8) ? (int?)null : reader.GetInt32(8),
+                            EstImplemente = reader.IsDBNull(9) ? false : reader.GetInt32(9) == 1,
+                            TypeProjet = reader.IsDBNull(10) ? null : reader.GetString(10),
+                            Categorie = reader.IsDBNull(11) ? null : reader.GetString(11),
+                            Priorite = reader.IsDBNull(12) ? null : reader.GetString(12),
+                            Drivers = reader.IsDBNull(13) ? null : reader.GetString(13),
+                            Ambition = reader.IsDBNull(14) ? null : reader.GetString(14),
+                            Beneficiaires = reader.IsDBNull(15) ? null : reader.GetString(15),
+                            GainsTemps = reader.IsDBNull(16) ? null : reader.GetString(16),
+                            GainsFinanciers = reader.IsDBNull(17) ? null : reader.GetString(17),
+                            LeadProjet = reader.IsDBNull(18) ? null : reader.GetString(18),
+                            Timeline = reader.IsDBNull(19) ? null : reader.GetString(19),
+                            TargetDelivery = reader.IsDBNull(20) ? null : reader.GetString(20),
+                            PerimetreProchainComite = reader.IsDBNull(21) ? null : reader.GetString(21),
+                            NextActions = reader.IsDBNull(22) ? null : reader.GetString(22),
+                            StatutRAG = reader.IsDBNull(23) ? null : reader.GetString(23),
+                            // Équipes Assignées (JSON → List<int>)
+                            EquipesAssigneesIds = reader.IsDBNull(24) ? new List<int>() : System.Text.Json.JsonSerializer.Deserialize<List<int>>(reader.GetString(24))
                         });
                     }
                 }
@@ -1573,13 +1829,21 @@ namespace BacklogManager.Services
                         {
                             if (projet.Id == 0)
                             {
-                                cmd.CommandText = @"INSERT INTO Projets (Nom, Description, DateCreation, DateDebut, DateFin, CouleurHex, Actif) 
-                                    VALUES (@Nom, @Description, @DateCreation, @DateDebut, @DateFin, @CouleurHex, @Actif);
+                                cmd.CommandText = @"INSERT INTO Projets (Nom, Description, DateCreation, DateDebut, DateFin, CouleurHex, Actif,
+                                    ProgrammeId, EstImplemente, TypeProjet, Categorie, Priorite, Drivers, Ambition, Beneficiaires,
+                                    GainsTemps, GainsFinanciers, LeadProjet, Timeline, TargetDelivery, PerimetreProchainComite, NextActions, StatutRAG, EquipesAssigneesIds) 
+                                    VALUES (@Nom, @Description, @DateCreation, @DateDebut, @DateFin, @CouleurHex, @Actif,
+                                    @ProgrammeId, @EstImplemente, @TypeProjet, @Categorie, @Priorite, @Drivers, @Ambition, @Beneficiaires,
+                                    @GainsTemps, @GainsFinanciers, @LeadProjet, @Timeline, @TargetDelivery, @PerimetreProchainComite, @NextActions, @StatutRAG, @EquipesAssigneesIds);
                                     SELECT last_insert_rowid();";
                             }
                             else
                             {
-                                cmd.CommandText = @"UPDATE Projets SET Nom = @Nom, Description = @Description, DateDebut = @DateDebut, DateFin = @DateFin, CouleurHex = @CouleurHex, Actif = @Actif 
+                                cmd.CommandText = @"UPDATE Projets SET Nom = @Nom, Description = @Description, DateDebut = @DateDebut, DateFin = @DateFin, CouleurHex = @CouleurHex, Actif = @Actif,
+                                    ProgrammeId = @ProgrammeId, EstImplemente = @EstImplemente, TypeProjet = @TypeProjet, Categorie = @Categorie, Priorite = @Priorite, 
+                                    Drivers = @Drivers, Ambition = @Ambition, Beneficiaires = @Beneficiaires, GainsTemps = @GainsTemps, GainsFinanciers = @GainsFinanciers,
+                                    LeadProjet = @LeadProjet, Timeline = @Timeline, TargetDelivery = @TargetDelivery, PerimetreProchainComite = @PerimetreProchainComite,
+                                    NextActions = @NextActions, StatutRAG = @StatutRAG, EquipesAssigneesIds = @EquipesAssigneesIds
                                     WHERE Id = @Id";
                                 cmd.Parameters.AddWithValue("@Id", projet.Id);
                             }
@@ -1591,6 +1855,36 @@ namespace BacklogManager.Services
                             cmd.Parameters.AddWithValue("@DateFin", projet.DateFinPrevue.HasValue ? (object)projet.DateFinPrevue.Value.ToString("yyyy-MM-dd") : DBNull.Value);
                             cmd.Parameters.AddWithValue("@CouleurHex", (object)projet.CouleurHex ?? "#00915A");
                             cmd.Parameters.AddWithValue("@Actif", projet.Actif ? 1 : 0);
+                            
+                            // Phase 2 fields
+                            cmd.Parameters.AddWithValue("@ProgrammeId", (object)projet.ProgrammeId ?? DBNull.Value);
+                            cmd.Parameters.AddWithValue("@EstImplemente", projet.EstImplemente ? 1 : 0);
+                            cmd.Parameters.AddWithValue("@TypeProjet", (object)projet.TypeProjet ?? DBNull.Value);
+                            cmd.Parameters.AddWithValue("@Categorie", (object)projet.Categorie ?? DBNull.Value);
+                            cmd.Parameters.AddWithValue("@Priorite", (object)projet.Priorite ?? DBNull.Value);
+                            cmd.Parameters.AddWithValue("@Drivers", (object)projet.Drivers ?? DBNull.Value);
+                            cmd.Parameters.AddWithValue("@Ambition", (object)projet.Ambition ?? DBNull.Value);
+                            cmd.Parameters.AddWithValue("@Beneficiaires", (object)projet.Beneficiaires ?? DBNull.Value);
+                            cmd.Parameters.AddWithValue("@GainsTemps", (object)projet.GainsTemps ?? DBNull.Value);
+                            cmd.Parameters.AddWithValue("@GainsFinanciers", (object)projet.GainsFinanciers ?? DBNull.Value);
+                            cmd.Parameters.AddWithValue("@LeadProjet", (object)projet.LeadProjet ?? DBNull.Value);
+                            cmd.Parameters.AddWithValue("@Timeline", (object)projet.Timeline ?? DBNull.Value);
+                            cmd.Parameters.AddWithValue("@TargetDelivery", (object)projet.TargetDelivery ?? DBNull.Value);
+                            cmd.Parameters.AddWithValue("@PerimetreProchainComite", (object)projet.PerimetreProchainComite ?? DBNull.Value);
+                            cmd.Parameters.AddWithValue("@NextActions", (object)projet.NextActions ?? DBNull.Value);
+                            cmd.Parameters.AddWithValue("@StatutRAG", (object)projet.StatutRAG ?? DBNull.Value);
+                            
+                            // Équipes Assignées (List<int> → JSON)
+                            string equipesJson;
+                            if (projet.EquipesAssigneesIds != null && projet.EquipesAssigneesIds.Count > 0)
+                            {
+                                equipesJson = System.Text.Json.JsonSerializer.Serialize(projet.EquipesAssigneesIds);
+                            }
+                            else
+                            {
+                                equipesJson = null;
+                            }
+                            cmd.Parameters.AddWithValue("@EquipesAssigneesIds", (object)equipesJson ?? DBNull.Value);
 
                             if (projet.Id == 0)
                             {
@@ -2220,6 +2514,476 @@ namespace BacklogManager.Services
                     }
                 }
             }
+        }
+        
+        // ========== PHASE 1 : Méthodes de gestion des Équipes ==========
+        
+        public List<Equipe> GetAllEquipes()
+        {
+            var equipes = new List<Equipe>();
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = new SQLiteCommand(@"
+                    SELECT Id, Nom, Code, Description, PerimetreFonctionnel, ManagerId, Contact, Actif, DateCreation 
+                    FROM Equipes 
+                    WHERE Actif = 1 
+                    ORDER BY Nom", conn))
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        equipes.Add(new Equipe
+                        {
+                            Id = reader.GetInt32(0),
+                            Nom = reader.GetString(1),
+                            Code = reader.GetString(2),
+                            Description = !reader.IsDBNull(3) ? reader.GetString(3) : null,
+                            PerimetreFonctionnel = !reader.IsDBNull(4) ? reader.GetString(4) : null,
+                            ManagerId = !reader.IsDBNull(5) ? (int?)reader.GetInt32(5) : null,
+                            Contact = !reader.IsDBNull(6) ? reader.GetString(6) : null,
+                            Actif = reader.GetInt32(7) == 1,
+                            DateCreation = DateTime.Parse(reader.GetString(8))
+                        });
+                    }
+                }
+            }
+            return equipes;
+        }
+        
+        public Equipe GetEquipeById(int id)
+        {
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = new SQLiteCommand(@"
+                    SELECT Id, Nom, Code, Description, PerimetreFonctionnel, ManagerId, Contact, Actif, DateCreation 
+                    FROM Equipes 
+                    WHERE Id = @Id", conn))
+                {
+                    cmd.Parameters.AddWithValue("@Id", id);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return new Equipe
+                            {
+                                Id = reader.GetInt32(0),
+                                Nom = reader.GetString(1),
+                                Code = reader.GetString(2),
+                                Description = !reader.IsDBNull(3) ? reader.GetString(3) : null,
+                                PerimetreFonctionnel = !reader.IsDBNull(4) ? reader.GetString(4) : null,
+                                ManagerId = !reader.IsDBNull(5) ? (int?)reader.GetInt32(5) : null,
+                                Contact = !reader.IsDBNull(6) ? reader.GetString(6) : null,
+                                Actif = reader.GetInt32(7) == 1,
+                                DateCreation = DateTime.Parse(reader.GetString(8))
+                            };
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+        
+        public void AjouterEquipe(Equipe equipe)
+        {
+            using (var conn = GetConnectionForWrite())
+            {
+                using (var transaction = conn.BeginTransaction())
+                {
+                    try
+                    {
+                        using (var cmd = conn.CreateCommand())
+                        {
+                            cmd.CommandText = @"
+                                INSERT INTO Equipes (Nom, Code, Description, PerimetreFonctionnel, ManagerId, Contact, Actif, DateCreation)
+                                VALUES (@Nom, @Code, @Description, @PerimetreFonctionnel, @ManagerId, @Contact, @Actif, @DateCreation);
+                                SELECT last_insert_rowid();
+                            ";
+                            cmd.Parameters.AddWithValue("@Nom", equipe.Nom);
+                            cmd.Parameters.AddWithValue("@Code", equipe.Code);
+                            cmd.Parameters.AddWithValue("@Description", (object)equipe.Description ?? DBNull.Value);
+                            cmd.Parameters.AddWithValue("@PerimetreFonctionnel", (object)equipe.PerimetreFonctionnel ?? DBNull.Value);
+                            cmd.Parameters.AddWithValue("@ManagerId", equipe.ManagerId.HasValue ? (object)equipe.ManagerId.Value : DBNull.Value);
+                            cmd.Parameters.AddWithValue("@Contact", (object)equipe.Contact ?? DBNull.Value);
+                            cmd.Parameters.AddWithValue("@Actif", equipe.Actif ? 1 : 0);
+                            cmd.Parameters.AddWithValue("@DateCreation", equipe.DateCreation.ToString("yyyy-MM-dd HH:mm:ss"));
+                            
+                            equipe.Id = Convert.ToInt32(cmd.ExecuteScalar());
+                        }
+                        
+                        transaction.Commit();
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
+            }
+        }
+        
+        public void ModifierEquipe(Equipe equipe)
+        {
+            using (var conn = GetConnectionForWrite())
+            {
+                using (var transaction = conn.BeginTransaction())
+                {
+                    try
+                    {
+                        using (var cmd = conn.CreateCommand())
+                        {
+                            cmd.CommandText = @"
+                                UPDATE Equipes 
+                                SET Nom = @Nom,
+                                    Code = @Code,
+                                    Description = @Description,
+                                    PerimetreFonctionnel = @PerimetreFonctionnel,
+                                    ManagerId = @ManagerId,
+                                    Contact = @Contact,
+                                    Actif = @Actif
+                                WHERE Id = @Id
+                            ";
+                            cmd.Parameters.AddWithValue("@Id", equipe.Id);
+                            cmd.Parameters.AddWithValue("@Nom", equipe.Nom);
+                            cmd.Parameters.AddWithValue("@Code", equipe.Code);
+                            cmd.Parameters.AddWithValue("@Description", (object)equipe.Description ?? DBNull.Value);
+                            cmd.Parameters.AddWithValue("@PerimetreFonctionnel", (object)equipe.PerimetreFonctionnel ?? DBNull.Value);
+                            cmd.Parameters.AddWithValue("@ManagerId", equipe.ManagerId.HasValue ? (object)equipe.ManagerId.Value : DBNull.Value);
+                            cmd.Parameters.AddWithValue("@Contact", (object)equipe.Contact ?? DBNull.Value);
+                            cmd.Parameters.AddWithValue("@Actif", equipe.Actif ? 1 : 0);
+                            
+                            cmd.ExecuteNonQuery();
+                        }
+                        
+                        transaction.Commit();
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
+            }
+        }
+        
+        public List<Utilisateur> GetMembresByEquipe(int equipeId)
+        {
+            var membres = new List<Utilisateur>();
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = new SQLiteCommand(@"
+                    SELECT Id, UsernameWindows, Nom, Prenom, Email, RoleId, Actif, DateCreation, DateDerniereConnexion, EquipeId
+                    FROM Utilisateurs 
+                    WHERE EquipeId = @EquipeId AND Actif = 1
+                    ORDER BY Nom, Prenom", conn))
+                {
+                    cmd.Parameters.AddWithValue("@EquipeId", equipeId);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            membres.Add(new Utilisateur
+                            {
+                                Id = reader.GetInt32(0),
+                                UsernameWindows = reader.GetString(1),
+                                Nom = reader.GetString(2),
+                                Prenom = reader.GetString(3),
+                                Email = !reader.IsDBNull(4) ? reader.GetString(4) : null,
+                                RoleId = reader.GetInt32(5),
+                                Actif = reader.GetInt32(6) == 1,
+                                DateCreation = DateTime.Parse(reader.GetString(7)),
+                                DateDerniereConnexion = !reader.IsDBNull(8) ? (DateTime?)DateTime.Parse(reader.GetString(8)) : null,
+                                EquipeId = !reader.IsDBNull(9) ? (int?)reader.GetInt32(9) : null
+                            });
+                        }
+                    }
+                }
+            }
+            return membres;
+        }
+        
+        public List<Projet> GetProjetsByEquipe(int equipeId)
+        {
+            var projets = new List<Projet>();
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = new SQLiteCommand(@"
+                    SELECT Id, Nom, Description, DateCreation, DateDebut, DateFinPrevue, Actif, CouleurHex, EquipesAssigneesIds
+                    FROM Projets 
+                    WHERE Actif = 1", conn))
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var projet = new Projet
+                        {
+                            Id = reader.GetInt32(0),
+                            Nom = reader.GetString(1),
+                            Description = !reader.IsDBNull(2) ? reader.GetString(2) : null,
+                            DateCreation = DateTime.Parse(reader.GetString(3)),
+                            DateDebut = !reader.IsDBNull(4) ? (DateTime?)DateTime.Parse(reader.GetString(4)) : null,
+                            DateFinPrevue = !reader.IsDBNull(5) ? (DateTime?)DateTime.Parse(reader.GetString(5)) : null,
+                            Actif = reader.GetInt32(6) == 1,
+                            CouleurHex = !reader.IsDBNull(7) ? reader.GetString(7) : "#00915A"
+                        };
+                        
+                        // Parser les équipes assignées (JSON array)
+                        if (!reader.IsDBNull(8))
+                        {
+                            string equipesJson = reader.GetString(8);
+                            if (!string.IsNullOrWhiteSpace(equipesJson) && equipesJson != "[]")
+                            {
+                                try
+                                {
+                                    projet.EquipesAssigneesIds = System.Text.Json.JsonSerializer.Deserialize<List<int>>(equipesJson);
+                                }
+                                catch
+                                {
+                                    projet.EquipesAssigneesIds = new List<int>();
+                                }
+                            }
+                        }
+                        
+                        // Ajouter le projet si l'équipe fait partie des équipes assignées
+                        if (projet.EquipesAssigneesIds != null && projet.EquipesAssigneesIds.Contains(equipeId))
+                        {
+                            projets.Add(projet);
+                        }
+                    }
+                }
+            }
+            return projets;
+        }
+        
+        public List<BacklogItem> GetBacklogItemsByDevId(int devId)
+        {
+            var items = new List<BacklogItem>();
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = new SQLiteCommand(@"
+                    SELECT Id, Titre, Description, ProjetId, DevId, Type, Priorite, Statut, Points, 
+                           ChiffrageHeures, TempsReelHeures, DateFinAttendue, DateDebut, DateFin, 
+                           DateCreation, DateDerniereMaj, EstArchive, SprintId, DemandeId
+                    FROM BacklogItems 
+                    WHERE DevId = @DevId", conn))
+                {
+                    cmd.Parameters.AddWithValue("@DevId", devId);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            items.Add(new BacklogItem
+                            {
+                                Id = reader.GetInt32(0),
+                                Titre = reader.GetString(1),
+                                Description = !reader.IsDBNull(2) ? reader.GetString(2) : null,
+                                ProjetId = !reader.IsDBNull(3) ? (int?)reader.GetInt32(3) : null,
+                                DevAssigneId = !reader.IsDBNull(4) ? (int?)reader.GetInt32(4) : null,
+                                TypeDemande = (TypeDemande)reader.GetInt32(5),
+                                Priorite = (Priorite)reader.GetInt32(6),
+                                Statut = (Statut)reader.GetInt32(7),
+                                Complexite = !reader.IsDBNull(8) ? (int?)reader.GetInt32(8) : null,
+                                ChiffrageHeures = !reader.IsDBNull(9) ? (double?)reader.GetDouble(9) : null,
+                                TempsReelHeures = !reader.IsDBNull(10) ? (double?)reader.GetDouble(10) : null,
+                                DateFinAttendue = !reader.IsDBNull(11) ? (DateTime?)DateTime.Parse(reader.GetString(11)) : null,
+                                DateDebut = !reader.IsDBNull(12) ? (DateTime?)DateTime.Parse(reader.GetString(12)) : null,
+                                DateFin = !reader.IsDBNull(13) ? (DateTime?)DateTime.Parse(reader.GetString(13)) : null,
+                                DateCreation = DateTime.Parse(reader.GetString(14)),
+                                DateDerniereMaj = DateTime.Parse(reader.GetString(15)),
+                                EstArchive = reader.GetInt32(16) == 1,
+                                SprintId = !reader.IsDBNull(17) ? (int?)reader.GetInt32(17) : null,
+                                DemandeId = !reader.IsDBNull(18) ? (int?)reader.GetInt32(18) : null
+                            });
+                        }
+                    }
+                }
+            }
+            return items;
+        }
+        
+        // ========== CRUD Programmes ==========
+        
+        public List<Programme> GetAllProgrammes()
+        {
+            var programmes = new List<Programme>();
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = new SQLiteCommand(@"
+                    SELECT Id, Nom, Code, Description, Objectifs, ResponsableId, DateDebut, DateFinCible, StatutGlobal, Actif, DateCreation
+                    FROM Programmes 
+                    ORDER BY Nom", conn))
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        programmes.Add(new Programme
+                        {
+                            Id = reader.GetInt32(0),
+                            Nom = reader.GetString(1),
+                            Code = !reader.IsDBNull(2) ? reader.GetString(2) : null,
+                            Description = !reader.IsDBNull(3) ? reader.GetString(3) : null,
+                            Objectifs = !reader.IsDBNull(4) ? reader.GetString(4) : null,
+                            ResponsableId = !reader.IsDBNull(5) ? (int?)reader.GetInt32(5) : null,
+                            DateDebut = !reader.IsDBNull(6) ? (DateTime?)DateTime.Parse(reader.GetString(6)) : null,
+                            DateFinCible = !reader.IsDBNull(7) ? (DateTime?)DateTime.Parse(reader.GetString(7)) : null,
+                            StatutGlobal = !reader.IsDBNull(8) ? reader.GetString(8) : null,
+                            Actif = reader.GetInt32(9) == 1,
+                            DateCreation = DateTime.Parse(reader.GetString(10))
+                        });
+                    }
+                }
+            }
+            return programmes;
+        }
+        
+        public Programme GetProgrammeById(int id)
+        {
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = new SQLiteCommand(@"
+                    SELECT Id, Nom, Code, Description, Objectifs, ResponsableId, DateDebut, DateFinCible, StatutGlobal, Actif, DateCreation
+                    FROM Programmes 
+                    WHERE Id = @Id", conn))
+                {
+                    cmd.Parameters.AddWithValue("@Id", id);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return new Programme
+                            {
+                                Id = reader.GetInt32(0),
+                                Nom = reader.GetString(1),
+                                Code = !reader.IsDBNull(2) ? reader.GetString(2) : null,
+                                Description = !reader.IsDBNull(3) ? reader.GetString(3) : null,
+                                Objectifs = !reader.IsDBNull(4) ? reader.GetString(4) : null,
+                                ResponsableId = !reader.IsDBNull(5) ? (int?)reader.GetInt32(5) : null,
+                                DateDebut = !reader.IsDBNull(6) ? (DateTime?)DateTime.Parse(reader.GetString(6)) : null,
+                                DateFinCible = !reader.IsDBNull(7) ? (DateTime?)DateTime.Parse(reader.GetString(7)) : null,
+                                StatutGlobal = !reader.IsDBNull(8) ? reader.GetString(8) : null,
+                                Actif = reader.GetInt32(9) == 1,
+                                DateCreation = DateTime.Parse(reader.GetString(10))
+                            };
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+        
+        public void AjouterProgramme(Programme programme)
+        {
+            using (var conn = GetConnectionForWrite())
+            {
+                conn.Open();
+                using (var cmd = new SQLiteCommand(@"
+                    INSERT INTO Programmes (Nom, Code, Description, Objectifs, ResponsableId, DateDebut, DateFinCible, StatutGlobal, Actif, DateCreation)
+                    VALUES (@Nom, @Code, @Description, @Objectifs, @ResponsableId, @DateDebut, @DateFinCible, @StatutGlobal, @Actif, @DateCreation);
+                    SELECT last_insert_rowid();", conn))
+                {
+                    cmd.Parameters.AddWithValue("@Nom", programme.Nom);
+                    cmd.Parameters.AddWithValue("@Code", string.IsNullOrWhiteSpace(programme.Code) ? DBNull.Value : (object)programme.Code);
+                    cmd.Parameters.AddWithValue("@Description", string.IsNullOrWhiteSpace(programme.Description) ? DBNull.Value : (object)programme.Description);
+                    cmd.Parameters.AddWithValue("@Objectifs", string.IsNullOrWhiteSpace(programme.Objectifs) ? DBNull.Value : (object)programme.Objectifs);
+                    cmd.Parameters.AddWithValue("@ResponsableId", programme.ResponsableId.HasValue ? (object)programme.ResponsableId.Value : DBNull.Value);
+                    cmd.Parameters.AddWithValue("@DateDebut", programme.DateDebut.HasValue ? (object)programme.DateDebut.Value.ToString("yyyy-MM-dd HH:mm:ss") : DBNull.Value);
+                    cmd.Parameters.AddWithValue("@DateFinCible", programme.DateFinCible.HasValue ? (object)programme.DateFinCible.Value.ToString("yyyy-MM-dd HH:mm:ss") : DBNull.Value);
+                    cmd.Parameters.AddWithValue("@StatutGlobal", string.IsNullOrWhiteSpace(programme.StatutGlobal) ? DBNull.Value : (object)programme.StatutGlobal);
+                    cmd.Parameters.AddWithValue("@Actif", programme.Actif ? 1 : 0);
+                    cmd.Parameters.AddWithValue("@DateCreation", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                    
+                    programme.Id = Convert.ToInt32(cmd.ExecuteScalar());
+                }
+            }
+        }
+        
+        public void ModifierProgramme(Programme programme)
+        {
+            using (var conn = GetConnectionForWrite())
+            {
+                conn.Open();
+                using (var cmd = new SQLiteCommand(@"
+                    UPDATE Programmes 
+                    SET Nom = @Nom, 
+                        Code = @Code, 
+                        Description = @Description, 
+                        Objectifs = @Objectifs,
+                        ResponsableId = @ResponsableId,
+                        DateDebut = @DateDebut,
+                        DateFinCible = @DateFinCible,
+                        StatutGlobal = @StatutGlobal,
+                        Actif = @Actif
+                    WHERE Id = @Id", conn))
+                {
+                    cmd.Parameters.AddWithValue("@Id", programme.Id);
+                    cmd.Parameters.AddWithValue("@Nom", programme.Nom);
+                    cmd.Parameters.AddWithValue("@Code", string.IsNullOrWhiteSpace(programme.Code) ? DBNull.Value : (object)programme.Code);
+                    cmd.Parameters.AddWithValue("@Description", string.IsNullOrWhiteSpace(programme.Description) ? DBNull.Value : (object)programme.Description);
+                    cmd.Parameters.AddWithValue("@Objectifs", string.IsNullOrWhiteSpace(programme.Objectifs) ? DBNull.Value : (object)programme.Objectifs);
+                    cmd.Parameters.AddWithValue("@ResponsableId", programme.ResponsableId.HasValue ? (object)programme.ResponsableId.Value : DBNull.Value);
+                    cmd.Parameters.AddWithValue("@DateDebut", programme.DateDebut.HasValue ? (object)programme.DateDebut.Value.ToString("yyyy-MM-dd HH:mm:ss") : DBNull.Value);
+                    cmd.Parameters.AddWithValue("@DateFinCible", programme.DateFinCible.HasValue ? (object)programme.DateFinCible.Value.ToString("yyyy-MM-dd HH:mm:ss") : DBNull.Value);
+                    cmd.Parameters.AddWithValue("@StatutGlobal", string.IsNullOrWhiteSpace(programme.StatutGlobal) ? DBNull.Value : (object)programme.StatutGlobal);
+                    cmd.Parameters.AddWithValue("@Actif", programme.Actif ? 1 : 0);
+                    
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+        
+        public void SupprimerProgramme(int id)
+        {
+            using (var conn = GetConnectionForWrite())
+            {
+                conn.Open();
+                using (var cmd = new SQLiteCommand(@"DELETE FROM Programmes WHERE Id = @Id", conn))
+                {
+                    cmd.Parameters.AddWithValue("@Id", id);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+        
+        public List<Projet> GetProjetsByProgramme(int programmeId)
+        {
+            var projets = new List<Projet>();
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = new SQLiteCommand(@"
+                    SELECT Id, Nom, Description, DateCreation, DateDebut, DateFinPrevue, Actif, CouleurHex, ProgrammeId
+                    FROM Projets 
+                    WHERE ProgrammeId = @ProgrammeId AND Actif = 1
+                    ORDER BY Nom", conn))
+                {
+                    cmd.Parameters.AddWithValue("@ProgrammeId", programmeId);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            projets.Add(new Projet
+                            {
+                                Id = reader.GetInt32(0),
+                                Nom = reader.GetString(1),
+                                Description = !reader.IsDBNull(2) ? reader.GetString(2) : null,
+                                DateCreation = DateTime.Parse(reader.GetString(3)),
+                                DateDebut = !reader.IsDBNull(4) ? (DateTime?)DateTime.Parse(reader.GetString(4)) : null,
+                                DateFinPrevue = !reader.IsDBNull(5) ? (DateTime?)DateTime.Parse(reader.GetString(5)) : null,
+                                Actif = reader.GetInt32(6) == 1,
+                                CouleurHex = !reader.IsDBNull(7) ? reader.GetString(7) : "#00915A",
+                                ProgrammeId = !reader.IsDBNull(8) ? (int?)reader.GetInt32(8) : null
+                            });
+                        }
+                    }
+                }
+            }
+            return projets;
         }
     }
 }

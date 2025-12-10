@@ -102,6 +102,30 @@
                         </StackPanel>
                     </Border>
                 </Grid>
+                
+                <!-- Équipes Assignées -->
+                <Border Background="#F1F8E9" CornerRadius="6" Padding="15" Margin="0,15,0,0" x:Name="BorderEquipes">
+                    <StackPanel>
+                        <TextBlock Text="🏢 Équipes Assignées" FontSize="12" Foreground="#558B2F" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                        <ItemsControl x:Name="ListeEquipes">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="#8BC34A" CornerRadius="4" Padding="10,5" Margin="0,0,8,0">
+                                        <TextBlock Text="{Binding Nom}" FontSize="12" Foreground="White" FontWeight="SemiBold"/>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <TextBlock x:Name="TxtAucuneEquipe" Text="Aucune équipe assignée" 
+                                   FontSize="12" Foreground="#999" FontStyle="Italic" 
+                                   Visibility="Collapsed"/>
+                    </StackPanel>
+                </Border>
             </Grid>
         </Border>
 

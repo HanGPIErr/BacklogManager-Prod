@@ -83,6 +83,27 @@ namespace BacklogManager.Views
             set { _nbProjetsActifs = value; OnPropertyChanged(); }
         }
 
+        private int _nbEquipesActives;
+        public int NbEquipesActives
+        {
+            get => _nbEquipesActives;
+            set { _nbEquipesActives = value; OnPropertyChanged(); }
+        }
+
+        private int _nbRessourcesTotal;
+        public int NbRessourcesTotal
+        {
+            get => _nbRessourcesTotal;
+            set { _nbRessourcesTotal = value; OnPropertyChanged(); }
+        }
+
+        private double _chargeMoyenneParEquipe;
+        public double ChargeMoyenneParEquipe
+        {
+            get => _chargeMoyenneParEquipe;
+            set { _chargeMoyenneParEquipe = value; OnPropertyChanged(); }
+        }
+
         private int _tauxProductivite;
         public int TauxProductivite
         {
@@ -195,6 +216,28 @@ namespace BacklogManager.Views
             
             NbProjetsActifs = projets.Count(p => p.Actif);
             
+            // Statistiques équipes
+            var equipes = _backlogService.Database.GetAllEquipes();
+            var utilisateurs = _backlogService.Database.GetUtilisateurs();
+            
+            NbEquipesActives = equipes.Count(e => e.Actif);
+            NbRessourcesTotal = utilisateurs.Count(u => u.Actif && u.EquipeId.HasValue);
+            
+            // Charge moyenne par équipe (nombre de projets par équipe)
+            if (NbEquipesActives > 0)
+            {
+                var totalProjetsAssignes = 0;
+                foreach (var projet in projets.Where(p => p.Actif && p.EquipesAssigneesIds != null && p.EquipesAssigneesIds.Count > 0))
+                {
+                    totalProjetsAssignes += projet.EquipesAssigneesIds.Count;
+                }
+                ChargeMoyenneParEquipe = (double)totalProjetsAssignes / NbEquipesActives;
+            }
+            else
+            {
+                ChargeMoyenneParEquipe = 0;
+            }
+            
             // Métrique intelligente selon le rôle
             if (_permissionService.IsAdmin || _permissionService.IsChefDeProjet)
             {
@@ -221,6 +264,9 @@ namespace BacklogManager.Views
             
             // Statistiques des projets
             ChargerStatistiquesProjets(projets, allTaches);
+            
+            // Section Équipe
+            ChargerSectionEquipe();
             
             // Activités récentes (vraies données depuis AuditLog et CRA)
             ChargerActivitesRecentes();
@@ -653,6 +699,190 @@ namespace BacklogManager.Views
             }
         }
 
+        private void ChargerSectionEquipe()
+        {
+            var user = _authService.CurrentUser;
+            if (user == null) return;
+
+            var equipes = _backlogService.Database.GetAllEquipes();
+            var projets = _backlogService.GetAllProjets();
+            var utilisateurs = _backlogService.Database.GetUtilisateurs();
+
+            if (_permissionService.IsAdmin)
+            {
+                // Admin voit toutes les équipes
+                TxtTitreEquipe.Text = "TOUTES LES ÉQUIPES";
+                
+                var equipesViewModel = equipes.Where(e => e.Actif).Select(eq =>
+                {
+                    var nbProjets = 0;
+                    foreach (var p in projets.Where(pr => pr.Actif && pr.EquipesAssigneesIds != null && pr.EquipesAssigneesIds.Count > 0))
+                    {
+                        if (p.EquipesAssigneesIds.Any(id => id == eq.Id))
+                        {
+                            nbProjets++;
+                        }
+                    }
+                    
+                    return new EquipeViewModel
+                    {
+                        Id = eq.Id,
+                        Nom = eq.Nom,
+                        NbMembres = utilisateurs.Count(u => u.EquipeId == eq.Id),
+                        NbProjets = nbProjets
+                    };
+                }).ToList();
+
+                if (equipesViewModel.Any())
+                {
+                    ListeToutesEquipes.ItemsSource = equipesViewModel;
+                    ScrollEquipes.Visibility = Visibility.Visible;
+                    PanelMonEquipe.Visibility = Visibility.Collapsed;
+                    TxtAucuneEquipe.Visibility = Visibility.Collapsed;
+                    
+                    // Charger le graphique des ressources par équipe
+                    ChargerGraphiqueEquipes(equipes, utilisateurs);
+                }
+                else
+                {
+                    ScrollEquipes.Visibility = Visibility.Collapsed;
+                    PanelMonEquipe.Visibility = Visibility.Collapsed;
+                    TxtAucuneEquipe.Visibility = Visibility.Visible;
+                    GraphiqueEquipes.Visibility = Visibility.Collapsed;
+                }
+            }
+            else
+            {
+                // Utilisateur standard voit sa propre équipe
+                TxtTitreEquipe.Text = "MON ÉQUIPE";
+                
+                if (user.EquipeId.HasValue)
+                {
+                    var monEquipe = equipes.FirstOrDefault(e => e.Id == user.EquipeId.Value);
+                    if (monEquipe != null)
+                    {
+                        TxtNomMonEquipe.Text = monEquipe.Nom;
+                        TxtNbMembresMonEquipe.Text = utilisateurs.Count(u => u.EquipeId == monEquipe.Id).ToString();
+                        
+                        var nbProjets = 0;
+                        foreach (var p in projets.Where(pr => pr.Actif && pr.EquipesAssigneesIds != null && pr.EquipesAssigneesIds.Count > 0))
+                        {
+                            if (p.EquipesAssigneesIds.Any(id => id == monEquipe.Id))
+                            {
+                                nbProjets++;
+                            }
+                        }
+                        TxtNbProjetsMonEquipe.Text = nbProjets.ToString();
+                        
+                        PanelMonEquipe.Tag = monEquipe.Id;
+                        PanelMonEquipe.Visibility = Visibility.Visible;
+                        ListeToutesEquipes.Visibility = Visibility.Collapsed;
+                        TxtAucuneEquipe.Visibility = Visibility.Collapsed;
+                    }
+                    else
+                    {
+                        PanelMonEquipe.Visibility = Visibility.Collapsed;
+                        ListeToutesEquipes.Visibility = Visibility.Collapsed;
+                        TxtAucuneEquipe.Visibility = Visibility.Visible;
+                    }
+                }
+                else
+                {
+                    PanelMonEquipe.Visibility = Visibility.Collapsed;
+                    ListeToutesEquipes.Visibility = Visibility.Collapsed;
+                    TxtAucuneEquipe.Visibility = Visibility.Visible;
+                }
+            }
+        }
+
+        private List<int> DeserializeEquipeIds(string json)
+        {
+            try
+            {
+                return System.Text.Json.JsonSerializer.Deserialize<List<int>>(json) ?? new List<int>();
+            }
+            catch
+            {
+                return new List<int>();
+            }
+        }
+
+        private void ChargerGraphiqueEquipes(List<Domain.Equipe> equipes, List<Domain.Utilisateur> utilisateurs)
+        {
+            try
+            {
+                // Calculer le nombre de membres pour chaque équipe (sans compter les managers)
+                var equipesStats = equipes
+                    .Where(e => e.Actif)
+                    .Select(e => new EquipeGraphiqueViewModel
+                    {
+                        Nom = e.Nom,
+                        NbMembres = utilisateurs.Count(u => u.EquipeId == e.Id && u.Actif && u.Id != e.ManagerId)
+                    })
+                    .OrderByDescending(e => e.NbMembres)  // Afficher toutes les équipes même si 0 membres
+                    .ToList();
+
+                if (equipesStats.Any())
+                {
+                    var maxMembres = equipesStats.Any(e => e.NbMembres > 0) ? equipesStats.Max(e => e.NbMembres) : 1;
+                    
+                    // Marquer l'équipe avec le plus de membres
+                    foreach (var equipe in equipesStats)
+                    {
+                        equipe.MaxMembres = maxMembres;
+                        equipe.EstTopEquipe = (equipe.NbMembres == maxMembres && equipe.NbMembres > 0);
+                    }
+
+                    GraphiqueBarresEquipes.ItemsSource = equipesStats;
+                    GraphiqueEquipes.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    GraphiqueEquipes.Visibility = Visibility.Collapsed;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Erreur lors du chargement du graphique : {ex.Message}");
+                GraphiqueEquipes.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void BtnVoirMonEquipe_Click(object sender, RoutedEventArgs e)
+        {
+            var user = _authService.CurrentUser;
+            if (user?.EquipeId.HasValue == true)
+            {
+                NaviguerVersDetailEquipe(user.EquipeId.Value);
+            }
+        }
+
+        private void BtnVoirEquipe_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (sender is Border border && border.Tag is int equipeId)
+            {
+                NaviguerVersDetailEquipe(equipeId);
+            }
+        }
+
+        private void NaviguerVersDetailEquipe(int equipeId)
+        {
+            var mainWindow = Window.GetWindow(this) as MainWindow;
+            if (mainWindow != null)
+            {
+                var detailView = new Pages.DetailEquipeView(equipeId, _backlogService.Database, () =>
+                {
+                    // Callback pour retourner au Dashboard
+                    mainWindow.NaviguerVersDashboard();
+                }, _authService);
+                var contentControl = (ContentControl)mainWindow.FindName("MainContentControl");
+                if (contentControl != null)
+                {
+                    contentControl.Content = detailView;
+                }
+            }
+        }
+
         private void ProjetCard_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -725,5 +955,21 @@ namespace BacklogManager.Views
         public string Titre { get; set; }
         public DateTime? DateFinAttendue { get; set; }
         public string ProjetNom { get; set; }
+    }
+
+    public class EquipeViewModel
+    {
+        public int Id { get; set; }
+        public string Nom { get; set; }
+        public int NbMembres { get; set; }
+        public int NbProjets { get; set; }
+    }
+
+    public class EquipeGraphiqueViewModel
+    {
+        public string Nom { get; set; }
+        public int NbMembres { get; set; }
+        public int MaxMembres { get; set; }
+        public bool EstTopEquipe { get; set; }
     }
 }

@@ -2,10 +2,10 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Gestion Projet" 
-        Width="650" Height="580" 
+        Width="750" Height="850" 
         WindowStartupLocation="CenterOwner"
         ResizeMode="CanResize"
-        MinWidth="600" MinHeight="550"
+        MinWidth="700" MinHeight="800"
         Background="#F5F5F5">
     <Border Background="White" Margin="15" CornerRadius="8" 
             BorderBrush="#E0E0E0" BorderThickness="1">
@@ -85,13 +85,146 @@
                         </Grid>
                     </Border>
 
+                    <!-- SECTION PHASE 2: Programme & Classification -->
+                    <Border Background="#E8F5E9" BorderBrush="#00A651" BorderThickness="2" 
+                           CornerRadius="6" Padding="15" Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Text="PROGRAMME ET CLASSIFICATION" FontWeight="Bold" FontSize="14" 
+                                      Foreground="#00A651" Margin="0,0,0,15"/>
+                            
+                            <!-- Programme -->
+                            <TextBlock Text="Programme associé" FontWeight="Bold" Margin="0,0,0,5"/>
+                            <ComboBox x:Name="CmbProgramme" Height="38" FontSize="13" Margin="0,0,0,12"/>
+                            
+                            <!-- Priorité, Type Projet, Catégorie -->
+                            <Grid Margin="0,0,0,12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Priorité *" FontWeight="Bold" Margin="0,0,0,5"/>
+                                    <ComboBox x:Name="CmbPriorite" Height="38" FontSize="13"/>
+                                </StackPanel>
+                                
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Type Projet" FontWeight="Bold" Margin="0,0,0,5"/>
+                                    <ComboBox x:Name="CmbTypeProjet" Height="38" FontSize="13"/>
+                                </StackPanel>
+                                
+                                <StackPanel Grid.Column="4">
+                                    <TextBlock Text="Catégorie" FontWeight="Bold" Margin="0,0,0,5"/>
+                                    <ComboBox x:Name="CmbCategorie" Height="38" FontSize="13"/>
+                                </StackPanel>
+                            </Grid>
+                            
+                            <!-- Lead Projet et Est Implémenté -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Lead Projet" FontWeight="Bold" Margin="0,0,0,5"/>
+                                    <ComboBox x:Name="CmbLeadProjet" Height="38" FontSize="13"/>
+                                </StackPanel>
+                                
+                                <StackPanel Grid.Column="2">
+                                    <CheckBox x:Name="ChkEstImplemente" Content="Déjà implémenté" 
+                                             FontWeight="Bold" VerticalAlignment="Bottom" Margin="0,0,0,8"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- SECTION PHASE 2: Drivers & Ambition -->
+                    <Border Background="#E3F2FD" BorderBrush="#2196F3" BorderThickness="2" 
+                           CornerRadius="6" Padding="15" Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Text="DRIVERS ET AMBITION" FontWeight="Bold" FontSize="14" 
+                                      Foreground="#1976D2" Margin="0,0,0,15"/>
+                            
+                            <!-- Drivers (multi-sélection) -->
+                            <TextBlock Text="Drivers" FontWeight="Bold" Margin="0,0,0,5"/>
+                            <TextBlock Text="Sélectionnez les drivers applicables (plusieurs choix possibles)" 
+                                      FontSize="11" Foreground="#666666" Margin="0,0,0,5"/>
+                            <StackPanel x:Name="PanelDrivers" Margin="0,0,0,12">
+                                <CheckBox x:Name="ChkDriverAutomation" Content="Automation" Margin="0,3"/>
+                                <CheckBox x:Name="ChkDriverEfficiency" Content="Efficiency Gains" Margin="0,3"/>
+                                <CheckBox x:Name="ChkDriverOptimization" Content="Process Optimization" Margin="0,3"/>
+                                <CheckBox x:Name="ChkDriverStandardization" Content="Standardization" Margin="0,3"/>
+                                <CheckBox x:Name="ChkDriverAucun" Content="Aucun" Margin="0,3"/>
+                            </StackPanel>
+                            
+                            <!-- Ambition -->
+                            <TextBlock Text="Ambition" FontWeight="Bold" Margin="0,0,0,5"/>
+                            <ComboBox x:Name="CmbAmbition" Height="38" FontSize="13" Margin="0,0,0,12"/>
+                            
+                            <!-- Bénéficiaires -->
+                            <TextBlock Text="Bénéficiaires" FontWeight="Bold" Margin="0,0,0,5"/>
+                            <TextBlock Text="Qui bénéficie de ce projet ? (plusieurs choix possibles)" 
+                                      FontSize="11" Foreground="#666666" Margin="0,0,0,5"/>
+                            <StackPanel x:Name="PanelBeneficiaires">
+                                <CheckBox x:Name="ChkBenefSGI" Content="SGI" Margin="0,3"/>
+                                <CheckBox x:Name="ChkBenefTFSC" Content="TFSC" Margin="0,3"/>
+                                <CheckBox x:Name="ChkBenefTransversal" Content="Transversal" Margin="0,3"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- SECTION PHASE 2: Gains -->
+                    <Border Background="#FFF3E0" BorderBrush="#FF9800" BorderThickness="2" 
+                           CornerRadius="6" Padding="15" Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Text="GAINS ATTENDUS" FontWeight="Bold" FontSize="14" 
+                                      Foreground="#F57C00" Margin="0,0,0,15"/>
+                            
+                            <!-- Gains Temps -->
+                            <TextBlock Text="Gains Temps *" FontWeight="Bold" Margin="0,0,0,5"/>
+                            <TextBlock Text="Exemples: '15 heures/semaine', '3 jours/mois', '20% workload'" 
+                                      FontSize="11" Foreground="#666666" Margin="0,0,0,5"/>
+                            <TextBox x:Name="TxtGainsTemps" Height="38" FontSize="13" 
+                                    Padding="8" Margin="0,0,0,12"/>
+                            
+                            <!-- Gains Financiers -->
+                            <TextBlock Text="Gains Financiers (optionnel)" FontWeight="Bold" Margin="0,0,0,5"/>
+                            <TextBlock Text="Exemples: '45000€ annuels', '3500€ mensuels', 'N/A'" 
+                                      FontSize="11" Foreground="#666666" Margin="0,0,0,5"/>
+                            <TextBox x:Name="TxtGainsFinanciers" Height="38" FontSize="13" 
+                                    Padding="8" Margin="0,0,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- SECTION PHASE 2: Équipes Assignées -->
+                    <Border Background="#F3E5F5" BorderBrush="#9C27B0" BorderThickness="2" 
+                           CornerRadius="6" Padding="15" Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Text="ÉQUIPES ASSIGNÉES" FontWeight="Bold" FontSize="14" 
+                                      Foreground="#7B1FA2" Margin="0,0,0,15"/>
+                            
+                            <!-- Équipes (multi-sélection) -->
+                            <TextBlock Text="Équipes travaillant sur ce projet" FontWeight="Bold" Margin="0,0,0,5"/>
+                            <TextBlock Text="Sélectionnez une ou plusieurs équipes (plusieurs choix possibles)" 
+                                      FontSize="11" Foreground="#666666" Margin="0,0,0,5"/>
+                            <StackPanel x:Name="PanelEquipes">
+                                <!-- CheckBoxes seront générées dynamiquement -->
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
                     <!-- Statut actif -->
                     <Border Background="#E8F5E9" CornerRadius="4" Padding="15" Margin="0,0,0,12">
                         <StackPanel>
-                            <CheckBox x:Name="ChkActif" Content="✅ Projet actif" 
+                            <CheckBox x:Name="ChkActif" Content="Projet actif" 
                                       IsChecked="True" FontSize="14" FontWeight="SemiBold" 
                                       Foreground="#2E7D32" VerticalAlignment="Center"/>
-                            <TextBlock Text="⚠️ Décochez pour archiver le projet" 
+                            <TextBlock Text="Décochez pour archiver le projet" 
                                        FontSize="11" Foreground="#E65100" 
                                        FontStyle="Italic" Margin="25,5,0,0"/>
                         </StackPanel>

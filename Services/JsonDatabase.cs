@@ -702,5 +702,73 @@ namespace BacklogManager.Services
         {
             throw new NotSupportedException("Les conversations chat ne sont supportées qu'en mode SQLite.");
         }
+
+        // Phase 1 : Gestion des Équipes (stubs pour JsonDatabase - SQLite est la BD de production)
+        public List<Equipe> GetAllEquipes()
+        {
+            throw new NotSupportedException("La gestion des équipes n'est supportée qu'en mode SQLite.");
+        }
+
+        public Equipe GetEquipeById(int id)
+        {
+            throw new NotSupportedException("La gestion des équipes n'est supportée qu'en mode SQLite.");
+        }
+
+        public void AjouterEquipe(Equipe equipe)
+        {
+            throw new NotSupportedException("La gestion des équipes n'est supportée qu'en mode SQLite.");
+        }
+
+        public void ModifierEquipe(Equipe equipe)
+        {
+            throw new NotSupportedException("La gestion des équipes n'est supportée qu'en mode SQLite.");
+        }
+
+        public List<Utilisateur> GetMembresByEquipe(int equipeId)
+        {
+            throw new NotSupportedException("La gestion des équipes n'est supportée qu'en mode SQLite.");
+        }
+
+        public List<Projet> GetProjetsByEquipe(int equipeId)
+        {
+            throw new NotSupportedException("La gestion des équipes n'est supportée qu'en mode SQLite.");
+        }
+
+        public List<BacklogItem> GetBacklogItemsByDevId(int devId)
+        {
+            // Cette méthode peut être implémentée avec le JSON existant
+            return GetBacklogItems().Where(item => item.DevAssigneId == devId).ToList();
+        }
+        
+        // Phase 2 : Gestion des Programmes (stubs pour JsonDatabase - SQLite est la BD de production)
+        public List<Programme> GetAllProgrammes()
+        {
+            throw new NotSupportedException("La gestion des programmes n'est supportée qu'en mode SQLite.");
+        }
+
+        public Programme GetProgrammeById(int id)
+        {
+            throw new NotSupportedException("La gestion des programmes n'est supportée qu'en mode SQLite.");
+        }
+
+        public void AjouterProgramme(Programme programme)
+        {
+            throw new NotSupportedException("La gestion des programmes n'est supportée qu'en mode SQLite.");
+        }
+
+        public void ModifierProgramme(Programme programme)
+        {
+            throw new NotSupportedException("La gestion des programmes n'est supportée qu'en mode SQLite.");
+        }
+
+        public void SupprimerProgramme(int id)
+        {
+            throw new NotSupportedException("La gestion des programmes n'est supportée qu'en mode SQLite.");
+        }
+
+        public List<Projet> GetProjetsByProgramme(int programmeId)
+        {
+            throw new NotSupportedException("La gestion des programmes n'est supportée qu'en mode SQLite.");
+        }
     }
 }

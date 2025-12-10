@@ -67,6 +67,22 @@ namespace BacklogManager.Views
                             enCours = d.EnCours,
                             terminees = d.Terminees
                         }).ToList()
+                    },
+                    equipes = new
+                    {
+                        total = _viewModel.RessourcesParEquipe.Count,
+                        details = _viewModel.RessourcesParEquipe.Select(e => new
+                        {
+                            nom = e.NomEquipe,
+                            membres = e.NbMembres,
+                            projets = e.NbProjets,
+                            chargeParMembre = e.ChargeParMembre
+                        }).ToList(),
+                        charge = _viewModel.ChargeParEquipe.Select(e => new
+                        {
+                            nom = e.NomEquipe,
+                            projetsActifs = e.NbProjets
+                        }).ToList()
                     }
                 };
 
@@ -85,38 +101,64 @@ Analyse les statistiques suivantes pour la période ""{_periodeDescription}"" :
 - Taux complétion mois : {stats.cra.tauxCompletionMois}
 - Taux réalisation : {stats.cra.tauxRealisation}
 
-**PROJETS & ÉQUIPE**
+**PROJETS & RESSOURCES**
 - Projets actifs : {stats.projets.actifs}
 - Développeurs actifs : {stats.developpeurs.actifs}
+- Équipes actives : {stats.equipes.total}
 
 **PERFORMANCE PAR DÉVELOPPEUR**
 {string.Join("\n", stats.developpeurs.details.Select(d => 
     $"- {d.nom}: {d.nombreTaches} tâches ({d.terminees} terminées, {d.enCours} en cours, {d.aFaire} à faire)"))}
 
+**RÉPARTITION PAR ÉQUIPE**
+{string.Join("\n", stats.equipes.details.Select(e => 
+    $"- {e.nom}: {e.membres} membres, {e.projets} projets ({e.chargeParMembre:F1} projets/membre)"))}
+
+**ANALYSE CRITIQUE - Points d'attention équipes :**
+{(stats.equipes.details.Any(e => e.membres == 0 && e.projets > 0) ? 
+    $"⚠️ CRITIQUE : Équipes sans membres assignés détectées !\n{string.Join("\n", stats.equipes.details.Where(e => e.membres == 0 && e.projets > 0).Select(e => $"  - {e.nom}: {e.projets} projet(s) sans ressource"))}" : "")}
+{(stats.equipes.charge.Any(e => e.projetsActifs > 6) ? 
+    $"🔥 SURCHARGE : Équipes avec plus de 6 projets simultanés !\n{string.Join("\n", stats.equipes.charge.Where(e => e.projetsActifs > 6).Select(e => $"  - {e.nom}: {e.projetsActifs} projets"))}" : "")}
+{(stats.equipes.details.Any(e => e.chargeParMembre > 3) ? 
+    $"⚖️ DÉSÉQUILIBRE : Charge excessive par membre (>3 projets/personne)\n{string.Join("\n", stats.equipes.details.Where(e => e.chargeParMembre > 3).Select(e => $"  - {e.nom}: {e.chargeParMembre:F1} projets/membre"))}" : "")}
+{(stats.equipes.details.Any(e => e.membres >= 3 && e.projets <= 1) ? 
+    $"💡 CAPACITÉ DISPONIBLE : Équipes sous-utilisées\n{string.Join("\n", stats.equipes.details.Where(e => e.membres >= 3 && e.projets <= 1).Select(e => $"  - {e.nom}: {e.membres} membres, seulement {e.projets} projet(s)"))}" : "")}
+
 Fournis une analyse structurée avec les sections suivantes (utilise EXACTEMENT ces marqueurs) :
 
 [SCORE]
 Un score sur 100 évaluant la performance globale basé sur :
-- Taux de complétion des tâches (30%)
-- Respect des estimations (30%)
+- Taux de complétion des tâches (25%)
+- Respect des estimations (25%)
 - Productivité CRA (20%)
-- Distribution de charge (20%)
+- Distribution de charge équipes (20%)
+- Équilibre ressources/projets (10%)
 Réponds uniquement par le nombre, exemple: 78
 
 [VUE_ENSEMBLE]
-Un paragraphe résumant l'état général, les chiffres clés et la santé du projet.
+Un paragraphe résumant l'état général : chiffres clés, santé du projet, et surtout l'équilibre entre équipes et projets.
 
 [PERFORMANCE_DEV]
 Analyse de la performance par développeur : qui excelle, qui a besoin de soutien, patterns d'occupation.
 
 [TENDANCES]
-Patterns observés : surcharge, sous-utilisation, dépassements d'estimations, vélocité, etc.
+Patterns observés : surcharge équipes, sous-utilisation, dépassements d'estimations, vélocité, déséquilibres ressources/projets.
+**Analyse spécifique des équipes et de leur charge.**
 
 [RECOMMANDATIONS]
-3-4 recommandations concrètes pour améliorer la performance et l'organisation.
+4-5 recommandations concrètes pour améliorer :
+- La répartition de charge entre équipes
+- L'allocation des ressources
+- La performance globale
+- L'organisation des équipes et programmes
+**Mettre l'accent sur les aspects équipes et répartition des projets.**
 
 [ACTIONS]
-3-4 actions prioritaires à mettre en place immédiatement.";
+4-5 actions prioritaires à mettre en place immédiatement :
+- Actions sur les équipes critiques (sans membres, surchargées)
+- Rééquilibrage de charge si nécessaire
+- Optimisations ressources/projets
+- Autres améliorations urgentes";
 
                 var response = await AppelerIA(prompt);
                 AfficherResultats(response);

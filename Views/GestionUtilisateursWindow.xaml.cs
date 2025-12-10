@@ -16,6 +16,8 @@ namespace BacklogManager.Views
         public string Email { get; set; }
         public int RoleId { get; set; }
         public string RoleNom { get; set; }
+        public int? EquipeId { get; set; }
+        public string EquipeNom { get; set; }
         public bool Actif { get; set; }
         public string NomComplet { get { return string.Format("{0} {1}", Prenom, Nom); } }
     }
@@ -46,6 +48,7 @@ namespace BacklogManager.Views
         {
             var utilisateurs = _database.GetUtilisateurs();
             var roles = _database.GetRoles();
+            var equipes = _database.GetAllEquipes();
 
             var viewModels = utilisateurs.Select(u => new UtilisateurViewModel
             {
@@ -56,6 +59,8 @@ namespace BacklogManager.Views
                 Email = u.Email,
                 RoleId = u.RoleId,
                 RoleNom = roles.FirstOrDefault(r => r.Id == u.RoleId)?.Nom ?? "N/A",
+                EquipeId = u.EquipeId,
+                EquipeNom = u.EquipeId.HasValue ? equipes.FirstOrDefault(e => e.Id == u.EquipeId.Value)?.Nom ?? "-" : "-",
                 Actif = u.Actif
             }).ToList();
 
@@ -66,11 +71,20 @@ namespace BacklogManager.Views
         {
             var roles = _database.GetRoles().Where(r => r.Actif).ToList();
             CmbRole.ItemsSource = roles;
+            
+            var equipes = _database.GetAllEquipes().Where(e => e.Actif).OrderBy(e => e.Nom).ToList();
+            // Ajouter une option "Aucune équipe" au début
+            equipes.Insert(0, new Equipe { Id = 0, Nom = "-- Aucune équipe --", Code = "" });
+            CmbEquipe.ItemsSource = equipes;
         }
 
         private void BtnAjouterUser_Click(object sender, RoutedEventArgs e)
         {
             if (!ValiderFormulaireUtilisateur()) return;
+
+            var equipeId = CmbEquipe.SelectedValue != null && (int)CmbEquipe.SelectedValue > 0 
+                ? (int?)CmbEquipe.SelectedValue 
+                : null;
 
             var utilisateur = new Utilisateur
             {
@@ -79,6 +93,7 @@ namespace BacklogManager.Views
                 Prenom = TxtPrenom.Text.Trim(),
                 Email = TxtEmail.Text.Trim(),
                 RoleId = (int)CmbRole.SelectedValue,
+                EquipeId = equipeId,
                 Actif = ChkActif.IsChecked ?? true,
                 DateCreation = DateTime.Now
             };
@@ -96,11 +111,16 @@ namespace BacklogManager.Views
             if (_utilisateurEnEdition == null) return;
             if (!ValiderFormulaireUtilisateur()) return;
 
+            var equipeId = CmbEquipe.SelectedValue != null && (int)CmbEquipe.SelectedValue > 0 
+                ? (int?)CmbEquipe.SelectedValue 
+                : null;
+
             _utilisateurEnEdition.UsernameWindows = TxtUsername.Text.Trim();
             _utilisateurEnEdition.Nom = TxtNom.Text.Trim();
             _utilisateurEnEdition.Prenom = TxtPrenom.Text.Trim();
             _utilisateurEnEdition.Email = TxtEmail.Text.Trim();
             _utilisateurEnEdition.RoleId = (int)CmbRole.SelectedValue;
+            _utilisateurEnEdition.EquipeId = equipeId;
             _utilisateurEnEdition.Actif = ChkActif.IsChecked ?? true;
 
             _database.AddOrUpdateUtilisateur(_utilisateurEnEdition);
@@ -131,6 +151,7 @@ namespace BacklogManager.Views
             TxtPrenom.Text = _utilisateurEnEdition.Prenom;
             TxtEmail.Text = _utilisateurEnEdition.Email;
             CmbRole.SelectedValue = _utilisateurEnEdition.RoleId;
+            CmbEquipe.SelectedValue = _utilisateurEnEdition.EquipeId.HasValue ? _utilisateurEnEdition.EquipeId.Value : 0;
             ChkActif.IsChecked = _utilisateurEnEdition.Actif;
 
             BtnAjouterUser.Visibility = Visibility.Collapsed;
@@ -208,6 +229,7 @@ namespace BacklogManager.Views
             TxtPrenom.Clear();
             TxtEmail.Clear();
             CmbRole.SelectedIndex = -1;
+            CmbEquipe.SelectedIndex = 0;
             ChkActif.IsChecked = true;
             AnnulerEditionUtilisateur();
         }

@@ -117,6 +117,54 @@ namespace BacklogManager.Views
             CmbDevChiffreur.DisplayMemberPath = "Nom";
             CmbDevChiffreur.SelectedValuePath = "Id";
             CmbDevChiffreur.SelectedIndex = 0;
+            
+            // PHASE 2: Programmes
+            var programmes = _database.GetAllProgrammes().Where(p => p.Actif).ToList();
+            var programmesCombo = programmes.Select(p => new { Id = p.Id, Display = string.Format("{0} - {1}", p.Code, p.Nom) }).ToList();
+            programmesCombo.Insert(0, new { Id = 0, Display = "-- Aucun programme --" });
+            CmbProgramme.ItemsSource = programmesCombo;
+            CmbProgramme.DisplayMemberPath = "Display";
+            CmbProgramme.SelectedValuePath = "Id";
+            CmbProgramme.SelectedIndex = 0;
+            
+            // PHASE 2: Priorité
+            var priorites = new[] { "Top High", "High", "Medium", "Low" };
+            CmbPriorite.ItemsSource = priorites;
+            CmbPriorite.SelectedIndex = 2; // Medium par défaut
+            
+            // PHASE 2: Type Projet
+            var typesProjets = new[] { "Data", "Digital", "Regulatory", "Run", "Transformation", "" };
+            CmbTypeProjet.ItemsSource = typesProjets;
+            CmbTypeProjet.SelectedIndex = 5; // Vide par défaut
+            
+            // PHASE 2: Catégorie
+            var categories = new[] { "BAU", "TRANSFO", "" };
+            CmbCategorie.ItemsSource = categories;
+            CmbCategorie.SelectedIndex = 2; // Vide par défaut
+            
+            // PHASE 2: Lead Projet
+            var leads = new[] { "GTTO", "CCI", "Autre", "" };
+            CmbLeadProjet.ItemsSource = leads;
+            CmbLeadProjet.SelectedIndex = 3; // Vide par défaut
+            
+            // PHASE 2: Ambition
+            var ambitions = new[] { "Automation Rate Increase", "Pricing Alignment", "Workload Gain", "Workload Reduction", "N/A", "" };
+            CmbAmbition.ItemsSource = ambitions;
+            CmbAmbition.SelectedIndex = 5; // Vide par défaut
+            
+            // PHASE 2: Équipes (multi-sélection via CheckBoxes dynamiques)
+            var equipes = _database.GetAllEquipes().Where(e => e.Actif).ToList();
+            PanelEquipes.Children.Clear();
+            foreach (var equipe in equipes)
+            {
+                var chk = new CheckBox
+                {
+                    Content = equipe.Nom,
+                    Tag = equipe.Id,
+                    Margin = new Thickness(0, 3, 0, 3)
+                };
+                PanelEquipes.Children.Add(chk);
+            }
         }
 
         private string FormatTypeDemande(TypeDemande type)
@@ -164,6 +212,76 @@ namespace BacklogManager.Views
                 CmbDevChiffreur.SelectedValue = _demandeActuelle.DevChiffreurId.Value;
 
             TxtChiffrageEstime.Text = _demandeActuelle.ChiffrageEstimeJours?.ToString() ?? "";
+            
+            // PHASE 2: Charger les nouveaux champs
+            if (_demandeActuelle.ProgrammeId.HasValue)
+                CmbProgramme.SelectedValue = _demandeActuelle.ProgrammeId.Value;
+            
+            if (!string.IsNullOrEmpty(_demandeActuelle.Priorite))
+                CmbPriorite.SelectedItem = _demandeActuelle.Priorite;
+            
+            if (!string.IsNullOrEmpty(_demandeActuelle.TypeProjet))
+                CmbTypeProjet.SelectedItem = _demandeActuelle.TypeProjet;
+            
+            if (!string.IsNullOrEmpty(_demandeActuelle.Categorie))
+                CmbCategorie.SelectedItem = _demandeActuelle.Categorie;
+            
+            if (!string.IsNullOrEmpty(_demandeActuelle.LeadProjet))
+                CmbLeadProjet.SelectedItem = _demandeActuelle.LeadProjet;
+            
+            if (!string.IsNullOrEmpty(_demandeActuelle.Ambition))
+                CmbAmbition.SelectedItem = _demandeActuelle.Ambition;
+            
+            ChkEstImplemente.IsChecked = _demandeActuelle.EstImplemente;
+            
+            TxtGainsTemps.Text = _demandeActuelle.GainsTemps ?? "";
+            TxtGainsFinanciers.Text = _demandeActuelle.GainsFinanciers ?? "";
+            
+            // Drivers (JSON array)
+            if (!string.IsNullOrEmpty(_demandeActuelle.Drivers))
+            {
+                try
+                {
+                    var drivers = System.Text.Json.JsonSerializer.Deserialize<List<string>>(_demandeActuelle.Drivers);
+                    if (drivers != null)
+                    {
+                        ChkDriverAutomation.IsChecked = drivers.Contains("Automation");
+                        ChkDriverEfficiency.IsChecked = drivers.Contains("Efficiency Gains");
+                        ChkDriverOptimization.IsChecked = drivers.Contains("Process Optimization");
+                        ChkDriverStandardization.IsChecked = drivers.Contains("Standardization");
+                        ChkDriverAucun.IsChecked = drivers.Contains("Aucun");
+                    }
+                }
+                catch { }
+            }
+            
+            // Bénéficiaires (JSON array)
+            if (!string.IsNullOrEmpty(_demandeActuelle.Beneficiaires))
+            {
+                try
+                {
+                    var beneficiaires = System.Text.Json.JsonSerializer.Deserialize<List<string>>(_demandeActuelle.Beneficiaires);
+                    if (beneficiaires != null)
+                    {
+                        ChkBenefSGI.IsChecked = beneficiaires.Contains("SGI");
+                        ChkBenefTFSC.IsChecked = beneficiaires.Contains("TFSC");
+                        ChkBenefTransversal.IsChecked = beneficiaires.Contains("Transversal");
+                    }
+                }
+                catch { }
+            }
+            
+            // Équipes Assignées (List<int>)
+            if (_demandeActuelle.EquipesAssigneesIds != null && _demandeActuelle.EquipesAssigneesIds.Count > 0)
+            {
+                foreach (CheckBox chk in PanelEquipes.Children)
+                {
+                    if (chk.Tag is int equipeId && _demandeActuelle.EquipesAssigneesIds.Contains(equipeId))
+                    {
+                        chk.IsChecked = true;
+                    }
+                }
+            }
         }
 
         private void BtnEnregistrer_Click(object sender, RoutedEventArgs e)
@@ -229,6 +347,47 @@ namespace BacklogManager.Views
                         }
                     }
                 }
+                
+                // PHASE 2: Enregistrer les nouveaux champs
+                var progId = (int)CmbProgramme.SelectedValue;
+                _demandeActuelle.ProgrammeId = progId != 0 ? (int?)progId : null;
+                
+                _demandeActuelle.Priorite = CmbPriorite.SelectedItem?.ToString();
+                _demandeActuelle.TypeProjet = CmbTypeProjet.SelectedItem?.ToString();
+                _demandeActuelle.Categorie = CmbCategorie.SelectedItem?.ToString();
+                _demandeActuelle.LeadProjet = CmbLeadProjet.SelectedItem?.ToString();
+                _demandeActuelle.Ambition = CmbAmbition.SelectedItem?.ToString();
+                _demandeActuelle.EstImplemente = ChkEstImplemente.IsChecked == true;
+                
+                _demandeActuelle.GainsTemps = TxtGainsTemps.Text?.Trim();
+                _demandeActuelle.GainsFinanciers = TxtGainsFinanciers.Text?.Trim();
+                
+                // Drivers (multi-sélection -> JSON)
+                var driversSelectionnes = new List<string>();
+                if (ChkDriverAutomation.IsChecked == true) driversSelectionnes.Add("Automation");
+                if (ChkDriverEfficiency.IsChecked == true) driversSelectionnes.Add("Efficiency Gains");
+                if (ChkDriverOptimization.IsChecked == true) driversSelectionnes.Add("Process Optimization");
+                if (ChkDriverStandardization.IsChecked == true) driversSelectionnes.Add("Standardization");
+                if (ChkDriverAucun.IsChecked == true) driversSelectionnes.Add("Aucun");
+                _demandeActuelle.Drivers = driversSelectionnes.Count > 0 ? System.Text.Json.JsonSerializer.Serialize(driversSelectionnes) : null;
+                
+                // Bénéficiaires (multi-sélection -> JSON)
+                var beneficiairesSelectionnes = new List<string>();
+                if (ChkBenefSGI.IsChecked == true) beneficiairesSelectionnes.Add("SGI");
+                if (ChkBenefTFSC.IsChecked == true) beneficiairesSelectionnes.Add("TFSC");
+                if (ChkBenefTransversal.IsChecked == true) beneficiairesSelectionnes.Add("Transversal");
+                _demandeActuelle.Beneficiaires = beneficiairesSelectionnes.Count > 0 ? System.Text.Json.JsonSerializer.Serialize(beneficiairesSelectionnes) : null;
+                
+                // Équipes Assignées (multi-sélection -> List<int>)
+                var equipesSelectionnees = new List<int>();
+                foreach (CheckBox chk in PanelEquipes.Children)
+                {
+                    if (chk.IsChecked == true && chk.Tag is int equipeId)
+                    {
+                        equipesSelectionnees.Add(equipeId);
+                    }
+                }
+                _demandeActuelle.EquipesAssigneesIds = equipesSelectionnees;
 
                 // Enregistrement
                 _database.AddOrUpdateDemande(_demandeActuelle);

@@ -13,5 +13,9 @@ namespace BacklogManager.Domain
         public bool Actif { get; set; }
         public DateTime DateCreation { get; set; }
         public DateTime? DateDerniereConnexion { get; set; }
+        
+        // Phase 1 : Gestion des équipes
+        public int? EquipeId { get; set; }                  // Équipe principale de l'utilisateur
+        public Equipe Equipe { get; set; }                  // Navigation property
     }
 }

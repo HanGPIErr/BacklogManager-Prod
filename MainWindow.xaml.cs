@@ -307,6 +307,11 @@ namespace BacklogManager
 
         private void BtnDashboard_Click(object sender, RoutedEventArgs e)
         {
+            NaviguerVersDashboard();
+        }
+
+        public void NaviguerVersDashboard()
+        {
             var dashboardView = new Views.DashboardView(_backlogService, _notificationService, _authService, _permissionService);
             // Trouver le ContentControl dans le XAML et mettre à jour son contenu
             var contentControl = (System.Windows.Controls.ContentControl)this.FindName("MainContentControl");

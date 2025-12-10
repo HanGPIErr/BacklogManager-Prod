@@ -478,11 +478,32 @@ namespace BacklogManager.Views
                     return;
                 }
 
-                // Créer le projet
+                // Créer le projet pré-rempli avec les données de la demande
                 var backlogService = new BacklogService(_database);
-                var window = new EditProjetWindow(backlogService);
+                var nouveauProjet = new Projet
+                {
+                    Nom = demande.Titre,
+                    Description = demande.Description,
+                    Actif = true,
+                    DateCreation = DateTime.Now,
+                    // Copier les champs Phase 2 de la demande
+                    ProgrammeId = demande.ProgrammeId,
+                    Priorite = demande.Priorite,
+                    TypeProjet = demande.TypeProjet,
+                    Categorie = demande.Categorie,
+                    Drivers = demande.Drivers,
+                    Ambition = demande.Ambition,
+                    Beneficiaires = demande.Beneficiaires,
+                    GainsTemps = demande.GainsTemps,
+                    GainsFinanciers = demande.GainsFinanciers,
+                    LeadProjet = demande.LeadProjet,
+                    EstImplemente = demande.EstImplemente,
+                    EquipesAssigneesIds = demande.EquipesAssigneesIds != null ? new List<int>(demande.EquipesAssigneesIds) : new List<int>()
+                };
+                
+                var window = new EditProjetWindow(backlogService, nouveauProjet);
                 window.Owner = Window.GetWindow(this);
-                window.Title = "Créer un projet pour la demande";
+                window.Title = string.Format("Créer un projet pour la demande : {0}", demande.Titre);
 
                 if (window.ShowDialog() == true)
                 {
@@ -490,10 +511,10 @@ namespace BacklogManager.Views
                     var projets = _database.GetProjets().OrderByDescending(p => p.DateCreation).ToList();
                     if (projets.Any())
                     {
-                        var nouveauProjet = projets.First();
+                        var projetCree = projets.First();
                         
                         // Associer le projet à la demande
-                        demande.ProjetId = nouveauProjet.Id;
+                        demande.ProjetId = projetCree.Id;
                         _database.AddOrUpdateDemande(demande);
 
                         // Historique
@@ -507,7 +528,7 @@ namespace BacklogManager.Views
                                 UtilisateurId = utilisateur.Id,
                                 DateModification = DateTime.Now,
                                 TypeModification = Domain.TypeModification.Modification,
-                                NouvelleValeur = string.Format("Projet '{0}' créé et associé", nouveauProjet.Nom),
+                                NouvelleValeur = string.Format("Projet '{0}' créé et associé", projetCree.Nom),
                                 AncienneValeur = "Aucun projet",
                                 ChampModifie = "ProjetId"
                             };
