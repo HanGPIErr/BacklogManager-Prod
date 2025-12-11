@@ -9,20 +9,18 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Liste utilisateurs avec scroll (sous le header) -->
-        <Border Grid.Row="1" Background="White" CornerRadius="12" BorderThickness="0" Margin="0,80,0,10">
+        <!-- Liste utilisateurs moderne avec scroll -->
+        <Border Grid.Row="1" Background="White" CornerRadius="12" BorderThickness="0" Margin="0,90,0,0">
             <Border.Effect>
                 <DropShadowEffect Color="#E0E0E0" BlurRadius="12" ShadowDepth="2" Opacity="0.2" Direction="270"/>
             </Border.Effect>
-            <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="20">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="20">
                 <DataGrid x:Name="LstUtilisateurs" AutoGenerateColumns="False" 
                           IsReadOnly="True" CanUserAddRows="False" SelectionMode="Single"
                           HeadersVisibility="Column" GridLinesVisibility="None"
                           BorderThickness="0" RowHeight="50"
                           AlternatingRowBackground="#FAFAFA" RowBackground="White"
-                          VerticalScrollBarVisibility="Disabled"
-                          HorizontalScrollBarVisibility="Disabled"
-                          MouseDoubleClick="LstUtilisateurs_MouseDoubleClick">
+                          VerticalScrollBarVisibility="Disabled">
                 <DataGrid.ColumnHeaderStyle>
                     <Style TargetType="DataGridColumnHeader">
                         <Setter Property="Background" Value="#F5F5F5"/>
@@ -51,35 +49,15 @@
                     </Style>
                 </DataGrid.CellStyle>
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Nom complet" Binding="{Binding Nom}" Width="2*">
-                        <DataGridTextColumn.ElementStyle>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Foreground" Value="#1A1919"/>
-                                <Setter Property="FontWeight" Value="SemiBold"/>
-                            </Style>
-                        </DataGridTextColumn.ElementStyle>
-                    </DataGridTextColumn>
-                    <DataGridTextColumn Header="Username Windows" Binding="{Binding UsernameWindows}" Width="1.5*">
-                        <DataGridTextColumn.ElementStyle>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Foreground" Value="#1A1919"/>
-                            </Style>
-                        </DataGridTextColumn.ElementStyle>
-                    </DataGridTextColumn>
-                    <DataGridTextColumn Header="Rôle" Binding="{Binding RoleNom}" Width="1.5*">
-                        <DataGridTextColumn.ElementStyle>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Foreground" Value="#1A1919"/>
-                                <Setter Property="FontWeight" Value="Medium"/>
-                            </Style>
-                        </DataGridTextColumn.ElementStyle>
-                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="Nom complet" Binding="{Binding Utilisateur.NomComplet}" Width="2*"/>
+                    <DataGridTextColumn Header="Username Windows" Binding="{Binding Utilisateur.UsernameWindows}" Width="1.5*"/>
+                    <DataGridTextColumn Header="Rôle" Binding="{Binding RoleNom}" Width="1.5*"/>
                     <DataGridTemplateColumn Header="Statut" Width="1.2*">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <Border Background="{Binding StatutCouleurBadge}" 
+                                <Border Background="{Binding Utilisateur.StatutCouleurBadge}" 
                                         CornerRadius="12" Padding="10,4" HorizontalAlignment="Left">
-                                    <TextBlock Text="{Binding Statut}" 
+                                    <TextBlock Text="{Binding Utilisateur.Statut}" 
                                                Foreground="White" FontSize="11" FontWeight="Bold"/>
                                 </Border>
                             </DataTemplate>
@@ -93,7 +71,7 @@
                                         <Style TargetType="Border">
                                             <Setter Property="Background" Value="#4CAF50"/>
                                             <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Actif}" Value="False">
+                                                <DataTrigger Binding="{Binding Utilisateur.Actif}" Value="False">
                                                     <Setter Property="Background" Value="#9E9E9E"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
@@ -104,7 +82,7 @@
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="Text" Value="Oui"/>
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Actif}" Value="False">
+                                                    <DataTrigger Binding="{Binding Utilisateur.Actif}" Value="False">
                                                         <Setter Property="Text" Value="Non"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
@@ -120,21 +98,14 @@
             </ScrollViewer>
         </Border>
 
-        <!-- Header fixe avec actions (toujours visible en haut, par-dessus le reste) -->
-        <Border Grid.Row="0" Background="White" CornerRadius="10" Padding="18" Margin="0"
-                Panel.ZIndex="1000">
+        <!-- Actions élégantes (header fixe par-dessus) -->
+        <Border Grid.Row="0" Background="White" CornerRadius="10" Padding="18" Margin="0,0,0,0"
+                Panel.ZIndex="100">
             <Border.Effect>
                 <DropShadowEffect Color="#E0E0E0" BlurRadius="10" ShadowDepth="2" Opacity="0.2" Direction="270"/>
             </Border.Effect>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                
-                <!-- Boutons d'action -->
-                <StackPanel Grid.Column="0" Orientation="Horizontal">
-                    <Button Click="BtnNouvelUtilisateur_Click"
+            <StackPanel Orientation="Horizontal">
+                <Button Click="BtnNouvelUtilisateur_Click"
                         Background="#00915A" Foreground="White" Padding="18,10" 
                         BorderThickness="0" Cursor="Hand" FontWeight="Bold" FontSize="13">
                     <Button.Style>
@@ -218,73 +189,18 @@
                         </Style>
                     </Button.Style>
                 </Button>
-                </StackPanel>
-
-                <!-- Barre de recherche à droite -->
-                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                    <TextBlock Text="🔍" FontSize="16" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="#757575"/>
-                    <TextBox x:Name="TxtRecherche" 
-                             Width="300" 
-                             Padding="10,8"
-                             FontSize="13"
-                             Background="#F5F5F5"
-                             BorderBrush="#E0E0E0"
-                             BorderThickness="1"
-                             TextChanged="TxtRecherche_TextChanged">
-                        <TextBox.Style>
-                            <Style TargetType="TextBox">
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="TextBox">
-                                            <Border Background="{TemplateBinding Background}" 
-                                                    BorderBrush="{TemplateBinding BorderBrush}" 
-                                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                                    CornerRadius="8"
-                                                    Padding="{TemplateBinding Padding}">
-                                                <ScrollViewer x:Name="PART_ContentHost" />
-                                            </Border>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </TextBox.Style>
-                        <TextBox.Resources>
-                            <Style TargetType="{x:Type Border}">
-                                <Setter Property="CornerRadius" Value="8"/>
-                            </Style>
-                        </TextBox.Resources>
-                    </TextBox>
-                    <TextBlock Text="Rechercher un utilisateur..." 
-                               IsHitTestVisible="False"
-                               Foreground="#9E9E9E"
-                               FontSize="13"
-                               Margin="-290,0,0,0"
-                               Padding="10,8"
-                               VerticalAlignment="Center">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Visibility" Value="Collapsed"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Text, ElementName=TxtRecherche}" Value="">
-                                        <Setter Property="Visibility" Value="Visible"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
-                </StackPanel>
-            </Grid>
+            </StackPanel>
         </Border>
 
-        <!-- Pagination en bas (toujours visible) -->
-        <Border Grid.Row="2" Background="White" CornerRadius="10" Padding="15" Margin="0,0,0,0"
-                Panel.ZIndex="1000">
+        <!-- Pagination -->
+        <Border Grid.Row="2" Background="White" CornerRadius="10" Padding="15" Margin="0,10,0,0">
             <Border.Effect>
                 <DropShadowEffect Color="#E0E0E0" BlurRadius="10" ShadowDepth="2" Opacity="0.2" Direction="270"/>
             </Border.Effect>
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
@@ -300,7 +216,7 @@
                 </TextBlock>
 
                 <!-- Navigation pagination -->
-                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button x:Name="BtnPagePrecedente" Click="BtnPagePrecedente_Click"
                             Content="◀ Précédent" Padding="12,6" Margin="0,0,10,0"
                             Background="#F5F5F5" Foreground="#1A1919" BorderBrush="#E0E0E0" BorderThickness="1"
@@ -357,6 +273,191 @@
                                     <Trigger Property="IsMouseOver" Value="True">
                                         <Setter Property="Background" Value="#1565C0"/>
                                     </Trigger>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter Property="Opacity" Value="0.5"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Page> 
+                          IsReadOnly="True" CanUserAddRows="False" SelectionMode="Single"
+                          HeadersVisibility="Column" GridLinesVisibility="None"
+                          BorderThickness="0" RowHeight="50"
+                          AlternatingRowBackground="#FAFAFA" RowBackground="White"
+                          VerticalScrollBarVisibility="Disabled">
+                <DataGrid.ColumnHeaderStyle>
+                    <Style TargetType="DataGridColumnHeader">
+                        <Setter Property="Background" Value="#F5F5F5"/>
+                        <Setter Property="Foreground" Value="#1A1919"/>
+                        <Setter Property="FontWeight" Value="Bold"/>
+                        <Setter Property="FontSize" Value="13"/>
+                        <Setter Property="Padding" Value="15,12"/>
+                        <Setter Property="BorderThickness" Value="0,0,0,2"/>
+                        <Setter Property="BorderBrush" Value="#E0E0E0"/>
+                    </Style>
+                </DataGrid.ColumnHeaderStyle>
+                <DataGrid.CellStyle>
+                    <Style TargetType="DataGridCell">
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="Padding" Value="15,10"/>
+                        <Setter Property="FontSize" Value="13"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="DataGridCell">
+                                    <Border Padding="{TemplateBinding Padding}" Background="{TemplateBinding Background}">
+                                        <ContentPresenter VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </DataGrid.CellStyle>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="👤 Nom complet" Binding="{Binding Nom}" Width="*" FontWeight="SemiBold"/>
+                    <DataGridTextColumn Header="💼 Username Windows" Binding="{Binding UsernameWindows}" Width="*"/>
+                    <DataGridTextColumn Header="🎭 Rôle" Binding="{Binding RoleNom}" Width="180"/>
+                    <DataGridTemplateColumn Header="📊 Statut" Width="160">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Border x:Name="StatusBadge" CornerRadius="12" Padding="10,5" HorizontalAlignment="Center">
+                                    <TextBlock x:Name="StatusText" FontWeight="Bold" FontSize="11" TextAlignment="Center"/>
+                                </Border>
+                                <DataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding Statut}" Value="BAU">
+                                        <Setter TargetName="StatusBadge" Property="Background" Value="#E3F2FD"/>
+                                        <Setter TargetName="StatusText" Property="Foreground" Value="#1976D2"/>
+                                        <Setter TargetName="StatusText" Property="Text" Value="💼 BAU"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Statut}" Value="PROJECTS">
+                                        <Setter TargetName="StatusBadge" Property="Background" Value="#F3E5F5"/>
+                                        <Setter TargetName="StatusText" Property="Foreground" Value="#7B1FA2"/>
+                                        <Setter TargetName="StatusText" Property="Text" Value="🎯 PROJECTS"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Statut}" Value="Temporary">
+                                        <Setter TargetName="StatusBadge" Property="Background" Value="#FFF3E0"/>
+                                        <Setter TargetName="StatusText" Property="Foreground" Value="#F57C00"/>
+                                        <Setter TargetName="StatusText" Property="Text" Value="⏱️ Temporary"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Statut}" Value="Hiring ongoing">
+                                        <Setter TargetName="StatusBadge" Property="Background" Value="#E8F5E9"/>
+                                        <Setter TargetName="StatusText" Property="Foreground" Value="#388E3C"/>
+                                        <Setter TargetName="StatusText" Property="Text" Value="🔍 Hiring ongoing"/>
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="✅ Actif" Width="120">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Border x:Name="ActiveBadge" CornerRadius="12" Padding="10,5" HorizontalAlignment="Center">
+                                    <TextBlock x:Name="ActiveText" FontWeight="Bold" FontSize="11" TextAlignment="Center"/>
+                                </Border>
+                                <DataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding Actif}" Value="True">
+                                        <Setter TargetName="ActiveBadge" Property="Background" Value="#E8F5E9"/>
+                                        <Setter TargetName="ActiveText" Property="Foreground" Value="#00915A"/>
+                                        <Setter TargetName="ActiveText" Property="Text" Value="✅ Actif"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Actif}" Value="False">
+                                        <Setter TargetName="ActiveBadge" Property="Background" Value="#FFEBEE"/>
+                                        <Setter TargetName="ActiveText" Property="Foreground" Value="#C62828"/>
+                                        <Setter TargetName="ActiveText" Property="Text" Value="❌ Inactif"/>
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+                </DataGrid>
+            </ScrollViewer>
+        </Border>
+        
+        <!-- Pagination -->
+        <Border Grid.Row="2" Background="White" CornerRadius="10" Padding="15" Margin="0,15,0,0">
+            <Border.Effect>
+                <DropShadowEffect Color="#E0E0E0" BlurRadius="10" ShadowDepth="2" Opacity="0.2" Direction="270"/>
+            </Border.Effect>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- Info pagination -->
+                <TextBlock Grid.Column="0" VerticalAlignment="Center" FontSize="13" Foreground="#666">
+                    <Run Text="Affichage de "/>
+                    <Run x:Name="TxtDebutPage" Text="1" FontWeight="Bold"/>
+                    <Run Text=" à "/>
+                    <Run x:Name="TxtFinPage" Text="25" FontWeight="Bold"/>
+                    <Run Text=" sur "/>
+                    <Run x:Name="TxtTotalUtilisateurs" Text="0" FontWeight="Bold"/>
+                    <Run Text=" utilisateur(s)"/>
+                </TextBlock>
+                
+                <!-- Boutons navigation -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <Button x:Name="BtnPagePrecedente" Click="BtnPagePrecedente_Click" 
+                            Background="#F5F5F5" Foreground="#1A1919" Padding="12,8" 
+                            BorderThickness="1" BorderBrush="#E0E0E0" Cursor="Hand" 
+                            FontWeight="Bold" FontSize="12" Margin="0,0,8,0">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" 
+                                                    CornerRadius="6" Padding="{TemplateBinding Padding}"
+                                                    BorderBrush="{TemplateBinding BorderBrush}" 
+                                                    BorderThickness="{TemplateBinding BorderThickness}">
+                                                <TextBlock Text="◀ Précédent" FontSize="12" FontWeight="Bold"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter Property="Opacity" Value="0.5"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    
+                    <TextBlock x:Name="TxtPageActuelle" VerticalAlignment="Center" 
+                               FontSize="13" FontWeight="Bold" Margin="8,0"
+                               Foreground="#1A1919">
+                        <Run Text="Page "/>
+                        <Run x:Name="TxtNumeroPage" Text="1"/>
+                        <Run Text=" / "/>
+                        <Run x:Name="TxtNombrePages" Text="1"/>
+                    </TextBlock>
+                    
+                    <Button x:Name="BtnPageSuivante" Click="BtnPageSuivante_Click" 
+                            Background="#F5F5F5" Foreground="#1A1919" Padding="12,8" 
+                            BorderThickness="1" BorderBrush="#E0E0E0" Cursor="Hand" 
+                            FontWeight="Bold" FontSize="12" Margin="8,0,0,0">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" 
+                                                    CornerRadius="6" Padding="{TemplateBinding Padding}"
+                                                    BorderBrush="{TemplateBinding BorderBrush}" 
+                                                    BorderThickness="{TemplateBinding BorderThickness}">
+                                                <TextBlock Text="Suivant ▶" FontSize="12" FontWeight="Bold"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
                                     <Trigger Property="IsEnabled" Value="False">
                                         <Setter Property="Opacity" Value="0.5"/>
                                     </Trigger>

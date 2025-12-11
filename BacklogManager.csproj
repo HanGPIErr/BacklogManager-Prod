@@ -609,6 +609,7 @@
     <Compile Include="Shared\ProgressWidthConverter.cs" />
     <Compile Include="Shared\InverseBooleanToVisibilityConverter.cs" />
     <Compile Include="Converters\BarWidthConverter.cs" />
+    <Compile Include="Converters\CountToVisibilityConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

@@ -6,9 +6,11 @@
              xmlns:shared="clr-namespace:BacklogManager.Shared"
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="800"
-             Background="#F0F2F5">
+             Background="#F0F2F5"
+             xmlns:converters="clr-namespace:BacklogManager.Converters">
     <UserControl.Resources>
         <shared:BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
         
         <!-- Style pour les cartes principales avec effet glassmorphism -->
         <Style x:Key="MainCard" TargetType="Border">
@@ -625,69 +627,68 @@
                                                 
                                                 <!-- Conteneur de barre avec alignement bas -->
                                                 <Grid Grid.Row="0" VerticalAlignment="Bottom" HorizontalAlignment="Center">
-                                                    <!-- Barre verticale -->
-                                                    <Border Width="50" CornerRadius="8,8,0,0" VerticalAlignment="Bottom">
-                                                        <Border.Height>
-                                                            <MultiBinding Converter="{StaticResource BarWidthConverter}">
-                                                                <Binding Path="NbMembres"/>
-                                                                <Binding Path="MaxMembres"/>
-                                                            </MultiBinding>
-                                                        </Border.Height>
-                                                        <Border.Style>
-                                                            <Style TargetType="Border">
-                                                                <Setter Property="Background">
-                                                                    <Setter.Value>
-                                                                        <LinearGradientBrush StartPoint="0,1" EndPoint="0,0">
-                                                                            <GradientStop Color="#00915A" Offset="0"/>
-                                                                            <GradientStop Color="#00C078" Offset="1"/>
-                                                                        </LinearGradientBrush>
-                                                                    </Setter.Value>
-                                                                </Setter>
-                                                                <Style.Triggers>
-                                                                    <DataTrigger Binding="{Binding NbMembres}" Value="0">
-                                                                        <Setter Property="Background" Value="#E0E0E0"/>
-                                                                        <Setter Property="Opacity" Value="0.5"/>
-                                                                    </DataTrigger>
-                                                                    <DataTrigger Binding="{Binding EstTopEquipe}" Value="True">
-                                                                        <Setter Property="Background">
-                                                                            <Setter.Value>
-                                                                                <LinearGradientBrush StartPoint="0,1" EndPoint="0,0">
-                                                                                    <GradientStop Color="#FF9800" Offset="0"/>
-                                                                                    <GradientStop Color="#FFB74D" Offset="1"/>
-                                                                                </LinearGradientBrush>
-                                                                            </Setter.Value>
-                                                                        </Setter>
-                                                                        <Setter Property="Opacity" Value="1"/>
-                                                                    </DataTrigger>
-                                                                </Style.Triggers>
-                                                            </Style>
-                                                        </Border.Style>
-                                                        <Border.Effect>
-                                                            <DropShadowEffect BlurRadius="8" ShadowDepth="2" 
-                                                                             Opacity="0.2" Color="#00915A"/>
-                                                        </Border.Effect>
-                                                        
-                                                        <!-- Nombre au-dessus de la barre -->
+                                                    <Grid.ToolTip>
+                                                        <ToolTip Background="#2C2C2C" Foreground="White" 
+                                                                 BorderBrush="#555" BorderThickness="1" Padding="12,10"
+                                                                 FontFamily="Segoe UI" FontSize="12">
+                                                            <TextBlock Text="{Binding MembresToolTip}" 
+                                                                       TextWrapping="Wrap" MaxWidth="350"/>
+                                                        </ToolTip>
+                                                    </Grid.ToolTip>
+                                                    <!-- Barres empilées verticales -->
+                                                    <StackPanel Width="60" VerticalAlignment="Bottom">
+                                                        <!-- Nombre total au-dessus -->
                                                         <TextBlock Text="{Binding NbMembres}" 
                                                                    HorizontalAlignment="Center" 
-                                                                   VerticalAlignment="Top"
-                                                                   Margin="0,-25,0,0"
+                                                                   Margin="0,0,0,5"
                                                                    FontSize="16" FontWeight="Bold">
                                                             <TextBlock.Style>
                                                                 <Style TargetType="TextBlock">
-                                                                    <Setter Property="Foreground" Value="#00915A"/>
+                                                                    <Setter Property="Foreground" Value="#1A1919"/>
                                                                     <Style.Triggers>
                                                                         <DataTrigger Binding="{Binding NbMembres}" Value="0">
                                                                             <Setter Property="Foreground" Value="#999"/>
-                                                                        </DataTrigger>
-                                                                        <DataTrigger Binding="{Binding EstTopEquipe}" Value="True">
-                                                                            <Setter Property="Foreground" Value="#FF9800"/>
                                                                         </DataTrigger>
                                                                     </Style.Triggers>
                                                                 </Style>
                                                             </TextBlock.Style>
                                                         </TextBlock>
-                                                    </Border>
+                                                        
+                                                        <!-- Stack de barres de bas en haut : BAU (vert) - Hiring ongoing (gris) - Temporary (orange) - PROJECTS (violet) -->
+                                                        <StackPanel VerticalAlignment="Bottom">
+                                                            <!-- PROJECTS (violet) - en haut -->
+                                                            <Border Background="#7B1FA2" Height="{Binding HauteurProjects}" 
+                                                                    CornerRadius="8,8,0,0" Visibility="{Binding NbProjects, Converter={StaticResource CountToVisibilityConverter}}">
+                                                                <TextBlock Text="{Binding NbProjects}" Foreground="White" 
+                                                                           FontSize="11" FontWeight="Bold" 
+                                                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                            </Border>
+                                                            
+                                                            <!-- Temporary (orange) -->
+                                                            <Border Background="#F57C00" Height="{Binding HauteurTemporary}"
+                                                                    Visibility="{Binding NbTemporary, Converter={StaticResource CountToVisibilityConverter}}">
+                                                                <TextBlock Text="{Binding NbTemporary}" Foreground="White" 
+                                                                           FontSize="11" FontWeight="Bold" 
+                                                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                            </Border>
+                                                            
+                                                            <!-- Hiring ongoing (gris) -->
+                                                            <Border Background="#9E9E9E" Height="{Binding HauteurHiringOngoing}"
+                                                                    Visibility="{Binding NbHiringOngoing, Converter={StaticResource CountToVisibilityConverter}}">
+                                                                <TextBlock Text="{Binding NbHiringOngoing}" Foreground="White" 
+                                                                           FontSize="11" FontWeight="Bold" 
+                                                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                            </Border>
+                                                            
+                                                            <!-- BAU (vert) - en bas -->
+                                                            <Border Background="#00915A" Height="{Binding HauteurBAU}"
+                                                                    Visibility="{Binding NbBAU, Converter={StaticResource CountToVisibilityConverter}}">
+                                                                <TextBlock Text="{Binding NbBAU}" Foreground="White" 
+                                                                           FontSize="11" FontWeight="Bold" 
+                                                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                            </Border>
+                                                        </StackPanel>
+                                                    </StackPanel>
                                                 </Grid>
                                                 
                                                 <!-- Nom de l'équipe en bas -->
@@ -717,16 +718,39 @@
                             
                             <!-- Légende -->
                             <Border Background="#F8F9FA" CornerRadius="8" Padding="15,12" Margin="0,15,0,0">
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <Border Background="#00915A" Width="16" Height="16" CornerRadius="4" 
-                                            VerticalAlignment="Center"/>
-                                    <TextBlock Text="Équipes standard" FontSize="11" Foreground="#666" 
-                                               Margin="8,0,20,0" VerticalAlignment="Center"/>
-                                    <Border Background="#FF9800" Width="16" Height="16" CornerRadius="4" 
-                                            VerticalAlignment="Center"/>
-                                    <TextBlock Text="Équipe avec le plus de ressources" FontSize="11" 
-                                               Foreground="#666" Margin="8,0,0,0" VerticalAlignment="Center"/>
-                                </StackPanel>
+                                <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                                    <!-- BAU -->
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,20,0">
+                                        <Border Background="#00915A" Width="16" Height="16" CornerRadius="4" 
+                                                VerticalAlignment="Center"/>
+                                        <TextBlock Text="BAU" FontSize="11" Foreground="#666" 
+                                                   Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    
+                                    <!-- PROJECTS -->
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,20,0">
+                                        <Border Background="#7B1FA2" Width="16" Height="16" CornerRadius="4" 
+                                                VerticalAlignment="Center"/>
+                                        <TextBlock Text="PROJECTS" FontSize="11" Foreground="#666" 
+                                                   Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    
+                                    <!-- Temporary -->
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,20,0">
+                                        <Border Background="#F57C00" Width="16" Height="16" CornerRadius="4" 
+                                                VerticalAlignment="Center"/>
+                                        <TextBlock Text="Temporary" FontSize="11" Foreground="#666" 
+                                                   Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    
+                                    <!-- Hiring ongoing -->
+                                    <StackPanel Orientation="Horizontal">
+                                        <Border Background="#9E9E9E" Width="16" Height="16" CornerRadius="4" 
+                                                VerticalAlignment="Center"/>
+                                        <TextBlock Text="Hiring ongoing" FontSize="11" Foreground="#666" 
+                                                   Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </WrapPanel>
                             </Border>
                         </StackPanel>
                     </Border>

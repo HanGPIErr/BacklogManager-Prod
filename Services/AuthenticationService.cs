@@ -74,26 +74,6 @@ namespace BacklogManager.Services
                 _currentUser = utilisateurs.FirstOrDefault(u => 
                     u.UsernameWindows.Equals(username, StringComparison.OrdinalIgnoreCase) && u.Actif);
 
-                // Si l'utilisateur n'existe pas, le créer automatiquement avec le rôle Administrateur
-                if (_currentUser == null)
-                {
-                    var roles = _database.GetRoles();
-                    var roleAdmin = roles.FirstOrDefault(r => r.Type == RoleType.Administrateur);
-
-                    _currentUser = new Utilisateur
-                    {
-                        UsernameWindows = username,
-                        Nom = "",
-                        Prenom = username,
-                        Email = $"{username}@bnpparibas.com",
-                        RoleId = roleAdmin?.Id ?? 1,
-                        Actif = true,
-                        DateCreation = DateTime.Now
-                    };
-
-                    _database.AddOrUpdateUtilisateur(_currentUser);
-                }
-
                 if (_currentUser != null)
                 {
                     // Mettre à jour la date de dernière connexion

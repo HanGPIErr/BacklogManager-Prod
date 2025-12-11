@@ -875,6 +875,20 @@ namespace BacklogManager.Services
                     cmd.ExecuteNonQuery();
                 }
                 
+                // Vérifier et ajouter Statut si manquant dans Utilisateurs
+                cmd.CommandText = @"SELECT COUNT(*) FROM pragma_table_info('Utilisateurs') WHERE name='Statut';";
+                var hasStatut = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                
+                if (!hasStatut)
+                {
+                    cmd.CommandText = @"ALTER TABLE Utilisateurs ADD COLUMN Statut TEXT DEFAULT 'BAU';";
+                    cmd.ExecuteNonQuery();
+                    
+                    // Initialiser les utilisateurs existants avec 'BAU'
+                    cmd.CommandText = @"UPDATE Utilisateurs SET Statut = 'BAU' WHERE Statut IS NULL;";
+                    cmd.ExecuteNonQuery();
+                }
+                
                 // Vérifier et ajouter EquipesAssigneesIds si manquant dans Projets
                 cmd.CommandText = @"SELECT COUNT(*) FROM pragma_table_info('Projets') WHERE name='EquipesAssigneesIds';";
                 var hasEquipesAssigneesIds = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
@@ -1052,7 +1066,7 @@ namespace BacklogManager.Services
             using (var conn = GetConnection())
             {
                 conn.Open();
-                using (var cmd = new SQLiteCommand("SELECT Id, UsernameWindows, Nom, Prenom, Email, RoleId, Actif, DateCreation, DateDerniereConnexion, EquipeId FROM Utilisateurs", conn))
+                using (var cmd = new SQLiteCommand("SELECT Id, UsernameWindows, Nom, Prenom, Email, RoleId, Actif, DateCreation, DateDerniereConnexion, EquipeId, Statut FROM Utilisateurs", conn))
                 using (var reader = cmd.ExecuteReader())
             {
                 while (reader.Read())
@@ -1068,7 +1082,8 @@ namespace BacklogManager.Services
                         Actif = reader.GetInt32(6) == 1,
                         DateCreation = DateTime.Parse(reader.GetString(7)),
                         DateDerniereConnexion = reader.IsDBNull(8) ? (DateTime?)null : DateTime.Parse(reader.GetString(8)),
-                        EquipeId = reader.IsDBNull(9) ? (int?)null : reader.GetInt32(9)
+                        EquipeId = reader.IsDBNull(9) ? (int?)null : reader.GetInt32(9),
+                        Statut = reader.IsDBNull(10) ? "BAU" : reader.GetString(10)
                     });
                 }
             }
@@ -1242,14 +1257,14 @@ namespace BacklogManager.Services
                     {
                         if (utilisateur.Id == 0)
                         {
-                            cmd.CommandText = @"INSERT INTO Utilisateurs (UsernameWindows, Nom, Prenom, Email, RoleId, EquipeId, Actif, DateCreation, DateDerniereConnexion)
-                                VALUES (@UsernameWindows, @Nom, @Prenom, @Email, @RoleId, @EquipeId, @Actif, @DateCreation, @DateDerniereConnexion);
+                            cmd.CommandText = @"INSERT INTO Utilisateurs (UsernameWindows, Nom, Prenom, Email, RoleId, EquipeId, Statut, Actif, DateCreation, DateDerniereConnexion)
+                                VALUES (@UsernameWindows, @Nom, @Prenom, @Email, @RoleId, @EquipeId, @Statut, @Actif, @DateCreation, @DateDerniereConnexion);
                                 SELECT last_insert_rowid();";
                         }
                         else
                         {
                             cmd.CommandText = @"UPDATE Utilisateurs SET UsernameWindows = @UsernameWindows, Nom = @Nom, Prenom = @Prenom,
-                                Email = @Email, RoleId = @RoleId, EquipeId = @EquipeId, Actif = @Actif, DateDerniereConnexion = @DateDerniereConnexion
+                                Email = @Email, RoleId = @RoleId, EquipeId = @EquipeId, Statut = @Statut, Actif = @Actif, DateDerniereConnexion = @DateDerniereConnexion
                                 WHERE Id = @Id";
                             cmd.Parameters.AddWithValue("@Id", utilisateur.Id);
                         }
@@ -1260,6 +1275,7 @@ namespace BacklogManager.Services
                         cmd.Parameters.AddWithValue("@Email", utilisateur.Email ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@RoleId", utilisateur.RoleId);
                         cmd.Parameters.AddWithValue("@EquipeId", utilisateur.EquipeId.HasValue ? (object)utilisateur.EquipeId.Value : DBNull.Value);
+                        cmd.Parameters.AddWithValue("@Statut", utilisateur.Statut ?? "BAU");
                         cmd.Parameters.AddWithValue("@Actif", utilisateur.Actif ? 1 : 0);
                         cmd.Parameters.AddWithValue("@DateCreation", utilisateur.DateCreation.ToString("yyyy-MM-dd HH:mm:ss"));
                         cmd.Parameters.AddWithValue("@DateDerniereConnexion", utilisateur.DateDerniereConnexion?.ToString("yyyy-MM-dd HH:mm:ss") ?? (object)DBNull.Value);

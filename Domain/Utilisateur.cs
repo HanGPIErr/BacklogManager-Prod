@@ -17,5 +17,8 @@ namespace BacklogManager.Domain
         // Phase 1 : Gestion des équipes
         public int? EquipeId { get; set; }                  // Équipe principale de l'utilisateur
         public Equipe Equipe { get; set; }                  // Navigation property
+        
+        // Statut de l'utilisateur : BAU, PROJECTS, Temporary, Hiring ongoing
+        public string Statut { get; set; }
     }
 }

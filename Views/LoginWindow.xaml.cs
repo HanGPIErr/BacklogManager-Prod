@@ -59,28 +59,8 @@ namespace BacklogManager.Views
         {
             try
             {
-                // Vérifier si un changement d'utilisateur est demandé
-                var switchFile = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".switch_user");
-                string username = null;
-                
-                if (System.IO.File.Exists(switchFile))
-                {
-                    username = System.IO.File.ReadAllText(switchFile).Trim();
-                    System.IO.File.Delete(switchFile); // Supprimer le fichier après lecture
-                }
-                else
-                {
-                    // Récupérer le username Windows
-                    string windowsUsername = WindowsIdentity.GetCurrent().Name;
-                    if (windowsUsername.Contains("\\"))
-                    {
-                        windowsUsername = windowsUsername.Split('\\')[1];
-                    }
-                    username = windowsUsername;
-                }
-
-                // Tenter la connexion automatique
-                bool success = _authService.LoginWithUsername(username);
+                // Connexion automatique avec le compte admin par défaut
+                bool success = _authService.LoginWithUsername("admin");
 
                 if (success)
                 {
@@ -103,17 +83,13 @@ namespace BacklogManager.Views
         {
             try
             {
-                string windowsUsername = WindowsIdentity.GetCurrent().Name;
-                if (windowsUsername.Contains("\\"))
-                {
-                    windowsUsername = windowsUsername.Split('\\')[1];
-                }
-                TxtUsername.Text = string.Format("Connecté en tant que: {0}", windowsUsername);
-                TxtStatut.Text = "Entrez votre identifiant ci-dessus";
+                TxtUsername.Text = "Connexion automatique en cours...";
+                TxtUsernameInput.Text = "admin";
+                TxtStatut.Text = "";
             }
             catch (Exception ex)
             {
-                TxtUsername.Text = "Impossible de récupérer le username Windows";
+                TxtUsername.Text = "Erreur de connexion";
                 TxtErreur.Text = ex.Message;
                 TxtErreur.Visibility = Visibility.Visible;
             }

@@ -811,26 +811,71 @@ namespace BacklogManager.Views
         {
             try
             {
-                // Calculer le nombre de membres pour chaque équipe (sans compter les managers)
+                // Calculer le nombre de membres par statut pour chaque équipe (sans compter les managers)
                 var equipesStats = equipes
                     .Where(e => e.Actif)
-                    .Select(e => new EquipeGraphiqueViewModel
+                    .Select(e =>
                     {
-                        Nom = e.Nom,
-                        NbMembres = utilisateurs.Count(u => u.EquipeId == e.Id && u.Actif && u.Id != e.ManagerId)
+                        var membresEquipe = utilisateurs.Where(u => u.EquipeId == e.Id && u.Actif && u.Id != e.ManagerId).ToList();
+                        var manager = e.ManagerId.HasValue ? utilisateurs.FirstOrDefault(u => u.Id == e.ManagerId.Value) : null;
+                        
+                        // Construire le tooltip avec la liste des membres groupés par statut
+                        var tooltip = new System.Text.StringBuilder();
+                        tooltip.AppendLine($"📋 {e.Nom}");
+                        tooltip.AppendLine($"━━━━━━━━━━━━━━━━━━━━");
+                        
+                        // Afficher le manager s'il existe
+                        if (manager != null)
+                        {
+                            tooltip.AppendLine($"👨‍💼 Manager: {manager.Prenom} {manager.Nom}");
+                            tooltip.AppendLine();
+                        }
+                        
+                        tooltip.AppendLine($"Total: {membresEquipe.Count} membre(s)\n");
+                        
+                        // Grouper par statut
+                        var parStatut = membresEquipe.GroupBy(u => u.Statut ?? "Non défini").OrderBy(g => g.Key);
+                        foreach (var groupe in parStatut)
+                        {
+                            var icone = groupe.Key switch
+                            {
+                                "BAU" => "💼",
+                                "PROJECTS" => "🎯",
+                                "Temporary" => "⏱️",
+                                "Hiring ongoing" => "🔍",
+                                _ => "👤"
+                            };
+                            
+                            tooltip.AppendLine($"{icone} {groupe.Key} ({groupe.Count()}):");
+                            foreach (var membre in groupe.OrderBy(u => u.Nom))
+                            {
+                                tooltip.AppendLine($"   • {membre.Prenom} {membre.Nom}");
+                            }
+                            tooltip.AppendLine();
+                        }
+                        
+                        return new EquipeGraphiqueViewModel
+                        {
+                            Nom = e.Nom,
+                            NbBAU = membresEquipe.Count(u => u.Statut == "BAU"),
+                            NbProjects = membresEquipe.Count(u => u.Statut == "PROJECTS"),
+                            NbTemporary = membresEquipe.Count(u => u.Statut == "Temporary"),
+                            NbHiringOngoing = membresEquipe.Count(u => u.Statut == "Hiring ongoing"),
+                            NbMembres = membresEquipe.Count,
+                            MembresToolTip = tooltip.ToString().TrimEnd()
+                        };
                     })
-                    .OrderByDescending(e => e.NbMembres)  // Afficher toutes les équipes même si 0 membres
+                    .OrderByDescending(e => e.NbMembres)
                     .ToList();
 
                 if (equipesStats.Any())
                 {
                     var maxMembres = equipesStats.Any(e => e.NbMembres > 0) ? equipesStats.Max(e => e.NbMembres) : 1;
                     
-                    // Marquer l'équipe avec le plus de membres
+                    // Définir le max pour les calculs de hauteur
                     foreach (var equipe in equipesStats)
                     {
                         equipe.MaxMembres = maxMembres;
-                        equipe.EstTopEquipe = (equipe.NbMembres == maxMembres && equipe.NbMembres > 0);
                     }
 
                     GraphiqueBarresEquipes.ItemsSource = equipesStats;
@@ -971,5 +1016,20 @@ namespace BacklogManager.Views
         public int NbMembres { get; set; }
         public int MaxMembres { get; set; }
         public bool EstTopEquipe { get; set; }
+        
+        // Compteurs par statut
+        public int NbBAU { get; set; }
+        public int NbProjects { get; set; }
+        public int NbTemporary { get; set; }
+        public int NbHiringOngoing { get; set; }
+        
+        // Liste des membres pour le tooltip
+        public string MembresToolTip { get; set; }
+        
+        // Hauteurs pour les barres empilées (en pixels, basé sur hauteur max de 250px)
+        public double HauteurBAU => (MaxMembres > 0) ? (NbBAU * 250.0 / MaxMembres) : 0;
+        public double HauteurProjects => (MaxMembres > 0) ? (NbProjects * 250.0 / MaxMembres) : 0;
+        public double HauteurTemporary => (MaxMembres > 0) ? (NbTemporary * 250.0 / MaxMembres) : 0;
+        public double HauteurHiringOngoing => (MaxMembres > 0) ? (NbHiringOngoing * 250.0 / MaxMembres) : 0;
     }
 }

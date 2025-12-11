@@ -68,11 +68,23 @@ namespace BacklogManager.Views
                 ChkActif.IsChecked = _utilisateur.Actif;
                 CboRole.SelectedValue = _utilisateur.RoleId;
                 CboEquipe.SelectedValue = _utilisateur.EquipeId.HasValue ? _utilisateur.EquipeId.Value : 0;
+                
+                // Sélectionner le statut
+                foreach (System.Windows.Controls.ComboBoxItem item in CboStatut.Items)
+                {
+                    if (item.Tag.ToString() == _utilisateur.Statut)
+                    {
+                        CboStatut.SelectedItem = item;
+                        break;
+                    }
+                }
             }
             else
             {
                 // Pour un nouvel utilisateur, sélectionner "Aucune équipe" par défaut
                 CboEquipe.SelectedValue = 0;
+                // Sélectionner BAU par défaut
+                CboStatut.SelectedIndex = 0;
             }
         }
 
@@ -135,6 +147,15 @@ namespace BacklogManager.Views
                 return false;
             }
 
+            // Validation Statut
+            if (CboStatut.SelectedItem == null)
+            {
+                TxtErreur.Text = "Veuillez sélectionner un statut.";
+                BrdErreur.Visibility = Visibility.Visible;
+                CboStatut.Focus();
+                return false;
+            }
+
             return true;
         }
 
@@ -162,6 +183,7 @@ namespace BacklogManager.Views
                 _utilisateur.UsernameWindows = TxtUsernameWindows.Text.Trim();
                 _utilisateur.RoleId = (int)CboRole.SelectedValue;
                 _utilisateur.EquipeId = equipeId;
+                _utilisateur.Statut = ((System.Windows.Controls.ComboBoxItem)CboStatut.SelectedItem).Tag.ToString();
                 _utilisateur.Actif = ChkActif.IsChecked ?? true;
 
                 if (_isNewUser)
