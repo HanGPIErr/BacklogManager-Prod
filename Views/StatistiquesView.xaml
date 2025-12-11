@@ -6,6 +6,10 @@
         <!-- Converter pour la visibilité -->
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         
+        <!-- Converter pour inverser la visibilité -->
+        <local:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"
+             xmlns:local="clr-namespace:BacklogManager.Shared"/>
+        
         <!-- Style des cartes -->
         <Style x:Key="StatCardStyle" TargetType="Border">
             <Setter Property="Background">
@@ -30,7 +34,9 @@
     </UserControl.Resources>
 
     <Grid>
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <!-- Page principale des statistiques -->
+        <ScrollViewer x:Name="ScrollViewerStatsPrincipales" VerticalScrollBarVisibility="Auto"
+                      Visibility="{Binding AfficherPagePrincipale, Converter={StaticResource BooleanToVisibilityConverter}}">
             <StackPanel Margin="20">
                 <!-- En-tête -->
                 <Border CornerRadius="10" Padding="25" Margin="0,0,0,25">
@@ -511,10 +517,39 @@
                 <!-- Répartition des ressources par équipe -->
                 <Border Style="{StaticResource StatCardStyle}" Margin="10,0,10,20">
                     <StackPanel>
-                        <TextBlock Text="🏢 Répartition des ressources par équipe" 
-                                   FontSize="16" FontWeight="Bold" Foreground="#1A1919" Margin="0,0,0,5"/>
-                        <TextBlock Text="Nombre de membres actifs (hors managers) par équipe" 
-                                   FontSize="11" Foreground="#666666" FontStyle="Italic" Margin="0,0,0,15"/>
+                        <Grid Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="🏢 Répartition des ressources par équipe" 
+                                           FontSize="16" FontWeight="Bold" Foreground="#1A1919" Margin="0,0,0,5"/>
+                                <TextBlock Text="Nombre de membres actifs (hors managers) par équipe" 
+                                           FontSize="11" Foreground="#666666" FontStyle="Italic"/>
+                            </StackPanel>
+                            <Button Grid.Column="1" Click="BtnVoirToutesRessources_Click"
+                                    Cursor="Hand" Padding="12,8" BorderThickness="0">
+                                <Button.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                        <GradientStop Color="#00915A" Offset="0"/>
+                                        <GradientStop Color="#00C078" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Button.Background>
+                                <Button.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="8"/>
+                                    </Style>
+                                </Button.Resources>
+                                <Button.Effect>
+                                    <DropShadowEffect Color="#00915A" BlurRadius="10" ShadowDepth="2" Opacity="0.3"/>
+                                </Button.Effect>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="👁️ " FontSize="14" Foreground="White"/>
+                                    <TextBlock Text="Voir détail complet" FontSize="13" FontWeight="Bold" Foreground="White"/>
+                                </StackPanel>
+                            </Button>
+                        </Grid>
                         <ItemsControl ItemsSource="{Binding RessourcesParEquipe}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
@@ -523,44 +558,141 @@
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Background="#F9F9F9" CornerRadius="8" Padding="12" Margin="5"
-                                            BorderBrush="#E0E0E0" BorderThickness="1">
+                                    <Border Background="White" CornerRadius="12" Padding="18" Margin="8"
+                                            Tag="{Binding EquipeId}" MouseLeftButtonDown="BtnVoirEquipeDetail_Click"
+                                            Cursor="Hand">
+                                        <Border.Effect>
+                                            <DropShadowEffect Color="#D0D0D0" BlurRadius="12" ShadowDepth="2" Opacity="0.15"/>
+                                        </Border.Effect>
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="BorderBrush" Value="Transparent"/>
+                                                <Setter Property="BorderThickness" Value="2"/>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="BorderBrush">
+                                                            <Setter.Value>
+                                                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                                    <GradientStop Color="#00915A" Offset="0"/>
+                                                                    <GradientStop Color="#00C078" Offset="1"/>
+                                                                </LinearGradientBrush>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                        <Setter Property="Effect">
+                                                            <Setter.Value>
+                                                                <DropShadowEffect Color="#00915A" BlurRadius="16" ShadowDepth="3" Opacity="0.25"/>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
                                         <StackPanel>
-                                            <!-- En-tête équipe -->
-                                            <Grid Margin="0,0,0,8">
-                                                <StackPanel Orientation="Horizontal">
-                                                    <Border Background="#E7F5F1" CornerRadius="16" Padding="6,3" Margin="0,0,8,0">
-                                                        <TextBlock Text="🏢" FontSize="12"/>
-                                                    </Border>
-                                                    <TextBlock Text="{Binding NomEquipe}" FontWeight="Bold" FontSize="12" 
-                                                               Foreground="#1A1919" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                            <!-- En-tête équipe avec icône gradient -->
+                                            <Grid Margin="0,0,0,12">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Border Grid.Column="0" Width="40" Height="40" CornerRadius="10" Margin="0,0,10,0">
+                                                    <Border.Background>
+                                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                            <GradientStop Color="#E7F5F1" Offset="0"/>
+                                                            <GradientStop Color="#B2DFDB" Offset="1"/>
+                                                        </LinearGradientBrush>
+                                                    </Border.Background>
+                                                    <TextBlock Text="🏢" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding NomEquipe}" FontWeight="Bold" FontSize="13" 
+                                                               Foreground="#1A1919" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"/>
+                                                    <TextBlock FontSize="10" Margin="0,3,0,0">
+                                                        <Run Text="👤 Manager:" Foreground="#666"/>
+                                                        <Run Text=" " />
+                                                        <Run Text="{Binding NomManager, Mode=OneWay}" Foreground="#00915A" FontWeight="SemiBold"/>
+                                                    </TextBlock>
+                                                    <TextBlock Text="{Binding CodeEquipe}" FontSize="9" 
+                                                               Foreground="#999" FontWeight="SemiBold" Margin="0,2,0,0"/>
                                                 </StackPanel>
                                             </Grid>
                                             
-                                            <!-- Nombre de membres - grand -->
-                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,5">
-                                                <TextBlock Text="{Binding NbMembres}" FontWeight="Bold" FontSize="28" 
-                                                           Foreground="#00915A" VerticalAlignment="Center"/>
-                                                <TextBlock Text=" membres" FontSize="11" Foreground="#666" 
-                                                           VerticalAlignment="Center" Margin="4,0,0,0"/>
-                                            </StackPanel>
+                                            <!-- Séparateur subtil -->
+                                            <Border Height="1" Background="#E0E0E0" Margin="0,0,0,12"/>
                                             
-                                            <!-- Barre comparative -->
-                                            <Grid Height="20" Margin="0,8,0,8">
-                                                <Border Background="#E0E0E0" CornerRadius="4"/>
-                                                <Border Background="#00915A" CornerRadius="4" HorizontalAlignment="Left"
-                                                        Width="{Binding LargeurBarre, Mode=OneWay}" Height="20"/>
+                                            <!-- Nombre de membres - mise en valeur -->
+                                            <Grid Margin="0,0,0,12">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Border Grid.Column="0" Background="#F5F5F5" CornerRadius="8" Padding="12,8">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="{Binding NbMembres}" FontWeight="Bold" FontSize="32" 
+                                                                   Foreground="#00915A" VerticalAlignment="Center"/>
+                                                        <StackPanel Margin="8,0,0,0" VerticalAlignment="Center">
+                                                            <TextBlock Text="membres" FontSize="11" Foreground="#666" FontWeight="SemiBold"/>
+                                                            <TextBlock Text="actifs" FontSize="9" Foreground="#999"/>
+                                                        </StackPanel>
+                                                    </StackPanel>
+                                                </Border>
                                             </Grid>
                                             
-                                            <!-- Détails compacts -->
-                                            <StackPanel>
-                                                <TextBlock FontSize="10" Foreground="#666" HorizontalAlignment="Center" Margin="0,2">
-                                                    <Run Text="📊"/><Run Text=" "/><Run Text="{Binding NbProjets}" FontWeight="SemiBold"/><Run Text=" projets"/>
-                                                </TextBlock>
-                                                <TextBlock FontSize="10" Foreground="#666" HorizontalAlignment="Center" Margin="0,2">
-                                                    <Run Text="⚖️"/><Run Text=" "/><Run Text="{Binding ChargeParMembre, Mode=OneWay, StringFormat='{}{0:F1}'}" FontWeight="SemiBold"/><Run Text=" proj/membre"/>
-                                                </TextBlock>
+                                            <!-- Barre comparative stylée -->
+                                            <StackPanel Margin="0,0,0,10">
+                                                <TextBlock Text="Taille relative" FontSize="9" Foreground="#999" Margin="0,0,0,4"/>
+                                                <Grid Height="8">
+                                                    <Border Background="#F0F0F0" CornerRadius="4"/>
+                                                    <Border CornerRadius="4" HorizontalAlignment="Left"
+                                                            Width="{Binding LargeurBarre, Mode=OneWay}" Height="8">
+                                                        <Border.Background>
+                                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                                <GradientStop Color="#00915A" Offset="0"/>
+                                                                <GradientStop Color="#00C078" Offset="1"/>
+                                                            </LinearGradientBrush>
+                                                        </Border.Background>
+                                                    </Border>
+                                                </Grid>
                                             </StackPanel>
+                                            
+                                            <!-- Stats en grille -->
+                                            <Grid Margin="0,8,0,0">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                
+                                                <Border Grid.Column="0" Background="#F8F9FA" CornerRadius="6" Padding="8,6" Margin="0,0,4,0">
+                                                    <StackPanel>
+                                                        <TextBlock Text="📊 Projets" FontSize="9" Foreground="#666" Margin="0,0,0,2"/>
+                                                        <TextBlock Text="{Binding NbProjets}" FontWeight="Bold" FontSize="16" 
+                                                                   Foreground="#1A1919" HorizontalAlignment="Center"/>
+                                                    </StackPanel>
+                                                </Border>
+                                                
+                                                <Border Grid.Column="1" Background="#F8F9FA" CornerRadius="6" Padding="8,6" Margin="4,0,0,0">
+                                                    <StackPanel>
+                                                        <TextBlock Text="⚖️ Charge" FontSize="9" Foreground="#666" Margin="0,0,0,2"/>
+                                                        <TextBlock FontWeight="Bold" FontSize="16" Foreground="#1A1919" HorizontalAlignment="Center">
+                                                            <Run Text="{Binding ChargeParMembre, Mode=OneWay, StringFormat='{}{0:F1}'}"/>
+                                                        </TextBlock>
+                                                    </StackPanel>
+                                                </Border>
+                                            </Grid>
+                                            
+                                            <!-- Call to action -->
+                                            <Border Margin="0,12,0,0" Padding="8,6" CornerRadius="8">
+                                                <Border.Background>
+                                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                        <GradientStop Color="#E3F2FD" Offset="0"/>
+                                                        <GradientStop Color="#BBDEFB" Offset="1"/>
+                                                    </LinearGradientBrush>
+                                                </Border.Background>
+                                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                    <TextBlock Text="👁️" FontSize="12" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                                    <TextBlock Text="Voir les membres" FontSize="11" 
+                                                               Foreground="#0D47A1" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                                </StackPanel>
+                                            </Border>
                                         </StackPanel>
                                     </Border>
                                 </DataTemplate>
@@ -623,5 +755,288 @@
                 </Border>
             </StackPanel>
         </ScrollViewer>
+        
+        <!-- Page détail des ressources -->
+        <Grid x:Name="GridPageRessources" 
+              Visibility="{Binding AfficherPageRessources, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            
+            <!-- Header avec bouton retour -->
+            <Border Grid.Row="0" Padding="20,15" Margin="0,0,0,10">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="#00915A" Offset="0"/>
+                        <GradientStop Color="#00C078" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <Button Grid.Column="0" Click="BtnRetourStatistiques_Click" 
+                            Padding="12,8" Margin="0,0,15,0" Cursor="Hand"
+                            BorderThickness="0">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background" Value="White"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" 
+                                                    CornerRadius="8"
+                                                    Padding="{TemplateBinding Padding}">
+                                                <Border.Effect>
+                                                    <DropShadowEffect Color="#00915A" BlurRadius="8" ShadowDepth="0" Opacity="0.3"/>
+                                                </Border.Effect>
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="#F0F0F0"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Button.Style>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="← " FontSize="16" Foreground="#00915A" FontWeight="Bold"/>
+                            <TextBlock Text="Retour" FontSize="13" Foreground="#00915A" FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </Button>
+                    
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock x:Name="TxtTitrePageRessources" Text="🏢 Détail des ressources par équipe" 
+                                   FontSize="22" FontWeight="Bold" Foreground="White"/>
+                        <TextBlock x:Name="TxtSousTitrePageRessources" Text="Vue détaillée de la charge et des projets par ressource" 
+                                   FontSize="13" Foreground="White" Opacity="0.9" Margin="0,3,0,0"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            
+            <!-- Contenu de la page ressources (include du contenu de RessourcesEquipeDetailWindow) -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="20,0,20,20">
+                <StackPanel>
+                    <!-- Statistiques résumées -->
+                    <Grid Margin="0,0,0,20">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <Border Grid.Column="0" Background="White" CornerRadius="10" Padding="20" Margin="5">
+                            <Border.Effect>
+                                <DropShadowEffect Color="#D0D0D0" BlurRadius="10" ShadowDepth="0" Opacity="0.15"/>
+                            </Border.Effect>
+                            <StackPanel>
+                                <TextBlock Text="👥" FontSize="24" HorizontalAlignment="Center" Margin="0,0,0,5"/>
+                                <TextBlock x:Name="TxtNbTotalRessources" Text="0" FontSize="32" FontWeight="Bold" 
+                                           Foreground="#00915A" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Ressources" FontSize="12" Foreground="#666" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        
+                        <Border Grid.Column="1" Background="White" CornerRadius="10" Padding="20" Margin="5">
+                            <Border.Effect>
+                                <DropShadowEffect Color="#D0D0D0" BlurRadius="10" ShadowDepth="0" Opacity="0.15"/>
+                            </Border.Effect>
+                            <StackPanel>
+                                <TextBlock Text="🏢" FontSize="24" HorizontalAlignment="Center" Margin="0,0,0,5"/>
+                                <TextBlock x:Name="TxtNbEquipesActives" Text="0" FontSize="32" FontWeight="Bold" 
+                                           Foreground="#2196F3" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Équipes actives" FontSize="12" Foreground="#666" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        
+                        <Border Grid.Column="2" Background="White" CornerRadius="10" Padding="20" Margin="5">
+                            <Border.Effect>
+                                <DropShadowEffect Color="#D0D0D0" BlurRadius="10" ShadowDepth="0" Opacity="0.15"/>
+                            </Border.Effect>
+                            <StackPanel>
+                                <TextBlock Text="📊" FontSize="24" HorizontalAlignment="Center" Margin="0,0,0,5"/>
+                                <TextBlock x:Name="TxtNbProjetsActifs" Text="0" FontSize="32" FontWeight="Bold" 
+                                           Foreground="#FF9800" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Projets actifs" FontSize="12" Foreground="#666" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        
+                        <Border Grid.Column="3" Background="White" CornerRadius="10" Padding="20" Margin="5">
+                            <Border.Effect>
+                                <DropShadowEffect Color="#D0D0D0" BlurRadius="10" ShadowDepth="0" Opacity="0.15"/>
+                            </Border.Effect>
+                            <StackPanel>
+                                <TextBlock Text="⚖️" FontSize="24" HorizontalAlignment="Center" Margin="0,0,0,5"/>
+                                <TextBlock x:Name="TxtChargeMoyenne" Text="0.0" FontSize="32" FontWeight="Bold" 
+                                           Foreground="#9C27B0" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Charge moyenne" FontSize="12" Foreground="#666" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                    
+                    <!-- Filtres par équipe -->
+                    <Border Background="White" CornerRadius="10" Padding="15" Margin="0,0,0,20">
+                        <Border.Effect>
+                            <DropShadowEffect Color="#D0D0D0" BlurRadius="10" ShadowDepth="0" Opacity="0.15"/>
+                        </Border.Effect>
+                        <StackPanel>
+                            <TextBlock Text="🔍 Filtrer par équipe" FontSize="14" FontWeight="Bold" Foreground="#1A1919" Margin="0,0,0,10"/>
+                            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                                <WrapPanel x:Name="WrapPanelFiltresEquipes" Orientation="Horizontal"/>
+                            </ScrollViewer>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- Liste des ressources -->
+                    <Border Background="White" CornerRadius="10" Padding="20" Margin="0,0,0,20">
+                        <Border.Effect>
+                            <DropShadowEffect Color="#D0D0D0" BlurRadius="10" ShadowDepth="0" Opacity="0.15"/>
+                        </Border.Effect>
+                        <StackPanel>
+                            <TextBlock Text="📋 Ressources et charge de travail" FontSize="16" FontWeight="Bold" 
+                                       Foreground="#1A1919" Margin="0,0,0,15"/>
+                            <ItemsControl x:Name="ItemsControlRessources">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <UniformGrid Columns="3" HorizontalAlignment="Stretch"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="#FAFAFA" CornerRadius="8" Padding="15" Margin="5"
+                                                BorderBrush="#E0E0E0" BorderThickness="1">
+                                            <StackPanel>
+                                                <!-- Avatar et nom -->
+                                                <Grid Margin="0,0,0,10">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Border Grid.Column="0" Background="#E7F5F1" Width="40" Height="40" 
+                                                            CornerRadius="20" Margin="0,0,10,0">
+                                                        <TextBlock Text="👤" FontSize="20" HorizontalAlignment="Center" 
+                                                                   VerticalAlignment="Center"/>
+                                                    </Border>
+                                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding Nom}" FontWeight="Bold" FontSize="13" 
+                                                                   Foreground="#1A1919" TextTrimming="CharacterEllipsis"/>
+                                                        <TextBlock FontSize="11" Foreground="#666">
+                                                            <Run Text="{Binding NomEquipe}"/>
+                                                            <Run Text=" • "/>
+                                                            <Run Text="{Binding CodeEquipe}"/>
+                                                        </TextBlock>
+                                                    </StackPanel>
+                                                </Grid>
+                                                
+                                                <!-- Badge rôle -->
+                                                <Border Background="#E3F2FD" CornerRadius="6" Padding="8,4" Margin="0,0,0,10"
+                                                        HorizontalAlignment="Left">
+                                                    <TextBlock Text="{Binding Role}" FontSize="10" Foreground="#1976D2" 
+                                                               FontWeight="SemiBold"/>
+                                                </Border>
+                                                
+                                                <!-- Statistiques -->
+                                                <Grid Margin="0,0,0,10">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel Grid.Column="0">
+                                                        <TextBlock Text="{Binding NbProjets}" FontSize="18" FontWeight="Bold" 
+                                                                   Foreground="#00915A" HorizontalAlignment="Center"/>
+                                                        <TextBlock Text="projets" FontSize="10" Foreground="#666" 
+                                                                   HorizontalAlignment="Center"/>
+                                                    </StackPanel>
+                                                    <StackPanel Grid.Column="1">
+                                                        <TextBlock Text="{Binding NbTachesActives}" FontSize="18" FontWeight="Bold" 
+                                                                   Foreground="#FF9800" HorizontalAlignment="Center"/>
+                                                        <TextBlock Text="tâches actives" FontSize="10" Foreground="#666" 
+                                                                   HorizontalAlignment="Center"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                                
+                                                <!-- Jauge de charge -->
+                                                <StackPanel Margin="0,0,0,10">
+                                                    <Grid Margin="0,0,0,5">
+                                                        <TextBlock Text="Charge de travail" FontSize="10" Foreground="#666" 
+                                                                   HorizontalAlignment="Left"/>
+                                                        <TextBlock Text="{Binding NiveauCharge}" FontSize="10" 
+                                                                   Foreground="{Binding CouleurChargeBrush}" 
+                                                                   FontWeight="Bold" HorizontalAlignment="Right"/>
+                                                    </Grid>
+                                                    <Grid Height="12">
+                                                        <Border Background="#E0E0E0" CornerRadius="6"/>
+                                                        <Border Background="{Binding CouleurChargeBrush}" CornerRadius="6" 
+                                                                HorizontalAlignment="Left" Height="12"
+                                                                Width="{Binding LargeurBarreCharge}"/>
+                                                    </Grid>
+                                                </StackPanel>
+                                                
+                                                <!-- Liste des projets -->
+                                                <Border Background="White" CornerRadius="6" Padding="10" 
+                                                        BorderBrush="#E0E0E0" BorderThickness="1">
+                                                    <StackPanel>
+                                                        <TextBlock Text="📁 Projets assignés" FontSize="10" FontWeight="Bold" 
+                                                                   Foreground="#1A1919" Margin="0,0,0,5"/>
+                                                        <ItemsControl ItemsSource="{Binding ListeProjets}" MaxHeight="120">
+                                                            <ItemsControl.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <Border Background="#F5F5F5" CornerRadius="4" Padding="6,3" Margin="0,2">
+                                                                        <Grid>
+                                                                            <TextBlock Text="{Binding Nom}" FontSize="10" 
+                                                                                       Foreground="#333" TextTrimming="CharacterEllipsis"/>
+                                                                            <Border Background="#00915A" CornerRadius="8" 
+                                                                                    Padding="4,2" HorizontalAlignment="Right">
+                                                                                <TextBlock Text="{Binding NbTaches}" FontSize="9" 
+                                                                                           Foreground="White" FontWeight="Bold"/>
+                                                                            </Border>
+                                                                        </Grid>
+                                                                    </Border>
+                                                                </DataTemplate>
+                                                            </ItemsControl.ItemTemplate>
+                                                        </ItemsControl>
+                                                        <TextBlock Text="Aucun projet assigné" FontSize="10" 
+                                                                   Foreground="#999" FontStyle="Italic" 
+                                                                   Visibility="{Binding AucunProjet, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                                                   HorizontalAlignment="Center" Margin="0,10,0,0"/>
+                                                    </StackPanel>
+                                                </Border>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- Légende -->
+                    <Border Background="#FFF9E5" CornerRadius="8" Padding="15" BorderBrush="#FFE082" BorderThickness="1">
+                        <StackPanel>
+                            <TextBlock Text="ℹ️ Légende des niveaux de charge" FontSize="12" FontWeight="Bold" 
+                                       Foreground="#1A1919" Margin="0,0,0,8"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Border Background="#4CAF50" Width="16" Height="16" CornerRadius="3" Margin="0,0,8,0"/>
+                                <TextBlock Text="Faible (0-3 projets)" FontSize="11" Foreground="#666" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Border Background="#FF9800" Width="16" Height="16" CornerRadius="3" Margin="0,0,8,0"/>
+                                <TextBlock Text="Moyenne (4-6 projets)" FontSize="11" Foreground="#666" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Border Background="#F44336" Width="16" Height="16" CornerRadius="3" Margin="0,0,8,0"/>
+                                <TextBlock Text="Élevée (7+ projets)" FontSize="11" Foreground="#666" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
     </Grid>
 </UserControl>

@@ -1,12 +1,22 @@
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Collections.Generic;
+using System.Linq;
 using BacklogManager.ViewModels;
+using BacklogManager.Services;
+using BacklogManager.Domain;
+using System.Windows;
 
 namespace BacklogManager.Views
 {
     public partial class StatistiquesView : UserControl
     {
+        private IDatabase _database;
+        private EquipeService _equipeService;
+        private List<RessourceDetailViewModel> _toutesLesRessources;
+        private int? _equipeIdFiltre = null;
+
         public StatistiquesView()
         {
             InitializeComponent();
@@ -18,6 +28,13 @@ namespace BacklogManager.Views
             if (CboPeriode != null)
             {
                 CboPeriode.SelectedIndex = 5; // "Tout afficher" par défaut
+            }
+
+            // Récupérer la base de données depuis le DataContext
+            if (DataContext is StatistiquesViewModel viewModel)
+            {
+                _database = viewModel.Database;
+                _equipeService = new EquipeService(_database);
             }
         }
 
@@ -132,6 +149,305 @@ namespace BacklogManager.Views
                 border.BorderBrush = new SolidColorBrush(Color.FromRgb(224, 224, 224));
                 border.BorderThickness = new System.Windows.Thickness(1);
             }
+        }
+
+        private void BtnVoirToutesRessources_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            if (_database == null)
+            {
+                System.Windows.MessageBox.Show("Base de données non disponible.", "Erreur", 
+                    System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                return;
+            }
+
+            // Charger toutes les ressources et afficher la page
+            _equipeIdFiltre = null;
+            ChargerDonneesRessources();
+            AfficherPageRessources(null);
+        }
+
+        private void BtnVoirEquipeDetail_Click(object sender, MouseButtonEventArgs e)
+        {
+            if (_database == null)
+            {
+                System.Windows.MessageBox.Show("Base de données non disponible.", "Erreur", 
+                    System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                return;
+            }
+
+            if (sender is Border border && border.Tag is int equipeId)
+            {
+                _equipeIdFiltre = equipeId;
+                ChargerDonneesRessources();
+                
+                var equipe = _database.GetAllEquipes().FirstOrDefault(e => e.Id == equipeId);
+                AfficherPageRessources(equipe?.Nom);
+            }
+        }
+
+        private void BtnRetourStatistiques_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            // Retour à la page principale
+            if (DataContext is StatistiquesViewModel viewModel)
+            {
+                viewModel.AfficherPagePrincipale = true;
+                viewModel.AfficherPageRessources = false;
+            }
+        }
+
+        private void AfficherPageRessources(string nomEquipe)
+        {
+            if (DataContext is StatistiquesViewModel viewModel)
+            {
+                viewModel.AfficherPagePrincipale = false;
+                viewModel.AfficherPageRessources = true;
+
+                // Mettre à jour les titres
+                if (nomEquipe != null)
+                {
+                    TxtTitrePageRessources.Text = $"🏢 Ressources de l'équipe : {nomEquipe}";
+                    TxtSousTitrePageRessources.Text = $"Vue détaillée des membres de l'équipe {nomEquipe}";
+                }
+                else
+                {
+                    TxtTitrePageRessources.Text = "🏢 Détail des ressources par équipe";
+                    TxtSousTitrePageRessources.Text = "Vue détaillée de la charge et des projets par ressource";
+                }
+            }
+        }
+
+        private void ChargerDonneesRessources()
+        {
+            try
+            {
+                _toutesLesRessources = new List<RessourceDetailViewModel>();
+                var utilisateurs = _database.GetUtilisateurs().Where(u => u.Actif).ToList();
+                var equipes = _database.GetAllEquipes().Where(eq => eq.Actif).ToList();
+                var projets = _database.GetProjets();
+                var taches = _database.GetBacklogItems();
+                var roles = _database.GetRoles();
+
+                foreach (var user in utilisateurs)
+                {
+                    if (user.EquipeId == null)
+                        continue;
+
+                    var equipe = equipes.FirstOrDefault(e => e.Id == user.EquipeId.Value);
+                    var role = roles.FirstOrDefault(r => r.Id == user.RoleId);
+                    
+                    // Récupérer le manager de l'équipe
+                    string nomManager = "Aucun";
+                    if (equipe?.ManagerId != null)
+                    {
+                        var manager = utilisateurs.FirstOrDefault(u => u.Id == equipe.ManagerId.Value);
+                        if (manager != null)
+                        {
+                            nomManager = $"{manager.Prenom} {manager.Nom}";
+                        }
+                    }
+                    
+                    var projetsDev = projets.Where(p => 
+                        taches.Any(t => t.ProjetId == p.Id && t.DevAssigneId == user.Id)
+                    ).ToList();
+                    
+                    var tachesActives = taches.Where(t => 
+                        t.DevAssigneId == user.Id && 
+                        t.Statut != Statut.Termine && 
+                        !t.EstArchive
+                    ).ToList();
+
+                    var detailsProjets = new List<ProjetDetailViewModel>();
+                    double chargeEstimeeJours = 0;
+                    
+                    foreach (var projet in projetsDev)
+                    {
+                        var tachesProjet = taches.Where(t => 
+                            t.ProjetId == projet.Id && 
+                            t.DevAssigneId == user.Id &&
+                            t.Statut != Statut.Termine &&
+                            !t.EstArchive
+                        ).ToList();
+                        
+                        var nbTachesProjet = tachesProjet.Count;
+                        var chargeProjetHeures = tachesProjet.Sum(t => t.ChiffrageHeures ?? 0);
+                        chargeEstimeeJours += chargeProjetHeures / 8.0; // Convertir heures en jours
+                        
+                        detailsProjets.Add(new ProjetDetailViewModel
+                        {
+                            Nom = projet.Nom,
+                            NbTaches = nbTachesProjet
+                        });
+                    }
+
+                    int nbProjets = projetsDev.Count;
+                    string niveauCharge;
+                    Color couleurCharge;
+                    
+                    // Calcul basé sur la charge estimée en jours (1 sprint = ~10 jours ouvrés)
+                    if (chargeEstimeeJours <= 10)
+                    {
+                        niveauCharge = $"Faible ({chargeEstimeeJours:F1}j)";
+                        couleurCharge = Color.FromRgb(76, 175, 80); // Vert
+                    }
+                    else if (chargeEstimeeJours <= 20)
+                    {
+                        niveauCharge = $"Moyenne ({chargeEstimeeJours:F1}j)";
+                        couleurCharge = Color.FromRgb(255, 152, 0); // Orange
+                    }
+                    else
+                    {
+                        niveauCharge = $"Élevée ({chargeEstimeeJours:F1}j)";
+                        couleurCharge = Color.FromRgb(244, 67, 54); // Rouge
+                    }
+
+                    // Largeur barre proportionnelle (max 30 jours = 100%)
+                    double largeurBarre = System.Math.Min((chargeEstimeeJours / 30.0) * 380, 380);
+
+                    _toutesLesRessources.Add(new RessourceDetailViewModel
+                    {
+                        Id = user.Id,
+                        Nom = $"{user.Prenom} {user.Nom}",
+                        Role = role?.Nom ?? "N/A",
+                        EquipeId = user.EquipeId,
+                        NomEquipe = equipe?.Nom ?? "Aucune équipe",
+                        CodeEquipe = equipe?.Code ?? "N/A",
+                        NomManager = nomManager,
+                        NbProjets = nbProjets,
+                        NbTachesActives = tachesActives.Count(),
+                        NiveauCharge = niveauCharge,
+                        CouleurCharge = couleurCharge,
+                        CouleurChargeBrush = new SolidColorBrush(couleurCharge),
+                        LargeurBarreCharge = largeurBarre,
+                        ListeProjets = detailsProjets,
+                        AucunProjet = nbProjets == 0
+                    });
+                }
+
+                // Créer les filtres d'équipes
+                CreerFiltresEquipes(equipes);
+
+                // Filtrer et afficher
+                if (_equipeIdFiltre.HasValue)
+                    FiltrerParEquipe(_equipeIdFiltre);
+                else
+                    AfficherToutesRessources();
+
+                MettreAJourStatistiques();
+            }
+            catch (System.Exception ex)
+            {
+                System.Windows.MessageBox.Show($"Erreur lors du chargement des ressources : {ex.Message}", 
+                    "Erreur", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            }
+        }
+
+        private void CreerFiltresEquipes(List<Equipe> equipes)
+        {
+            WrapPanelFiltresEquipes.Children.Clear();
+
+            // Bouton "Toutes"
+            var btnToutes = new Button
+            {
+                Content = "🌐 Toutes les équipes",
+                Padding = new System.Windows.Thickness(12, 6, 12, 6),
+                Margin = new System.Windows.Thickness(5),
+                Background = new SolidColorBrush(Color.FromRgb(0, 145, 90)),
+                Foreground = new SolidColorBrush(Colors.White),
+                BorderThickness = new System.Windows.Thickness(0),
+                Cursor = Cursors.Hand,
+                Tag = (int?)null
+            };
+            btnToutes.Click += BtnFiltreEquipe_Click;
+            WrapPanelFiltresEquipes.Children.Add(btnToutes);
+
+            // Boutons par équipe
+            foreach (var equipe in equipes.OrderBy(e => e.Nom))
+            {
+                var nbMembres = _toutesLesRessources.Count(r => r.EquipeId == equipe.Id);
+                if (nbMembres == 0) continue;
+
+                var btn = new Button
+                {
+                    Content = $"🏢 {equipe.Code} ({nbMembres})",
+                    Padding = new System.Windows.Thickness(12, 6, 12, 6),
+                    Margin = new System.Windows.Thickness(5),
+                    Background = new SolidColorBrush(Color.FromRgb(245, 245, 245)),
+                    Foreground = new SolidColorBrush(Color.FromRgb(51, 51, 51)),
+                    BorderBrush = new SolidColorBrush(Color.FromRgb(224, 224, 224)),
+                    BorderThickness = new System.Windows.Thickness(1),
+                    Cursor = Cursors.Hand,
+                    Tag = equipe.Id
+                };
+                btn.Click += BtnFiltreEquipe_Click;
+                WrapPanelFiltresEquipes.Children.Add(btn);
+            }
+        }
+
+        private void BtnFiltreEquipe_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            if (sender is Button btn)
+            {
+                _equipeIdFiltre = btn.Tag as int?;
+                
+                // Mise à jour visuelle des boutons
+                foreach (var child in WrapPanelFiltresEquipes.Children)
+                {
+                    if (child is Button otherBtn)
+                    {
+                        if (otherBtn == btn)
+                        {
+                            otherBtn.Background = new SolidColorBrush(Color.FromRgb(0, 145, 90));
+                            otherBtn.Foreground = new SolidColorBrush(Colors.White);
+                        }
+                        else
+                        {
+                            otherBtn.Background = new SolidColorBrush(Color.FromRgb(245, 245, 245));
+                            otherBtn.Foreground = new SolidColorBrush(Color.FromRgb(51, 51, 51));
+                        }
+                    }
+                }
+
+                if (_equipeIdFiltre.HasValue)
+                    FiltrerParEquipe(_equipeIdFiltre);
+                else
+                    AfficherToutesRessources();
+
+                MettreAJourStatistiques();
+            }
+        }
+
+        private void AfficherToutesRessources()
+        {
+            ItemsControlRessources.ItemsSource = _toutesLesRessources.OrderBy(r => r.NomEquipe).ThenBy(r => r.Nom);
+        }
+
+        private void FiltrerParEquipe(int? equipeId)
+        {
+            if (equipeId.HasValue)
+            {
+                ItemsControlRessources.ItemsSource = _toutesLesRessources
+                    .Where(r => r.EquipeId == equipeId.Value)
+                    .OrderBy(r => r.Nom);
+            }
+            else
+            {
+                AfficherToutesRessources();
+            }
+        }
+
+        private void MettreAJourStatistiques()
+        {
+            var ressourcesAffichees = ItemsControlRessources.ItemsSource as IEnumerable<RessourceDetailViewModel>;
+            if (ressourcesAffichees == null) return;
+
+            var liste = ressourcesAffichees.ToList();
+            
+            TxtNbTotalRessources.Text = liste.Count.ToString();
+            TxtNbEquipesActives.Text = liste.Select(r => r.EquipeId).Distinct().Count().ToString();
+            TxtNbProjetsActifs.Text = liste.Sum(r => r.NbProjets).ToString();
+            
+            double chargeMoyenne = liste.Any() ? liste.Average(r => r.NbProjets) : 0;
+            TxtChargeMoyenne.Text = chargeMoyenne.ToString("F1");
         }
     }
 }

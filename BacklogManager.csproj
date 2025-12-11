@@ -283,6 +283,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\RessourcesEquipeDetailWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Pages\GestionProgrammesPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -409,6 +413,7 @@
     <Compile Include="ViewModels\CRACalendrierViewModel.cs" />
     <Compile Include="ViewModels\SuiviCRAViewModel.cs" />
     <Compile Include="ViewModels\StatistiquesViewModel.cs" />
+    <Compile Include="ViewModels\RessourceViewModels.cs" />
     <Compile Include="ViewModels\KanbanViewModel.cs" />
     <Compile Include="ViewModels\PokerViewModel.cs" />
     <Compile Include="ViewModels\TimelineViewModel.cs" />
@@ -534,6 +539,9 @@
     </Compile>
     <Compile Include="Views\EquipeEditionWindow.xaml.cs">
       <DependentUpon>EquipeEditionWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\RessourcesEquipeDetailWindow.xaml.cs">
+      <DependentUpon>RessourcesEquipeDetailWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Pages\GestionProgrammesPage.xaml.cs">
       <DependentUpon>GestionProgrammesPage.xaml</DependentUpon>

@@ -18,6 +18,24 @@ namespace BacklogManager.ViewModels
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        // Exposer la base de données pour les vues
+        public IDatabase Database => _database;
+
+        // Navigation entre pages
+        private bool _afficherPagePrincipale = true;
+        public bool AfficherPagePrincipale
+        {
+            get => _afficherPagePrincipale;
+            set { _afficherPagePrincipale = value; OnPropertyChanged(nameof(AfficherPagePrincipale)); }
+        }
+
+        private bool _afficherPageRessources = false;
+        public bool AfficherPageRessources
+        {
+            get => _afficherPageRessources;
+            set { _afficherPageRessources = value; OnPropertyChanged(nameof(AfficherPageRessources)); }
+        }
+
         // Propriétés principales
         private int _totalTaches;
         public int TotalTaches
@@ -682,6 +700,8 @@ namespace BacklogManager.ViewModels
                 foreach (var equipe in equipes)
                 {
                     var nbMembres = utilisateurs.Count(u => u.EquipeId == equipe.Id && u.Id != equipe.ManagerId);
+                    var manager = equipe.ManagerId.HasValue ? utilisateurs.FirstOrDefault(u => u.Id == equipe.ManagerId.Value) : null;
+                    var nomManager = manager != null ? $"{manager.Prenom} {manager.Nom}" : "Non assigné";
                     var nbProjets = 0;
                     
                     foreach (var projet in projets.Where(p => p.Actif && p.EquipesAssigneesIds != null && p.EquipesAssigneesIds.Count > 0))
@@ -694,7 +714,9 @@ namespace BacklogManager.ViewModels
 
                     ressourcesStats.Add(new RessourceEquipeViewModel
                     {
+                        EquipeId = equipe.Id,
                         NomEquipe = equipe.Nom,
+                        NomManager = nomManager,
                         NbMembres = nbMembres,
                         NbProjets = nbProjets
                     });
@@ -1012,13 +1034,22 @@ namespace BacklogManager.ViewModels
     public class RessourceEquipeViewModel : INotifyPropertyChanged
     {
         private string _nomEquipe;
+        private string _nomManager;
         private int _nbMembres;
         private int _nbProjets;
+        
+        public int EquipeId { get; set; }
         
         public string NomEquipe
         {
             get => _nomEquipe;
             set { _nomEquipe = value; OnPropertyChanged(nameof(NomEquipe)); }
+        }
+        
+        public string NomManager
+        {
+            get => _nomManager;
+            set { _nomManager = value; OnPropertyChanged(nameof(NomManager)); }
         }
         
         public int NbMembres
