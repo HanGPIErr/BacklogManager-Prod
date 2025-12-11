@@ -118,8 +118,11 @@ namespace BacklogManager.Services
             // Créer les utilisateurs de test s'ils n'existent pas déjà
             
             // ADMINISTRATEUR PAR DÉFAUT (connexion automatique)
-            if (!utilisateurs.Any(u => u.UsernameWindows == "admin"))
+            // TOUJOURS créer/mettre à jour l'admin pour garantir qu'il existe
+            var adminExistant = utilisateurs.FirstOrDefault(u => u.UsernameWindows == "admin");
+            if (adminExistant == null)
             {
+                // Créer l'admin s'il n'existe pas
                 _database.AddOrUpdateUtilisateur(new Utilisateur
                 {
                     UsernameWindows = "admin",
@@ -132,6 +135,13 @@ namespace BacklogManager.Services
                     DateCreation = DateTime.Now,
                     Statut = "BAU"
                 });
+            }
+            else
+            {
+                // S'assurer que l'admin existant est actif et a le bon rôle
+                adminExistant.Actif = true;
+                adminExistant.RoleId = roleAdmin?.Id ?? 1;
+                _database.AddOrUpdateUtilisateur(adminExistant);
             }
             
             // ADMINISTRATEUR DE TEST

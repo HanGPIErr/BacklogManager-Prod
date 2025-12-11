@@ -59,7 +59,7 @@ namespace BacklogManager.Views
         {
             try
             {
-                // Connexion automatique avec le compte admin par défaut
+                // Essayer d'abord avec le compte admin par défaut
                 bool success = _authService.LoginWithUsername("admin");
 
                 if (success)
@@ -71,11 +71,50 @@ namespace BacklogManager.Views
                     var mainWindow = new MainWindow(_authService);
                     mainWindow.Show();
                     this.Close();
+                    return;
                 }
+
+                // Fallback: essayer avec le username Windows de l'utilisateur actuel
+                string windowsUsername = WindowsIdentity.GetCurrent().Name;
+                if (windowsUsername.Contains("\\"))
+                {
+                    windowsUsername = windowsUsername.Split('\\')[1];
+                }
+
+                success = _authService.LoginWithUsername(windowsUsername);
+                if (success)
+                {
+                    var user = _authService.CurrentUser;
+                    var role = _authService.GetCurrentUserRole();
+
+                    // Ouvrir directement la fenêtre principale
+                    var mainWindow = new MainWindow(_authService);
+                    mainWindow.Show();
+                    this.Close();
+                    return;
+                }
+
+                // Si aucune connexion automatique ne fonctionne, afficher le message
+                Dispatcher.Invoke(() =>
+                {
+                    TxtUsername.Text = $"Connexion automatique impossible";
+                    TxtStatut.Text = "Veuillez saisir votre identifiant ci-dessous";
+                    TxtErreur.Text = $"Le compte 'admin' et votre compte Windows '{windowsUsername}' n'ont pas été trouvés.\nVeuillez entrer votre identifiant manuellement.";
+                    TxtErreur.Visibility = Visibility.Visible;
+                    BtnConnecter.IsEnabled = true;
+                });
             }
-            catch
+            catch (Exception ex)
             {
-                // En cas d'erreur, laisser l'utilisateur se connecter manuellement
+                // En cas d'erreur, afficher un message et laisser l'utilisateur se connecter manuellement
+                Dispatcher.Invoke(() =>
+                {
+                    TxtUsername.Text = "Erreur de connexion automatique";
+                    TxtStatut.Text = "Veuillez vous connecter manuellement";
+                    TxtErreur.Text = $"Erreur: {ex.Message}";
+                    TxtErreur.Visibility = Visibility.Visible;
+                    BtnConnecter.IsEnabled = true;
+                });
             }
         }
 
