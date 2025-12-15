@@ -31,6 +31,16 @@ namespace BacklogManager.Views
             // Header du projet
             TxtNomProjet.Text = _projet.Nom;
             TxtDescription.Text = string.IsNullOrEmpty(_projet.Description) ? "Aucune description" : _projet.Description;
+            
+            // Afficher la phase du projet
+            if (!string.IsNullOrEmpty(_projet.Phase))
+            {
+                TxtPhase.Text = _projet.Phase;
+            }
+            else
+            {
+                TxtPhase.Text = "Non définie";
+            }
 
             // Charger et afficher les équipes assignées
             ChargerEquipes();

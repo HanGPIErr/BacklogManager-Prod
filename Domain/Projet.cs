@@ -37,6 +37,7 @@ namespace BacklogManager.Domain
         public string PerimetreProchainComite { get; set; }         // Texte libre
         public string NextActions { get; set; }                     // Texte libre
         public string StatutRAG { get; set; }                       // "Green", "Amber", "Red"
+        public string Phase { get; set; }                            // "Framing / Design", "Implementation / Change Management", "UAT", "Go Live"
 
         // Palette de couleurs prédéfinies pour projets
         public static readonly string[] CouleursPalette = new[]

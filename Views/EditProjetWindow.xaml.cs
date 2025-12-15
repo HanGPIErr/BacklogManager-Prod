@@ -40,6 +40,11 @@ namespace BacklogManager.Views
             CmbProgramme.SelectedValuePath = "Id";
             CmbProgramme.SelectedIndex = 0;
             
+            // Phase du projet
+            var phases = new[] { "Framing / Design", "Implementation / Change Management", "UAT", "Go Live" };
+            CmbPhase.ItemsSource = phases;
+            CmbPhase.SelectedIndex = 0; // "Framing / Design" par défaut
+            
             // PHASE 2: Priorité
             var priorites = new[] { "Top High", "High", "Medium", "Low" };
             CmbPriorite.ItemsSource = priorites;
@@ -88,6 +93,10 @@ namespace BacklogManager.Views
             DpDateDebut.SelectedDate = _projet.DateDebut;
             DpDateFinPrevue.SelectedDate = _projet.DateFinPrevue;
             ChkActif.IsChecked = _projet.Actif;
+            
+            // Charger la Phase
+            if (!string.IsNullOrEmpty(_projet.Phase))
+                CmbPhase.SelectedItem = _projet.Phase;
             
             // PHASE 2: Charger les nouveaux champs
             if (_projet.ProgrammeId.HasValue)
@@ -203,6 +212,9 @@ namespace BacklogManager.Views
                 _projet.DateDebut = DpDateDebut.SelectedDate;
                 _projet.DateFinPrevue = DpDateFinPrevue.SelectedDate;
                 _projet.Actif = ChkActif.IsChecked ?? true;
+                
+                // Enregistrer la Phase
+                _projet.Phase = CmbPhase.SelectedItem?.ToString() ?? "Framing / Design";
 
                 // PHASE 2: Enregistrer les nouveaux champs
                 var progId = (int)CmbProgramme.SelectedValue;

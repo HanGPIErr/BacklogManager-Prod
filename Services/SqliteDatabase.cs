@@ -367,6 +367,7 @@ namespace BacklogManager.Services
                             DateFin TEXT,
                             DateCreation TEXT NOT NULL,
                             Actif INTEGER NOT NULL,
+                            Phase TEXT,
                             FOREIGN KEY (ChefProjetId) REFERENCES Utilisateurs(Id)
                         );
 
@@ -982,6 +983,16 @@ namespace BacklogManager.Services
                         ALTER TABLE Projets ADD COLUMN NextActions TEXT;
                         ALTER TABLE Projets ADD COLUMN StatutRAG TEXT;
                     ";
+                    cmd.ExecuteNonQuery();
+                }
+                
+                // Vérifier et ajouter la colonne Phase dans Projets
+                cmd.CommandText = @"SELECT COUNT(*) FROM pragma_table_info('Projets') WHERE name='Phase';";
+                var hasProjetPhase = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                
+                if (!hasProjetPhase)
+                {
+                    cmd.CommandText = @"ALTER TABLE Projets ADD COLUMN Phase TEXT DEFAULT 'Framing / Design';";
                     cmd.ExecuteNonQuery();
                 }
                 
@@ -1625,7 +1636,7 @@ namespace BacklogManager.Services
                 conn.Open();
                 using (var cmd = new SQLiteCommand(@"SELECT Id, Nom, Description, DateCreation, DateDebut, DateFin, CouleurHex, Actif,
                     ProgrammeId, EstImplemente, TypeProjet, Categorie, Priorite, Drivers, Ambition, Beneficiaires,
-                    GainsTemps, GainsFinanciers, LeadProjet, Timeline, TargetDelivery, PerimetreProchainComite, NextActions, StatutRAG, EquipesAssigneesIds 
+                    GainsTemps, GainsFinanciers, LeadProjet, Timeline, TargetDelivery, PerimetreProchainComite, NextActions, StatutRAG, EquipesAssigneesIds, Phase 
                     FROM Projets ORDER BY DateCreation DESC", conn))
                 using (var reader = cmd.ExecuteReader())
                 {
@@ -1659,7 +1670,9 @@ namespace BacklogManager.Services
                             NextActions = reader.IsDBNull(22) ? null : reader.GetString(22),
                             StatutRAG = reader.IsDBNull(23) ? null : reader.GetString(23),
                             // Équipes Assignées (JSON → List<int>)
-                            EquipesAssigneesIds = reader.IsDBNull(24) ? new List<int>() : System.Text.Json.JsonSerializer.Deserialize<List<int>>(reader.GetString(24))
+                            EquipesAssigneesIds = reader.IsDBNull(24) ? new List<int>() : System.Text.Json.JsonSerializer.Deserialize<List<int>>(reader.GetString(24)),
+                            // Phase du projet
+                            Phase = reader.IsDBNull(25) ? "Framing / Design" : reader.GetString(25)
                         });
                     }
                 }
@@ -1847,10 +1860,10 @@ namespace BacklogManager.Services
                             {
                                 cmd.CommandText = @"INSERT INTO Projets (Nom, Description, DateCreation, DateDebut, DateFin, CouleurHex, Actif,
                                     ProgrammeId, EstImplemente, TypeProjet, Categorie, Priorite, Drivers, Ambition, Beneficiaires,
-                                    GainsTemps, GainsFinanciers, LeadProjet, Timeline, TargetDelivery, PerimetreProchainComite, NextActions, StatutRAG, EquipesAssigneesIds) 
+                                    GainsTemps, GainsFinanciers, LeadProjet, Timeline, TargetDelivery, PerimetreProchainComite, NextActions, StatutRAG, EquipesAssigneesIds, Phase) 
                                     VALUES (@Nom, @Description, @DateCreation, @DateDebut, @DateFin, @CouleurHex, @Actif,
                                     @ProgrammeId, @EstImplemente, @TypeProjet, @Categorie, @Priorite, @Drivers, @Ambition, @Beneficiaires,
-                                    @GainsTemps, @GainsFinanciers, @LeadProjet, @Timeline, @TargetDelivery, @PerimetreProchainComite, @NextActions, @StatutRAG, @EquipesAssigneesIds);
+                                    @GainsTemps, @GainsFinanciers, @LeadProjet, @Timeline, @TargetDelivery, @PerimetreProchainComite, @NextActions, @StatutRAG, @EquipesAssigneesIds, @Phase);
                                     SELECT last_insert_rowid();";
                             }
                             else
@@ -1859,7 +1872,7 @@ namespace BacklogManager.Services
                                     ProgrammeId = @ProgrammeId, EstImplemente = @EstImplemente, TypeProjet = @TypeProjet, Categorie = @Categorie, Priorite = @Priorite, 
                                     Drivers = @Drivers, Ambition = @Ambition, Beneficiaires = @Beneficiaires, GainsTemps = @GainsTemps, GainsFinanciers = @GainsFinanciers,
                                     LeadProjet = @LeadProjet, Timeline = @Timeline, TargetDelivery = @TargetDelivery, PerimetreProchainComite = @PerimetreProchainComite,
-                                    NextActions = @NextActions, StatutRAG = @StatutRAG, EquipesAssigneesIds = @EquipesAssigneesIds
+                                    NextActions = @NextActions, StatutRAG = @StatutRAG, EquipesAssigneesIds = @EquipesAssigneesIds, Phase = @Phase
                                     WHERE Id = @Id";
                                 cmd.Parameters.AddWithValue("@Id", projet.Id);
                             }
@@ -1889,6 +1902,7 @@ namespace BacklogManager.Services
                             cmd.Parameters.AddWithValue("@PerimetreProchainComite", (object)projet.PerimetreProchainComite ?? DBNull.Value);
                             cmd.Parameters.AddWithValue("@NextActions", (object)projet.NextActions ?? DBNull.Value);
                             cmd.Parameters.AddWithValue("@StatutRAG", (object)projet.StatutRAG ?? DBNull.Value);
+                            cmd.Parameters.AddWithValue("@Phase", (object)projet.Phase ?? "Framing / Design");
                             
                             // Équipes Assignées (List<int> → JSON)
                             string equipesJson;
@@ -2897,7 +2911,6 @@ namespace BacklogManager.Services
         {
             using (var conn = GetConnectionForWrite())
             {
-                conn.Open();
                 using (var cmd = new SQLiteCommand(@"
                     INSERT INTO Programmes (Nom, Code, Description, Objectifs, ResponsableId, DateDebut, DateFinCible, StatutGlobal, Actif, DateCreation)
                     VALUES (@Nom, @Code, @Description, @Objectifs, @ResponsableId, @DateDebut, @DateFinCible, @StatutGlobal, @Actif, @DateCreation);
@@ -2923,7 +2936,6 @@ namespace BacklogManager.Services
         {
             using (var conn = GetConnectionForWrite())
             {
-                conn.Open();
                 using (var cmd = new SQLiteCommand(@"
                     UPDATE Programmes 
                     SET Nom = @Nom, 

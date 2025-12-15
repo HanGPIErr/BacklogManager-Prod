@@ -85,6 +85,19 @@
                         </Grid>
                     </Border>
 
+                    <!-- Phase du projet -->
+                    <Border Background="#FAFAFA" CornerRadius="4" Padding="15" Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Text="🔄 Phase du projet *" FontWeight="Bold" FontSize="13" 
+                                       Foreground="#333333" Margin="0,0,0,8"/>
+                            <ComboBox x:Name="CmbPhase" Padding="12,10" FontSize="14" 
+                                     BorderBrush="#CCCCCC" BorderThickness="1" Height="42"
+                                     VerticalContentAlignment="Center"/>
+                            <TextBlock Text="Sélectionnez la phase actuelle du projet" 
+                                       FontSize="11" Foreground="#999999" Margin="0,5,0,0" FontStyle="Italic"/>
+                        </StackPanel>
+                    </Border>
+
                     <!-- SECTION PHASE 2: Programme & Classification -->
                     <Border Background="#E8F5E9" BorderBrush="#00A651" BorderThickness="2" 
                            CornerRadius="6" Padding="15" Margin="0,0,0,12">

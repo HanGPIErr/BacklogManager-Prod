@@ -86,8 +86,15 @@ namespace BacklogManager.Views
         {
             try
             {
+                // Ne charger que les Admin et Manager pour les programmes
+                var roles = _database.GetRoles();
+                var adminManagerRoleIds = roles
+                    .Where(r => r.Nom == "Admin" || r.Nom == "Manager")
+                    .Select(r => r.Id)
+                    .ToList();
+
                 var utilisateurs = _database.GetUtilisateurs()
-                    .Where(u => u.Actif)
+                    .Where(u => u.Actif && adminManagerRoleIds.Contains(u.RoleId))
                     .Select(u => new
                     {
                         Id = u.Id,
@@ -123,26 +130,78 @@ namespace BacklogManager.Views
                     return;
                 }
 
-                var programme = _programmeActuel ?? new Programme();
+                // Créer toujours un nouvel objet pour éviter les problèmes d'état
+                var programme = new Programme();
+                
+                // Conserver l'ID en mode modification
+                if (_programmeId.HasValue && _programmeActuel != null)
+                {
+                    programme.Id = _programmeActuel.Id;
+                    programme.DateCreation = _programmeActuel.DateCreation;
+                    programme.Actif = _programmeActuel.Actif;
+                }
+                else
+                {
+                    // Nouveau programme
+                    programme.Actif = true;
+                    programme.DateCreation = DateTime.Now;
+                }
+                
                 programme.Nom = TxtNom.Text.Trim();
                 programme.Code = TxtCode.Text?.Trim().ToUpper();
                 programme.Description = TxtDescription.Text?.Trim();
                 programme.Objectifs = TxtObjectifs.Text?.Trim();
                 
                 // Responsable
+                int? responsableId = null;
                 if (CboResponsable.SelectedValue != null)
                 {
-                    var responsableId = Convert.ToInt32(CboResponsable.SelectedValue);
-                    programme.ResponsableId = responsableId > 0 ? (int?)responsableId : null;
+                    try
+                    {
+                        var selectedValue = CboResponsable.SelectedValue;
+                        if (selectedValue is int intValue)
+                        {
+                            responsableId = intValue > 0 ? (int?)intValue : null;
+                        }
+                        else
+                        {
+                            var parsedValue = Convert.ToInt32(selectedValue);
+                            responsableId = parsedValue > 0 ? (int?)parsedValue : null;
+                        }
+                    }
+                    catch (Exception respEx)
+                    {
+                        MessageBox.Show($"Erreur avec le responsable: {respEx.Message}", 
+                            "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
                 }
-                else
-                {
-                    programme.ResponsableId = null;
-                }
+                programme.ResponsableId = responsableId;
 
-                // Dates
-                programme.DateDebut = DtpDateDebut.SelectedDate;
-                programme.DateFinCible = DtpDateFinCible.SelectedDate;
+                // Dates - Assigner directement les SelectedDate (nullable)
+                DateTime? dateDebut = null;
+                DateTime? dateFinCible = null;
+                try
+                {
+                    // Lire les dates dans des variables locales d'abord
+                    if (DtpDateDebut.SelectedDate.HasValue)
+                    {
+                        dateDebut = DtpDateDebut.SelectedDate.Value;
+                    }
+                    if (DtpDateFinCible.SelectedDate.HasValue)
+                    {
+                        dateFinCible = DtpDateFinCible.SelectedDate.Value;
+                    }
+                    
+                    programme.DateDebut = dateDebut;
+                    programme.DateFinCible = dateFinCible;
+                }
+                catch (Exception dateEx)
+                {
+                    MessageBox.Show($"Erreur avec les dates: {dateEx.Message}\n\nStackTrace:\n{dateEx.StackTrace}", 
+                        "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
                 
                 // Statut
                 if (CboStatutGlobal.SelectedItem is ComboBoxItem selectedStatut)
@@ -168,7 +227,7 @@ namespace BacklogManager.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erreur lors de l'enregistrement: {ex.Message}", 
+                MessageBox.Show($"Erreur lors de l'enregistrement: {ex.Message}\n\nStackTrace:\n{ex.StackTrace}\n\nInner Exception:\n{ex.InnerException?.Message}", 
                     "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }

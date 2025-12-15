@@ -46,11 +46,11 @@
                                        Foreground="White" VerticalAlignment="Center" Margin="0,0,0,10"/>
                             <WrapPanel Orientation="Horizontal">
                             
-                            <Button x:Name="BtnVueTaches" Content="📋 Tâches" 
+                            <Button x:Name="BtnVueProgrammes" Content="🎯 Programmes" 
                                     Foreground="#00915A" 
                                     FontSize="13" FontWeight="Bold" Padding="18,8"
                                     Margin="0,0,8,0" BorderThickness="0" Cursor="Hand"
-                                    Click="BtnVueTaches_Click">
+                                    Click="BtnVueProgrammes_Click">
                                 <Button.Style>
                                     <Style TargetType="Button">
                                         <Setter Property="Background" Value="White"/>

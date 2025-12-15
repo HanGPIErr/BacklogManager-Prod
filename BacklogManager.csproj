@@ -295,6 +295,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\ProgrammeDetailsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Pages\AuditLogPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -548,6 +552,9 @@
     </Compile>
     <Compile Include="Views\ProgrammeEditionWindow.xaml.cs">
       <DependentUpon>ProgrammeEditionWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ProgrammeDetailsWindow.xaml.cs">
+      <DependentUpon>ProgrammeDetailsWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Domain\Equipe.cs" />
     <Compile Include="Domain\Programme.cs" />

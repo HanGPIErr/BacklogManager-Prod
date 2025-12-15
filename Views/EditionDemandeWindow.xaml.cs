@@ -163,7 +163,92 @@ namespace BacklogManager.Views
                     Tag = equipe.Id,
                     Margin = new Thickness(0, 3, 0, 3)
                 };
+                // Ajouter un gestionnaire pour filtrer les BA/Dev quand une équipe est cochée/décochée
+                chk.Checked += (s, e) => FiltrerUtilisateursParEquipes();
+                chk.Unchecked += (s, e) => FiltrerUtilisateursParEquipes();
                 PanelEquipes.Children.Add(chk);
+            }
+        }
+
+        private void FiltrerUtilisateursParEquipes()
+        {
+            // Récupérer les équipes sélectionnées
+            var equipesSelectionnees = new List<int>();
+            foreach (CheckBox chk in PanelEquipes.Children)
+            {
+                if (chk.IsChecked == true && chk.Tag is int equipeId)
+                {
+                    equipesSelectionnees.Add(equipeId);
+                }
+            }
+
+            var utilisateurs = _database.GetUtilisateurs().Where(u => u.Actif).ToList();
+            var roles = _database.GetRoles();
+
+            // Si aucune équipe sélectionnée, afficher tous les utilisateurs
+            if (equipesSelectionnees.Count == 0)
+            {
+                // Business Analysts - tous
+                var tousBas = utilisateurs.Where(u =>
+                {
+                    var role = roles.FirstOrDefault(r => r.Id == u.RoleId);
+                    return role?.Type == RoleType.BusinessAnalyst;
+                }).Select(u => new { Id = u.Id, Nom = string.Format("{0} {1}", u.Prenom, u.Nom) }).ToList();
+                tousBas.Insert(0, new { Id = 0, Nom = "Non assigné" });
+                
+                var selectedBaId = CmbBusinessAnalyst.SelectedValue;
+                CmbBusinessAnalyst.ItemsSource = tousBas;
+                CmbBusinessAnalyst.SelectedValue = selectedBaId;
+
+                // Développeurs - tous
+                var tousDevs = utilisateurs.Where(u =>
+                {
+                    var role = roles.FirstOrDefault(r => r.Id == u.RoleId);
+                    return role?.Type == RoleType.Developpeur;
+                }).Select(u => new { Id = u.Id, Nom = string.Format("{0} {1}", u.Prenom, u.Nom) }).ToList();
+                tousDevs.Insert(0, new { Id = 0, Nom = "Non assigné" });
+                
+                var selectedDevId = CmbDevChiffreur.SelectedValue;
+                CmbDevChiffreur.ItemsSource = tousDevs;
+                CmbDevChiffreur.SelectedValue = selectedDevId;
+            }
+            else
+            {
+                // Filtrer les BA par équipes sélectionnées
+                var basFiltres = utilisateurs.Where(u =>
+                {
+                    var role = roles.FirstOrDefault(r => r.Id == u.RoleId);
+                    return role?.Type == RoleType.BusinessAnalyst && 
+                           u.EquipeId.HasValue && 
+                           equipesSelectionnees.Contains(u.EquipeId.Value);
+                }).Select(u => new { Id = u.Id, Nom = string.Format("{0} {1}", u.Prenom, u.Nom) }).ToList();
+                basFiltres.Insert(0, new { Id = 0, Nom = "Non assigné" });
+                
+                var selectedBaId = CmbBusinessAnalyst.SelectedValue;
+                CmbBusinessAnalyst.ItemsSource = basFiltres;
+                // Réappliquer la sélection si elle fait partie des équipes sélectionnées
+                if (selectedBaId != null && basFiltres.Any(b => b.Id == (int)selectedBaId))
+                    CmbBusinessAnalyst.SelectedValue = selectedBaId;
+                else
+                    CmbBusinessAnalyst.SelectedIndex = 0;
+
+                // Filtrer les Devs par équipes sélectionnées
+                var devsFiltres = utilisateurs.Where(u =>
+                {
+                    var role = roles.FirstOrDefault(r => r.Id == u.RoleId);
+                    return role?.Type == RoleType.Developpeur && 
+                           u.EquipeId.HasValue && 
+                           equipesSelectionnees.Contains(u.EquipeId.Value);
+                }).Select(u => new { Id = u.Id, Nom = string.Format("{0} {1}", u.Prenom, u.Nom) }).ToList();
+                devsFiltres.Insert(0, new { Id = 0, Nom = "Non assigné" });
+                
+                var selectedDevId = CmbDevChiffreur.SelectedValue;
+                CmbDevChiffreur.ItemsSource = devsFiltres;
+                // Réappliquer la sélection si elle fait partie des équipes sélectionnées
+                if (selectedDevId != null && devsFiltres.Any(d => d.Id == (int)selectedDevId))
+                    CmbDevChiffreur.SelectedValue = selectedDevId;
+                else
+                    CmbDevChiffreur.SelectedIndex = 0;
             }
         }
 
