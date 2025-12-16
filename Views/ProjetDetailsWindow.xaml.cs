@@ -45,9 +45,10 @@ namespace BacklogManager.Views
             // Charger et afficher les équipes assignées
             ChargerEquipes();
 
-            // Charger toutes les tâches du projet (y compris archivées)
-            var taches = _backlogService.GetAllBacklogItems()
+            // Charger toutes les tâches du projet (y compris archivées) - utiliser GetAllBacklogItemsIncludingArchived
+            var taches = _backlogService.GetAllBacklogItemsIncludingArchived()
                 .Where(t => t.ProjetId == _projet.Id)
+                .Where(t => t.TypeDemande != TypeDemande.Conges && t.TypeDemande != TypeDemande.NonTravaille)
                 .ToList();
 
             var utilisateurs = _backlogService.GetAllUtilisateurs();
@@ -88,27 +89,28 @@ namespace BacklogManager.Views
         private void CalculerMetriques(List<BacklogItem> taches)
         {
             int total = taches.Count;
-            int afaire = taches.Count(t => t.Statut == Statut.Afaire);
-            int enCours = taches.Count(t => t.Statut == Statut.EnCours);
-            int enTest = taches.Count(t => t.Statut == Statut.Test);
-            int termine = taches.Count(t => t.Statut == Statut.Termine);
+            int afaire = taches.Count(t => t.Statut == Statut.Afaire && !t.EstArchive);
+            int enCours = taches.Count(t => t.Statut == Statut.EnCours && !t.EstArchive);
+            int enTest = taches.Count(t => t.Statut == Statut.Test && !t.EstArchive);
+            int termine = taches.Count(t => t.Statut == Statut.Termine || t.EstArchive);
 
             double chargeEstimeeHeures = taches.Sum(t => t.ChiffrageHeures ?? 0);
             double tempsReelHeures = taches.Sum(t => t.TempsReelHeures ?? 0);
             
-            // Conversion en jours (8h = 1j)
-            double tempsReelJours = tempsReelHeures / 8.0;
+            // Conversion en jours (7.4h = 1j)
+            double chargeEstimeeJours = chargeEstimeeHeures / 7.4;
+            double tempsReelJours = tempsReelHeures / 7.4;
             
             // Arrondir au demi-jour le plus proche pour l'affichage
             double tempsReelJoursAffiche = Math.Round(tempsReelJours * 2) / 2;
             
-            // Progression basée sur temps réel vs charge prévue (comme Kanban)
-            double progression = chargeEstimeeHeures > 0 ? Math.Min(100, (tempsReelHeures / chargeEstimeeHeures) * 100) : 0;
+            // Progression basée sur le nombre de tâches terminées (incluant archivées) - comme dans BacklogView et ProjetsViewModel
+            double progression = total > 0 ? Math.Round((double)termine / total * 100) : 0;
 
             // Afficher les métriques
             TxtTotalTaches.Text = total.ToString();
             TxtProgression.Text = progression.ToString("F0");
-            TxtChargeEstimee.Text = (chargeEstimeeHeures / 7.0).ToString("F1");
+            TxtChargeEstimee.Text = chargeEstimeeJours.ToString("F1");
             TxtTempsReel.Text = tempsReelJoursAffiche.ToString("F1"); // Affichage en jours
 
             TxtCountAfaire.Text = afaire.ToString();
@@ -118,7 +120,42 @@ namespace BacklogManager.Views
 
             // Barre de progression
             ProgressBarGlobal.Value = progression;
-            TxtProgressionLabel.Text = $"{tempsReelJoursAffiche:F1}j / {(chargeEstimeeHeures / 8.0):F1}j ({progression:F0}%)";
+            TxtProgressionLabel.Text = $"{termine} / {total} tâches ({progression:F0}%)";
+
+            // Calcul du RAG automatique (EXACTEMENT la même logique que ProjetsViewModel)
+            // Compter les tâches en retard (non terminées avec date dépassée, et non archivées)
+            int nbEnRetard = taches.Count(t => 
+                t.Statut != Statut.Termine && 
+                !t.EstArchive &&
+                t.DateFinAttendue.HasValue && 
+                t.DateFinAttendue.Value < DateTime.Now);
+            
+            // IMPORTANT: tauxRetard calculé sur le total de TOUTES les tâches (y compris archivées)
+            double tauxRetard = total > 0 ? (nbEnRetard * 100.0 / total) : 0;
+            
+            string statutRAG;
+            SolidColorBrush couleurRAG;
+            
+            // Logique RAG : Red si > 30% de tâches en retard OU progression < 30% avec des retards
+            if (tauxRetard > 30 || (progression < 30 && nbEnRetard > 0))
+            {
+                statutRAG = "RED";
+                couleurRAG = new SolidColorBrush(Color.FromRgb(244, 67, 54));
+            }
+            // Amber si > 15% de tâches en retard OU progression entre 30-60% avec retards (et au moins 4 en retard)
+            else if (tauxRetard > 15 || (progression < 60 && nbEnRetard > 3))
+            {
+                statutRAG = "AMBER";
+                couleurRAG = new SolidColorBrush(Color.FromRgb(255, 152, 0));
+            }
+            else
+            {
+                statutRAG = "GREEN";
+                couleurRAG = new SolidColorBrush(Color.FromRgb(76, 175, 80));
+            }
+            
+            BorderRAG.Background = couleurRAG;
+            TxtRAG.Text = statutRAG;
 
             // Couleur du statut
             if (progression >= 100)

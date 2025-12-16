@@ -257,7 +257,56 @@ namespace BacklogManager.Views
                     ).ToList();
 
                     var detailsProjets = new List<ProjetDetailViewModel>();
-                    double chargeEstimeeJours = 0;
+                    double heuresReelles = 0;
+                    double heuresDisponibles = 0;
+                    
+                    // Calculer les heures CRA réelles du développeur
+                    var craService = new CRAService(_database);
+                    
+                    // Définir la période de calcul (filtrée ou toutes les données)
+                    System.DateTime? dateDebut = null;
+                    System.DateTime? dateFin = null;
+                    
+                    var viewModel = DataContext as StatistiquesViewModel;
+                    if (viewModel?.DateDebutFiltre != null && viewModel?.DateFinFiltre != null)
+                    {
+                        dateDebut = viewModel.DateDebutFiltre.Value;
+                        dateFin = viewModel.DateFinFiltre.Value;
+                    }
+                    
+                    // Récupérer tous les CRA du dev (filtrés par période si définie)
+                    var crasDev = dateDebut.HasValue && dateFin.HasValue 
+                        ? craService.GetCRAsByDev(user.Id, dateDebut.Value, dateFin.Value)
+                        : craService.GetCRAsByDev(user.Id);
+                    
+                    // Filtrer pour exclure congés et non-travaillé comme dans les stats d'équipe
+                    var backlogItems = _database.GetBacklogItems();
+                    heuresReelles = crasDev
+                        .Where(c => {
+                            var tache = backlogItems.FirstOrDefault(t => t.Id == c.BacklogItemId);
+                            return tache != null && 
+                                   tache.TypeDemande != TypeDemande.Conges && 
+                                   tache.TypeDemande != TypeDemande.NonTravaille;
+                        })
+                        .Sum(c => c.HeuresTravaillees);
+                    
+                    // Calculer les heures disponibles (8h/jour × jours ouvrés)
+                    const double HEURES_PAR_JOUR = 8.0;
+                    double joursOuvres;
+                    
+                    if (dateDebut.HasValue && dateFin.HasValue)
+                    {
+                        var totalJours = (dateFin.Value - dateDebut.Value).Days + 1;
+                        joursOuvres = totalJours * 5.0 / 7.0; // Estimation jours ouvrés (5 sur 7)
+                    }
+                    else
+                    {
+                        // Si pas de filtre, estimer sur base du nombre de CRA (moyenne 22 jours/mois)
+                        var nbJoursCRA = crasDev.Select(c => c.Date.Date).Distinct().Count();
+                        joursOuvres = nbJoursCRA > 0 ? nbJoursCRA : 22;
+                    }
+                    
+                    heuresDisponibles = HEURES_PAR_JOUR * joursOuvres;
                     
                     foreach (var projet in projetsDev)
                     {
@@ -269,8 +318,6 @@ namespace BacklogManager.Views
                         ).ToList();
                         
                         var nbTachesProjet = tachesProjet.Count;
-                        var chargeProjetHeures = tachesProjet.Sum(t => t.ChiffrageHeures ?? 0);
-                        chargeEstimeeJours += chargeProjetHeures / 8.0; // Convertir heures en jours
                         
                         detailsProjets.Add(new ProjetDetailViewModel
                         {
@@ -283,25 +330,32 @@ namespace BacklogManager.Views
                     string niveauCharge;
                     Color couleurCharge;
                     
-                    // Calcul basé sur la charge estimée en jours (1 sprint = ~10 jours ouvrés)
-                    if (chargeEstimeeJours <= 10)
+                    // Calcul basé sur les heures CRA réelles vs disponibles
+                    double pourcentageCharge = heuresDisponibles > 0 ? (heuresReelles / heuresDisponibles) * 100.0 : 0;
+                    
+                    if (pourcentageCharge < 50)
                     {
-                        niveauCharge = $"Faible ({chargeEstimeeJours:F1}j)";
+                        niveauCharge = $"Faible ({pourcentageCharge:F0}%)";
                         couleurCharge = Color.FromRgb(76, 175, 80); // Vert
                     }
-                    else if (chargeEstimeeJours <= 20)
+                    else if (pourcentageCharge < 100)
                     {
-                        niveauCharge = $"Moyenne ({chargeEstimeeJours:F1}j)";
+                        niveauCharge = $"Normale ({pourcentageCharge:F0}%)";
+                        couleurCharge = Color.FromRgb(33, 150, 243); // Bleu
+                    }
+                    else if (pourcentageCharge < 150)
+                    {
+                        niveauCharge = $"Élevée ({pourcentageCharge:F0}%)";
                         couleurCharge = Color.FromRgb(255, 152, 0); // Orange
                     }
                     else
                     {
-                        niveauCharge = $"Élevée ({chargeEstimeeJours:F1}j)";
+                        niveauCharge = $"Surcharge ({pourcentageCharge:F0}%)";
                         couleurCharge = Color.FromRgb(244, 67, 54); // Rouge
                     }
 
-                    // Largeur barre proportionnelle (max 30 jours = 100%)
-                    double largeurBarre = System.Math.Min((chargeEstimeeJours / 30.0) * 380, 380);
+                    // Largeur barre proportionnelle au pourcentage (100% = 100% de la barre, peut dépasser)
+                    double largeurBarre = System.Math.Min((pourcentageCharge / 100.0) * 380, 380);
 
                     _toutesLesRessources.Add(new RessourceDetailViewModel
                     {
@@ -446,8 +500,22 @@ namespace BacklogManager.Views
             TxtNbEquipesActives.Text = liste.Select(r => r.EquipeId).Distinct().Count().ToString();
             TxtNbProjetsActifs.Text = liste.Sum(r => r.NbProjets).ToString();
             
-            double chargeMoyenne = liste.Any() ? liste.Average(r => r.NbProjets) : 0;
-            TxtChargeMoyenne.Text = chargeMoyenne.ToString("F1");
+            // Extraire le pourcentage de charge du texte NiveauCharge (format: "Faible (XX%)")
+            double chargeMoyenne = 0;
+            if (liste.Any())
+            {
+                var chargesValides = liste.Select(r =>
+                {
+                    var match = System.Text.RegularExpressions.Regex.Match(r.NiveauCharge, @"\((\d+)%\)");
+                    if (match.Success && double.TryParse(match.Groups[1].Value, out double charge))
+                        return charge;
+                    return 0.0;
+                }).Where(c => c > 0);
+                
+                chargeMoyenne = chargesValides.Any() ? chargesValides.Average() : 0;
+            }
+            
+            TxtChargeMoyenne.Text = $"{chargeMoyenne:F0}%";
         }
     }
 }

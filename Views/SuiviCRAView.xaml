@@ -30,13 +30,20 @@
                 <StackPanel Margin="0,0,20,10">
                     <TextBlock Text="📊 SUIVI DES CRA" FontSize="24" FontWeight="Bold" 
                                Foreground="White" Margin="0,0,0,5"/>
-                    <TextBlock Text="Vue administrative - Tracking détaillé par développeur" 
+                    <TextBlock Text="Vue administrative - Tracking détaillé par équipe et membre" 
                                FontSize="13" Foreground="White" Opacity="0.9"/>
                 </StackPanel>
 
-                <!-- Sélection développeur -->
+                <!-- Sélection équipe et membre -->
                 <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="Développeur:" FontSize="13" VerticalAlignment="Center" Margin="0,0,10,0" Foreground="White" FontWeight="SemiBold"/>
+                    <!-- Équipe -->
+                    <TextBlock Text="🏢 Équipe:" FontSize="13" VerticalAlignment="Center" Margin="0,0,10,0" Foreground="White" FontWeight="SemiBold"/>
+                    <ComboBox ItemsSource="{Binding Equipes}" DisplayMemberPath="Nom"
+                              SelectedItem="{Binding EquipeSelectionnee}"
+                              Width="220" Padding="10,8" FontSize="13" Background="White" BorderBrush="White" BorderThickness="2" Margin="0,0,20,0"/>
+                    
+                    <!-- Membre -->
+                    <TextBlock Text="👤 Membres:" FontSize="13" VerticalAlignment="Center" Margin="0,0,10,0" Foreground="White" FontWeight="SemiBold"/>
                     <ComboBox ItemsSource="{Binding Devs}" DisplayMemberPath="Nom"
                               SelectedItem="{Binding DevSelectionne}"
                               Width="200" Padding="10,8" FontSize="13" Background="White" BorderBrush="White" BorderThickness="2"/>

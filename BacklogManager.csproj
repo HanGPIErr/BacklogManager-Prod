@@ -131,6 +131,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\TacheDetailsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\ProjetDetailsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -462,6 +466,9 @@
     </Compile>
     <Compile Include="Views\TacheSpecialeWindow.xaml.cs">
       <DependentUpon>TacheSpecialeWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\TacheDetailsWindow.xaml.cs">
+      <DependentUpon>TacheDetailsWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\ProjetDetailsWindow.xaml.cs">
       <DependentUpon>ProjetDetailsWindow.xaml</DependentUpon>

@@ -669,12 +669,17 @@
                                                     </StackPanel>
                                                 </Border>
                                                 
-                                                <Border Grid.Column="1" Background="#F8F9FA" CornerRadius="6" Padding="8,6" Margin="4,0,0,0">
+                                                <Border Grid.Column="1" CornerRadius="6" Padding="8,6" Margin="4,0,0,0">
+                                                    <Border.Background>
+                                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                            <GradientStop Color="#667EEA" Offset="0"/>
+                                                            <GradientStop Color="#764BA2" Offset="1"/>
+                                                        </LinearGradientBrush>
+                                                    </Border.Background>
                                                     <StackPanel>
-                                                        <TextBlock Text="⚖️ Charge" FontSize="9" Foreground="#666" Margin="0,0,0,2"/>
-                                                        <TextBlock FontWeight="Bold" FontSize="16" Foreground="#1A1919" HorizontalAlignment="Center">
-                                                            <Run Text="{Binding ChargeParMembre, Mode=OneWay, StringFormat='{}{0:F1}'}"/>
-                                                        </TextBlock>
+                                                        <TextBlock Text="⚡ Charge" FontSize="9" Foreground="White" Opacity="0.9" Margin="0,0,0,2"/>
+                                                        <TextBlock Text="{Binding ChargeEquipeDisplay}" FontWeight="Bold" FontSize="16" 
+                                                                   Foreground="White" HorizontalAlignment="Center"/>
                                                     </StackPanel>
                                                 </Border>
                                             </Grid>
@@ -706,7 +711,7 @@
                     <StackPanel>
                         <TextBlock Text="⚖️ Équilibre de charge entre équipes" 
                                    FontSize="16" FontWeight="Bold" Foreground="#1A1919" Margin="0,0,0,5"/>
-                        <TextBlock Text="Nombre de projets assignés par équipe (une équipe peut gérer plusieurs projets)" 
+                        <TextBlock Text="Analyse de la capacité et de la charge de travail par équipe (heures CRA réelles)" 
                                    FontSize="11" Foreground="#666666" FontStyle="Italic" Margin="0,0,0,15"/>
                         <ItemsControl ItemsSource="{Binding ChargeParEquipe}">
                             <ItemsControl.ItemsPanel>
@@ -716,37 +721,162 @@
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Background="#F9F9F9" CornerRadius="8" Padding="15" Margin="5"
+                                    <Border Background="#F9F9F9" CornerRadius="10" Padding="14,12" Margin="5"
                                             BorderBrush="#E0E0E0" BorderThickness="1">
-                                        <StackPanel>
-                                            <!-- En-tête avec code équipe uniquement -->
-                                            <Border Background="#E7F5F1" CornerRadius="16" Padding="8,4" Margin="0,0,0,10"
-                                                    HorizontalAlignment="Left">
-                                                <TextBlock FontWeight="Bold" FontSize="11" Foreground="#00915A">
-                                                    <Run Text="{Binding CodeEquipe}"/>
-                                                </TextBlock>
-                                            </Border>
+                                        <Border.Effect>
+                                            <DropShadowEffect Color="#D0D0D0" BlurRadius="8" ShadowDepth="0" Opacity="0.15"/>
+                                        </Border.Effect>
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
                                             
-                                            <!-- Nombre de projets - grand et centré -->
-                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,5,0,10">
-                                                <TextBlock Text="{Binding NbProjets}" FontWeight="Bold" FontSize="32" 
-                                                           Foreground="{Binding CouleurBarre}" VerticalAlignment="Center"/>
-                                                <TextBlock Text=" projets" FontSize="13" Foreground="#666" 
-                                                           VerticalAlignment="Center" Margin="5,0,0,0"/>
-                                            </StackPanel>
-                                            
-                                            <!-- Barre de progression horizontale -->
-                                            <Grid Height="24" Margin="0,5">
-                                                <Border Background="#E0E0E0" CornerRadius="6"/>
-                                                <Border Background="{Binding CouleurBarre}" CornerRadius="6" HorizontalAlignment="Left"
-                                                        Width="{Binding LargeurBarre}" Height="24">
-                                                    <Border.Effect>
-                                                        <DropShadowEffect Color="{Binding CouleurBarre}" BlurRadius="8" 
-                                                                         ShadowDepth="0" Opacity="0.3"/>
-                                                    </Border.Effect>
+                                            <!-- En-tête compact avec code équipe et indicateur capacité -->
+                                            <Grid Grid.Row="0" Margin="0,0,0,10">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                
+                                                <Border Grid.Column="0" Background="#E7F5F1" CornerRadius="14" Padding="9,4"
+                                                        HorizontalAlignment="Left">
+                                                    <TextBlock FontWeight="Bold" FontSize="11" Foreground="#00915A">
+                                                        <Run Text="{Binding CodeEquipe}"/>
+                                                    </TextBlock>
+                                                </Border>
+                                                
+                                                <Border Grid.Column="2" CornerRadius="14" Padding="8,4"
+                                                        HorizontalAlignment="Right">
+                                                    <Border.Style>
+                                                        <Style TargetType="Border">
+                                                            <Setter Property="Background" Value="#E8F5E9"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding NiveauCharge}" Value="Normale">
+                                                                    <Setter Property="Background" Value="#E3F2FD"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding NiveauCharge}" Value="Élevée">
+                                                                    <Setter Property="Background" Value="#FFF3E0"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding NiveauCharge}" Value="Très élevée">
+                                                                    <Setter Property="Background" Value="#FFEBEE"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Border.Style>
+                                                    <TextBlock Text="{Binding IndicateurCapacite}" FontSize="9" FontWeight="SemiBold"/>
                                                 </Border>
                                             </Grid>
-                                        </StackPanel>
+                                            
+                                            <!-- Statistiques en ligne compacte -->
+                                            <Grid Grid.Row="1">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="1.2*"/>
+                                                    <ColumnDefinition Width="1.2*"/>
+                                                </Grid.ColumnDefinitions>
+                                                
+                                                <!-- Projets -->
+                                                <Border Grid.Column="0" Background="White" CornerRadius="8" Padding="8,6" Margin="2,0">
+                                                    <StackPanel>
+                                                        <TextBlock Text="📁" FontSize="14" HorizontalAlignment="Center" Margin="0,0,0,2"/>
+                                                        <TextBlock Text="{Binding NbProjets}" FontWeight="Bold" FontSize="18" 
+                                                                   Foreground="{Binding CouleurBarre}" HorizontalAlignment="Center"/>
+                                                        <TextBlock Text="Projets" FontSize="8" Foreground="#999" 
+                                                                   HorizontalAlignment="Center" Margin="0,1,0,0"/>
+                                                    </StackPanel>
+                                                </Border>
+                                                
+                                                <!-- Membres -->
+                                                <Border Grid.Column="1" Background="White" CornerRadius="8" Padding="8,6" Margin="2,0">
+                                                    <StackPanel>
+                                                        <TextBlock Text="👥" FontSize="14" HorizontalAlignment="Center" Margin="0,0,0,2"/>
+                                                        <TextBlock Text="{Binding NbMembres}" FontWeight="Bold" FontSize="18" 
+                                                                   Foreground="#666" HorizontalAlignment="Center"/>
+                                                        <TextBlock Text="Membres" FontSize="8" Foreground="#999" 
+                                                                   HorizontalAlignment="Center" Margin="0,1,0,0"/>
+                                                    </StackPanel>
+                                                </Border>
+                                                
+                                                <!-- Charge moyenne -->
+                                                <Border Grid.Column="2" CornerRadius="8" Padding="8,6" Margin="2,0">
+                                                    <Border.Style>
+                                                        <Style TargetType="Border">
+                                                            <Setter Property="Background">
+                                                                <Setter.Value>
+                                                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                                        <GradientStop Color="#E8F5E9" Offset="0"/>
+                                                                        <GradientStop Color="#C8E6C9" Offset="1"/>
+                                                                    </LinearGradientBrush>
+                                                                </Setter.Value>
+                                                            </Setter>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding NiveauCharge}" Value="Normale">
+                                                                    <Setter Property="Background">
+                                                                        <Setter.Value>
+                                                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                                                <GradientStop Color="#E3F2FD" Offset="0"/>
+                                                                                <GradientStop Color="#BBDEFB" Offset="1"/>
+                                                                            </LinearGradientBrush>
+                                                                        </Setter.Value>
+                                                                    </Setter>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding NiveauCharge}" Value="Élevée">
+                                                                    <Setter Property="Background">
+                                                                        <Setter.Value>
+                                                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                                                <GradientStop Color="#FFF3E0" Offset="0"/>
+                                                                                <GradientStop Color="#FFE0B2" Offset="1"/>
+                                                                            </LinearGradientBrush>
+                                                                        </Setter.Value>
+                                                                    </Setter>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding NiveauCharge}" Value="Très élevée">
+                                                                    <Setter Property="Background">
+                                                                        <Setter.Value>
+                                                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                                                <GradientStop Color="#FFEBEE" Offset="0"/>
+                                                                                <GradientStop Color="#FFCDD2" Offset="1"/>
+                                                                            </LinearGradientBrush>
+                                                                        </Setter.Value>
+                                                                    </Setter>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Border.Style>
+                                                    <StackPanel>
+                                                        <TextBlock Text="📊" FontSize="14" HorizontalAlignment="Center" Margin="0,0,0,2"/>
+                                                        <TextBlock Text="{Binding ChargeMoyenneDisplay}" FontWeight="Bold" FontSize="18" 
+                                                                   HorizontalAlignment="Center">
+                                                            <TextBlock.Foreground>
+                                                                <SolidColorBrush Color="{Binding CouleurBarre}"/>
+                                                            </TextBlock.Foreground>
+                                                        </TextBlock>
+                                                        <TextBlock Text="Charge moy." FontSize="8" Foreground="#666" 
+                                                                   HorizontalAlignment="Center" Margin="0,1,0,0"/>
+                                                    </StackPanel>
+                                                </Border>
+                                                
+                                                <!-- Charge totale -->
+                                                <Border Grid.Column="3" CornerRadius="8" Padding="8,6" Margin="2,0">
+                                                    <Border.Background>
+                                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                            <GradientStop Color="#667EEA" Offset="0"/>
+                                                            <GradientStop Color="#764BA2" Offset="1"/>
+                                                        </LinearGradientBrush>
+                                                    </Border.Background>
+                                                    <StackPanel>
+                                                        <TextBlock Text="⚡" FontSize="14" HorizontalAlignment="Center" Margin="0,0,0,2"/>
+                                                        <TextBlock Text="{Binding ChargeTotaleDisplay}" FontWeight="Bold" FontSize="18" 
+                                                                   Foreground="White" HorizontalAlignment="Center"/>
+                                                        <TextBlock Text="Total équipe" FontSize="8" Foreground="White" Opacity="0.9"
+                                                                   HorizontalAlignment="Center" Margin="0,1,0,0"/>
+                                                    </StackPanel>
+                                                </Border>
+                                            </Grid>
+                                        </Grid>
                                     </Border>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
@@ -1019,19 +1149,23 @@
                     <!-- Légende -->
                     <Border Background="#FFF9E5" CornerRadius="8" Padding="15" BorderBrush="#FFE082" BorderThickness="1">
                         <StackPanel>
-                            <TextBlock Text="ℹ️ Légende des niveaux de charge" FontSize="12" FontWeight="Bold" 
+                            <TextBlock Text="ℹ️ Légende des niveaux de charge (basé sur heures CRA réelles)" FontSize="12" FontWeight="Bold" 
                                        Foreground="#1A1919" Margin="0,0,0,8"/>
                             <StackPanel Orientation="Horizontal" Margin="0,3">
                                 <Border Background="#4CAF50" Width="16" Height="16" CornerRadius="3" Margin="0,0,8,0"/>
-                                <TextBlock Text="Faible (0-3 projets)" FontSize="11" Foreground="#666" VerticalAlignment="Center"/>
+                                <TextBlock Text="Faible (&lt; 50%)" FontSize="11" Foreground="#666" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Border Background="#2196F3" Width="16" Height="16" CornerRadius="3" Margin="0,0,8,0"/>
+                                <TextBlock Text="Normale (50-100%)" FontSize="11" Foreground="#666" VerticalAlignment="Center"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,3">
                                 <Border Background="#FF9800" Width="16" Height="16" CornerRadius="3" Margin="0,0,8,0"/>
-                                <TextBlock Text="Moyenne (4-6 projets)" FontSize="11" Foreground="#666" VerticalAlignment="Center"/>
+                                <TextBlock Text="Élevée (100-150%)" FontSize="11" Foreground="#666" VerticalAlignment="Center"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,3">
                                 <Border Background="#F44336" Width="16" Height="16" CornerRadius="3" Margin="0,0,8,0"/>
-                                <TextBlock Text="Élevée (7+ projets)" FontSize="11" Foreground="#666" VerticalAlignment="Center"/>
+                                <TextBlock Text="Surcharge (≥ 150%)" FontSize="11" Foreground="#666" VerticalAlignment="Center"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>

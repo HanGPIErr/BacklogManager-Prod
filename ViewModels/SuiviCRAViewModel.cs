@@ -104,10 +104,12 @@ namespace BacklogManager.ViewModels
         private DateTime _semaineDebut;
         private int _anneeCourante;
         private Projet _projetSelectionne;
+        private Equipe _equipeSelectionnee;
 
         public ObservableCollection<JourCRAViewModel> JoursCalendrier { get; set; }
         public ObservableCollection<MoisCRAViewModel> MoisAnnee { get; set; }
         public ObservableCollection<Utilisateur> Devs { get; set; }
+        public ObservableCollection<Equipe> Equipes { get; set; }
         public ObservableCollection<DevCRAInfoViewModel> StatsDev { get; set; }
         public ObservableCollection<CRADetailViewModel> CRAsJourSelectionne { get; set; }
         public ObservableCollection<Projet> Projets { get; set; }
@@ -279,6 +281,24 @@ namespace BacklogManager.ViewModels
             }
         }
 
+        public Equipe EquipeSelectionnee
+        {
+            get => _equipeSelectionnee;
+            set
+            {
+                _equipeSelectionnee = value;
+                OnPropertyChanged();
+                ChargerDevs(); // Recharger la liste des membres filtrée par équipe
+                
+                // Si un membre était déjà sélectionné, charger les données
+                if (DevSelectionne != null)
+                {
+                    ChargerCalendrier();
+                    ChargerStatsDev();
+                }
+            }
+        }
+
         public JourCRAViewModel JourSelectionne
         {
             get => _jourSelectionne;
@@ -307,6 +327,7 @@ namespace BacklogManager.ViewModels
             JoursCalendrier = new ObservableCollection<JourCRAViewModel>();
             MoisAnnee = new ObservableCollection<MoisCRAViewModel>();
             Devs = new ObservableCollection<Utilisateur>();
+            Equipes = new ObservableCollection<Equipe>();
             StatsDev = new ObservableCollection<DevCRAInfoViewModel>();
             CRAsJourSelectionne = new ObservableCollection<CRADetailViewModel>();
             Projets = new ObservableCollection<Projet>();
@@ -358,9 +379,8 @@ namespace BacklogManager.ViewModels
             
             ValiderExtensionProjetCommand = new RelayCommand(_ => ValiderExtensionProjet());
 
-            ChargerDevs();
-            ChargerCalendrier();
-            ChargerStatsDev();
+            ChargerEquipes();
+            // ChargerDevs() sera appelé automatiquement quand une équipe est sélectionnée
         }
 
         private void ValiderExtensionProjet()
@@ -510,15 +530,36 @@ namespace BacklogManager.ViewModels
         private void ChargerDevs()
         {
             Devs.Clear();
-            Devs.Add(new Utilisateur { Id = 0, Nom = "Tous les développeurs" });
+            Devs.Add(new Utilisateur { Id = 0, Nom = "Tous les membres" });
 
             var users = _backlogService.GetAllUtilisateurs();
+            
+            // Filtrer par équipe si une équipe est sélectionnée
+            if (EquipeSelectionnee != null && EquipeSelectionnee.Id > 0)
+            {
+                users = users.Where(u => u.EquipeId == EquipeSelectionnee.Id).ToList();
+            }
+
             foreach (var user in users)
             {
                 Devs.Add(user);
             }
 
             DevSelectionne = Devs.FirstOrDefault();
+        }
+
+        private void ChargerEquipes()
+        {
+            Equipes.Clear();
+            Equipes.Add(new Equipe { Id = 0, Nom = "-- Toutes les équipes --" });
+
+            var equipes = _backlogService.GetAllEquipes();
+            foreach (var equipe in equipes.OrderBy(e => e.Nom))
+            {
+                Equipes.Add(equipe);
+            }
+
+            EquipeSelectionnee = Equipes.FirstOrDefault();
         }
 
         private void ChargerCalendrier()

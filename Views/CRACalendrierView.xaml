@@ -181,7 +181,7 @@
                     <Button Content="✓ Valider tous les CRA" Padding="12,8" Margin="0,0,8,0"
                             Background="#00915A" Foreground="White" FontSize="12" FontWeight="SemiBold"
                             BorderThickness="0" Cursor="Hand" Click="BtnValiderTousCRA_Click"
-                            ToolTip="Valide tous les CRA non validés du développeur"
+                            ToolTip="Valide tous les CRA non validés du membre"
                             Visibility="{Binding AfficherBoutonsValidation, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <Button.Style>
                             <Style TargetType="Button">
@@ -230,7 +230,14 @@
                         </Button.Style>
                     </Button>
                     
-                    <TextBlock Text="Développeur:" FontSize="13" VerticalAlignment="Center" Margin="0,0,10,0"
+                    <TextBlock Text="🏢 Équipe:" FontSize="13" VerticalAlignment="Center" Margin="0,0,10,0"
+                               Visibility="{Binding AfficherSelecteurDev, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                    <ComboBox ItemsSource="{Binding Equipes}" DisplayMemberPath="Nom"
+                              SelectedItem="{Binding EquipeSelectionnee}"
+                              Width="200" Padding="8,5" Margin="0,0,15,0"
+                              Visibility="{Binding AfficherSelecteurDev, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                    
+                    <TextBlock Text="👤 Membres:" FontSize="13" VerticalAlignment="Center" Margin="0,0,10,0"
                                Visibility="{Binding AfficherSelecteurDev, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                     <ComboBox ItemsSource="{Binding Devs}" DisplayMemberPath="Nom"
                               SelectedItem="{Binding DevSelectionne}"

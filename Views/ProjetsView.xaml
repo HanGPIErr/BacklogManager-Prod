@@ -94,6 +94,14 @@
                                       FontSize="12" Padding="8,6" BorderBrush="#CCCCCC" BorderThickness="1"/>
                         </Grid>
                         
+                        <!-- Filtre Équipe -->
+                        <TextBlock Text="🏢 Équipe:" FontSize="11" Foreground="#666" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                        <Grid Margin="0,0,0,8">
+                            <ComboBox x:Name="CbEquipe" ItemsSource="{Binding EquipesDisponibles}" 
+                                      SelectedItem="{Binding EquipeSelectionnee}" 
+                                      FontSize="12" Padding="8,6" BorderBrush="#CCCCCC" BorderThickness="1"/>
+                        </Grid>
+                        
                         <TextBlock Text="Trier par:" FontSize="11" Foreground="#666" Margin="0,0,0,5"/>
                         <Grid>
                             <ComboBox x:Name="CbTri" ItemsSource="{Binding OptionsTriDisponibles}" 
@@ -258,6 +266,31 @@
                                                 </Button.Style>
                                             </Button>
                                             
+                                            <Button Content="ℹ Détails" ToolTip="Voir les détails du projet" 
+                                                    Click="BtnDetailsProjet_Click" Tag="{Binding Projet}"
+                                                    Height="28" Background="#E3F2FD" Foreground="#1976D2"
+                                                    BorderThickness="0" FontSize="11" Cursor="Hand" Padding="8,4" Margin="0,0,5,0">
+                                                <Button.Style>
+                                                    <Style TargetType="Button">
+                                                        <Setter Property="Template">
+                                                            <Setter.Value>
+                                                                <ControlTemplate TargetType="Button">
+                                                                    <Border Background="{TemplateBinding Background}" CornerRadius="4" 
+                                                                            Padding="{TemplateBinding Padding}">
+                                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                    </Border>
+                                                                </ControlTemplate>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                        <Style.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="Background" Value="#BBDEFB"/>
+                                                            </Trigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Button.Style>
+                                            </Button>
+                                            
                                             <Button Content="🗑️" ToolTip="Supprimer le projet" 
                                                     Click="BtnSupprimerProjet_Click" Tag="{Binding Projet}"
                                                     Width="28" Height="28" Background="#FFEBEE" Foreground="#C62828"
@@ -284,11 +317,32 @@
                                             </Button>
                                         </StackPanel>
 
-                                        <!-- Date de création -->
-                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding DateCreationFormatee}" 
-                                                   FontSize="11" Foreground="#999" Margin="0,3,0,8"/>
+                                        <!-- Informations enrichies : Date, Total tâches, Progression%, RAG -->
+                                        <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,3,0,8">
+                                            <!-- Date de création -->
+                                            <TextBlock Text="{Binding DateCreationFormatee, Mode=OneWay}" FontSize="11" Foreground="#999" Margin="0,0,8,0"/>
+                                            
+                                            <!-- Total tâches -->
+                                            <TextBlock Text="•" FontSize="11" Foreground="#999" Margin="0,0,8,0"/>
+                                            <TextBlock FontSize="11" Foreground="#666" Margin="0,0,8,0">
+                                                <Run Text="{Binding TotalTaches, Mode=OneWay}"/>
+                                                <Run Text="tâches" FontWeight="SemiBold"/>
+                                            </TextBlock>
+                                            
+                                            <!-- Progression % -->
+                                            <TextBlock Text="•" FontSize="11" Foreground="#999" Margin="0,0,8,0"/>
+                                            <TextBlock FontSize="11" FontWeight="Bold" Foreground="#00915A">
+                                                <Run Text="{Binding ProgressionPourcent, Mode=OneWay}"/>
+                                                <Run Text="%"/>
+                                            </TextBlock>
+                                            
+                                            <!-- Badge RAG -->
+                                            <Border Background="{Binding CouleurRAG, Mode=OneWay}" CornerRadius="3" Padding="6,2" Margin="8,0,0,0">
+                                                <TextBlock Text="{Binding StatutRAGDisplay, Mode=OneWay}" FontSize="10" Foreground="White" FontWeight="Bold"/>
+                                            </Border>
+                                        </StackPanel>
 
-                                        <!-- Stats -->
+                                        <!-- Stats détaillées par statut -->
                                         <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal">
                                             <Border Background="#9E9E9E" CornerRadius="3" Padding="5,2" Margin="0,0,5,0">
                                                 <StackPanel Orientation="Horizontal">
@@ -458,6 +512,49 @@
                                                 </Border>
                                             </StackPanel>
 
+                                            <!-- Avancement % et RAG -->
+                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                                <!-- Barre de progression -->
+                                                <StackPanel Width="120" Margin="0,0,10,0">
+                                                    <TextBlock Text="{Binding AvancementInfo, Mode=OneWay}" FontSize="10" FontWeight="Bold" 
+                                                               Foreground="#00915A" Margin="0,0,0,2"/>
+                                                    <ProgressBar Value="{Binding Avancement, Mode=OneWay}" Height="6" 
+                                                                 Foreground="#00915A" Background="#E0E0E0" BorderThickness="0"/>
+                                                </StackPanel>
+                                                
+                                                <!-- Badge RAG -->
+                                                <Border Background="{Binding CouleurRAG, Mode=OneWay}" CornerRadius="3" Padding="6,2" Margin="0,0,8,0">
+                                                    <TextBlock Text="{Binding StatutRAG, Mode=OneWay}" FontSize="10" 
+                                                               Foreground="White" FontWeight="Bold"/>
+                                                </Border>
+                                                
+                                                <!-- Bouton Détails -->
+                                                <Button Content="ℹ Détails" ToolTip="Voir les détails de la tâche" 
+                                                        Click="BtnDetailsTache_Click" Tag="{Binding Tache}"
+                                                        Height="24" Background="#E3F2FD" Foreground="#1976D2"
+                                                        BorderThickness="0" FontSize="10" Cursor="Hand" Padding="6,2">
+                                                    <Button.Style>
+                                                        <Style TargetType="Button">
+                                                            <Setter Property="Template">
+                                                                <Setter.Value>
+                                                                    <ControlTemplate TargetType="Button">
+                                                                        <Border Background="{TemplateBinding Background}" CornerRadius="3" 
+                                                                                Padding="{TemplateBinding Padding}">
+                                                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                        </Border>
+                                                                    </ControlTemplate>
+                                                                </Setter.Value>
+                                                            </Setter>
+                                                            <Style.Triggers>
+                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                    <Setter Property="Background" Value="#BBDEFB"/>
+                                                                </Trigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Button.Style>
+                                                </Button>
+                                            </StackPanel>
+
                                             <StackPanel Orientation="Horizontal">
                                                 <Border CornerRadius="3" Padding="5,2" Margin="0,0,5,0">
                                                     <Border.Style>
@@ -467,7 +564,7 @@
                                                                 <DataTrigger Binding="{Binding Statut}" Value="EnCours">
                                                                     <Setter Property="Background" Value="#2196F3"/>
                                                                 </DataTrigger>
-                                                                <DataTrigger Binding="{Binding Statut}" Value="EnTest">
+                                                                <DataTrigger Binding="{Binding Statut}" Value="Test">
                                                                     <Setter Property="Background" Value="#FF9800"/>
                                                                 </DataTrigger>
                                                                 <DataTrigger Binding="{Binding Statut}" Value="Termine">

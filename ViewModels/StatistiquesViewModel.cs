@@ -703,14 +703,28 @@ namespace BacklogManager.ViewModels
                     var manager = equipe.ManagerId.HasValue ? utilisateurs.FirstOrDefault(u => u.Id == equipe.ManagerId.Value) : null;
                     var nomManager = manager != null ? $"{manager.Prenom} {manager.Nom}" : "Non assigné";
                     var nbProjets = 0;
+                    double heuresReelles = 0;
                     
                     foreach (var projet in projets.Where(p => p.Actif && p.EquipesAssigneesIds != null && p.EquipesAssigneesIds.Count > 0))
                     {
                         if (projet.EquipesAssigneesIds.Contains(equipe.Id))
                         {
                             nbProjets++;
+                            heuresReelles += CalculerHeuresCRAProjet(projet.Id);
                         }
                     }
+                    
+                    // Heures disponibles: 8h/jour × jours ouvrés dans la période
+                    const double HEURES_PAR_JOUR = 8.0;
+                    double joursOuvres = 22; // Par défaut 1 mois
+                    
+                    if (DateDebutFiltre.HasValue && DateFinFiltre.HasValue)
+                    {
+                        var totalJours = (DateFinFiltre.Value - DateDebutFiltre.Value).Days + 1;
+                        joursOuvres = totalJours * 5.0 / 7.0; // Estimation jours ouvrés (5 sur 7)
+                    }
+                    
+                    double heuresDisponibles = nbMembres * HEURES_PAR_JOUR * joursOuvres;
 
                     ressourcesStats.Add(new RessourceEquipeViewModel
                     {
@@ -718,7 +732,9 @@ namespace BacklogManager.ViewModels
                         NomEquipe = equipe.Nom,
                         NomManager = nomManager,
                         NbMembres = nbMembres,
-                        NbProjets = nbProjets
+                        NbProjets = nbProjets,
+                        HeuresReelles = heuresReelles,
+                        HeuresDisponibles = heuresDisponibles
                     });
                 }
 
@@ -735,26 +751,49 @@ namespace BacklogManager.ViewModels
                 foreach (var equipe in equipes)
                 {
                     var nbProjets = 0;
+                    double heuresReelles = 0;
+                    
                     foreach (var projet in projets.Where(p => p.Actif && p.EquipesAssigneesIds != null && p.EquipesAssigneesIds.Count > 0))
                     {
                         if (projet.EquipesAssigneesIds.Contains(equipe.Id))
                         {
                             nbProjets++;
+                            // Calculer les heures CRA réelles pour ce projet
+                            heuresReelles += CalculerHeuresCRAProjet(projet.Id);
                         }
                     }
+
+                    // Tous les membres de l'équipe (hors manager)
+                    var nbMembres = utilisateurs.Count(u => u.EquipeId == equipe.Id && u.Id != equipe.ManagerId);
+                    
+                    // Heures disponibles: 8h/jour × jours ouvrés dans la période
+                    const double HEURES_PAR_JOUR = 8.0;
+                    double joursOuvres = 22; // Par défaut 1 mois
+                    
+                    if (DateDebutFiltre.HasValue && DateFinFiltre.HasValue)
+                    {
+                        var totalJours = (DateFinFiltre.Value - DateDebutFiltre.Value).Days + 1;
+                        joursOuvres = totalJours * 5.0 / 7.0; // Estimation jours ouvrés (5 sur 7)
+                    }
+                    
+                    double heuresDisponibles = nbMembres * HEURES_PAR_JOUR * joursOuvres;
 
                     chargeStats.Add(new ChargeEquipeViewModel
                     {
                         NomEquipe = equipe.Nom,
                         CodeEquipe = equipe.Code,
-                        NbProjets = nbProjets
+                        NbProjets = nbProjets,
+                        NbMembres = nbMembres,
+                        HeuresReelles = heuresReelles,
+                        HeuresDisponibles = heuresDisponibles
                     });
                 }
 
                 var maxProjets = chargeStats.Any() ? chargeStats.Max(c => c.NbProjets) : 1;
                 ChargeEquipeViewModel.SetMaxProjets(maxProjets);
 
-                foreach (var stat in chargeStats.OrderByDescending(c => c.NbProjets))
+                // Trier par charge par membre (faible charge en premier pour mettre en avant la capacit\u00e9)
+                foreach (var stat in chargeStats.OrderBy(c => c.ChargeParMembre))
                 {
                     ChargeParEquipe.Add(stat);
                 }
@@ -1037,6 +1076,9 @@ namespace BacklogManager.ViewModels
         private string _nomManager;
         private int _nbMembres;
         private int _nbProjets;
+        private double _heuresReelles;
+        private double _heuresDisponibles;
+        private double _chargeEquipe;
         
         public int EquipeId { get; set; }
         
@@ -1075,7 +1117,54 @@ namespace BacklogManager.ViewModels
             }
         }
         
+        public double HeuresReelles
+        {
+            get => _heuresReelles;
+            set
+            {
+                _heuresReelles = value;
+                OnPropertyChanged(nameof(HeuresReelles));
+                CalculerCharge();
+            }
+        }
+        
+        public double HeuresDisponibles
+        {
+            get => _heuresDisponibles;
+            set
+            {
+                _heuresDisponibles = value;
+                OnPropertyChanged(nameof(HeuresDisponibles));
+                CalculerCharge();
+            }
+        }
+        
+        public double ChargeEquipe
+        {
+            get => _chargeEquipe;
+            set
+            {
+                _chargeEquipe = value;
+                OnPropertyChanged(nameof(ChargeEquipe));
+                OnPropertyChanged(nameof(ChargeEquipeDisplay));
+            }
+        }
+        
+        public string ChargeEquipeDisplay => $"{ChargeEquipe:F0}%";
+        
         public double ChargeParMembre => NbMembres > 0 ? (double)NbProjets / NbMembres : 0;
+        
+        private void CalculerCharge()
+        {
+            if (_heuresDisponibles > 0)
+            {
+                ChargeEquipe = (_heuresReelles / _heuresDisponibles) * 100.0;
+            }
+            else
+            {
+                ChargeEquipe = 0;
+            }
+        }
         
         private static int _maxMembres = 1;
         public static void SetMaxMembres(int max) => _maxMembres = max > 0 ? max : 1;
@@ -1093,6 +1182,14 @@ namespace BacklogManager.ViewModels
         private string _nomEquipe;
         private string _codeEquipe;
         private int _nbProjets;
+        private int _nbMembres;
+        private double _chargeParMembre;
+        private string _niveauCharge;
+        private string _indicateurCapacite;
+        private double _chargeTotaleEquipe;
+        private double _chargeMoyenneEquipe;
+        private double _heuresReelles;
+        private double _heuresDisponibles;
         
         public string NomEquipe
         {
@@ -1115,6 +1212,146 @@ namespace BacklogManager.ViewModels
                 OnPropertyChanged(nameof(NbProjets));
                 OnPropertyChanged(nameof(LargeurBarre));
                 OnPropertyChanged(nameof(CouleurBarre));
+                CalculerChargeParMembre();
+            }
+        }
+
+        public int NbMembres
+        {
+            get => _nbMembres;
+            set
+            {
+                _nbMembres = value;
+                OnPropertyChanged(nameof(NbMembres));
+                CalculerChargeParMembre();
+            }
+        }
+
+        public double ChargeParMembre
+        {
+            get => _chargeParMembre;
+            set
+            {
+                _chargeParMembre = value;
+                OnPropertyChanged(nameof(ChargeParMembre));
+                OnPropertyChanged(nameof(ChargeParMembreDisplay));
+            }
+        }
+
+        public string ChargeParMembreDisplay => _nbMembres > 0 ? $"{_chargeParMembre:F1}" : "N/A";
+
+        // Charge totale de l'équipe en % (basée sur 100% = 1 projet par membre)
+        public double ChargeTotaleEquipe
+        {
+            get => _chargeTotaleEquipe;
+            set
+            {
+                _chargeTotaleEquipe = value;
+                OnPropertyChanged(nameof(ChargeTotaleEquipe));
+                OnPropertyChanged(nameof(ChargeTotaleDisplay));
+            }
+        }
+
+        public string ChargeTotaleDisplay => $"{ChargeTotaleEquipe:F0}%";
+
+        // Charge moyenne par membre en %
+        public double ChargeMoyenneEquipe
+        {
+            get => _chargeMoyenneEquipe;
+            set
+            {
+                _chargeMoyenneEquipe = value;
+                OnPropertyChanged(nameof(ChargeMoyenneEquipe));
+                OnPropertyChanged(nameof(ChargeMoyenneDisplay));
+            }
+        }
+
+        public string ChargeMoyenneDisplay => $"{ChargeMoyenneEquipe:F0}%";
+
+        public double HeuresReelles
+        {
+            get => _heuresReelles;
+            set
+            {
+                _heuresReelles = value;
+                OnPropertyChanged(nameof(HeuresReelles));
+                CalculerChargeParMembre();
+            }
+        }
+
+        public double HeuresDisponibles
+        {
+            get => _heuresDisponibles;
+            set
+            {
+                _heuresDisponibles = value;
+                OnPropertyChanged(nameof(HeuresDisponibles));
+                CalculerChargeParMembre();
+            }
+        }
+
+        public string NiveauCharge
+        {
+            get => _niveauCharge;
+            set
+            {
+                _niveauCharge = value;
+                OnPropertyChanged(nameof(NiveauCharge));
+            }
+        }
+
+        public string IndicateurCapacite
+        {
+            get => _indicateurCapacite;
+            set
+            {
+                _indicateurCapacite = value;
+                OnPropertyChanged(nameof(IndicateurCapacite));
+            }
+        }
+
+        private void CalculerChargeParMembre()
+        {
+            if (_nbMembres > 0 && _heuresDisponibles > 0)
+            {
+                // Charge totale: % des heures réelles sur les heures disponibles
+                ChargeTotaleEquipe = (_heuresReelles / _heuresDisponibles) * 100.0;
+                
+                // Charge moyenne par membre
+                ChargeMoyenneEquipe = ChargeTotaleEquipe / _nbMembres;
+                
+                // Ratio pour le code couleur
+                ChargeParMembre = _heuresReelles / _heuresDisponibles;
+                
+                // D\u00e9terminer le niveau de charge
+                if (ChargeParMembre < 0.5)
+                {
+                    NiveauCharge = "Faible";
+                    IndicateurCapacite = "\u2705 Capacit\u00e9 disponible";
+                }
+                else if (ChargeParMembre < 1.0)
+                {
+                    NiveauCharge = "Normale";
+                    IndicateurCapacite = "\u26a0\ufe0f Charge \u00e9quilibr\u00e9e";
+                }
+                else if (ChargeParMembre < 1.5)
+                {
+                    NiveauCharge = "\u00c9lev\u00e9e";
+                    IndicateurCapacite = "\u26a0\ufe0f Forte charge";
+                }
+                else
+                {
+                    NiveauCharge = "Tr\u00e8s \u00e9lev\u00e9e";
+                    IndicateurCapacite = "\ud83d\udd34 Surcharge";
+                }
+            }
+            else
+            {
+                ChargeParMembre = 0;
+                ChargeTotaleEquipe = 0;
+                ChargeMoyenneEquipe = 0;
+                NiveauCharge = "N/A";
+                IndicateurCapacite = "\u26a0\ufe0f Aucun membre";
             }
         }
         
@@ -1126,11 +1363,13 @@ namespace BacklogManager.ViewModels
         {
             get
             {
-                // Vert si charge légère, orange si moyenne, rouge si élevée
-                var ratio = _maxProjets > 0 ? (double)NbProjets / _maxProjets : 0;
-                if (ratio < 0.5) return "#4CAF50"; // Vert
-                if (ratio < 0.8) return "#FF9800"; // Orange
-                return "#F44336"; // Rouge
+                // Couleur bas\u00e9e sur la charge par membre
+                if (_nbMembres == 0) return "#9E9E9E"; // Gris si pas de membres
+                
+                if (ChargeParMembre < 0.5) return "#4CAF50"; // Vert - capacit\u00e9 disponible
+                if (ChargeParMembre < 1.0) return "#2196F3"; // Bleu - charge normale
+                if (ChargeParMembre < 1.5) return "#FF9800"; // Orange - charge \u00e9lev\u00e9e
+                return "#F44336"; // Rouge - surcharge
             }
         }
         

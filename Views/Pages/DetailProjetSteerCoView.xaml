@@ -370,7 +370,7 @@
                         </DataGrid.CellStyle>
                         
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="DÉVELOPPEUR" Binding="{Binding NomDeveloppeur}" 
+                            <DataGridTextColumn Header="MEMBRES" Binding="{Binding NomDeveloppeur}" 
                                                 Width="*" FontSize="13" FontWeight="SemiBold"/>
                             
                             <DataGridTextColumn Header="TÂCHES COMPLÉTÉES" Width="150" FontSize="13">

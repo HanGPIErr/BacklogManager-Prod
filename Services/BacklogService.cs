@@ -230,5 +230,10 @@ namespace BacklogManager.Services
                 SaveBacklogItem(item);
             }
         }
+
+        public List<Equipe> GetAllEquipes()
+        {
+            return _database.GetAllEquipes();
+        }
     }
 }

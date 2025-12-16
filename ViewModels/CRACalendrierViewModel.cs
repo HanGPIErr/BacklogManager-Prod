@@ -96,9 +96,11 @@ namespace BacklogManager.ViewModels
         private string _commentaire;
         private bool _saisirSurPeriode;
         private DateTime? _dateFinPeriode;
+        private Equipe _equipeSelectionnee;
 
         public ObservableCollection<JourCalendrierViewModel> JoursCalendrier { get; set; }
         public ObservableCollection<Utilisateur> Devs { get; set; }
+        public ObservableCollection<Equipe> Equipes { get; set; }
         public ObservableCollection<BacklogItem> TachesDisponibles { get; set; }
         public ObservableCollection<CRADisplayViewModel> CRAsJourSelectionne { get; set; }
 
@@ -126,6 +128,17 @@ namespace BacklogManager.ViewModels
                 OnPropertyChanged(nameof(AfficherBoutonsValidation)); // Notifier changement boutons validation
                 ChargerTachesDisponibles();
                 ChargerCalendrier();
+            }
+        }
+
+        public Equipe EquipeSelectionnee
+        {
+            get => _equipeSelectionnee;
+            set
+            {
+                _equipeSelectionnee = value;
+                OnPropertyChanged();
+                ChargerDevs(); // Recharger la liste des membres filtrée par équipe
             }
         }
 
@@ -306,6 +319,7 @@ namespace BacklogManager.ViewModels
 
             JoursCalendrier = new ObservableCollection<JourCalendrierViewModel>();
             Devs = new ObservableCollection<Utilisateur>();
+            Equipes = new ObservableCollection<Equipe>();
             TachesDisponibles = new ObservableCollection<BacklogItem>();
             CRAsJourSelectionne = new ObservableCollection<CRADisplayViewModel>();
 
@@ -327,7 +341,12 @@ namespace BacklogManager.ViewModels
             ValiderJourneeCommand = new RelayCommand(param => ValiderJournee((JourCalendrierViewModel)param));
             ValiderJourneeCommand = new RelayCommand(param => ValiderJournee((JourCalendrierViewModel)param));
 
-            ChargerDevs();
+            ChargerEquipes();
+            // ChargerDevs() sera appelé après sélection équipe si admin, sinon maintenant
+            if (!_permissionService.EstAdministrateur)
+            {
+                ChargerDevs();
+            }
             ChargerTachesDisponibles();
             ChargerCalendrier();
         }
@@ -347,17 +366,24 @@ namespace BacklogManager.ViewModels
                 var roles = _backlogService.Database.GetRoles();
                 
                 // Filtrer uniquement les Développeurs et Business Analysts
+                var devsFiltered = new List<Utilisateur>();
                 foreach (var user in users)
                 {
                     var role = roles.FirstOrDefault(r => r.Id == user.RoleId);
                     if (role != null && (role.Type == RoleType.Developpeur || role.Type == RoleType.BusinessAnalyst))
                     {
-                        Devs.Add(user);
+                        devsFiltered.Add(user);
                     }
                 }
                 
+                // Filtrer par équipe si une équipe est sélectionnée
+                if (EquipeSelectionnee != null && EquipeSelectionnee.Id > 0)
+                {
+                    devsFiltered = devsFiltered.Where(u => u.EquipeId == EquipeSelectionnee.Id).ToList();
+                }
+                
                 // Trier par nom
-                var devsList = Devs.OrderBy(d => d.Nom).ToList();
+                var devsList = devsFiltered.OrderBy(d => d.Nom).ToList();
                 Devs.Clear();
                 foreach (var dev in devsList)
                 {
@@ -382,6 +408,25 @@ namespace BacklogManager.ViewModels
             }
             
             OnPropertyChanged(nameof(AfficherSelecteurDev));
+        }
+
+        private void ChargerEquipes()
+        {
+            Equipes.Clear();
+            
+            // Pour admin uniquement
+            if (_permissionService.EstAdministrateur)
+            {
+                Equipes.Add(new Equipe { Id = 0, Nom = "-- Toutes les équipes --" });
+
+                var equipes = _backlogService.GetAllEquipes();
+                foreach (var equipe in equipes.OrderBy(e => e.Nom))
+                {
+                    Equipes.Add(equipe);
+                }
+
+                EquipeSelectionnee = Equipes.FirstOrDefault();
+            }
         }
 
         private void ChargerTachesDisponibles()

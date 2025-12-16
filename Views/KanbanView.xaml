@@ -262,7 +262,25 @@
                     </StackPanel>
                 </Border>
                 
-                <TextBlock Text="Développeur:" FontSize="13" VerticalAlignment="Center" Margin="10,0,8,0" FontWeight="SemiBold" Foreground="#555"/>
+                <TextBlock Text="🏢 Équipe:" FontSize="13" VerticalAlignment="Center" Margin="10,0,8,0" FontWeight="SemiBold" Foreground="#555"/>
+                <ComboBox ItemsSource="{Binding Equipes}" DisplayMemberPath="Nom"
+                          SelectedValue="{Binding SelectedEquipeId}" SelectedValuePath="Id" 
+                          Width="200" Padding="10,7" Margin="0,0,15,0">
+                    <ComboBox.Style>
+                        <Style TargetType="ComboBox">
+                            <Setter Property="Background" Value="White"/>
+                            <Setter Property="BorderBrush" Value="#BDBDBD"/>
+                            <Setter Property="BorderThickness" Value="1"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="BorderBrush" Value="#00915A"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ComboBox.Style>
+                </ComboBox>
+                
+                <TextBlock Text="👤 Membres:" FontSize="13" VerticalAlignment="Center" Margin="10,0,8,0" FontWeight="SemiBold" Foreground="#555"/>
                 <ComboBox ItemsSource="{Binding Devs}" DisplayMemberPath="Nom"
                           SelectedValue="{Binding SelectedDevId}" SelectedValuePath="Id" 
                           Width="170" Padding="10,7" Margin="0,0,15,0">

@@ -251,6 +251,7 @@ namespace BacklogManager.ViewModels
         private int? _selectedDevId;
         private int? _selectedProjetId;
         private bool _isLoading;
+        private int? _selectedEquipeId;
 
         public ObservableCollection<KanbanItemViewModel> ItemsEnAttente { get; set; }
         public ObservableCollection<KanbanItemViewModel> ItemsAPrioriser { get; set; }
@@ -260,6 +261,7 @@ namespace BacklogManager.ViewModels
         public ObservableCollection<KanbanItemViewModel> ItemsTermine { get; set; }
         public ObservableCollection<Dev> Devs { get; set; }
         public ObservableCollection<Projet> Projets { get; set; }
+        public ObservableCollection<Equipe> Equipes { get; set; }
 
         // Limites WIP (Work In Progress)
         private const int LIMITE_WIP_ENCOURS = 5;
@@ -303,6 +305,20 @@ namespace BacklogManager.ViewModels
 
         public bool PeutSupprimerTaches => _permissionService.PeutSupprimerTaches;
         public bool EstAdministrateur => _permissionService.EstAdministrateur;
+
+        public int? SelectedEquipeId
+        {
+            get { return _selectedEquipeId; }
+            set
+            {
+                if (_selectedEquipeId != value)
+                {
+                    _selectedEquipeId = value;
+                    OnPropertyChanged();
+                    LoadFilteredDevs(); // Recharger la liste des membres filtrée
+                }
+            }
+        }
 
         public int? SelectedDevId
         {
@@ -395,6 +411,7 @@ namespace BacklogManager.ViewModels
             ItemsTermine = new ObservableCollection<KanbanItemViewModel>();
             Devs = new ObservableCollection<Dev>();
             Projets = new ObservableCollection<Projet>();
+            Equipes = new ObservableCollection<Equipe>();
 
             MoveLeftCommand = new RelayCommand(item => MoveItemLeft((item as KanbanItemViewModel)?.Item ?? item as BacklogItem));
             MoveRightCommand = new RelayCommand(item => MoveItemRight((item as KanbanItemViewModel)?.Item ?? item as BacklogItem));
@@ -416,19 +433,53 @@ namespace BacklogManager.ViewModels
 
         private void LoadFilterLists()
         {
-            var devs = _backlogService.GetAllDevs();
-            var projets = _backlogService.GetAllProjets().Where(p => p.Actif).ToList();
-
-            Devs.Clear();
-            foreach (var dev in devs)
+            // Charger les équipes
+            var equipes = _backlogService.GetAllEquipes();
+            Equipes.Clear();
+            Equipes.Add(new Equipe { Id = 0, Nom = "-- Toutes les équipes --" });
+            foreach (var equipe in equipes.OrderBy(e => e.Nom))
             {
-                Devs.Add(dev);
+                Equipes.Add(equipe);
             }
+
+            // Charger les devs (sera filtré par équipe)
+            LoadFilteredDevs();
+
+            var projets = _backlogService.GetAllProjets().Where(p => p.Actif).ToList();
 
             Projets.Clear();
             foreach (var projet in projets)
             {
                 Projets.Add(projet);
+            }
+        }
+
+        private void LoadFilteredDevs()
+        {
+            var allDevs = _backlogService.GetAllDevs();
+            
+            // Filtrer par équipe si sélectionnée
+            if (SelectedEquipeId.HasValue && SelectedEquipeId.Value > 0)
+            {
+                // Récupérer les utilisateurs de l'équipe
+                var users = _backlogService.GetAllUtilisateurs()
+                    .Where(u => u.EquipeId == SelectedEquipeId.Value)
+                    .ToList();
+                
+                // Filtrer les devs pour ne garder que ceux de l'équipe
+                allDevs = allDevs.Where(d => users.Any(u => u.Id == d.Id)).ToList();
+            }
+
+            Devs.Clear();
+            foreach (var dev in allDevs)
+            {
+                Devs.Add(dev);
+            }
+            
+            // Réinitialiser la sélection si le dev sélectionné n'est plus dans la liste
+            if (SelectedDevId.HasValue && !Devs.Any(d => d.Id == SelectedDevId.Value))
+            {
+                SelectedDevId = null;
             }
         }
 

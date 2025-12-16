@@ -124,5 +124,33 @@ namespace BacklogManager.Views
             // Empêcher la propagation du clic vers la Border parente
             e.Handled = true;
         }
+
+        private void BtnDetailsProjet_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var projet = button?.Tag as Projet;
+            
+            if (projet != null)
+            {
+                var viewModel = DataContext as ProjetsViewModel;
+                viewModel?.VoirDetailsProjet(projet);
+            }
+            
+            // Empêcher la propagation du clic vers la Border parente
+            e.Handled = true;
+        }
+
+        private void BtnDetailsTache_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            if (button?.Tag is BacklogItem tache)
+            {
+                var viewModel = DataContext as ProjetsViewModel;
+                viewModel?.VoirDetailsTache(tache);
+            }
+            
+            // Empêcher la propagation du clic vers la Border parente
+            e.Handled = true;
+        }
     }
 }

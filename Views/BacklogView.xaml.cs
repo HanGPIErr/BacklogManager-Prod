@@ -29,6 +29,9 @@ namespace BacklogManager.Views
                 // S'abonner à l'événement de création de projet
                 viewModel.ProjetCreated += OnProjetCreated;
             }
+            
+            // Afficher directement l'onglet Programmes au chargement
+            BtnVueProgrammes_Click(null, null);
         }
 
         private void OnProjetCreated(object sender, EventArgs e)
@@ -474,6 +477,18 @@ namespace BacklogManager.Views
                 var badgesPanel = new WrapPanel { Margin = new Thickness(0, 0, 0, 0) };
                 foreach (var projet in projetsAssocies)
                 {
+                    // Calculer les stats du projet
+                    var tachesProjet = toutesLesTaches.Where(t => t.ProjetId == projet.Id).ToList();
+                    var nbTotal = tachesProjet.Count;
+                    var nbTermine = tachesProjet.Count(t => t.Statut == Statut.Termine || t.EstArchive);
+                    var progression = nbTotal > 0 ? (int)((double)nbTermine / nbTotal * 100) : 0;
+                    
+                    // Calculer le RAG si non défini
+                    if (string.IsNullOrEmpty(projet.StatutRAG))
+                    {
+                        projet.StatutRAG = CalculerStatutRAGAutomatique(projet, toutesLesTaches);
+                    }
+
                     var badge = new Border
                     {
                         Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E8F5E9")),
@@ -485,14 +500,59 @@ namespace BacklogManager.Views
                         Cursor = System.Windows.Input.Cursors.Hand
                     };
 
-                    var badgeText = new TextBlock
+                    // Contenu du badge avec nom + progression + RAG
+                    var badgeStack = new StackPanel { Orientation = Orientation.Horizontal };
+                    
+                    // Nom du projet
+                    var nomText = new TextBlock
                     {
                         Text = projet.Nom,
                         FontSize = 13,
                         FontWeight = FontWeights.Medium,
-                        Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00915A"))
+                        Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00915A")),
+                        Margin = new Thickness(0, 0, 8, 0)
                     };
-                    badge.Child = badgeText;
+                    badgeStack.Children.Add(nomText);
+
+                    // Badge progression
+                    var progressBadge = new Border
+                    {
+                        Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00915A")),
+                        CornerRadius = new CornerRadius(4),
+                        Padding = new Thickness(5, 2, 5, 2),
+                        Margin = new Thickness(0, 0, 5, 0)
+                    };
+                    progressBadge.Child = new TextBlock
+                    {
+                        Text = $"{progression}%",
+                        FontSize = 10,
+                        FontWeight = FontWeights.Bold,
+                        Foreground = Brushes.White
+                    };
+                    badgeStack.Children.Add(progressBadge);
+
+                    // Badge RAG
+                    var ragColor = projet.StatutRAG?.ToLower() == "green" ? Color.FromRgb(76, 175, 80) :
+                                   projet.StatutRAG?.ToLower() == "amber" ? Color.FromRgb(255, 152, 0) : 
+                                   projet.StatutRAG?.ToLower() == "red" ? Color.FromRgb(244, 67, 54) :
+                                   Color.FromRgb(158, 158, 158);
+                    
+                    var ragBadge = new Border
+                    {
+                        Background = new SolidColorBrush(ragColor),
+                        CornerRadius = new CornerRadius(4),
+                        Padding = new Thickness(5, 2, 5, 2)
+                    };
+                    ragBadge.Child = new TextBlock
+                    {
+                        Text = (projet.StatutRAG ?? "N/A").ToUpper(),
+                        FontSize = 10,
+                        FontWeight = FontWeights.Bold,
+                        Foreground = Brushes.White
+                    };
+                    badgeStack.Children.Add(ragBadge);
+
+                    badge.Child = badgeStack;
 
                     // Empêcher la propagation du clic vers la carte parent
                     badge.MouseLeftButtonUp += (s, e) =>

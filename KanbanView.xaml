@@ -37,7 +37,7 @@
                     <ComboBox x:Name="CbKanbanDev" ItemsSource="{Binding Devs}" DisplayMemberPath="Nom"
                               SelectedValue="{Binding SelectedDevId}" SelectedValuePath="Id" 
                               Height="32" Padding="8,5" Background="White" BorderBrush="#DDD" BorderThickness="1"/>
-                    <TextBlock Text="Tous les développeurs" IsHitTestVisible="False" 
+                    <TextBlock Text="Tous les membres" IsHitTestVisible="False" 
                                Foreground="#999" FontSize="12" Margin="10,0,0,0"
                                VerticalAlignment="Center">
                         <TextBlock.Style>

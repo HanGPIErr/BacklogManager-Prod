@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -18,6 +19,7 @@ namespace BacklogManager.ViewModels
         private int _nbEnCours;
         private int _nbEnTest;
         private int _nbTermine;
+        private List<BacklogItem> _tachesProjet; // Stocker les tâches pour le calcul RAG
 
         public Projet Projet
         {
@@ -28,28 +30,93 @@ namespace BacklogManager.ViewModels
         public int NbAfaire
         {
             get { return _nbAfaire; }
-            set { _nbAfaire = value; OnPropertyChanged(); }
+            set { _nbAfaire = value; OnPropertyChanged(); OnPropertyChanged(nameof(TotalTaches)); OnPropertyChanged(nameof(ProgressionPourcent)); }
         }
 
         public int NbEnCours
         {
             get { return _nbEnCours; }
-            set { _nbEnCours = value; OnPropertyChanged(); }
+            set { _nbEnCours = value; OnPropertyChanged(); OnPropertyChanged(nameof(TotalTaches)); OnPropertyChanged(nameof(ProgressionPourcent)); }
         }
 
         public int NbEnTest
         {
             get { return _nbEnTest; }
-            set { _nbEnTest = value; OnPropertyChanged(); }
+            set { _nbEnTest = value; OnPropertyChanged(); OnPropertyChanged(nameof(TotalTaches)); OnPropertyChanged(nameof(ProgressionPourcent)); }
         }
 
         public int NbTermine
         {
             get { return _nbTermine; }
-            set { _nbTermine = value; OnPropertyChanged(); }
+            set { _nbTermine = value; OnPropertyChanged(); OnPropertyChanged(nameof(TotalTaches)); OnPropertyChanged(nameof(ProgressionPourcent)); }
+        }
+
+        public List<BacklogItem> TachesProjet
+        {
+            get { return _tachesProjet; }
+            set { _tachesProjet = value; OnPropertyChanged(); OnPropertyChanged(nameof(StatutRAGDisplay)); OnPropertyChanged(nameof(CouleurRAG)); }
         }
 
         public int TotalTaches => NbAfaire + NbEnCours + NbEnTest + NbTermine;
+
+        public int ProgressionPourcent
+        {
+            get
+            {
+                if (TotalTaches == 0) return 0;
+                return (int)((double)NbTermine / TotalTaches * 100);
+            }
+        }
+
+        public string StatutRAGDisplay
+        {
+            get
+            {
+                if (!string.IsNullOrEmpty(Projet?.StatutRAG))
+                    return Projet.StatutRAG.ToUpper();
+                
+                // Calcul automatique basé sur progression et tâches en retard (comme dans BacklogView)
+                if (TachesProjet == null || TachesProjet.Count == 0)
+                    return "GREEN";
+
+                var nbTotal = TachesProjet.Count;
+                var progression = ProgressionPourcent;
+
+                // Compter les tâches en retard (non terminées avec date dépassée)
+                var nbEnRetard = TachesProjet.Count(t => 
+                    t.Statut != Statut.Termine && 
+                    !t.EstArchive &&
+                    t.DateFinAttendue.HasValue && 
+                    t.DateFinAttendue.Value < DateTime.Now);
+
+                var tauxRetard = nbTotal > 0 ? (nbEnRetard * 100.0 / nbTotal) : 0;
+
+                // Logique RAG : Red si > 30% de tâches en retard OU progression < 30% avec des retards
+                if (tauxRetard > 30 || (progression < 30 && nbEnRetard > 0))
+                    return "RED";
+                
+                // Amber si > 15% de tâches en retard OU progression entre 30-60% avec retards
+                if (tauxRetard > 15 || (progression < 60 && nbEnRetard > 3))
+                    return "AMBER";
+                
+                return "GREEN";
+            }
+        }
+
+        public System.Windows.Media.Brush CouleurRAG
+        {
+            get
+            {
+                var statutRAG = StatutRAGDisplay;
+                if (statutRAG == "GREEN")
+                    return new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(76, 175, 80)); // #4CAF50
+                if (statutRAG == "AMBER")
+                    return new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 152, 0)); // #FF9800
+                if (statutRAG == "RED")
+                    return new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(244, 67, 54)); // #F44336
+                return new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(158, 158, 158)); // #9E9E9E
+            }
+        }
 
         public string DateCreationFormatee => Projet?.DateCreation.ToString("dd/MM/yyyy HH:mm") ?? "";
 
@@ -63,6 +130,8 @@ namespace BacklogManager.ViewModels
 
     public class TacheEnrichie
     {
+        private const double HEURES_PAR_JOUR = 7.4;
+        
         public BacklogItem Tache { get; set; }
         public string DevAssigneNom { get; set; }
 
@@ -74,6 +143,88 @@ namespace BacklogManager.ViewModels
         public DateTime DateCreation => Tache?.DateCreation ?? DateTime.Now;
         public DateTime? DateDebut => Tache?.DateDebut;
         public DateTime? DateFinPrevue => Tache?.DateFinAttendue;
+        
+        // % d'avancement (comme dans Kanban)
+        public double Avancement
+        {
+            get
+            {
+                if (Tache == null) return 0;
+                
+                if (Tache.Statut == Statut.Termine || Tache.EstArchive)
+                    return 100;
+                
+                if (Tache.ChiffrageHeures.HasValue && Tache.ChiffrageHeures.Value > 0)
+                {
+                    double tempsPasséHeures = Tache.TempsReelHeures ?? 0;
+                    double avancement = (tempsPasséHeures / Tache.ChiffrageHeures.Value) * 100;
+                    return Math.Min(100, avancement);
+                }
+                
+                return 0;
+            }
+        }
+        
+        public string AvancementInfo => $"{Avancement:F0}%";
+        
+        // Statut RAG basé sur l'avancement et les retards
+        public string StatutRAG
+        {
+            get
+            {
+                if (Tache == null) return "GREEN";
+                
+                // Si la tâche est terminée ou archivée = GREEN
+                if (Tache.Statut == Statut.Termine || Tache.EstArchive)
+                    return "GREEN";
+                
+                // Si la tâche a une échéance
+                if (Tache.DateFinAttendue.HasValue)
+                {
+                    var joursRestants = (Tache.DateFinAttendue.Value - DateTime.Now).TotalDays;
+                    
+                    // Échéance dépassée = RED
+                    if (joursRestants < 0)
+                        return "RED";
+                    
+                    // Échéance très proche (moins de 3 jours) et pas terminé = AMBER
+                    if (joursRestants <= 3 && Avancement < 100)
+                        return "AMBER";
+                    
+                    // Échéance proche (moins d'une semaine) mais bon avancement = GREEN
+                    if (joursRestants <= 7 && Avancement >= 70)
+                        return "GREEN";
+                    
+                    // Échéance proche (moins d'une semaine) et avancement faible = AMBER
+                    if (joursRestants <= 7 && Avancement < 70)
+                        return "AMBER";
+                    
+                    // Échéance dans plus d'une semaine = GREEN (temps suffisant)
+                    if (joursRestants > 7)
+                        return "GREEN";
+                }
+                
+                // Pas d'échéance définie : basé uniquement sur l'avancement
+                if (Avancement >= 70) return "GREEN";
+                if (Avancement >= 30) return "AMBER";
+                
+                return "RED";
+            }
+        }
+        
+        public System.Windows.Media.Brush CouleurRAG
+        {
+            get
+            {
+                if (StatutRAG == "GREEN")
+                    return new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(76, 175, 80));
+                if (StatutRAG == "AMBER")
+                    return new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 152, 0));
+                if (StatutRAG == "RED")
+                    return new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(244, 67, 54));
+                return new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(158, 158, 158));
+            }
+        }
     }
 
     public class ProjetsViewModel : INotifyPropertyChanged
@@ -88,6 +239,7 @@ namespace BacklogManager.ViewModels
         private bool _triDecroissant = true; // Plus récent en premier par défaut
         private string _prioriteSelectionnee;
         private string _statutRAGSelectionne;
+        private string _equipeSelectionnee;
 
         public ObservableCollection<ProjetItemViewModel> Projets { get; set; }
         public ObservableCollection<ProjetItemViewModel> ProjetsFiltres { get; set; }
@@ -148,9 +300,21 @@ namespace BacklogManager.ViewModels
             }
         }
 
+        public string EquipeSelectionnee
+        {
+            get { return _equipeSelectionnee; }
+            set
+            {
+                _equipeSelectionnee = value;
+                OnPropertyChanged();
+                AppliquerFiltres();
+            }
+        }
+
         public ObservableCollection<string> OptionsTriDisponibles { get; set; }
         public ObservableCollection<string> PrioritesDisponibles { get; set; }
         public ObservableCollection<string> StatutsRAGDisponibles { get; set; }
+        public ObservableCollection<string> EquipesDisponibles { get; set; }
 
         public ProjetItemViewModel SelectedProjet
         {
@@ -215,10 +379,19 @@ namespace BacklogManager.ViewModels
                 "Red"
             };
 
+            // Équipes disponibles
+            EquipesDisponibles = new ObservableCollection<string> { "-- Toutes --" };
+            var equipes = _backlogService.GetAllEquipes();
+            foreach (var equipe in equipes)
+            {
+                EquipesDisponibles.Add(equipe.Nom);
+            }
+
             _filterActifsOnly = true;
             _triSelection = "Date (plus récent)";
             _prioriteSelectionnee = "-- Toutes --";
             _statutRAGSelectionne = "-- Tous --";
+            _equipeSelectionnee = "-- Toutes --";
 
             AjouterProjetCommand = new RelayCommand(_ => AjouterProjet(), _ => CanAjouterProjet());
             RefreshCommand = new RelayCommand(_ => LoadProjets());
@@ -236,7 +409,10 @@ namespace BacklogManager.ViewModels
         public void LoadProjets()
         {
             var projets = _backlogService.GetAllProjets();
-            var taches = _backlogService.GetAllBacklogItems();
+            // Utiliser GetAllBacklogItemsIncludingArchived pour compter aussi les tâches archivées (comme StatistiquesViewModel)
+            var taches = _backlogService.GetAllBacklogItemsIncludingArchived()
+                .Where(t => t.TypeDemande != TypeDemande.Conges && t.TypeDemande != TypeDemande.NonTravaille)
+                .ToList();
 
             Projets.Clear();
             foreach (var projet in projets)
@@ -246,10 +422,12 @@ namespace BacklogManager.ViewModels
                 var projetVM = new ProjetItemViewModel
                 {
                     Projet = projet,
-                    NbAfaire = tachesProjet.Count(t => t.Statut == Statut.Afaire),
-                    NbEnCours = tachesProjet.Count(t => t.Statut == Statut.EnCours),
-                    NbEnTest = tachesProjet.Count(t => t.Statut == Statut.Test),
-                    NbTermine = tachesProjet.Count(t => t.Statut == Statut.Termine)
+                    TachesProjet = tachesProjet, // Stocker pour le calcul RAG
+                    NbAfaire = tachesProjet.Count(t => t.Statut == Statut.Afaire && !t.EstArchive),
+                    NbEnCours = tachesProjet.Count(t => t.Statut == Statut.EnCours && !t.EstArchive),
+                    NbEnTest = tachesProjet.Count(t => t.Statut == Statut.Test && !t.EstArchive),
+                    // Terminé = Statut.Termine OU EstArchive (comme dans StatistiquesViewModel)
+                    NbTermine = tachesProjet.Count(t => t.Statut == Statut.Termine || t.EstArchive)
                 };
 
                 Projets.Add(projetVM);
@@ -289,11 +467,25 @@ namespace BacklogManager.ViewModels
                     p.Projet.Priorite != null && p.Projet.Priorite.Equals(PrioriteSelectionnee, StringComparison.OrdinalIgnoreCase));
             }
 
+            // Filtre Équipe
+            if (!string.IsNullOrWhiteSpace(EquipeSelectionnee) && EquipeSelectionnee != "-- Toutes --")
+            {
+                var equipe = _backlogService.GetAllEquipes().FirstOrDefault(e => e.Nom == EquipeSelectionnee);
+                if (equipe != null)
+                {
+                    // Filtrer par les projets qui ont cette équipe dans leur liste EquipesAssigneesIds
+                    projetsFiltered = projetsFiltered.Where(p => 
+                        p.Projet.EquipesAssigneesIds != null && 
+                        p.Projet.EquipesAssigneesIds.Contains(equipe.Id));
+                }
+            }
+
             // Filtre Statut RAG
             if (!string.IsNullOrWhiteSpace(StatutRAGSelectionne) && StatutRAGSelectionne != "-- Tous --")
             {
+                // Filtrer sur le StatutRAGDisplay calculé (pas le manuel)
                 projetsFiltered = projetsFiltered.Where(p => 
-                    p.Projet.StatutRAG != null && p.Projet.StatutRAG.Equals(StatutRAGSelectionne, StringComparison.OrdinalIgnoreCase));
+                    p.StatutRAGDisplay.Equals(StatutRAGSelectionne, StringComparison.OrdinalIgnoreCase));
             }
 
             // Tri
@@ -471,6 +663,38 @@ namespace BacklogManager.ViewModels
             _backlogService.SaveBacklogItem(tache);
             LoadProjets();
             LoadTachesProjet();
+        }
+
+        public void VoirDetailsProjet(Projet projet)
+        {
+            var detailsWindow = new Views.ProjetDetailsWindow(projet, _backlogService);
+            
+            // Trouver la fenêtre parente
+            var mainWindow = System.Windows.Application.Current.MainWindow;
+            if (mainWindow != null && mainWindow != detailsWindow)
+            {
+                detailsWindow.Owner = mainWindow;
+            }
+            
+            detailsWindow.ShowDialog();
+        }
+
+        public void VoirDetailsTache(BacklogItem tache)
+        {
+            var detailsWindow = new Views.TacheDetailsWindow(tache, _backlogService, _permissionService, _craService);
+            
+            // Trouver la fenêtre parente
+            var mainWindow = System.Windows.Application.Current.MainWindow;
+            if (mainWindow != null && mainWindow != detailsWindow)
+            {
+                detailsWindow.Owner = mainWindow;
+            }
+            
+            if (detailsWindow.ShowDialog() == true && detailsWindow.Modified)
+            {
+                LoadProjets();
+                LoadTachesProjet();
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
