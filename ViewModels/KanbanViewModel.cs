@@ -250,7 +250,6 @@ namespace BacklogManager.ViewModels
         private readonly DispatcherTimer _refreshTimer;
         private int? _selectedDevId;
         private int? _selectedProjetId;
-        private bool _isLoading;
         private int? _selectedEquipeId;
 
         public ObservableCollection<KanbanItemViewModel> ItemsEnAttente { get; set; }

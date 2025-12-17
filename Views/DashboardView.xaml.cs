@@ -968,15 +968,13 @@ namespace BacklogManager.Views
         public bool EstNonLue { get; set; }
     }
 
-    public class ActiviteViewModel : INotifyPropertyChanged
+    public class ActiviteViewModel
     {
         public string Action { get; set; }
         public string Details { get; set; }
         public string Temps { get; set; }
         public int? BacklogItemId { get; set; }
         public bool EstArchive { get; set; }
-
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 
     public class StatistiqueProjetViewModel

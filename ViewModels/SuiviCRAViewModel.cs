@@ -69,6 +69,26 @@ namespace BacklogManager.ViewModels
         public string TotalAffiche => TotalHeures > 0 ? $"{TotalJours:F1}j" : "-";
     }
 
+    public class ProjetTimelineViewModel
+    {
+        public Projet Projet { get; set; }
+        public string Nom { get; set; }
+        public string Description { get; set; }
+        public int NbTaches { get; set; }
+        public int NbTachesTerminees { get; set; }
+        public double ProgressionPourcentage { get; set; }
+        public DateTime? DateDebut { get; set; }
+        public DateTime? DateFin { get; set; }
+        public bool EstEnCours { get; set; }
+        
+        // Pour la timeline visuelle
+        public double PositionX { get; set; }
+        public double PositionY { get; set; }
+        public double LargeurBarre { get; set; }
+        public double LargeurProgression => LargeurBarre * (ProgressionPourcentage / 100.0);
+        public string CouleurBarre { get; set; }
+    }
+
     public class TacheTimelineViewModel
     {
         public BacklogItem BacklogItem { get; set; } // Référence à l'item d'origine
@@ -95,6 +115,7 @@ namespace BacklogManager.ViewModels
     {
         private readonly CRAService _craService;
         private readonly BacklogService _backlogService;
+        private readonly ProgrammeService _programmeService;
         private readonly PermissionService _permissionService;
 
         private DateTime _moisCourant;
@@ -105,6 +126,7 @@ namespace BacklogManager.ViewModels
         private int _anneeCourante;
         private Projet _projetSelectionne;
         private Equipe _equipeSelectionnee;
+        private Programme _programmeSelectionne;
 
         public ObservableCollection<JourCRAViewModel> JoursCalendrier { get; set; }
         public ObservableCollection<MoisCRAViewModel> MoisAnnee { get; set; }
@@ -115,8 +137,114 @@ namespace BacklogManager.ViewModels
         public ObservableCollection<Projet> Projets { get; set; }
         public ObservableCollection<TacheTimelineViewModel> TachesProjetTimeline { get; set; }
         public ObservableCollection<MoisCRAViewModel> MoisTimeline { get; set; }
+        public ObservableCollection<Programme> Programmes { get; set; }
+        public ObservableCollection<ProjetTimelineViewModel> ProjetsTimelineProgramme { get; set; }
+        public ObservableCollection<Equipe> EquipesProgramme { get; set; }
+        
+        public bool AfficherEquipesProgramme => EquipesProgramme != null && EquipesProgramme.Count > 0;
+        public int NbEquipesProgramme => EquipesProgramme?.Count ?? 0;
         
         public double HauteurTimeline => TachesProjetTimeline.Count * 90 + 20; // 90px par tâche + marge
+
+        // Statistiques du programme
+        private int _nbTotalTachesProgramme;
+        public int NbTotalTachesProgramme
+        {
+            get => _nbTotalTachesProgramme;
+            set { _nbTotalTachesProgramme = value; OnPropertyChanged(); }
+        }
+
+        private int _nbTachesTermineesProgramme;
+        public int NbTachesTermineesProgramme
+        {
+            get => _nbTachesTermineesProgramme;
+            set { _nbTachesTermineesProgramme = value; OnPropertyChanged(); }
+        }
+
+        private double _progressionGlobaleProgramme;
+        public double ProgressionGlobaleProgramme
+        {
+            get => _progressionGlobaleProgramme;
+            set { _progressionGlobaleProgramme = value; OnPropertyChanged(); OnPropertyChanged(nameof(ProgressionGlobaleProgrammeTexte)); OnPropertyChanged(nameof(LargeurProgressionGlobale)); }
+        }
+
+        public string ProgressionGlobaleProgrammeTexte => $"{ProgressionGlobaleProgramme:F0}%";
+        
+        public double LargeurProgressionGlobale => ProgressionGlobaleProgramme * 10; // 100% = 1000px
+
+        private double _budgetTempsEstime;
+        public double BudgetTempsEstime
+        {
+            get => _budgetTempsEstime;
+            set { _budgetTempsEstime = value; OnPropertyChanged(); OnPropertyChanged(nameof(BudgetTempsEstimeJours)); }
+        }
+
+        public string BudgetTempsEstimeJours => $"{BudgetTempsEstime:F1}j";
+
+        private double _tempsReel;
+        public double TempsReel
+        {
+            get => _tempsReel;
+            set { _tempsReel = value; OnPropertyChanged(); OnPropertyChanged(nameof(TempsReelJours)); }
+        }
+
+        public string TempsReelJours => $"{TempsReel:F1}j";
+
+        // Indicateurs RAG
+        private int _nbProjetsGreen;
+        public int NbProjetsGreen
+        {
+            get => _nbProjetsGreen;
+            set { _nbProjetsGreen = value; OnPropertyChanged(); OnPropertyChanged(nameof(AfficherGreen)); }
+        }
+
+        private int _nbProjetsAmber;
+        public int NbProjetsAmber
+        {
+            get => _nbProjetsAmber;
+            set { _nbProjetsAmber = value; OnPropertyChanged(); OnPropertyChanged(nameof(AfficherAmber)); }
+        }
+
+        private int _nbProjetsRed;
+        public int NbProjetsRed
+        {
+            get => _nbProjetsRed;
+            set { _nbProjetsRed = value; OnPropertyChanged(); OnPropertyChanged(nameof(AfficherRed)); }
+        }
+
+        public bool AfficherGreen => NbProjetsGreen > 0;
+        public bool AfficherAmber => NbProjetsAmber > 0;
+        public bool AfficherRed => NbProjetsRed > 0;
+
+        // Dates du programme
+        public string DateDebutProgramme => ProgrammeSelectionne?.DateDebut?.ToString("dd/MM/yyyy") ?? "Non définie";
+        public string DateFinCibleProgramme => ProgrammeSelectionne?.DateFinCible?.ToString("dd/MM/yyyy") ?? "Non définie";
+        
+        // Statut global du programme
+        public string StatutGlobalProgramme => ProgrammeSelectionne?.StatutGlobal ?? "";
+        public bool AfficherStatutGlobal => !string.IsNullOrEmpty(StatutGlobalProgramme);
+        
+        public string CouleurStatutGlobal
+        {
+            get
+            {
+                if (StatutGlobalProgramme == "On Track") return "#4CAF50";
+                if (StatutGlobalProgramme == "At Risk") return "#FF9800";
+                if (StatutGlobalProgramme == "Off Track") return "#F44336";
+                return "#999999";
+            }
+        }
+        
+        public string IconeStatutGlobal
+        {
+            get
+            {
+                if (StatutGlobalProgramme == "On Track") return "✓";
+                if (StatutGlobalProgramme == "At Risk") return "⚠";
+                if (StatutGlobalProgramme == "Off Track") return "✗";
+                return "";
+            }
+        }
 
         private double _positionDebutProjet;
         public double PositionDebutProjet
@@ -222,6 +350,7 @@ namespace BacklogManager.ViewModels
                 OnPropertyChanged(nameof(EstModeMois));
                 OnPropertyChanged(nameof(EstModeListe));
                 OnPropertyChanged(nameof(EstModeTimeline));
+                OnPropertyChanged(nameof(EstModeTimelineProgramme));
                 OnPropertyChanged(nameof(PeriodeAffichage));
                 
                 if (value == "liste")
@@ -231,6 +360,10 @@ namespace BacklogManager.ViewModels
                 else if (value == "timeline")
                 {
                     ChargerTachesTimeline();
+                }
+                else if (value == "timeline_programme")
+                {
+                    ChargerTimelineProgrammes();
                 }
                 else
                 {
@@ -243,6 +376,7 @@ namespace BacklogManager.ViewModels
         public bool EstModeMois => ModeAffichage == "mois";
         public bool EstModeListe => ModeAffichage == "liste";
         public bool EstModeTimeline => ModeAffichage == "timeline";
+        public bool EstModeTimelineProgramme => ModeAffichage == "timeline_programme";
 
         public Projet ProjetSelectionne
         {
@@ -254,6 +388,20 @@ namespace BacklogManager.ViewModels
                 if (EstModeTimeline)
                 {
                     ChargerTachesTimeline();
+                }
+            }
+        }
+
+        public Programme ProgrammeSelectionne
+        {
+            get => _programmeSelectionne;
+            set
+            {
+                _programmeSelectionne = value;
+                OnPropertyChanged();
+                if (EstModeTimelineProgramme)
+                {
+                    ChargerTimelineProgrammes();
                 }
             }
         }
@@ -316,12 +464,14 @@ namespace BacklogManager.ViewModels
         public ICommand ChangerModeCommand { get; }
         public ICommand JourSelectionnCommand { get; }
         public ICommand MoisSelectionnCommand { get; }
+        public ICommand OuvrirTimelineProjetCommand { get; }
         public ICommand ValiderExtensionProjetCommand { get; }
 
-        public SuiviCRAViewModel(CRAService craService, BacklogService backlogService, PermissionService permissionService)
+        public SuiviCRAViewModel(CRAService craService, BacklogService backlogService, ProgrammeService programmeService, PermissionService permissionService)
         {
             _craService = craService;
             _backlogService = backlogService;
+            _programmeService = programmeService;
             _permissionService = permissionService;
 
             JoursCalendrier = new ObservableCollection<JourCRAViewModel>();
@@ -333,6 +483,9 @@ namespace BacklogManager.ViewModels
             Projets = new ObservableCollection<Projet>();
             TachesProjetTimeline = new ObservableCollection<TacheTimelineViewModel>();
             MoisTimeline = new ObservableCollection<MoisCRAViewModel>();
+            Programmes = new ObservableCollection<Programme>();
+            ProjetsTimelineProgramme = new ObservableCollection<ProjetTimelineViewModel>();
+            EquipesProgramme = new ObservableCollection<Equipe>();
 
             MoisCourant = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
             AnneeCourante = DateTime.Now.Year;
@@ -340,6 +493,7 @@ namespace BacklogManager.ViewModels
             SemaineDebut = GetLundiDeLaSemaine(DateTime.Now);
 
             ChargerProjets();
+            ChargerProgrammes();
 
             PeriodePrecedenteCommand = new RelayCommand(_ => 
             {
@@ -374,6 +528,14 @@ namespace BacklogManager.ViewModels
                 {
                     MoisCourant = new DateTime(moisVM.Annee, moisVM.Mois, 1);
                     ModeAffichage = "mois"; // Basculer vers la vue mois
+                }
+            });
+            
+            OuvrirTimelineProjetCommand = new RelayCommand(param =>
+            {
+                if (param is Projet projet)
+                {
+                    OuvrirTimelineProjet(projet);
                 }
             });
             
@@ -1019,6 +1181,217 @@ namespace BacklogManager.ViewModels
             }
 
             return nombreValidations;
+        }
+
+        private void ChargerProgrammes()
+        {
+            Programmes.Clear();
+            var programmes = _programmeService.GetAllProgrammes().Where(p => p.Actif).OrderBy(p => p.Nom).ToList();
+            
+            foreach (var programme in programmes)
+            {
+                Programmes.Add(programme);
+            }
+        }
+
+        private void ChargerTimelineProgrammes()
+        {
+            ProjetsTimelineProgramme.Clear();
+            EquipesProgramme.Clear();
+
+            if (ProgrammeSelectionne == null)
+                return;
+
+            var projets = _backlogService.GetAllProjets()
+                .Where(p => p.Actif && p.ProgrammeId == ProgrammeSelectionne.Id)
+                .ToList();
+
+            if (!projets.Any())
+            {
+                // Réinitialiser les stats
+                NbTotalTachesProgramme = 0;
+                NbTachesTermineesProgramme = 0;
+                ProgressionGlobaleProgramme = 0;
+                BudgetTempsEstime = 0;
+                TempsReel = 0;
+                NbProjetsGreen = 0;
+                NbProjetsAmber = 0;
+                NbProjetsRed = 0;
+                return;
+            }
+
+            // Récupérer toutes les équipes des projets du programme
+            var equipesIds = new HashSet<int>();
+            foreach (var projet in projets)
+            {
+                if (projet.EquipesAssigneesIds != null && projet.EquipesAssigneesIds.Count > 0)
+                {
+                    foreach (var equipeId in projet.EquipesAssigneesIds)
+                    {
+                        equipesIds.Add(equipeId);
+                    }
+                }
+            }
+
+            var toutesLesEquipes = _backlogService.Database.GetAllEquipes();
+            foreach (var equipeId in equipesIds)
+            {
+                var equipe = toutesLesEquipes.FirstOrDefault(e => e.Id == equipeId);
+                if (equipe != null && equipe.Actif)
+                {
+                    EquipesProgramme.Add(equipe);
+                }
+            }
+            
+            OnPropertyChanged(nameof(AfficherEquipesProgramme));
+            OnPropertyChanged(nameof(NbEquipesProgramme));
+
+            // Calculer la période globale
+            var dateMiniGlobale = DateTime.Now.AddMonths(-6);
+            var dateMaxGlobale = DateTime.Now.AddMonths(6);
+
+            // Générer les mois de la timeline
+            MoisTimeline.Clear();
+            var dateCourante = new DateTime(dateMiniGlobale.Year, dateMiniGlobale.Month, 1);
+            var cultureInfo = new System.Globalization.CultureInfo("fr-FR");
+            while (dateCourante <= dateMaxGlobale)
+            {
+                MoisTimeline.Add(new MoisCRAViewModel
+                {
+                    Mois = dateCourante.Month,
+                    Annee = dateCourante.Year,
+                    NomMois = cultureInfo.DateTimeFormat.GetAbbreviatedMonthName(dateCourante.Month).ToUpper()
+                });
+                dateCourante = dateCourante.AddMonths(1);
+            }
+
+            // Calculer les statistiques globales du programme
+            int totalTaches = 0;
+            int totalTerminees = 0;
+            double totalBudget = 0;
+            double totalTempsReel = 0;
+            int nbGreen = 0;
+            int nbAmber = 0;
+            int nbRed = 0;
+
+            // Calculer les positions des projets
+            double yPosition = 0;
+            int index = 0;
+
+            foreach (var projet in projets)
+            {
+                var taches = _backlogService.GetAllBacklogItemsIncludingArchived()
+                    .Where(t => t.ProjetId == projet.Id && 
+                                t.TypeDemande != TypeDemande.Conges &&
+                                t.TypeDemande != TypeDemande.NonTravaille)
+                    .ToList();
+                
+                DateTime? dateDebut = null;
+                DateTime? dateFin = null;
+                
+                if (taches.Any())
+                {
+                    dateDebut = taches.Min(t => t.DateCreation);
+                    var tachesAvecEcheance = taches.Where(t => t.DateFinAttendue != null).ToList();
+                    if (tachesAvecEcheance.Any())
+                    {
+                        dateFin = tachesAvecEcheance.Max(t => t.DateFinAttendue);
+                    }
+                }
+
+                int nbTaches = taches.Count();
+                int nbTerminees = taches.Count(t => t.Statut == Statut.Termine || t.EstArchive);
+                double progression = nbTaches > 0 ? (double)nbTerminees / nbTaches * 100 : 0;
+
+                // Accumuler les statistiques
+                totalTaches += nbTaches;
+                totalTerminees += nbTerminees;
+                
+                // Compter les statuts RAG
+                if (projet.StatutRAG == "Green") nbGreen++;
+                else if (projet.StatutRAG == "Amber") nbAmber++;
+                else if (projet.StatutRAG == "Red") nbRed++;
+                
+                // Budget temps (somme des chiffrages)
+                double budgetProjet = taches.Where(t => t.ChiffrageJours.HasValue).Sum(t => t.ChiffrageJours.Value);
+                totalBudget += budgetProjet;
+                
+                // Temps réel (somme des CRA)
+                var cras = _craService.GetAllCRAs().Where(c => taches.Select(t => t.Id).Contains(c.BacklogItemId));
+                double tempsReelProjet = cras.Sum(c => c.HeuresTravaillees) / 8.0; // Convertir en jours
+                totalTempsReel += tempsReelProjet;
+
+                double positionX = 0;
+                double largeurBarre = 0;
+
+                if (dateDebut.HasValue)
+                {
+                    var debutMois = dateDebut.Value;
+                    var moisDepuisDebut = (debutMois.Year - dateMiniGlobale.Year) * 12 + debutMois.Month - dateMiniGlobale.Month;
+                    positionX = moisDepuisDebut * 100.0;
+
+                    if (dateFin.HasValue)
+                    {
+                        var dureeEnMois = (dateFin.Value.Year - debutMois.Year) * 12 + dateFin.Value.Month - debutMois.Month + 1;
+                        largeurBarre = dureeEnMois * 100.0;
+                    }
+                    else
+                    {
+                        largeurBarre = 200.0; // Largeur par défaut
+                    }
+                }
+
+                // Couleurs selon progression
+                string couleur = "#4CAF50"; // Vert par défaut
+                if (progression < 30)
+                    couleur = "#F44336"; // Rouge
+                else if (progression < 70)
+                    couleur = "#FF9800"; // Orange
+
+                ProjetsTimelineProgramme.Add(new ProjetTimelineViewModel
+                {
+                    Projet = projet,
+                    Nom = projet.Nom,
+                    Description = projet.Description,
+                    NbTaches = nbTaches,
+                    NbTachesTerminees = nbTerminees,
+                    ProgressionPourcentage = progression,
+                    DateDebut = dateDebut,
+                    DateFin = dateFin,
+                    EstEnCours = nbTaches > 0 && nbTerminees < nbTaches,
+                    PositionX = positionX,
+                    PositionY = yPosition,
+                    LargeurBarre = largeurBarre,
+                    CouleurBarre = couleur
+                });
+
+                yPosition += 80; // Espacement vertical entre projets
+                index++;
+            }
+
+            // Mettre à jour les statistiques globales
+            NbTotalTachesProgramme = totalTaches;
+            NbTachesTermineesProgramme = totalTerminees;
+            ProgressionGlobaleProgramme = totalTaches > 0 ? (double)totalTerminees / totalTaches * 100 : 0;
+            BudgetTempsEstime = totalBudget;
+            TempsReel = totalTempsReel;
+            NbProjetsGreen = nbGreen;
+            NbProjetsAmber = nbAmber;
+            NbProjetsRed = nbRed;
+            
+            // Notifier les changements de dates
+            OnPropertyChanged(nameof(DateDebutProgramme));
+            OnPropertyChanged(nameof(DateFinCibleProgramme));
+            OnPropertyChanged(nameof(StatutGlobalProgramme));
+            OnPropertyChanged(nameof(AfficherStatutGlobal));
+            OnPropertyChanged(nameof(CouleurStatutGlobal));
+            OnPropertyChanged(nameof(IconeStatutGlobal));
+        }
+
+        public void OuvrirTimelineProjet(Projet projet)
+        {
+            ProjetSelectionne = projet;
+            ModeAffichage = "timeline";
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -51,17 +51,17 @@ namespace BacklogManager.Services
             return null;
         }
 
-        public async Task<VersionInfo> CheckForUpdatesAsync()
+        public Task<VersionInfo> CheckForUpdatesAsync()
         {
             if (string.IsNullOrEmpty(_updateServerPath))
-                return null;
+                return Task.FromResult<VersionInfo>(null);
 
             try
             {
                 string versionFilePath = Path.Combine(_updateServerPath, "version.json");
                 
                 if (!File.Exists(versionFilePath))
-                    return null;
+                    return Task.FromResult<VersionInfo>(null);
 
                 string jsonContent = File.ReadAllText(versionFilePath, System.Text.Encoding.UTF8);
                 var versionInfo = JsonSerializer.Deserialize<VersionInfo>(jsonContent);
@@ -69,16 +69,16 @@ namespace BacklogManager.Services
                 // Comparer les versions
                 if (IsNewerVersion(versionInfo.Version, _currentVersion))
                 {
-                    return versionInfo;
+                    return Task.FromResult(versionInfo);
                 }
 
-                return null;
+                return Task.FromResult<VersionInfo>(null);
             }
             catch (Exception ex)
             {
                 // Log l'erreur mais ne pas bloquer l'application
                 System.Diagnostics.Debug.WriteLine($"Erreur vérification mise à jour: {ex.Message}");
-                return null;
+                return Task.FromResult<VersionInfo>(null);
             }
         }
 

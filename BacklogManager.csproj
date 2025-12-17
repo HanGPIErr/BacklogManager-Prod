@@ -183,6 +183,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\AnalyseProgrammeIAWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\AnalyseStatistiquesIAWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -437,6 +441,9 @@
     <Compile Include="Views\AnalyseProjetIAWindow.xaml.cs">
       <DependentUpon>AnalyseProjetIAWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\AnalyseProgrammeIAWindow.xaml.cs">
+      <DependentUpon>AnalyseProgrammeIAWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\AnalyseStatistiquesIAWindow.xaml.cs">
       <DependentUpon>AnalyseStatistiquesIAWindow.xaml</DependentUpon>
     </Compile>
@@ -624,6 +631,8 @@
     <Compile Include="Shared\InverseBooleanToVisibilityConverter.cs" />
     <Compile Include="Converters\BarWidthConverter.cs" />
     <Compile Include="Converters\CountToVisibilityConverter.cs" />
+    <Compile Include="Converters\IndexToPositionConverter.cs" />
+    <Compile Include="Converters\PercentageToWidthConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

@@ -288,10 +288,11 @@ namespace BacklogManager.Views.Pages
                 // Créer la vue Timeline avec le viewmodel
                 var craService = new CRAService(_database);
                 var backlogService = new BacklogService(_database);
+                var programmeService = new ProgrammeService(_database);
                 var currentUser = _authService.CurrentUser;
                 var currentRole = _authService.GetCurrentUserRole();
                 var permissionService = new PermissionService(currentUser, currentRole);
-                var suiviCRAViewModel = new SuiviCRAViewModel(craService, backlogService, permissionService);
+                var suiviCRAViewModel = new SuiviCRAViewModel(craService, backlogService, programmeService, permissionService);
                 
                 // Passer en mode Timeline
                 suiviCRAViewModel.ModeAffichage = "timeline";

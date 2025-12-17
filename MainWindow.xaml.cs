@@ -359,7 +359,8 @@ namespace BacklogManager
             }
 
             var craService = new CRAService(_database);
-            var suiviCRAViewModel = new SuiviCRAViewModel(craService, _backlogService, _permissionService);
+            var programmeService = new ProgrammeService(_database);
+            var suiviCRAViewModel = new SuiviCRAViewModel(craService, _backlogService, programmeService, _permissionService);
             var suiviCRAView = new Views.SuiviCRAView();
             suiviCRAView.DataContext = suiviCRAViewModel;
 
@@ -518,7 +519,8 @@ namespace BacklogManager
 
                 // Créer le ViewModel et la vue
                 var craService = new CRAService(_database);
-                var suiviCRAViewModel = new SuiviCRAViewModel(craService, _backlogService, _permissionService);
+                var programmeService = new ProgrammeService(_database);
+                var suiviCRAViewModel = new SuiviCRAViewModel(craService, _backlogService, programmeService, _permissionService);
                 var suiviCRAView = new Views.SuiviCRAView();
                 suiviCRAView.DataContext = suiviCRAViewModel;
 
@@ -536,6 +538,29 @@ namespace BacklogManager
             catch (System.Exception ex)
             {
                 MessageBox.Show(string.Format("Erreur lors de la navigation vers la timeline: {0}", ex.Message),
+                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        public void NaviguerVersDetailEquipe(int equipeId)
+        {
+            try
+            {
+                var detailView = new Views.Pages.DetailEquipeView(
+                    equipeId, 
+                    _database, 
+                    () => NaviguerVersDashboard(),
+                    _authService
+                );
+                var contentControl = (System.Windows.Controls.ContentControl)this.FindName("MainContentControl");
+                if (contentControl != null)
+                {
+                    contentControl.Content = detailView;
+                }
+            }
+            catch (System.Exception ex)
+            {
+                MessageBox.Show(string.Format("Erreur lors de la navigation vers l'équipe: {0}", ex.Message),
                     "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }

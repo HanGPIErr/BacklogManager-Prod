@@ -66,6 +66,47 @@ namespace BacklogManager.Views
             analyseWindow.Owner = Window.GetWindow(this);
             analyseWindow.ShowDialog();
         }
+
+        private void BtnAnalyserProgrammeIA_Click(object sender, RoutedEventArgs e)
+        {
+            var viewModel = DataContext as SuiviCRAViewModel;
+            if (viewModel == null || viewModel.ProgrammeSelectionne == null)
+            {
+                MessageBox.Show(
+                    "Veuillez sélectionner un programme avant de lancer l'analyse IA.",
+                    "Aucun programme sélectionné",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return;
+            }
+
+            if (!viewModel.ProjetsTimelineProgramme.Any())
+            {
+                MessageBox.Show(
+                    "Ce programme ne contient aucun projet à analyser.",
+                    "Aucun projet",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+                return;
+            }
+
+            // Ouvrir la fenêtre d'analyse IA pour le programme
+            var analyseWindow = new AnalyseProgrammeIAWindow(viewModel.ProgrammeSelectionne);
+            analyseWindow.Owner = Window.GetWindow(this);
+            analyseWindow.ShowDialog();
+        }
+
+        private void Equipe_Click(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is Border border && border.Tag is Domain.Equipe equipe)
+            {
+                var mainWindow = Window.GetWindow(this) as MainWindow;
+                if (mainWindow != null)
+                {
+                    mainWindow.NaviguerVersDetailEquipe(equipe.Id);
+                }
+            }
+        }
     }
 }
 

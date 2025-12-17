@@ -1,0 +1,149 @@
+<Window x:Class="BacklogManager.Views.AnalyseProgrammeIAWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Analyse IA du Programme" 
+        Height="700" Width="800"
+        WindowStartupLocation="CenterScreen"
+        Background="#F5F5F5"
+        ResizeMode="CanResize">
+    <Window.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+        </Style>
+    </Window.Resources>
+    
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- En-tête avec Agent -->
+        <Border Grid.Row="0" Background="#00915A" CornerRadius="8" Padding="20" Margin="0,0,0,20">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- Avatar Agent -->
+                <Border Grid.Column="0" Width="60" Height="60" CornerRadius="30" 
+                       Background="White" Margin="0,0,15,0">
+                    <TextBlock Text="🎯" FontSize="32" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                
+                <!-- Titre -->
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Text="🤖 Analyse IA du Programme" 
+                              FontSize="20" FontWeight="Bold" 
+                              Foreground="White"/>
+                    <TextBlock Text="Agent Program Management" 
+                              FontSize="13" 
+                              Foreground="#E0E0E0" 
+                              Margin="0,3,0,0"/>
+                    <TextBlock x:Name="TxtNomProgramme" 
+                              FontSize="12" 
+                              Foreground="#E0E0E0" 
+                              Margin="0,2,0,0"
+                              FontStyle="Italic"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Contenu scrollable -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,0,0,15">
+            <StackPanel>
+                <!-- Message en cours de génération -->
+                <Border x:Name="PanelChargement" Background="White" CornerRadius="8" 
+                       Padding="40" BorderBrush="#E0E0E0" BorderThickness="1">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="⏳" FontSize="32" 
+                                  HorizontalAlignment="Center" Margin="0,0,0,15"/>
+                        <TextBlock Text="L'IA analyse votre programme..." 
+                                  FontSize="16" Foreground="#666" 
+                                  HorizontalAlignment="Center"
+                                  FontStyle="Italic"/>
+                        <TextBlock Text="Analyse des projets, vérification des interdépendances, calcul des risques..." 
+                                  FontSize="13" Foreground="#999" 
+                                  HorizontalAlignment="Center"
+                                  Margin="0,5,0,0"/>
+                    </StackPanel>
+                </Border>
+                
+                <!-- Résultat de l'analyse -->
+                <Border x:Name="PanelResultat" Background="White" CornerRadius="8" 
+                       Padding="25" BorderBrush="#E0E0E0" BorderThickness="1"
+                       Visibility="Collapsed">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="500">
+                        <TextBlock x:Name="TxtAnalyse" 
+                                  FontSize="13" 
+                                  LineHeight="22"
+                                  Foreground="#333"
+                                  TextWrapping="Wrap"/>
+                    </ScrollViewer>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Boutons -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button x:Name="BtnCopier" Content="📋 Copier" 
+                   Padding="15,8" Margin="0,0,10,0" 
+                   Background="#00915A" Foreground="White" 
+                   BorderThickness="0" Cursor="Hand"
+                   FontSize="13" FontWeight="SemiBold"
+                   Click="BtnCopier_Click"
+                   Visibility="Collapsed">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}" 
+                                           CornerRadius="6" 
+                                           Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#007A48"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+            
+            <Button Content="Fermer" 
+                   Padding="15,8" 
+                   Background="#E0E0E0" Foreground="#333" 
+                   BorderThickness="0" Cursor="Hand"
+                   FontSize="13" FontWeight="SemiBold"
+                   Click="BtnFermer_Click">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}" 
+                                           CornerRadius="6" 
+                                           Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#D0D0D0"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </StackPanel>
+    </Grid>
+</Window>
