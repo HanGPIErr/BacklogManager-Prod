@@ -179,7 +179,7 @@
                             <TextBlock Grid.Row="2" Grid.Column="0" Text="Business Analyst:" FontWeight="Bold"/>
                             <TextBlock Grid.Row="2" Grid.Column="1" x:Name="TxtBA"/>
                             
-                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Chef de Projet:" FontWeight="Bold"/>
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Manager(s):" FontWeight="Bold"/>
                             <TextBlock Grid.Row="4" Grid.Column="1" x:Name="TxtCP"/>
                             
                             <TextBlock Grid.Row="6" Grid.Column="0" Text="Développeur:" FontWeight="Bold"/>

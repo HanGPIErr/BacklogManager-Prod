@@ -63,7 +63,7 @@
                         </StackPanel>
                     </Border>
                     
-                    <!-- Dev assigné -->
+                    <!-- Membres -->
                     <Border Background="#F3E5F5" CornerRadius="4" Padding="10,5" Margin="0,0,10,0" x:Name="BorderDev">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="👤 " FontSize="11"/>

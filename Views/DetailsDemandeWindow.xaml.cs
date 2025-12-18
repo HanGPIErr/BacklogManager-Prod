@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using BacklogManager.Domain;
@@ -38,6 +39,7 @@ namespace BacklogManager.Views
             }
 
             var utilisateurs = _database.GetUtilisateurs();
+            var equipes = _database.GetAllEquipes();
             
             TxtTitre.Text = demande.Titre;
             TxtDescription.Text = demande.Description;
@@ -55,7 +57,7 @@ namespace BacklogManager.Views
             
             TxtDemandeur.Text = ObtenirNomUtilisateur(demande.DemandeurId, utilisateurs);
             TxtBA.Text = ObtenirNomUtilisateur(demande.BusinessAnalystId, utilisateurs);
-            TxtCP.Text = ObtenirNomUtilisateur(demande.ChefProjetId, utilisateurs);
+            TxtCP.Text = ObtenirManagersEquipes(demande.EquipesAssigneesIds, equipes, utilisateurs);
             TxtDev.Text = ObtenirNomUtilisateur(demande.DevChiffreurId, utilisateurs);
             
             TxtChiffrage.Text = demande.ChiffrageEstimeJours.HasValue ? 
@@ -210,6 +212,28 @@ namespace BacklogManager.Views
                 default:
                     return new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(158, 158, 158)); // Gris
             }
+        }
+
+        private string ObtenirManagersEquipes(List<int> equipesIds, List<Equipe> equipes, List<Utilisateur> utilisateurs)
+        {
+            if (equipesIds == null || equipesIds.Count == 0)
+                return "Non assigné";
+
+            var managers = new List<string>();
+            foreach (var equipeId in equipesIds)
+            {
+                var equipe = equipes.FirstOrDefault(e => e.Id == equipeId);
+                if (equipe != null && equipe.ManagerId.HasValue)
+                {
+                    var managerNom = ObtenirNomUtilisateur(equipe.ManagerId.Value, utilisateurs);
+                    if (!string.IsNullOrEmpty(managerNom) && managerNom != "Non assigné" && !managers.Contains(managerNom))
+                    {
+                        managers.Add(managerNom);
+                    }
+                }
+            }
+
+            return managers.Count > 0 ? string.Join(", ", managers) : "Non assigné";
         }
     }
 }

@@ -281,9 +281,12 @@
                 <TextBlock Text="Business Analyst" FontWeight="Bold" Margin="0,0,0,5"/>
                 <ComboBox x:Name="CmbBusinessAnalyst" Height="35" FontSize="13" Margin="0,0,0,15"/>
                 
-                <!-- Chef de Projet -->
-                <TextBlock Text="Chef de Projet / PO" FontWeight="Bold" Margin="0,0,0,5"/>
-                <ComboBox x:Name="CmbChefProjet" Height="35" FontSize="13" Margin="0,0,0,15"/>
+                <!-- Manager(s) -->
+                <TextBlock Text="Manager(s)" FontWeight="Bold" Margin="0,0,0,5"/>
+                <TextBlock x:Name="TxtManagers" FontSize="13" Margin="0,0,0,15" 
+                          Padding="8" Background="#F5F5F5" 
+                          Text="Sélectionnez les équipes pour voir les managers" 
+                          TextWrapping="Wrap"/>
                 
                 <!-- Section chiffrage (visible uniquement en modification) -->
                 <Border x:Name="PanelChiffrage" Background="White" BorderBrush="#E0E0E0" 

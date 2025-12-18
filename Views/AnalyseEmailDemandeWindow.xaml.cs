@@ -49,42 +49,13 @@ namespace BacklogManager.Views
             CmbCriticiteResult.ItemsSource = Enum.GetValues(typeof(Criticite)).Cast<Criticite>();
             CmbCriticiteResult.SelectedIndex = 0;
             
-            // Utilisateurs
-            var utilisateurs = _database.GetUtilisateurs().Where(u => u.Actif).ToList();
-            var roles = _database.GetRoles();
-
-            // Business Analysts
-            var bas = utilisateurs.Where(u =>
-            {
-                var role = roles.FirstOrDefault(r => r.Id == u.RoleId);
-                return role?.Type == RoleType.BusinessAnalyst;
-            }).Select(u => new { Id = u.Id, Nom = string.Format("{0} {1}", u.Prenom, u.Nom) }).ToList();
-            bas.Insert(0, new { Id = 0, Nom = "Non assigné" });
-            CmbBusinessAnalystResult.ItemsSource = bas;
+            // Utilisateurs - initialisation vide, sera rempli par FiltrerUtilisateursParEquipes
+            CmbBusinessAnalystResult.ItemsSource = new[] { new { Id = 0, Nom = "Non assigné" } };
             CmbBusinessAnalystResult.DisplayMemberPath = "Nom";
             CmbBusinessAnalystResult.SelectedValuePath = "Id";
             CmbBusinessAnalystResult.SelectedIndex = 0;
 
-            // Chefs de projet
-            var cps = utilisateurs.Where(u =>
-            {
-                var role = roles.FirstOrDefault(r => r.Id == u.RoleId);
-                return role?.Type == RoleType.ChefDeProjet;
-            }).Select(u => new { Id = u.Id, Nom = string.Format("{0} {1}", u.Prenom, u.Nom) }).ToList();
-            cps.Insert(0, new { Id = 0, Nom = "Non assigné" });
-            CmbChefProjetResult.ItemsSource = cps;
-            CmbChefProjetResult.DisplayMemberPath = "Nom";
-            CmbChefProjetResult.SelectedValuePath = "Id";
-            CmbChefProjetResult.SelectedIndex = 0;
-
-            // Développeurs
-            var devs = utilisateurs.Where(u =>
-            {
-                var role = roles.FirstOrDefault(r => r.Id == u.RoleId);
-                return role?.Type == RoleType.Developpeur;
-            }).Select(u => new { Id = u.Id, Nom = string.Format("{0} {1}", u.Prenom, u.Nom) }).ToList();
-            devs.Insert(0, new { Id = 0, Nom = "Non assigné" });
-            CmbDevChiffreurResult.ItemsSource = devs;
+            CmbDevChiffreurResult.ItemsSource = new[] { new { Id = 0, Nom = "Non assigné" } };
             CmbDevChiffreurResult.DisplayMemberPath = "Nom";
             CmbDevChiffreurResult.SelectedValuePath = "Id";
             CmbDevChiffreurResult.SelectedIndex = 0;
@@ -139,6 +110,9 @@ namespace BacklogManager.Views
                 chk.Unchecked += (s, e) => FiltrerUtilisateursParEquipes();
                 PanelEquipesResult.Children.Add(chk);
             }
+            
+            // Initialiser les managers
+            MettreAJourManagersResult();
         }
         
         private void FiltrerUtilisateursParEquipes()
@@ -155,6 +129,9 @@ namespace BacklogManager.Views
 
             var utilisateurs = _database.GetUtilisateurs().Where(u => u.Actif).ToList();
             var roles = _database.GetRoles();
+            
+            // Mettre à jour les managers
+            MettreAJourManagersResult();
 
             // Si aucune équipe sélectionnée, afficher tous les utilisateurs
             if (equipesSelectionnees.Count == 0)
@@ -286,22 +263,30 @@ namespace BacklogManager.Views
 
                 if (analysisResult != null)
                 {
-                    // Remplir les champs basiques avec les résultats
-                    TxtTitreResult.Text = analysisResult.Titre;
-                    TxtDescriptionResult.Text = analysisResult.Description;
-                    TxtSpecificationsResult.Text = analysisResult.Specifications;
-                    TxtContexteResult.Text = analysisResult.ContexteMetier;
-                    TxtBeneficesResult.Text = analysisResult.BeneficesAttendus;
+                    // Remplir les champs basiques avec les résultats (sécurisé)
+                    TxtTitreResult.Text = analysisResult.Titre ?? "";
+                    TxtDescriptionResult.Text = analysisResult.Description ?? "";
+                    TxtSpecificationsResult.Text = analysisResult.Specifications ?? "";
+                    TxtContexteResult.Text = analysisResult.ContexteMetier ?? "";
+                    TxtBeneficesResult.Text = analysisResult.BeneficesAttendus ?? "";
                     TxtChiffrageResult.Text = analysisResult.ChiffrageEstimeJours?.ToString("F1") ?? "0";
 
-                    // Sélectionner le type
-                    var typeItem = CmbTypeResult.Items.Cast<dynamic>()
-                        .FirstOrDefault(i => i.Value == analysisResult.Type);
-                    if (typeItem != null)
-                        CmbTypeResult.SelectedItem = typeItem;
+                    // Sélectionner le type (sécurisé)
+                    try
+                    {
+                        var typeItem = CmbTypeResult.Items.Cast<dynamic>()
+                            .FirstOrDefault(i => i.Value == analysisResult.Type);
+                        if (typeItem != null)
+                            CmbTypeResult.SelectedItem = typeItem;
+                    }
+                    catch { }
 
-                    // Sélectionner la criticité
-                    CmbCriticiteResult.SelectedItem = analysisResult.Criticite;
+                    // Sélectionner la criticité (sécurisé)
+                    try
+                    {
+                        CmbCriticiteResult.SelectedItem = analysisResult.Criticite;
+                    }
+                    catch { }
                     
                     // PHASE 2: Remplir les nouveaux champs
                     if (!string.IsNullOrEmpty(analysisResult.Priorite))
@@ -361,26 +346,25 @@ namespace BacklogManager.Views
                     // Afficher les résultats
                     PanelResultats.Visibility = Visibility.Visible;
                     BtnCreerDemande.IsEnabled = true;
+                    
+                    // Mettre en surbrillance les champs à vérifier
+                    SurlignerChampsIncertains();
 
                     // Message avec avertissement sur les champs incertains
-                    string message = "✅ Analyse IA terminée avec succès !\n\n";
+                    string message = "✅ Analyse IA terminée !\n\n";
                     
                     if (_champsIncertains.Count > 0)
                     {
-                        message += "⚠️ ATTENTION : Les champs suivants n'étaient pas clairs dans l'email et nécessitent une vérification :\n\n";
+                        message += "⚠️ Les champs surlignés en jaune nécessitent une vérification ou doivent être complétés :\n\n";
                         foreach (var champ in _champsIncertains)
                         {
                             string champAffichage = TraduireNomChamp(champ);
                             message += $"  • {champAffichage}\n";
                         }
-                        message += "\n❗ Merci de vérifier et compléter ces champs avant de créer la demande.\n\n";
-                    }
-                    else
-                    {
-                        message += "Vérifiez les informations extraites ci-dessous.\n\n";
+                        message += "\n";
                     }
                     
-                    message += "⚠️ Le chiffrage est laissé à 0 - seul le développeur peut l'estimer correctement.\n" +
+                    message += "⚠️ Le chiffrage est laissé à 0 - seul le développeur peut l'estimer.\n" +
                                "N'oubliez pas de sélectionner les équipes assignées et les personnes responsables !";
 
                     MessageBox.Show(
@@ -516,13 +500,27 @@ Analyse maintenant cet email et réponds UNIQUEMENT avec le JSON (pas de texte a
                 }
 
                 var responseBody = await response.Content.ReadAsStringAsync();
-                var jsonResponse = JsonDocument.Parse(responseBody);
+                
+                // Parser la réponse de l'API de manière sécurisée
+                string aiResponse = null;
+                try
+                {
+                    var jsonResponse = JsonDocument.Parse(responseBody);
+                    aiResponse = jsonResponse.RootElement
+                        .GetProperty("choices")[0]
+                        .GetProperty("message")
+                        .GetProperty("content")
+                        .GetString();
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"Format de réponse API invalide: {ex.Message}\n\nRéponse brute: {responseBody}");
+                }
 
-                var aiResponse = jsonResponse.RootElement
-                    .GetProperty("choices")[0]
-                    .GetProperty("message")
-                    .GetProperty("content")
-                    .GetString();
+                if (string.IsNullOrWhiteSpace(aiResponse))
+                {
+                    throw new Exception("L'API a retourné une réponse vide.");
+                }
 
                 // Parser la réponse JSON de l'IA
                 return ParseAIResponse(aiResponse);
@@ -545,77 +543,168 @@ Analyse maintenant cet email et réponds UNIQUEMENT avec le JSON (pas de texte a
                     aiResponse = aiResponse.Substring(0, aiResponse.Length - 3);
                 aiResponse = aiResponse.Trim();
 
+                // Si le JSON est incomplet, essayer de le compléter
+                if (!aiResponse.EndsWith("}"))
+                {
+                    aiResponse += "}";
+                }
+
                 using (var doc = JsonDocument.Parse(aiResponse))
                 {
                     var root = doc.RootElement;
 
                     var demande = new Demande
                     {
-                        Titre = root.GetProperty("Titre").GetString(),
-                        Description = root.GetProperty("Description").GetString(),
-                        Specifications = root.GetProperty("Specifications").GetString(),
-                        ContexteMetier = root.GetProperty("ContexteMetier").GetString(),
-                        BeneficesAttendus = root.GetProperty("BeneficesAttendus").GetString(),
+                        Titre = TryGetString(root, "Titre", ""),
+                        Description = TryGetString(root, "Description", ""),
+                        Specifications = TryGetString(root, "Specifications", ""),
+                        ContexteMetier = TryGetString(root, "ContexteMetier", ""),
+                        BeneficesAttendus = TryGetString(root, "BeneficesAttendus", ""),
                         ChiffrageEstimeJours = 0, // Laissé à 0 - le dev chiffrera lui-même
-                        Type = ParseType(root.GetProperty("Type").GetString()),
-                        Criticite = ParseCriticite(root.GetProperty("Criticite").GetString()),
+                        Type = ParseType(TryGetString(root, "Type", "Dev")),
+                        Criticite = ParseCriticite(TryGetString(root, "Criticite", "Moyenne")),
                         DateCreation = DateTime.Now,
                         Statut = StatutDemande.EnAttenteSpecification,
                         DemandeurId = _authService.CurrentUser?.Id ?? 0,
                         
                         // PHASE 2: Nouveaux champs
-                        Priorite = root.TryGetProperty("Priorite", out var priorite) ? priorite.GetString() : "Medium",
-                        Categorie = root.TryGetProperty("Categorie", out var categorie) ? categorie.GetString() : "",
-                        TypeProjet = root.TryGetProperty("TypeProjet", out var typeProjet) ? typeProjet.GetString() : "",
-                        LeadProjet = root.TryGetProperty("LeadProjet", out var leadProjet) ? leadProjet.GetString() : "",
-                        Ambition = root.TryGetProperty("Ambition", out var ambition) ? ambition.GetString() : "",
-                        GainsTemps = root.TryGetProperty("GainsTemps", out var gainsTemps) ? gainsTemps.GetString() : "",
-                        GainsFinanciers = root.TryGetProperty("GainsFinanciers", out var gainsFinanciers) ? gainsFinanciers.GetString() : "",
-                        EstImplemente = root.TryGetProperty("EstImplemente", out var estImplemente) && estImplemente.GetBoolean()
+                        Priorite = TryGetString(root, "Priorite", "Medium"),
+                        Categorie = TryGetString(root, "Categorie", ""),
+                        TypeProjet = TryGetString(root, "TypeProjet", ""),
+                        LeadProjet = TryGetString(root, "LeadProjet", ""),
+                        Ambition = TryGetString(root, "Ambition", ""),
+                        GainsTemps = TryGetString(root, "GainsTemps", ""),
+                        GainsFinanciers = TryGetString(root, "GainsFinanciers", ""),
+                        EstImplemente = TryGetBoolean(root, "EstImplemente", false)
                     };
                     
-                    // Drivers (array -> JSON string)
-                    if (root.TryGetProperty("Drivers", out var driversElement) && driversElement.ValueKind == JsonValueKind.Array)
-                    {
-                        var driversList = new List<string>();
-                        foreach (var driver in driversElement.EnumerateArray())
-                        {
-                            driversList.Add(driver.GetString());
-                        }
-                        demande.Drivers = driversList.Count > 0 ? System.Text.Json.JsonSerializer.Serialize(driversList) : null;
-                    }
+                    // Marquer les champs vides comme incertains
+                    if (string.IsNullOrWhiteSpace(demande.Titre)) _champsIncertains.Add("Titre");
+                    if (string.IsNullOrWhiteSpace(demande.Description)) _champsIncertains.Add("Description");
+                    if (string.IsNullOrWhiteSpace(demande.Categorie)) _champsIncertains.Add("Categorie");
+                    if (string.IsNullOrWhiteSpace(demande.TypeProjet)) _champsIncertains.Add("TypeProjet");
                     
-                    // Bénéficiaires (array -> JSON string)
-                    if (root.TryGetProperty("Beneficiaires", out var benefElement) && benefElement.ValueKind == JsonValueKind.Array)
+                    // Drivers (array -> JSON string) - sécurisé
+                    try
                     {
-                        var benefList = new List<string>();
-                        foreach (var benef in benefElement.EnumerateArray())
+                        if (root.TryGetProperty("Drivers", out var driversElement) && driversElement.ValueKind == JsonValueKind.Array)
                         {
-                            benefList.Add(benef.GetString());
-                        }
-                        demande.Beneficiaires = benefList.Count > 0 ? System.Text.Json.JsonSerializer.Serialize(benefList) : null;
-                    }
-
-                    // Récupération des champs incertains signalés par l'IA
-                    if (root.TryGetProperty("ChampsIncertains", out var champsIncertainsElement) && champsIncertainsElement.ValueKind == JsonValueKind.Array)
-                    {
-                        foreach (var champ in champsIncertainsElement.EnumerateArray())
-                        {
-                            string champNom = champ.GetString();
-                            if (!string.IsNullOrEmpty(champNom))
+                            var driversList = new List<string>();
+                            foreach (var driver in driversElement.EnumerateArray())
                             {
-                                _champsIncertains.Add(champNom);
+                                try
+                                {
+                                    var driverValue = driver.GetString();
+                                    if (!string.IsNullOrEmpty(driverValue))
+                                        driversList.Add(driverValue);
+                                }
+                                catch { }
+                            }
+                            demande.Drivers = driversList.Count > 0 ? System.Text.Json.JsonSerializer.Serialize(driversList) : null;
+                        }
+                    }
+                    catch { }
+                    
+                    // Bénéficiaires (array -> JSON string) - sécurisé
+                    try
+                    {
+                        if (root.TryGetProperty("Beneficiaires", out var benefElement) && benefElement.ValueKind == JsonValueKind.Array)
+                        {
+                            var benefList = new List<string>();
+                            foreach (var benef in benefElement.EnumerateArray())
+                            {
+                                try
+                                {
+                                    var benefValue = benef.GetString();
+                                    if (!string.IsNullOrEmpty(benefValue))
+                                        benefList.Add(benefValue);
+                                }
+                                catch { }
+                            }
+                            demande.Beneficiaires = benefList.Count > 0 ? System.Text.Json.JsonSerializer.Serialize(benefList) : null;
+                        }
+                    }
+                    catch { }
+
+                    // Récupération des champs incertains signalés par l'IA - sécurisé
+                    try
+                    {
+                        if (root.TryGetProperty("ChampsIncertains", out var champsIncertainsElement) && champsIncertainsElement.ValueKind == JsonValueKind.Array)
+                        {
+                            foreach (var champ in champsIncertainsElement.EnumerateArray())
+                            {
+                                try
+                                {
+                                    string champNom = champ.GetString();
+                                    if (!string.IsNullOrEmpty(champNom) && !_champsIncertains.Contains(champNom))
+                                    {
+                                        _champsIncertains.Add(champNom);
+                                    }
+                                }
+                                catch { }
                             }
                         }
                     }
+                    catch { }
 
                     return demande;
                 }
             }
             catch (Exception ex)
             {
-                throw new Exception($"Erreur lors du parsing de la réponse IA: {ex.Message}\n\nRéponse brute: {aiResponse}");
+                // En cas d'erreur, retourner une demande vide avec tous les champs à compléter
+                MessageBox.Show($"L'IA n'a pas pu analyser complètement l'email.\nVeuillez remplir les champs manuellement.\n\nDétail: {ex.Message}", 
+                    "Analyse partielle", MessageBoxButton.OK, MessageBoxImage.Information);
+                
+                _champsIncertains.AddRange(new[] { "Titre", "Description", "Type", "Criticite", "ContexteMetier", 
+                    "BeneficesAttendus", "Categorie", "TypeProjet", "Priorite" });
+                
+                return new Demande
+                {
+                    Titre = "",
+                    Description = "",
+                    Type = TypeDemande.Dev,
+                    Criticite = Criticite.Moyenne,
+                    DateCreation = DateTime.Now,
+                    Statut = StatutDemande.EnAttenteSpecification,
+                    DemandeurId = _authService.CurrentUser?.Id ?? 0
+                };
             }
+        }
+
+        private string TryGetString(JsonElement root, string propertyName, string defaultValue)
+        {
+            try
+            {
+                if (root.TryGetProperty(propertyName, out var prop) && prop.ValueKind == JsonValueKind.String)
+                {
+                    var value = prop.GetString();
+                    return string.IsNullOrWhiteSpace(value) ? defaultValue : value;
+                }
+            }
+            catch { }
+            return defaultValue;
+        }
+
+        private bool TryGetBoolean(JsonElement root, string propertyName, bool defaultValue)
+        {
+            try
+            {
+                if (root.TryGetProperty(propertyName, out var prop))
+                {
+                    if (prop.ValueKind == JsonValueKind.True) return true;
+                    if (prop.ValueKind == JsonValueKind.False) return false;
+                    // Si c'est une string "true" ou "false"
+                    if (prop.ValueKind == JsonValueKind.String)
+                    {
+                        var strValue = prop.GetString()?.ToLower();
+                        if (strValue == "true") return true;
+                        if (strValue == "false") return false;
+                    }
+                }
+            }
+            catch { }
+            return defaultValue;
         }
 
         private TypeDemande ParseType(string type)
@@ -693,9 +782,6 @@ Analyse maintenant cet email et réponds UNIQUEMENT avec le JSON (pas de texte a
                 // Assignations
                 var baId = (int)CmbBusinessAnalystResult.SelectedValue;
                 DemandeCreee.BusinessAnalystId = baId != 0 ? (int?)baId : null;
-
-                var cpId = (int)CmbChefProjetResult.SelectedValue;
-                DemandeCreee.ChefProjetId = cpId != 0 ? (int?)cpId : null;
 
                 var devId = (int)CmbDevChiffreurResult.SelectedValue;
                 DemandeCreee.DevChiffreurId = devId != 0 ? (int?)devId : null;
@@ -796,6 +882,95 @@ Analyse maintenant cet email et réponds UNIQUEMENT avec le JSON (pas de texte a
             return traductions.ContainsKey(nomChampTechnique) 
                 ? traductions[nomChampTechnique] 
                 : nomChampTechnique;
+        }
+
+        private void MettreAJourManagersResult()
+        {
+            var equipesSelectionnees = new List<int>();
+            foreach (System.Windows.Controls.CheckBox chk in PanelEquipesResult.Children)
+            {
+                if (chk.IsChecked == true && chk.Tag is int equipeId)
+                {
+                    equipesSelectionnees.Add(equipeId);
+                }
+            }
+            
+            if (equipesSelectionnees.Count == 0)
+            {
+                TxtManagersResult.Text = "Sélectionnez les équipes pour voir les managers";
+                return;
+            }
+            
+            var equipes = _database.GetAllEquipes();
+            var utilisateurs = _database.GetUtilisateurs();
+            var managers = new List<string>();
+            
+            foreach (var equipeId in equipesSelectionnees)
+            {
+                var equipe = equipes.FirstOrDefault(e => e.Id == equipeId);
+                if (equipe != null && equipe.ManagerId.HasValue)
+                {
+                    var manager = utilisateurs.FirstOrDefault(u => u.Id == equipe.ManagerId.Value);
+                    if (manager != null)
+                    {
+                        var managerNom = string.Format("{0} {1}", manager.Prenom, manager.Nom);
+                        if (!managers.Contains(managerNom))
+                        {
+                            managers.Add(managerNom);
+                        }
+                    }
+                }
+            }
+            
+            TxtManagersResult.Text = managers.Count > 0 ? string.Join(", ", managers) : "Aucun manager assigné aux équipes sélectionnées";
+        }
+
+        private void SurlignerChampsIncertains()
+        {
+            var couleurSurbrillance = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 255, 200)); // Jaune pâle
+            var couleurNormale = System.Windows.Media.Brushes.White;
+
+            // Titre
+            TxtTitreResult.Background = _champsIncertains.Contains("Titre") ? couleurSurbrillance : couleurNormale;
+            
+            // Description
+            TxtDescriptionResult.Background = _champsIncertains.Contains("Description") ? couleurSurbrillance : couleurNormale;
+            
+            // Spécifications
+            TxtSpecificationsResult.Background = _champsIncertains.Contains("Specifications") ? couleurSurbrillance : couleurNormale;
+            
+            // Contexte Métier
+            TxtContexteResult.Background = _champsIncertains.Contains("ContexteMetier") ? couleurSurbrillance : couleurNormale;
+            
+            // Bénéfices
+            TxtBeneficesResult.Background = _champsIncertains.Contains("BeneficesAttendus") ? couleurSurbrillance : couleurNormale;
+            
+            // Type
+            CmbTypeResult.Background = _champsIncertains.Contains("Type") ? couleurSurbrillance : couleurNormale;
+            
+            // Criticité
+            CmbCriticiteResult.Background = _champsIncertains.Contains("Criticite") ? couleurSurbrillance : couleurNormale;
+            
+            // Priorité
+            CmbPrioriteResult.Background = _champsIncertains.Contains("Priorite") ? couleurSurbrillance : couleurNormale;
+            
+            // Type Projet
+            CmbTypeProjetResult.Background = _champsIncertains.Contains("TypeProjet") ? couleurSurbrillance : couleurNormale;
+            
+            // Catégorie
+            CmbCategorieResult.Background = _champsIncertains.Contains("Categorie") ? couleurSurbrillance : couleurNormale;
+            
+            // Lead Projet
+            CmbLeadProjetResult.Background = _champsIncertains.Contains("LeadProjet") ? couleurSurbrillance : couleurNormale;
+            
+            // Ambition
+            CmbAmbitionResult.Background = _champsIncertains.Contains("Ambition") ? couleurSurbrillance : couleurNormale;
+            
+            // Gains Temps
+            TxtGainsTempsResult.Background = _champsIncertains.Contains("GainsTemps") ? couleurSurbrillance : couleurNormale;
+            
+            // Gains Financiers
+            TxtGainsFinanciersResult.Background = _champsIncertains.Contains("GainsFinanciers") ? couleurSurbrillance : couleurNormale;
         }
     }
 }

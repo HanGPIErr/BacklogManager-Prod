@@ -36,12 +36,7 @@ namespace BacklogManager.Views
             PrioriteComboBox.SelectedItem = _tache.Priorite;
             StatutComboBox.SelectedItem = _tache.Statut;
 
-            // Charger les devs
-            var utilisateurs = _backlogService.GetAllUtilisateurs();
-            DevComboBox.ItemsSource = utilisateurs;
-            DevComboBox.SelectedValue = _tache.DevAssigneId;
-
-            // Charger les projets
+            // Charger les projets d'abord
             var projets = _backlogService.GetAllProjets();
             ProjetComboBox.ItemsSource = projets;
             
@@ -63,6 +58,13 @@ namespace BacklogManager.Views
             {
                 ProjetComboBox.SelectedValue = _tache.ProjetId;
             }
+
+            // Charger les membres (dev + BA) selon les équipes du projet sélectionné
+            ChargerMembresParProjet();
+            DevComboBox.SelectedValue = _tache.DevAssigneId;
+
+            // Event pour recharger les membres quand on change de projet
+            ProjetComboBox.SelectionChanged += (s, e) => ChargerMembresParProjet();
 
             // Chiffrage (en jours: 1j = 8h)
             ChiffrageTextBox.Text = _tache.ChiffrageHeures.HasValue ? (_tache.ChiffrageHeures.Value / 8.0).ToString("0.#") : "";
@@ -90,6 +92,39 @@ namespace BacklogManager.Views
             
             // Event pour auto-assigner le projet selon le type de tâche
             TypeDemandeComboBox.SelectionChanged += TypeDemandeComboBox_SelectionChanged;
+        }
+
+        private void ChargerMembresParProjet()
+        {
+            var tousLesUtilisateurs = _backlogService.GetAllUtilisateurs();
+            
+            // Si un projet est sélectionné, filtrer par équipes du projet
+            if (ProjetComboBox.SelectedValue != null && (int)ProjetComboBox.SelectedValue > 0)
+            {
+                var projetId = (int)ProjetComboBox.SelectedValue;
+                var projet = _backlogService.GetAllProjets().FirstOrDefault(p => p.Id == projetId);
+                
+                if (projet != null && projet.EquipesAssigneesIds != null && projet.EquipesAssigneesIds.Count > 0)
+                {
+                    // Filtrer les utilisateurs par équipes du projet (dev + BA)
+                    var membresEquipes = tousLesUtilisateurs
+                        .Where(u => u.EquipeId.HasValue && projet.EquipesAssigneesIds.Contains(u.EquipeId.Value))
+                        .OrderBy(u => u.Nom)
+                        .ToList();
+                    
+                    DevComboBox.ItemsSource = membresEquipes;
+                }
+                else
+                {
+                    // Pas d'équipes assignées au projet, afficher tous les utilisateurs
+                    DevComboBox.ItemsSource = tousLesUtilisateurs.OrderBy(u => u.Nom).ToList();
+                }
+            }
+            else
+            {
+                // Aucun projet sélectionné, afficher tous les utilisateurs
+                DevComboBox.ItemsSource = tousLesUtilisateurs.OrderBy(u => u.Nom).ToList();
+            }
         }
         
         private void TypeDemandeComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)

@@ -193,7 +193,14 @@
                         </StackPanel>
                         
                         <StackPanel Margin="0,0,15,10" MinWidth="180">
-                            <TextBlock Text="📅 Date de" FontSize="12" FontWeight="SemiBold" Foreground="#666" Margin="0,0,0,6"/>
+                            <TextBlock Text="� Équipe" FontSize="12" FontWeight="SemiBold" Foreground="#666" Margin="0,0,0,6"/>
+                            <ComboBox x:Name="CmbFiltreEquipe" Height="38" FontSize="13"
+                                     BorderBrush="#DDD" BorderThickness="1" Padding="12,0"
+                                     Background="White" DisplayMemberPath="Nom" SelectedValuePath="Id"/>
+                        </StackPanel>
+                        
+                        <StackPanel Margin="0,0,15,10" MinWidth="180">
+                            <TextBlock Text="�📅 Date de" FontSize="12" FontWeight="SemiBold" Foreground="#666" Margin="0,0,0,6"/>
                             <DatePicker x:Name="DpDateDebut" Height="38" FontSize="13"
                                        BorderBrush="#DDD" BorderThickness="1" Padding="12,0"
                                        Background="White"/>
@@ -407,36 +414,58 @@
                                 
                                 <!-- Informations -->
                                 <Grid Grid.Row="2" Margin="0,0,0,15">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="8"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
                                     
-                                    <StackPanel Grid.Column="0">
-                                        <TextBlock Text="DEMANDEUR" FontSize="10" Foreground="#999" FontWeight="SemiBold"/>
-                                        <TextBlock Text="{Binding Demandeur}" FontSize="13" FontWeight="Bold" 
-                                                  Foreground="#1A1919" Margin="0,3,0,0"/>
-                                    </StackPanel>
+                                    <!-- Première ligne -->
+                                    <Grid Grid.Row="0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="DEMANDEUR" FontSize="10" Foreground="#999" FontWeight="SemiBold"/>
+                                            <TextBlock Text="{Binding Demandeur}" FontSize="13" FontWeight="Bold" 
+                                                      Foreground="#1A1919" Margin="0,3,0,0"/>
+                                        </StackPanel>
+                                        
+                                        <StackPanel Grid.Column="1" Margin="20,0,0,0">
+                                            <TextBlock Text="📅 DATE CRÉATION" FontSize="10" Foreground="#999" FontWeight="SemiBold"/>
+                                            <TextBlock Text="{Binding DateCreation, StringFormat=dd/MM/yyyy}" 
+                                                      FontSize="13" FontWeight="Bold" Foreground="#00915A" Margin="0,3,0,0"/>
+                                        </StackPanel>
+                                    </Grid>
                                     
-                                    <StackPanel Grid.Column="1">
-                                        <TextBlock Text="BUSINESS ANALYST" FontSize="10" Foreground="#999" FontWeight="SemiBold"/>
-                                        <TextBlock Text="{Binding BusinessAnalyst}" FontSize="13" FontWeight="Bold" 
-                                                  Foreground="#1A1919" Margin="0,3,0,0"/>
-                                    </StackPanel>
-                                    
-                                    <StackPanel Grid.Column="2">
-                                        <TextBlock Text="PROJET" FontSize="10" Foreground="#999" FontWeight="SemiBold"/>
-                                        <TextBlock Text="{Binding ProjetNom}" FontSize="13" FontWeight="Bold" 
-                                                  Foreground="#1A1919" Margin="0,3,0,0"/>
-                                    </StackPanel>
-                                    
-                                    <StackPanel Grid.Column="3" Margin="20,0,0,0">
-                                        <TextBlock Text="📅 DATE CRÉATION" FontSize="10" Foreground="#999" FontWeight="SemiBold"/>
-                                        <TextBlock Text="{Binding DateCreation, StringFormat=dd/MM/yyyy}" 
-                                                  FontSize="13" FontWeight="Bold" Foreground="#00915A" Margin="0,3,0,0"/>
-                                    </StackPanel>
+                                    <!-- Deuxième ligne -->
+                                    <Grid Grid.Row="2">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="👥 ÉQUIPES" FontSize="10" Foreground="#999" FontWeight="SemiBold"/>
+                                            <TextBlock Text="{Binding EquipesNoms}" FontSize="12" 
+                                                      Foreground="#00915A" Margin="0,3,0,0" TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                        
+                                        <StackPanel Grid.Column="1">
+                                            <TextBlock Text="👤 MANAGER(S)" FontSize="10" Foreground="#999" FontWeight="SemiBold"/>
+                                            <TextBlock Text="{Binding Managers}" FontSize="12" 
+                                                      Foreground="#1976D2" Margin="0,3,0,0" TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                        
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock Text="👨‍💼 MEMBRES ÉQUIPES" FontSize="10" Foreground="#999" FontWeight="SemiBold"/>
+                                            <TextBlock Text="{Binding MembresEquipes}" FontSize="11" 
+                                                      Foreground="#666" Margin="0,3,0,0" TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                    </Grid>
                                 </Grid>
                                 
                                 <!-- Actions -->

@@ -82,38 +82,13 @@ namespace BacklogManager.Views
             var utilisateurs = _database.GetUtilisateurs().Where(u => u.Actif).ToList();
             var roles = _database.GetRoles();
 
-            // Business Analysts
-            var bas = utilisateurs.Where(u =>
-            {
-                var role = roles.FirstOrDefault(r => r.Id == u.RoleId);
-                return role?.Type == RoleType.BusinessAnalyst;
-            }).Select(u => new { Id = u.Id, Nom = string.Format("{0} {1}", u.Prenom, u.Nom) }).ToList();
-            bas.Insert(0, new { Id = 0, Nom = "Non assigné" });
-            CmbBusinessAnalyst.ItemsSource = bas;
+            // Développeurs - initialisation vide, sera rempli par FiltrerUtilisateursParEquipes
+            CmbBusinessAnalyst.ItemsSource = new[] { new { Id = 0, Nom = "Non assigné" } };
             CmbBusinessAnalyst.DisplayMemberPath = "Nom";
             CmbBusinessAnalyst.SelectedValuePath = "Id";
             CmbBusinessAnalyst.SelectedIndex = 0;
 
-            // Chefs de projet
-            var cps = utilisateurs.Where(u =>
-            {
-                var role = roles.FirstOrDefault(r => r.Id == u.RoleId);
-                return role?.Type == RoleType.ChefDeProjet;
-            }).Select(u => new { Id = u.Id, Nom = string.Format("{0} {1}", u.Prenom, u.Nom) }).ToList();
-            cps.Insert(0, new { Id = 0, Nom = "Non assigné" });
-            CmbChefProjet.ItemsSource = cps;
-            CmbChefProjet.DisplayMemberPath = "Nom";
-            CmbChefProjet.SelectedValuePath = "Id";
-            CmbChefProjet.SelectedIndex = 0;
-
-            // Développeurs
-            var devs = utilisateurs.Where(u =>
-            {
-                var role = roles.FirstOrDefault(r => r.Id == u.RoleId);
-                return role?.Type == RoleType.Developpeur;
-            }).Select(u => new { Id = u.Id, Nom = string.Format("{0} {1}", u.Prenom, u.Nom) }).ToList();
-            devs.Insert(0, new { Id = 0, Nom = "Non assigné" });
-            CmbDevChiffreur.ItemsSource = devs;
+            CmbDevChiffreur.ItemsSource = new[] { new { Id = 0, Nom = "Non assigné" } };
             CmbDevChiffreur.DisplayMemberPath = "Nom";
             CmbDevChiffreur.SelectedValuePath = "Id";
             CmbDevChiffreur.SelectedIndex = 0;
@@ -250,6 +225,50 @@ namespace BacklogManager.Views
                 else
                     CmbDevChiffreur.SelectedIndex = 0;
             }
+            
+            // Mettre à jour les managers
+            MettreAJourManagers();
+        }
+
+        private void MettreAJourManagers()
+        {
+            var equipesSelectionnees = new List<int>();
+            foreach (CheckBox chk in PanelEquipes.Children)
+            {
+                if (chk.IsChecked == true && chk.Tag is int equipeId)
+                {
+                    equipesSelectionnees.Add(equipeId);
+                }
+            }
+            
+            if (equipesSelectionnees.Count == 0)
+            {
+                TxtManagers.Text = "Sélectionnez les équipes pour voir les managers";
+                return;
+            }
+            
+            var equipes = _database.GetAllEquipes();
+            var utilisateurs = _database.GetUtilisateurs();
+            var managers = new List<string>();
+            
+            foreach (var equipeId in equipesSelectionnees)
+            {
+                var equipe = equipes.FirstOrDefault(e => e.Id == equipeId);
+                if (equipe != null && equipe.ManagerId.HasValue)
+                {
+                    var manager = utilisateurs.FirstOrDefault(u => u.Id == equipe.ManagerId.Value);
+                    if (manager != null)
+                    {
+                        var managerNom = string.Format("{0} {1}", manager.Prenom, manager.Nom);
+                        if (!managers.Contains(managerNom))
+                        {
+                            managers.Add(managerNom);
+                        }
+                    }
+                }
+            }
+            
+            TxtManagers.Text = managers.Count > 0 ? string.Join(", ", managers) : "Aucun manager assigné aux équipes sélectionnées";
         }
 
         private string FormatTypeDemande(TypeDemande type)
@@ -286,15 +305,6 @@ namespace BacklogManager.Views
             // Sélectionner les valeurs dans les combos
             CmbType.SelectedValue = _demandeActuelle.Type;
             CmbCriticite.SelectedValue = _demandeActuelle.Criticite;
-
-            if (_demandeActuelle.BusinessAnalystId.HasValue)
-                CmbBusinessAnalyst.SelectedValue = _demandeActuelle.BusinessAnalystId.Value;
-
-            if (_demandeActuelle.ChefProjetId.HasValue)
-                CmbChefProjet.SelectedValue = _demandeActuelle.ChefProjetId.Value;
-
-            if (_demandeActuelle.DevChiffreurId.HasValue)
-                CmbDevChiffreur.SelectedValue = _demandeActuelle.DevChiffreurId.Value;
 
             TxtChiffrageEstime.Text = _demandeActuelle.ChiffrageEstimeJours?.ToString() ?? "";
             
@@ -367,6 +377,16 @@ namespace BacklogManager.Views
                     }
                 }
             }
+            
+            // Afficher les managers
+            MettreAJourManagers();
+            
+            // IMPORTANT : Sélectionner BA et Dev APRÈS le filtrage par équipes
+            if (_demandeActuelle.BusinessAnalystId.HasValue)
+                CmbBusinessAnalyst.SelectedValue = _demandeActuelle.BusinessAnalystId.Value;
+
+            if (_demandeActuelle.DevChiffreurId.HasValue)
+                CmbDevChiffreur.SelectedValue = _demandeActuelle.DevChiffreurId.Value;
         }
 
         private void BtnEnregistrer_Click(object sender, RoutedEventArgs e)
@@ -409,9 +429,6 @@ namespace BacklogManager.Views
                 // Assignations
                 var baId = (int)CmbBusinessAnalyst.SelectedValue;
                 _demandeActuelle.BusinessAnalystId = baId != 0 ? (int?)baId : null;
-
-                var cpId = (int)CmbChefProjet.SelectedValue;
-                _demandeActuelle.ChefProjetId = cpId != 0 ? (int?)cpId : null;
 
                 // Chiffrage (si visible)
                 if (PanelChiffrage.Visibility == Visibility.Visible)

@@ -276,7 +276,7 @@ namespace BacklogManager.Views
         {
             var statsProjects = new List<StatistiqueProjetViewModel>();
 
-            foreach (var projet in projets.Where(p => p.Actif).OrderBy(p => p.Nom))
+            foreach (var projet in projets.Where(p => p.Actif && p.Nom != "Tâches administratives").OrderBy(p => p.Nom))
             {
                 var tachesProjet = allTaches.Where(t => t.ProjetId == projet.Id).ToList();
                 var nbTotal = tachesProjet.Count;

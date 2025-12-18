@@ -45,7 +45,7 @@
                           ItemsSource="{Binding Source={x:Type local:Statut}, Converter={StaticResource EnumToCollectionConverter}}"
                           Padding="10" FontSize="14" BorderBrush="#CCCCCC" BorderThickness="1"/>
 
-                <TextBlock Text="Dev Assigné" FontWeight="SemiBold" Margin="0,15,0,2" FontSize="13"/>
+                <TextBlock Text="Membres" FontWeight="SemiBold" Margin="0,15,0,2" FontSize="13"/>
                 <ComboBox x:Name="DevComboBox" DisplayMemberPath="Nom" SelectedValuePath="Id"
                           Padding="10" FontSize="14" BorderBrush="#CCCCCC" BorderThickness="1"/>
 

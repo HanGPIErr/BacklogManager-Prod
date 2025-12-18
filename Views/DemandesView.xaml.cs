@@ -55,6 +55,14 @@ namespace BacklogManager.Views
             CmbFiltreCriticite.ItemsSource = criticiteItems;
             CmbFiltreCriticite.SelectedIndex = 0;
             
+            // Filtre équipe
+            var equipes = _database.GetAllEquipes().Where(e => e.Actif).OrderBy(e => e.Nom).ToList();
+            var equipesAvecTous = new List<Equipe> { new Equipe { Id = 0, Nom = "Toutes les équipes" } };
+            equipesAvecTous.AddRange(equipes);
+            CmbFiltreEquipe.ItemsSource = equipesAvecTous;
+            CmbFiltreEquipe.SelectedIndex = 0;
+            CmbFiltreEquipe.SelectionChanged += (s, e) => AppliquerFiltres();
+            
             // Configurer les DatePickers
             DpDateDebut.SelectedDateChanged += (s, e) => AppliquerFiltres();
             DpDateFin.SelectedDateChanged += (s, e) => AppliquerFiltres();
@@ -65,6 +73,7 @@ namespace BacklogManager.Views
         {
             CmbFiltreStatut.SelectedIndex = 0;
             CmbFiltreCriticite.SelectedIndex = 0;
+            CmbFiltreEquipe.SelectedIndex = 0;
             DpDateDebut.SelectedDate = null;
             DpDateFin.SelectedDate = null;
             AppliquerFiltres();
@@ -148,6 +157,7 @@ namespace BacklogManager.Views
                 var demandes = _database.GetDemandes();
                 var utilisateurs = _database.GetUtilisateurs();
                 var projets = _database.GetProjets();
+                var equipes = _database.GetAllEquipes();
 
                 _toutesLesDemandes = demandes.Select(d => new DemandeViewModel
                 {
@@ -159,12 +169,15 @@ namespace BacklogManager.Views
                     Criticite = d.Criticite.ToString(),
                     Demandeur = ObtenirNomUtilisateur(d.DemandeurId, utilisateurs),
                     BusinessAnalyst = ObtenirNomUtilisateur(d.BusinessAnalystId, utilisateurs),
-                    ChefProjet = ObtenirNomUtilisateur(d.ChefProjetId, utilisateurs),
+                    Managers = ObtenirManagersEquipes(d.EquipesAssigneesIds, equipes, utilisateurs),
                     ProjetNom = d.ProjetId.HasValue ? projets.FirstOrDefault(p => p.Id == d.ProjetId.Value)?.Nom ?? "-" : "-",
                     ProjetId = d.ProjetId,
                     DateCreation = d.DateCreation,
                     EstAcceptee = d.Statut == StatutDemande.Acceptee,
-                    EstArchivee = d.EstArchivee
+                    EstArchivee = d.EstArchivee,
+                    EquipesAssigneesIds = d.EquipesAssigneesIds ?? new List<int>(),
+                    EquipesNoms = ObtenirNomsEquipes(d.EquipesAssigneesIds, equipes),
+                    MembresEquipes = ObtenirMembresAssignes(d, utilisateurs)
                 }).OrderByDescending(d => d.DateCreation).ToList();
 
                 AppliquerFiltres();
@@ -197,6 +210,19 @@ namespace BacklogManager.Views
             {
                 var criticiteSelectionnee = CmbFiltreCriticite.SelectedItem.ToString();
                 filtered = filtered.Where(d => d.Criticite == criticiteSelectionnee);
+            }
+            
+            // Filtre équipe
+            if (CmbFiltreEquipe.SelectedIndex > 0 && CmbFiltreEquipe.SelectedValue != null)
+            {
+                var equipeId = (int)CmbFiltreEquipe.SelectedValue;
+                // Filtrer les demandes dont au moins une équipe assignée correspond
+                filtered = filtered.Where(d => 
+                {
+                    if (d.EquipesAssigneesIds == null || d.EquipesAssigneesIds.Count == 0)
+                        return false;
+                    return d.EquipesAssigneesIds.Contains(equipeId);
+                });
             }
             
             // Filtre date début
@@ -246,6 +272,98 @@ namespace BacklogManager.Views
                 default:
                     return statut.ToString();
             }
+        }
+
+        private string ObtenirManagersEquipes(List<int> equipesIds, List<Equipe> equipes, List<Utilisateur> utilisateurs)
+        {
+            if (equipesIds == null || equipesIds.Count == 0)
+                return "Non assigné";
+
+            var managers = new List<string>();
+            foreach (var equipeId in equipesIds)
+            {
+                var equipe = equipes.FirstOrDefault(e => e.Id == equipeId);
+                if (equipe != null && equipe.ManagerId.HasValue)
+                {
+                    var managerNom = ObtenirNomUtilisateur(equipe.ManagerId.Value, utilisateurs);
+                    if (!string.IsNullOrEmpty(managerNom) && managerNom != "Non assigné" && !managers.Contains(managerNom))
+                    {
+                        managers.Add(managerNom);
+                    }
+                }
+            }
+
+            return managers.Count > 0 ? string.Join(", ", managers) : "Non assigné";
+        }
+
+        private string ObtenirNomsEquipes(List<int> equipesIds, List<Equipe> equipes)
+        {
+            if (equipesIds == null || equipesIds.Count == 0)
+                return "Aucune équipe";
+
+            var nomsEquipes = new List<string>();
+            foreach (var equipeId in equipesIds)
+            {
+                var equipe = equipes.FirstOrDefault(e => e.Id == equipeId);
+                if (equipe != null)
+                {
+                    nomsEquipes.Add(equipe.Nom);
+                }
+            }
+
+            return nomsEquipes.Count > 0 ? string.Join(", ", nomsEquipes) : "Aucune équipe";
+        }
+
+        private string ObtenirMembresEquipes(List<int> equipesIds, List<Equipe> equipes, List<Utilisateur> utilisateurs)
+        {
+            if (equipesIds == null || equipesIds.Count == 0)
+                return "Aucun membre";
+
+            var membresIds = new HashSet<int>();
+            foreach (var equipeId in equipesIds)
+            {
+                var membres = utilisateurs.Where(u => u.EquipeId == equipeId && u.Actif).ToList();
+                foreach (var membre in membres)
+                {
+                    membresIds.Add(membre.Id);
+                }
+            }
+
+            var nomsMembres = membresIds
+                .Select(id => utilisateurs.FirstOrDefault(u => u.Id == id))
+                .Where(u => u != null)
+                .Select(u => string.Format("{0} {1}", u.Prenom, u.Nom))
+                .OrderBy(n => n)
+                .ToList();
+
+            return nomsMembres.Count > 0 ? string.Join(", ", nomsMembres) : "Aucun membre";
+        }
+
+        private string ObtenirMembresAssignes(Demande demande, List<Utilisateur> utilisateurs)
+        {
+            var membresAssignes = new List<string>();
+
+            // Business Analyst
+            if (demande.BusinessAnalystId.HasValue)
+            {
+                var ba = utilisateurs.FirstOrDefault(u => u.Id == demande.BusinessAnalystId.Value);
+                if (ba != null)
+                {
+                    membresAssignes.Add(string.Format("{0} {1} (BA)", ba.Prenom, ba.Nom));
+                }
+            }
+
+            // Développeur chiffreur
+            if (demande.DevChiffreurId.HasValue)
+            {
+                var dev = utilisateurs.FirstOrDefault(u => u.Id == demande.DevChiffreurId.Value);
+                if (dev != null)
+                {
+                    membresAssignes.Add(string.Format("{0} {1} (Dev)", dev.Prenom, dev.Nom));
+                }
+            }
+
+            return membresAssignes.Count > 0 ? string.Join(", ", membresAssignes) : "Aucun membre assigné";
         }
 
         private void BtnNouvelleDemande_Click(object sender, RoutedEventArgs e)
@@ -735,12 +853,15 @@ namespace BacklogManager.Views
         public string Criticite { get; set; }
         public string Demandeur { get; set; }
         public string BusinessAnalyst { get; set; }
-        public string ChefProjet { get; set; }
+        public string Managers { get; set; }
         public string ProjetNom { get; set; }
         public int? ProjetId { get; set; }
         public DateTime DateCreation { get; set; }
         public bool EstAcceptee { get; set; }
         public bool EstArchivee { get; set; }
+        public List<int> EquipesAssigneesIds { get; set; }
+        public string EquipesNoms { get; set; }
+        public string MembresEquipes { get; set; }
         public bool AProjet => ProjetId.HasValue;
         public bool EstAccepteeSansProjet => EstAcceptee && !AProjet;
         public bool EstAccepteeAvecProjet => EstAcceptee && AProjet;
