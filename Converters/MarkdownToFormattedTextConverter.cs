@@ -25,6 +25,13 @@ namespace BacklogManager.Converters
             {
                 var trimmedLine = line.Trim();
                 
+                // Ignorer les lignes vides
+                if (string.IsNullOrWhiteSpace(trimmedLine))
+                {
+                    paragraph.Inlines.Add(new LineBreak());
+                    continue;
+                }
+                
                 // Liste à puces
                 if (trimmedLine.StartsWith("• ") || trimmedLine.StartsWith("- ") || trimmedLine.StartsWith("* "))
                 {
@@ -35,6 +42,21 @@ namespace BacklogManager.Converters
                         TextIndent = -15
                     };
                     flowDocument.Blocks.Add(listPara);
+                }
+                // Liste numérotée (ex: "1. ", "2. ")
+                else if (Regex.IsMatch(trimmedLine, @"^\d+\.\s"))
+                {
+                    var match = Regex.Match(trimmedLine, @"^\d+\.\s(.+)");
+                    if (match.Success)
+                    {
+                        var listText = match.Groups[1].Value;
+                        var listPara = new Paragraph(ParseInlineFormatting(listText))
+                        {
+                            Margin = new Thickness(20, 2, 0, 2),
+                            TextIndent = -15
+                        };
+                        flowDocument.Blocks.Add(listPara);
+                    }
                 }
                 // Titre (commence par #)
                 else if (trimmedLine.StartsWith("# "))
@@ -47,6 +69,18 @@ namespace BacklogManager.Converters
                         Margin = new Thickness(0, 8, 0, 4)
                     };
                     flowDocument.Blocks.Add(titlePara);
+                }
+                // Séparateur horizontal
+                else if (trimmedLine == "---" || trimmedLine == "***" || trimmedLine == "___")
+                {
+                    var separator = new Paragraph
+                    {
+                        BorderBrush = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
+                        BorderThickness = new Thickness(0, 0, 0, 1),
+                        Margin = new Thickness(0, 10, 0, 10),
+                        Padding = new Thickness(0)
+                    };
+                    flowDocument.Blocks.Add(separator);
                 }
                 // Texte normal
                 else

@@ -6,7 +6,9 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Documents;
 using BacklogManager.Domain;
+using BacklogManager.Converters;
 
 namespace BacklogManager.Views
 {
@@ -137,10 +139,12 @@ Sois constructif, précis et propose des solutions concrètes.";
                                 (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#E53935"));
                     }
                     
-                    TxtVueEnsemble.Text = resultat.VueEnsemble;
-                    TxtDeadlines.Text = resultat.Deadlines;
-                    TxtRecommandations.Text = resultat.Recommandations;
-                    TxtActions.Text = resultat.Actions;
+                    // Utiliser le convertisseur Markdown pour formatter le texte
+                    var converter = new MarkdownToFormattedTextConverter();
+                    TxtVueEnsemble.Document = converter.Convert(resultat.VueEnsemble, typeof(FlowDocument), null, null) as FlowDocument ?? new FlowDocument();
+                    TxtDeadlines.Document = converter.Convert(resultat.Deadlines, typeof(FlowDocument), null, null) as FlowDocument ?? new FlowDocument();
+                    TxtRecommandations.Document = converter.Convert(resultat.Recommandations, typeof(FlowDocument), null, null) as FlowDocument ?? new FlowDocument();
+                    TxtActions.Document = converter.Convert(resultat.Actions, typeof(FlowDocument), null, null) as FlowDocument ?? new FlowDocument();
                 });
             }
             catch (Exception ex)
@@ -311,7 +315,16 @@ Sois constructif, précis et propose des solutions concrètes.";
             {
                 PanelChargement.Visibility = Visibility.Collapsed;
                 PanelResultat.Visibility = Visibility.Visible;
-                TxtVueEnsemble.Text = $"❌ {message}";
+                
+                // Créer un FlowDocument avec le message d'erreur
+                var errorDoc = new FlowDocument();
+                var errorPara = new Paragraph(new Run($"❌ {message}"))
+                {
+                    Foreground = new System.Windows.Media.SolidColorBrush(
+                        (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#E53935"))
+                };
+                errorDoc.Blocks.Add(errorPara);
+                TxtVueEnsemble.Document = errorDoc;
             });
         }
 
