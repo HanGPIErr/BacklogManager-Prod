@@ -19,6 +19,14 @@ namespace BacklogManager.Views
             _authService = new AuthenticationService(database);
             _initService = new InitializationService(database);
             
+            // Assigner les services à App pour qu'ils soient accessibles partout
+            var app = Application.Current as App;
+            if (app != null)
+            {
+                app.AuthService = _authService;
+                app.Database = database;
+            }
+            
             // Initialiser les données par défaut
             _initService.InitializeDefaultData();
             
@@ -59,10 +67,27 @@ namespace BacklogManager.Views
         {
             try
             {
+                // Vérifier si un changement d'utilisateur est en cours
+                var tempFile = System.IO.Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, ".switch_user");
+                if (System.IO.File.Exists(tempFile))
+                {
+                    string switchUsername = System.IO.File.ReadAllText(tempFile).Trim();
+                    System.IO.File.Delete(tempFile); // Supprimer le fichier après lecture
+                    
+                    bool success = _authService.LoginWithUsername(switchUsername);
+                    if (success)
+                    {
+                        var mainWindow = new MainWindow(_authService);
+                        mainWindow.Show();
+                        this.Close();
+                        return;
+                    }
+                }
+                
                 // Essayer d'abord avec le compte admin par défaut
-                bool success = _authService.LoginWithUsername("admin");
+                bool success2 = _authService.LoginWithUsername("admin");
 
-                if (success)
+                if (success2)
                 {
                     var user = _authService.CurrentUser;
                     var role = _authService.GetCurrentUserRole();
@@ -81,8 +106,8 @@ namespace BacklogManager.Views
                     windowsUsername = windowsUsername.Split('\\')[1];
                 }
 
-                success = _authService.LoginWithUsername(windowsUsername);
-                if (success)
+                bool success3 = _authService.LoginWithUsername(windowsUsername);
+                if (success3)
                 {
                     var user = _authService.CurrentUser;
                     var role = _authService.GetCurrentUserRole();

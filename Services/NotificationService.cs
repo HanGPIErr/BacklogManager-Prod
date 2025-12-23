@@ -22,6 +22,8 @@ namespace BacklogManager.Services
         public DateTime DateCreation { get; set; }
         public bool EstLue { get; set; }
         public int? TacheId { get; set; }
+        public int? UtilisateurId { get; set; }  // ID de l'utilisateur destinataire (NULL = tous)
+        public int? DemandeEchangeVMId { get; set; }  // ID de la demande d'échange VM associée
         public BacklogItem Tache { get; set; }
 
         public string IconeEmoji

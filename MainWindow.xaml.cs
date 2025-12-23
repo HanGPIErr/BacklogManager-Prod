@@ -84,9 +84,6 @@ namespace BacklogManager
 
         private void InitialiserNotifications()
         {
-            // Supprimer les anciennes notifications au démarrage (nettoyage après rebranding)
-            _database.SupprimerToutesLesNotifications();
-            
             // Générer les notifications initiales
             _notificationService.AnalyserEtGenererNotifications();
             MettreAJourBadgeNotifications();

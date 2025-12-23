@@ -139,6 +139,7 @@ namespace BacklogManager.Services
 
         // Notifications
         public List<Notification> GetNotifications() => ExecuteReadWithRetry(() => _database.GetNotifications(), nameof(GetNotifications));
+        public List<Notification> GetNotificationsByUtilisateur(int utilisateurId) => ExecuteReadWithRetry(() => _database.GetNotificationsByUtilisateur(utilisateurId), nameof(GetNotificationsByUtilisateur));
         public void AddOrUpdateNotification(Notification notification) => ExecuteWriteWithRetry(() => _database.AddOrUpdateNotification(notification), nameof(AddOrUpdateNotification));
         public void DeleteNotification(int notificationId) => ExecuteWriteWithRetry(() => _database.DeleteNotification(notificationId), nameof(DeleteNotification));
         public void DeleteNotificationsLues() => ExecuteWriteWithRetry(() => _database.DeleteNotificationsLues(), nameof(DeleteNotificationsLues));
@@ -171,5 +172,26 @@ namespace BacklogManager.Services
         public void ModifierProgramme(Programme programme) => ExecuteWriteWithRetry(() => _database.ModifierProgramme(programme), nameof(ModifierProgramme));
         public void SupprimerProgramme(int id) => ExecuteWriteWithRetry(() => _database.SupprimerProgramme(id), nameof(SupprimerProgramme));
         public List<Projet> GetProjetsByProgramme(int programmeId) => ExecuteReadWithRetry(() => _database.GetProjetsByProgramme(programmeId), nameof(GetProjetsByProgramme));
+        
+        // Planning VM
+        public List<PlanningVMJour> GetPlanningsVM() => ExecuteReadWithRetry(() => _database.GetPlanningsVM(), nameof(GetPlanningsVM));
+        public PlanningVMJour GetPlanningVMById(int id) => ExecuteReadWithRetry(() => _database.GetPlanningVMById(id), nameof(GetPlanningVMById));
+        public void AjouterPlanningVM(PlanningVMJour planning) => ExecuteWriteWithRetry(() => _database.AjouterPlanningVM(planning), nameof(AjouterPlanningVM));
+        public void ModifierPlanningVM(PlanningVMJour planning) => ExecuteWriteWithRetry(() => _database.ModifierPlanningVM(planning), nameof(ModifierPlanningVM));
+        public void SupprimerPlanningVM(int id) => ExecuteWriteWithRetry(() => _database.SupprimerPlanningVM(id), nameof(SupprimerPlanningVM));
+        
+        // Demandes d'échange VM
+        public List<DemandeEchangeVM> GetDemandesEchangeVM() => ExecuteReadWithRetry(() => _database.GetDemandesEchangeVM(), nameof(GetDemandesEchangeVM));
+        public DemandeEchangeVM GetDemandeEchangeVMById(int id) => ExecuteReadWithRetry(() => _database.GetDemandeEchangeVMById(id), nameof(GetDemandeEchangeVMById));
+        public void AjouterDemandeEchangeVM(DemandeEchangeVM demande) => ExecuteWriteWithRetry(() => _database.AjouterDemandeEchangeVM(demande), nameof(AjouterDemandeEchangeVM));
+        public int GetDerniereDemandeEchangeVMId() => ExecuteReadWithRetry(() => _database.GetDerniereDemandeEchangeVMId(), nameof(GetDerniereDemandeEchangeVMId));
+        public void ModifierDemandeEchangeVM(DemandeEchangeVM demande) => ExecuteWriteWithRetry(() => _database.ModifierDemandeEchangeVM(demande), nameof(ModifierDemandeEchangeVM));
+        public void SupprimerDemandeEchangeVM(int id) => ExecuteWriteWithRetry(() => _database.SupprimerDemandeEchangeVM(id), nameof(SupprimerDemandeEchangeVM));
+        public void AnnulerDemandeEchangeVM(int demandeId) => ExecuteWriteWithRetry(() => _database.AnnulerDemandeEchangeVM(demandeId), nameof(AnnulerDemandeEchangeVM));
+        public List<DemandeEchangeVM> GetDemandesEchangeVMEnAttentePourUtilisateur(int utilisateurId) => ExecuteReadWithRetry(() => _database.GetDemandesEchangeVMEnAttentePourUtilisateur(utilisateurId), nameof(GetDemandesEchangeVMEnAttentePourUtilisateur));
+        public void AccepterEchangeVM(int demandeId, int planningVMJourId, int ancienUtilisateurId, int nouvelUtilisateurId) => ExecuteWriteWithRetry(() => _database.AccepterEchangeVM(demandeId, planningVMJourId, ancienUtilisateurId, nouvelUtilisateurId), nameof(AccepterEchangeVM));
+        
+        // Notification avec utilisateur cible
+        public void AjouterNotification(Notification notification, int utilisateurId) => ExecuteWriteWithRetry(() => _database.AjouterNotification(notification, utilisateurId), nameof(AjouterNotification));
     }
 }

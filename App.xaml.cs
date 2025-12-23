@@ -11,6 +11,8 @@ namespace BacklogManager
     {
         public NotificationService NotificationService { get; set; }
         public EmailService EmailService { get; set; }
+        public AuthenticationService AuthService { get; set; }
+        public IDatabase Database { get; set; }
         
         protected override void OnStartup(StartupEventArgs e)
         {

@@ -9,7 +9,9 @@ namespace BacklogManager.Views
     public partial class NotificationsView : UserControl
     {
         private readonly NotificationService _notificationService;
+        private readonly AuthenticationService _authService;
         private readonly EmailService _emailService;
+        private readonly IDatabase _database;
         private List<Notification> _toutesNotifications;
 
         public NotificationsView()
@@ -19,7 +21,9 @@ namespace BacklogManager.Views
             // Récupérer les services depuis App
             var app = Application.Current as App;
             _notificationService = app?.NotificationService;
+            _authService = app?.AuthService;
             _emailService = app?.EmailService;
+            _database = app?.Database;
             
             // Charger après que tous les contrôles soient initialisés
             Loaded += (s, e) => ChargerNotifications();
@@ -27,9 +31,19 @@ namespace BacklogManager.Views
 
         private void ChargerNotifications()
         {
-            if (_notificationService == null) return;
+            if (_notificationService == null || _authService == null || _database == null) return;
             
-            _toutesNotifications = _notificationService.GetAllNotifications();
+            // Récupérer les notifications pour l'utilisateur connecté
+            var utilisateurId = _authService.CurrentUser?.Id ?? 0;
+            if (utilisateurId > 0)
+            {
+                _toutesNotifications = _database.GetNotificationsByUtilisateur(utilisateurId);
+            }
+            else
+            {
+                _toutesNotifications = _notificationService.GetAllNotifications();
+            }
+            
             AppliquerFiltres();
             MettreAJourCompteur();
         }
@@ -164,6 +178,34 @@ namespace BacklogManager.Views
                 {
                     _notificationService.MarquerCommeLue(notification.Id);
                     ChargerNotifications();
+                }
+            }
+        }
+        
+        private void BtnAnnulerDemande_Click(object sender, RoutedEventArgs e)
+        {
+            if (_database == null || _authService == null) return;
+            
+            var button = sender as Button;
+            if (button?.Tag is Notification notification && notification.DemandeEchangeVMId.HasValue)
+            {
+                var result = MessageBox.Show("Voulez-vous vraiment annuler cette demande d'échange ?",
+                    "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                
+                if (result == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        _database.AnnulerDemandeEchangeVM(notification.DemandeEchangeVMId.Value);
+                        MessageBox.Show("La demande d'échange a été annulée avec succès.",
+                            "Annulation réussie", MessageBoxButton.OK, MessageBoxImage.Information);
+                        ChargerNotifications();
+                    }
+                    catch (System.Exception ex)
+                    {
+                        MessageBox.Show($"Erreur lors de l'annulation : {ex.Message}",
+                            "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
                 }
             }
         }

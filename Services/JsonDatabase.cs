@@ -147,6 +147,7 @@ namespace BacklogManager.Services
 
         // Notifications - Stubs pour JsonDatabase (non utilisé, SQLite uniquement)
         public List<Notification> GetNotifications() { return new List<Notification>(); }
+        public List<Notification> GetNotificationsByUtilisateur(int utilisateurId) { return new List<Notification>(); }
         public void AddOrUpdateNotification(Notification notification) { }
         public void DeleteNotification(int notificationId) { }
         public void DeleteNotificationsLues() { }
@@ -769,6 +770,82 @@ namespace BacklogManager.Services
         public List<Projet> GetProjetsByProgramme(int programmeId)
         {
             throw new NotSupportedException("La gestion des programmes n'est supportée qu'en mode SQLite.");
+        }
+        
+        // Planning VM (stubs pour JsonDatabase - SQLite est la BD de production)
+        public List<PlanningVMJour> GetPlanningsVM()
+        {
+            throw new NotSupportedException("Le planning VM n'est supporté qu'en mode SQLite.");
+        }
+
+        public PlanningVMJour GetPlanningVMById(int id)
+        {
+            throw new NotSupportedException("Le planning VM n'est supporté qu'en mode SQLite.");
+        }
+
+        public void AjouterPlanningVM(PlanningVMJour planning)
+        {
+            throw new NotSupportedException("Le planning VM n'est supporté qu'en mode SQLite.");
+        }
+
+        public void ModifierPlanningVM(PlanningVMJour planning)
+        {
+            throw new NotSupportedException("Le planning VM n'est supporté qu'en mode SQLite.");
+        }
+
+        public void SupprimerPlanningVM(int id)
+        {
+            throw new NotSupportedException("Le planning VM n'est supporté qu'en mode SQLite.");
+        }
+
+        public List<DemandeEchangeVM> GetDemandesEchangeVM()
+        {
+            throw new NotSupportedException("Le planning VM n'est supporté qu'en mode SQLite.");
+        }
+
+        public DemandeEchangeVM GetDemandeEchangeVMById(int id)
+        {
+            throw new NotSupportedException("Le planning VM n'est supporté qu'en mode SQLite.");
+        }
+
+        public void AjouterDemandeEchangeVM(DemandeEchangeVM demande)
+        {
+            throw new NotSupportedException("Le planning VM n'est supporté qu'en mode SQLite.");
+        }
+
+        public int GetDerniereDemandeEchangeVMId()
+        {
+            throw new NotSupportedException("Le planning VM n'est supporté qu'en mode SQLite.");
+        }
+
+        public void ModifierDemandeEchangeVM(DemandeEchangeVM demande)
+        {
+            throw new NotSupportedException("Le planning VM n'est supporté qu'en mode SQLite.");
+        }
+
+        public void SupprimerDemandeEchangeVM(int id)
+        {
+            throw new NotSupportedException("Le planning VM n'est supporté qu'en mode SQLite.");
+        }
+
+        public void AnnulerDemandeEchangeVM(int demandeId)
+        {
+            throw new NotSupportedException("Le planning VM n'est supporté qu'en mode SQLite.");
+        }
+
+        public List<DemandeEchangeVM> GetDemandesEchangeVMEnAttentePourUtilisateur(int utilisateurId)
+        {
+            throw new NotSupportedException("Le planning VM n'est supporté qu'en mode SQLite.");
+        }
+
+        public void AccepterEchangeVM(int demandeId, int planningVMJourId, int ancienUtilisateurId, int nouvelUtilisateurId)
+        {
+            throw new NotSupportedException("Le planning VM n'est supporté qu'en mode SQLite.");
+        }
+
+        public void AjouterNotification(Notification notification, int utilisateurId)
+        {
+            throw new NotSupportedException("Les notifications ciblées ne sont supportées qu'en mode SQLite.");
         }
     }
 }

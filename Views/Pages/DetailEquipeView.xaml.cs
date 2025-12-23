@@ -15,6 +15,7 @@ namespace BacklogManager.Views.Pages
         private readonly int _equipeId;
         private readonly Action _retourCallback;
         private readonly AuthenticationService _authService;
+        private Equipe _equipe;
 
         public DetailEquipeView(int equipeId, IDatabase database, Action retourCallback, AuthenticationService authService)
         {
@@ -46,6 +47,8 @@ namespace BacklogManager.Views.Pages
                     return;
                 }
 
+                _equipe = equipe;
+
                 // Informations générales
                 TxtNomEquipe.Text = equipe.Nom;
                 TxtCodeEquipe.Text = string.Format("Code: {0}", equipe.Code);
@@ -55,6 +58,12 @@ namespace BacklogManager.Views.Pages
                     equipe.PerimetreFonctionnel : "Non défini";
                 TxtContact.Text = !string.IsNullOrWhiteSpace(equipe.Contact) ? 
                     equipe.Contact : "Non défini";
+
+                // Afficher le bouton Planning VM uniquement pour Tactical Solutions
+                if (equipe.Code == "TACTICAL_SOLUTIONS")
+                {
+                    BtnPlanningVM.Visibility = Visibility.Visible;
+                }
 
                 // Manager
                 if (equipe.ManagerId.HasValue)
@@ -217,6 +226,56 @@ namespace BacklogManager.Views.Pages
             {
                 MessageBox.Show($"Erreur lors de la navigation: {ex.Message}\n\n{ex.StackTrace}", "Erreur", 
                     MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void BtnPlanningVM_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // Trouver le MainWindow et son ContentControl
+                var mainWindow = Window.GetWindow(this) as MainWindow;
+                if (mainWindow == null)
+                {
+                    MessageBox.Show("Impossible de trouver la fenêtre principale", "Erreur", 
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                var contentControl = mainWindow.FindName("MainContentControl") as ContentControl;
+                if (contentControl == null)
+                {
+                    MessageBox.Show("Impossible de trouver le contrôle de contenu principal", "Erreur Navigation", 
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                // Créer le NotificationService
+                var backlogService = new BacklogService(_database);
+                var notificationService = new NotificationService(backlogService, _database);
+
+                // Capture des variables pour le callback
+                var capturedEquipeId = _equipeId;
+                var capturedDatabase = _database;
+                var capturedRetourCallback = _retourCallback;
+                var capturedAuthService = _authService;
+                var capturedContentControl = contentControl;
+
+                // Navigation vers le planning VM
+                var planningPage = new PlanningVMPage(_database, notificationService, _authService, _equipeId, () =>
+                {
+                    // Retour vers la page équipe - recréer une nouvelle instance
+                    var nouvellePageEquipe = new DetailEquipeView(capturedEquipeId, capturedDatabase, capturedRetourCallback, capturedAuthService);
+                    capturedContentControl.Content = nouvellePageEquipe;
+                });
+
+                // Afficher la page de planning VM
+                contentControl.Content = planningPage;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erreur lors de l'ouverture du planning VM : {ex.Message}", 
+                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

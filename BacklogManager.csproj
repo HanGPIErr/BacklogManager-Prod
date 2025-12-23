@@ -283,6 +283,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Pages\PlanningVMPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Pages\DetailProjetSteerCoView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -552,6 +556,9 @@
     <Compile Include="Views\Pages\DetailEquipeView.xaml.cs">
       <DependentUpon>DetailEquipeView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Pages\PlanningVMPage.xaml.cs">
+      <DependentUpon>PlanningVMPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Pages\DetailProjetSteerCoView.xaml.cs">
       <DependentUpon>DetailProjetSteerCoView.xaml</DependentUpon>
     </Compile>
@@ -572,6 +579,8 @@
     </Compile>
     <Compile Include="Domain\Equipe.cs" />
     <Compile Include="Domain\Programme.cs" />
+    <Compile Include="Domain\PlanningVMJour.cs" />
+    <Compile Include="Domain\DemandeEchangeVM.cs" />
     <Compile Include="Services\EquipeService.cs" />
     <Compile Include="Services\ProgrammeService.cs" />
     <Compile Include="Views\Pages\AuditLogPage.xaml.cs">

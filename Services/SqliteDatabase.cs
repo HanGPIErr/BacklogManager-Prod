@@ -114,58 +114,8 @@ namespace BacklogManager.Services
         private SQLiteConnection GetConnectionForWrite()
         {
             var conn = new SQLiteConnection(_writeConnectionString);
-            
-            // Ouvrir avec retry pour gérer les locks
-            int retryCount = 0;
-            int maxRetries = 10; // Plus de tentatives pour l'ouverture
-            
-            while (true)
-            {
-                try
-                {
-                    conn.Open();
-                    
-                    // Configurer PRAGMA pour multi-utilisateurs
-                    using (var cmd = conn.CreateCommand())
-                    {
-                        cmd.CommandText = "PRAGMA busy_timeout = 30000;"; // 30 secondes
-                        cmd.ExecuteNonQuery();
-                        
-                        cmd.CommandText = "PRAGMA journal_mode = DELETE;"; // Plus safe pour réseau
-                        cmd.ExecuteNonQuery();
-                        
-                        cmd.CommandText = "PRAGMA synchronous = FULL;"; // Sécurité maximale
-                        cmd.ExecuteNonQuery();
-                    }
-                    
-                    return conn;
-                }
-                catch (SQLiteException ex) when (ex.ResultCode == SQLiteErrorCode.Busy || 
-                                                   ex.ResultCode == SQLiteErrorCode.Locked)
-                {
-                    retryCount++;
-                    if (retryCount >= maxRetries)
-                    {
-                        conn.Dispose();
-                        throw new Exception($"❌ La base de données est verrouillée par un autre utilisateur.\n\n" +
-                                          $"Impossible d'accéder après {maxRetries} tentatives.\n\n" +
-                                          $"Veuillez réessayer dans quelques instants.\n\n" +
-                                          $"Si le problème persiste, contactez l'administrateur.", ex);
-                    }
-                    
-                    // Attente exponentielle avec jitter pour éviter les collisions
-                    var baseDelay = 200 * (int)Math.Pow(1.5, retryCount - 1); // 200ms, 300ms, 450ms, 675ms...
-                    var jitter = new Random().Next(0, 100); // Ajouter du hasard
-                    System.Threading.Thread.Sleep(baseDelay + jitter);
-                    
-                    System.Diagnostics.Debug.WriteLine($"[SqliteDatabase] Retry #{retryCount} après {baseDelay + jitter}ms - {ex.Message}");
-                }
-                catch
-                {
-                    conn.Dispose();
-                    throw;
-                }
-            }
+            conn.Open();
+            return conn;
         }
 
         private SQLiteConnection GetConnectionForRead()
@@ -197,20 +147,6 @@ namespace BacklogManager.Services
                     // Appliquer les migrations sur base existante
                     using (var conn = GetConnectionForWrite())
                     {
-                        
-                        // Configuration pour multi-utilisateurs
-                        using (var cmd = conn.CreateCommand())
-                        {
-                            cmd.CommandText = "PRAGMA journal_mode=WAL;";
-                            cmd.ExecuteNonQuery();
-                            cmd.CommandText = "PRAGMA synchronous=NORMAL;";
-                            cmd.ExecuteNonQuery();
-                            cmd.CommandText = "PRAGMA temp_store=MEMORY;";
-                            cmd.ExecuteNonQuery();
-                            cmd.CommandText = "PRAGMA cache_size=10000;";
-                            cmd.ExecuteNonQuery();
-                        }
-                        
                         MigrateDatabaseSchema(conn);
                     }
                 }
@@ -1031,6 +967,87 @@ namespace BacklogManager.Services
                 if (!hasDemandesEquipesAssigneesIds)
                 {
                     cmd.CommandText = @"ALTER TABLE Demandes ADD COLUMN EquipesAssigneesIds TEXT;";
+                    cmd.ExecuteNonQuery();
+                }
+                
+                // ========== Planning VM (Tactical Solutions) ==========
+                
+                // Vérifier et créer la table PlanningVM si elle n'existe pas
+                cmd.CommandText = @"SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='PlanningVM';";
+                var hasPlanningVMTable = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                
+                if (!hasPlanningVMTable)
+                {
+                    cmd.CommandText = @"
+                        CREATE TABLE PlanningVM (
+                            Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            EquipeId INTEGER NOT NULL,
+                            Date TEXT NOT NULL,
+                            UtilisateurId INTEGER,
+                            DateAssignation TEXT,
+                            Commentaire TEXT,
+                            FOREIGN KEY (EquipeId) REFERENCES Equipes(Id),
+                            FOREIGN KEY (UtilisateurId) REFERENCES Utilisateurs(Id),
+                            UNIQUE(EquipeId, Date)
+                        );
+                        
+                        CREATE INDEX IF NOT EXISTS idx_planningvm_equipe ON PlanningVM(EquipeId);
+                        CREATE INDEX IF NOT EXISTS idx_planningvm_date ON PlanningVM(Date);
+                        CREATE INDEX IF NOT EXISTS idx_planningvm_utilisateur ON PlanningVM(UtilisateurId);
+                    ";
+                    cmd.ExecuteNonQuery();
+                }
+                
+                // Vérifier et créer la table DemandeEchangeVM si elle n'existe pas
+                cmd.CommandText = @"SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='DemandeEchangeVM';";
+                var hasDemandeEchangeVMTable = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                
+                if (!hasDemandeEchangeVMTable)
+                {
+                    cmd.CommandText = @"
+                        CREATE TABLE DemandeEchangeVM (
+                            Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            PlanningVMJourId INTEGER NOT NULL,
+                            UtilisateurDemandeurId INTEGER NOT NULL,
+                            UtilisateurCibleId INTEGER NOT NULL,
+                            DateDemande TEXT NOT NULL,
+                            Statut TEXT NOT NULL,
+                            DateReponse TEXT,
+                            Message TEXT,
+                            FOREIGN KEY (PlanningVMJourId) REFERENCES PlanningVM(Id) ON DELETE CASCADE,
+                            FOREIGN KEY (UtilisateurDemandeurId) REFERENCES Utilisateurs(Id),
+                            FOREIGN KEY (UtilisateurCibleId) REFERENCES Utilisateurs(Id)
+                        );
+                        
+                        CREATE INDEX IF NOT EXISTS idx_demandevm_planning ON DemandeEchangeVM(PlanningVMJourId);
+                        CREATE INDEX IF NOT EXISTS idx_demandevm_demandeur ON DemandeEchangeVM(UtilisateurDemandeurId);
+                        CREATE INDEX IF NOT EXISTS idx_demandevm_cible ON DemandeEchangeVM(UtilisateurCibleId);
+                        CREATE INDEX IF NOT EXISTS idx_demandevm_statut ON DemandeEchangeVM(Statut);
+                    ";
+                    cmd.ExecuteNonQuery();
+                }
+                
+                // Vérifier et ajouter UtilisateurId dans Notifications si manquant
+                cmd.CommandText = @"SELECT COUNT(*) FROM pragma_table_info('Notifications') WHERE name='UtilisateurId';";
+                var hasNotificationUtilisateurId = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                
+                if (!hasNotificationUtilisateurId)
+                {
+                    cmd.CommandText = @"ALTER TABLE Notifications ADD COLUMN UtilisateurId INTEGER REFERENCES Utilisateurs(Id);";
+                    cmd.ExecuteNonQuery();
+                    
+                    // Créer un index pour la performance
+                    cmd.CommandText = @"CREATE INDEX IF NOT EXISTS idx_notifications_utilisateur ON Notifications(UtilisateurId);";
+                    cmd.ExecuteNonQuery();
+                }
+                
+                // Vérifier et ajouter DemandeEchangeVMId dans Notifications si manquant
+                cmd.CommandText = @"SELECT COUNT(*) FROM pragma_table_info('Notifications') WHERE name='DemandeEchangeVMId';";
+                var hasDemandeEchangeVMId = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                
+                if (!hasDemandeEchangeVMId)
+                {
+                    cmd.CommandText = @"ALTER TABLE Notifications ADD COLUMN DemandeEchangeVMId INTEGER REFERENCES DemandeEchangeVM(Id);";
                     cmd.ExecuteNonQuery();
                 }
             }
@@ -2075,7 +2092,9 @@ namespace BacklogManager.Services
                 conn.Open();
                 using (var cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = "SELECT Id, Titre, Message, Type, DateCreation, EstLue, TacheId FROM Notifications ORDER BY DateCreation DESC";
+                    cmd.CommandText = @"SELECT Id, Titre, Message, Type, DateCreation, EstLue, TacheId, UtilisateurId 
+                                        FROM Notifications 
+                                        ORDER BY DateCreation DESC";
                     
                     var notifications = new List<Notification>();
                     using (var reader = cmd.ExecuteReader())
@@ -2090,7 +2109,45 @@ namespace BacklogManager.Services
                                 Type = (NotificationType)reader.GetInt32(3),
                                 DateCreation = DateTime.Parse(reader.GetString(4)),
                                 EstLue = reader.GetInt32(5) == 1,
-                                TacheId = reader.IsDBNull(6) ? (int?)null : reader.GetInt32(6)
+                                TacheId = reader.IsDBNull(6) ? (int?)null : reader.GetInt32(6),
+                                UtilisateurId = reader.IsDBNull(7) ? (int?)null : reader.GetInt32(7)
+                            });
+                        }
+                    }
+                    return notifications;
+                }
+            }
+        }
+
+        public List<Notification> GetNotificationsByUtilisateur(int utilisateurId)
+        {
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"SELECT Id, Titre, Message, Type, DateCreation, EstLue, TacheId, UtilisateurId, DemandeEchangeVMId 
+                                        FROM Notifications 
+                                        WHERE UtilisateurId IS NULL OR UtilisateurId = @UtilisateurId
+                                        ORDER BY DateCreation DESC";
+                    cmd.Parameters.AddWithValue("@UtilisateurId", utilisateurId);
+                    
+                    var notifications = new List<Notification>();
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            notifications.Add(new Notification
+                            {
+                                Id = reader.GetInt32(0),
+                                Titre = reader.GetString(1),
+                                Message = reader.GetString(2),
+                                Type = (NotificationType)reader.GetInt32(3),
+                                DateCreation = DateTime.Parse(reader.GetString(4)),
+                                EstLue = reader.GetInt32(5) == 1,
+                                TacheId = reader.IsDBNull(6) ? (int?)null : reader.GetInt32(6),
+                                UtilisateurId = reader.IsDBNull(7) ? (int?)null : reader.GetInt32(7),
+                                DemandeEchangeVMId = reader.IsDBNull(8) ? (int?)null : reader.GetInt32(8)
                             });
                         }
                     }
@@ -3013,5 +3070,392 @@ namespace BacklogManager.Services
             }
             return projets;
         }
+        
+        #region Planning VM
+        
+        public List<PlanningVMJour> GetPlanningsVM()
+        {
+            var plannings = new List<PlanningVMJour>();
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = new SQLiteCommand(@"
+                    SELECT Id, EquipeId, Date, UtilisateurId, DateAssignation, Commentaire
+                    FROM PlanningVM
+                    ORDER BY Date", conn))
+                {
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            plannings.Add(new PlanningVMJour
+                            {
+                                Id = reader.GetInt32(0),
+                                EquipeId = reader.GetInt32(1),
+                                Date = DateTime.Parse(reader.GetString(2)),
+                                UtilisateurId = !reader.IsDBNull(3) ? (int?)reader.GetInt32(3) : null,
+                                DateAssignation = !reader.IsDBNull(4) ? (DateTime?)DateTime.Parse(reader.GetString(4)) : null,
+                                Commentaire = !reader.IsDBNull(5) ? reader.GetString(5) : null
+                            });
+                        }
+                    }
+                }
+            }
+            return plannings;
+        }
+        
+        public PlanningVMJour GetPlanningVMById(int id)
+        {
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = new SQLiteCommand(@"
+                    SELECT Id, EquipeId, Date, UtilisateurId, DateAssignation, Commentaire
+                    FROM PlanningVM
+                    WHERE Id = @Id", conn))
+                {
+                    cmd.Parameters.AddWithValue("@Id", id);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return new PlanningVMJour
+                            {
+                                Id = reader.GetInt32(0),
+                                EquipeId = reader.GetInt32(1),
+                                Date = DateTime.Parse(reader.GetString(2)),
+                                UtilisateurId = !reader.IsDBNull(3) ? (int?)reader.GetInt32(3) : null,
+                                DateAssignation = !reader.IsDBNull(4) ? (DateTime?)DateTime.Parse(reader.GetString(4)) : null,
+                                Commentaire = !reader.IsDBNull(5) ? reader.GetString(5) : null
+                            };
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+        
+        public void AjouterPlanningVM(PlanningVMJour planning)
+        {
+            using (var conn = GetConnectionForWrite())
+            {
+                using (var cmd = new SQLiteCommand(@"
+                    INSERT INTO PlanningVM (EquipeId, Date, UtilisateurId, DateAssignation, Commentaire)
+                    VALUES (@EquipeId, @Date, @UtilisateurId, @DateAssignation, @Commentaire)", conn))
+                {
+                    cmd.Parameters.AddWithValue("@EquipeId", planning.EquipeId);
+                    cmd.Parameters.AddWithValue("@Date", planning.Date.ToString("yyyy-MM-dd"));
+                    cmd.Parameters.AddWithValue("@UtilisateurId", planning.UtilisateurId.HasValue ? (object)planning.UtilisateurId.Value : DBNull.Value);
+                    cmd.Parameters.AddWithValue("@DateAssignation", planning.DateAssignation.HasValue ? (object)planning.DateAssignation.Value.ToString("yyyy-MM-dd HH:mm:ss") : DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Commentaire", string.IsNullOrWhiteSpace(planning.Commentaire) ? DBNull.Value : (object)planning.Commentaire);
+                    
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+        
+        public void ModifierPlanningVM(PlanningVMJour planning)
+        {
+            using (var conn = GetConnectionForWrite())
+            {
+                using (var cmd = new SQLiteCommand(@"
+                    UPDATE PlanningVM 
+                    SET EquipeId = @EquipeId, 
+                        Date = @Date, 
+                        UtilisateurId = @UtilisateurId, 
+                        DateAssignation = @DateAssignation,
+                        Commentaire = @Commentaire
+                    WHERE Id = @Id", conn))
+                {
+                    cmd.Parameters.AddWithValue("@Id", planning.Id);
+                    cmd.Parameters.AddWithValue("@EquipeId", planning.EquipeId);
+                    cmd.Parameters.AddWithValue("@Date", planning.Date.ToString("yyyy-MM-dd"));
+                    cmd.Parameters.AddWithValue("@UtilisateurId", planning.UtilisateurId.HasValue ? (object)planning.UtilisateurId.Value : DBNull.Value);
+                    cmd.Parameters.AddWithValue("@DateAssignation", planning.DateAssignation.HasValue ? (object)planning.DateAssignation.Value.ToString("yyyy-MM-dd HH:mm:ss") : DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Commentaire", string.IsNullOrWhiteSpace(planning.Commentaire) ? DBNull.Value : (object)planning.Commentaire);
+                    
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+        
+        public void SupprimerPlanningVM(int id)
+        {
+            using (var conn = GetConnectionForWrite())
+            {
+                // Supprimer d'abord les demandes d'échange associées
+                using (var cmd = new SQLiteCommand(@"DELETE FROM DemandeEchangeVM WHERE PlanningVMJourId = @Id", conn))
+                {
+                    cmd.Parameters.AddWithValue("@Id", id);
+                    cmd.ExecuteNonQuery();
+                }
+                
+                // Puis supprimer le planning
+                using (var cmd = new SQLiteCommand(@"DELETE FROM PlanningVM WHERE Id = @Id", conn))
+                {
+                    cmd.Parameters.AddWithValue("@Id", id);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+        
+        #endregion
+        
+        #region Demandes d'échange VM
+        
+        public List<DemandeEchangeVM> GetDemandesEchangeVM()
+        {
+            var demandes = new List<DemandeEchangeVM>();
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = new SQLiteCommand(@"
+                    SELECT Id, PlanningVMJourId, UtilisateurDemandeurId, UtilisateurCibleId, 
+                           DateDemande, Statut, DateReponse, Message
+                    FROM DemandeEchangeVM
+                    ORDER BY DateDemande DESC", conn))
+                {
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            demandes.Add(new DemandeEchangeVM
+                            {
+                                Id = reader.GetInt32(0),
+                                PlanningVMJourId = reader.GetInt32(1),
+                                UtilisateurDemandeurId = reader.GetInt32(2),
+                                UtilisateurCibleId = reader.GetInt32(3),
+                                DateDemande = DateTime.Parse(reader.GetString(4)),
+                                Statut = reader.GetString(5),
+                                DateReponse = !reader.IsDBNull(6) ? (DateTime?)DateTime.Parse(reader.GetString(6)) : null,
+                                Message = !reader.IsDBNull(7) ? reader.GetString(7) : null
+                            });
+                        }
+                    }
+                }
+            }
+            return demandes;
+        }
+        
+        public DemandeEchangeVM GetDemandeEchangeVMById(int id)
+        {
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = new SQLiteCommand(@"
+                    SELECT Id, PlanningVMJourId, UtilisateurDemandeurId, UtilisateurCibleId, 
+                           DateDemande, Statut, DateReponse, Message
+                    FROM DemandeEchangeVM
+                    WHERE Id = @Id", conn))
+                {
+                    cmd.Parameters.AddWithValue("@Id", id);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return new DemandeEchangeVM
+                            {
+                                Id = reader.GetInt32(0),
+                                PlanningVMJourId = reader.GetInt32(1),
+                                UtilisateurDemandeurId = reader.GetInt32(2),
+                                UtilisateurCibleId = reader.GetInt32(3),
+                                DateDemande = DateTime.Parse(reader.GetString(4)),
+                                Statut = reader.GetString(5),
+                                DateReponse = !reader.IsDBNull(6) ? (DateTime?)DateTime.Parse(reader.GetString(6)) : null,
+                                Message = !reader.IsDBNull(7) ? reader.GetString(7) : null
+                            };
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+        
+        public void AjouterDemandeEchangeVM(DemandeEchangeVM demande)
+        {
+            using (var conn = GetConnectionForWrite())
+            {
+                using (var cmd = new SQLiteCommand(@"
+                    INSERT INTO DemandeEchangeVM 
+                    (PlanningVMJourId, UtilisateurDemandeurId, UtilisateurCibleId, DateDemande, Statut, DateReponse, Message)
+                    VALUES (@PlanningVMJourId, @UtilisateurDemandeurId, @UtilisateurCibleId, @DateDemande, @Statut, @DateReponse, @Message);
+                    SELECT last_insert_rowid();", conn))
+                {
+                    cmd.Parameters.AddWithValue("@PlanningVMJourId", demande.PlanningVMJourId);
+                    cmd.Parameters.AddWithValue("@UtilisateurDemandeurId", demande.UtilisateurDemandeurId);
+                    cmd.Parameters.AddWithValue("@UtilisateurCibleId", demande.UtilisateurCibleId);
+                    cmd.Parameters.AddWithValue("@DateDemande", demande.DateDemande.ToString("yyyy-MM-dd HH:mm:ss"));
+                    cmd.Parameters.AddWithValue("@Statut", demande.Statut);
+                    cmd.Parameters.AddWithValue("@DateReponse", demande.DateReponse.HasValue ? (object)demande.DateReponse.Value.ToString("yyyy-MM-dd HH:mm:ss") : DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Message", string.IsNullOrWhiteSpace(demande.Message) ? DBNull.Value : (object)demande.Message);
+                    
+                    demande.Id = Convert.ToInt32(cmd.ExecuteScalar());
+                }
+            }
+        }
+        
+        public int GetDerniereDemandeEchangeVMId()
+        {
+            using (var conn = GetConnectionForWrite())
+            {
+                using (var cmd = new SQLiteCommand("SELECT last_insert_rowid()", conn))
+                {
+                    return Convert.ToInt32(cmd.ExecuteScalar());
+                }
+            }
+        }
+        
+        public void AnnulerDemandeEchangeVM(int demandeId)
+        {
+            using (var conn = GetConnectionForWrite())
+            {
+                // Supprimer les notifications liées
+                using (var cmd = new SQLiteCommand("DELETE FROM Notifications WHERE DemandeEchangeVMId = @DemandeId", conn))
+                {
+                    cmd.Parameters.AddWithValue("@DemandeId", demandeId);
+                    cmd.ExecuteNonQuery();
+                }
+                
+                // Supprimer la demande
+                using (var cmd = new SQLiteCommand("DELETE FROM DemandeEchangeVM WHERE Id = @Id", conn))
+                {
+                    cmd.Parameters.AddWithValue("@Id", demandeId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+        
+        public List<DemandeEchangeVM> GetDemandesEchangeVMEnAttentePourUtilisateur(int utilisateurId)
+        {
+            var demandes = new List<DemandeEchangeVM>();
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = new SQLiteCommand(@"
+                    SELECT Id, PlanningVMJourId, UtilisateurDemandeurId, UtilisateurCibleId, DateDemande, Statut, DateReponse, Message
+                    FROM DemandeEchangeVM
+                    WHERE UtilisateurCibleId = @UtilisateurId AND Statut = 'EN_ATTENTE'
+                    ORDER BY DateDemande DESC", conn))
+                {
+                    cmd.Parameters.AddWithValue("@UtilisateurId", utilisateurId);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            demandes.Add(new DemandeEchangeVM
+                            {
+                                Id = reader.GetInt32(0),
+                                PlanningVMJourId = reader.GetInt32(1),
+                                UtilisateurDemandeurId = reader.GetInt32(2),
+                                UtilisateurCibleId = reader.GetInt32(3),
+                                DateDemande = DateTime.Parse(reader.GetString(4)),
+                                Statut = reader.GetString(5),
+                                DateReponse = reader.IsDBNull(6) ? (DateTime?)null : DateTime.Parse(reader.GetString(6)),
+                                Message = reader.IsDBNull(7) ? null : reader.GetString(7)
+                            });
+                        }
+                    }
+                }
+            }
+            return demandes;
+        }
+        
+        public void AccepterEchangeVM(int demandeId, int planningVMJourId, int ancienUtilisateurId, int nouvelUtilisateurId)
+        {
+            using (var conn = GetConnectionForWrite())
+            {
+                // Mettre à jour le planning VM
+                using (var cmd = new SQLiteCommand("UPDATE PlanningVM SET UtilisateurId = @NouvelUtilisateurId WHERE Id = @PlanningId", conn))
+                {
+                    cmd.Parameters.AddWithValue("@NouvelUtilisateurId", nouvelUtilisateurId);
+                    cmd.Parameters.AddWithValue("@PlanningId", planningVMJourId);
+                    cmd.ExecuteNonQuery();
+                }
+                
+                // Mettre à jour le statut de la demande
+                using (var cmd = new SQLiteCommand("UPDATE DemandeEchangeVM SET Statut = 'ACCEPTE', DateReponse = @DateReponse WHERE Id = @Id", conn))
+                {
+                    cmd.Parameters.AddWithValue("@DateReponse", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                    cmd.Parameters.AddWithValue("@Id", demandeId);
+                    cmd.ExecuteNonQuery();
+                }
+                
+                // Supprimer les notifications liées
+                using (var cmd = new SQLiteCommand("DELETE FROM Notifications WHERE DemandeEchangeVMId = @DemandeId", conn))
+                {
+                    cmd.Parameters.AddWithValue("@DemandeId", demandeId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+        
+        public void ModifierDemandeEchangeVM(DemandeEchangeVM demande)
+        {
+            using (var conn = GetConnectionForWrite())
+            {
+                using (var cmd = new SQLiteCommand(@"
+                    UPDATE DemandeEchangeVM 
+                    SET PlanningVMJourId = @PlanningVMJourId,
+                        UtilisateurDemandeurId = @UtilisateurDemandeurId,
+                        UtilisateurCibleId = @UtilisateurCibleId,
+                        DateDemande = @DateDemande,
+                        Statut = @Statut,
+                        DateReponse = @DateReponse,
+                        Message = @Message
+                    WHERE Id = @Id", conn))
+                {
+                    cmd.Parameters.AddWithValue("@Id", demande.Id);
+                    cmd.Parameters.AddWithValue("@PlanningVMJourId", demande.PlanningVMJourId);
+                    cmd.Parameters.AddWithValue("@UtilisateurDemandeurId", demande.UtilisateurDemandeurId);
+                    cmd.Parameters.AddWithValue("@UtilisateurCibleId", demande.UtilisateurCibleId);
+                    cmd.Parameters.AddWithValue("@DateDemande", demande.DateDemande.ToString("yyyy-MM-dd HH:mm:ss"));
+                    cmd.Parameters.AddWithValue("@Statut", demande.Statut);
+                    cmd.Parameters.AddWithValue("@DateReponse", demande.DateReponse.HasValue ? (object)demande.DateReponse.Value.ToString("yyyy-MM-dd HH:mm:ss") : DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Message", string.IsNullOrWhiteSpace(demande.Message) ? DBNull.Value : (object)demande.Message);
+                    
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+        
+        public void SupprimerDemandeEchangeVM(int id)
+        {
+            using (var conn = GetConnectionForWrite())
+            {
+                using (var cmd = new SQLiteCommand(@"DELETE FROM DemandeEchangeVM WHERE Id = @Id", conn))
+                {
+                    cmd.Parameters.AddWithValue("@Id", id);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+        
+        #endregion
+        
+        #region Notifications avec utilisateur cible
+        
+        public void AjouterNotification(Notification notification, int utilisateurId)
+        {
+            using (var conn = GetConnectionForWrite())
+            {
+                using (var cmd = new SQLiteCommand(@"
+                    INSERT INTO Notifications (Titre, Message, Type, DateCreation, EstLue, TacheId, UtilisateurId, DemandeEchangeVMId)
+                    VALUES (@Titre, @Message, @Type, @DateCreation, @EstLue, @TacheId, @UtilisateurId, @DemandeEchangeVMId)", conn))
+                {
+                    cmd.Parameters.AddWithValue("@Titre", notification.Titre);
+                    cmd.Parameters.AddWithValue("@Message", notification.Message);
+                    cmd.Parameters.AddWithValue("@Type", (int)notification.Type);
+                    cmd.Parameters.AddWithValue("@DateCreation", notification.DateCreation.ToString("yyyy-MM-dd HH:mm:ss"));
+                    cmd.Parameters.AddWithValue("@EstLue", notification.EstLue ? 1 : 0);
+                    cmd.Parameters.AddWithValue("@TacheId", notification.TacheId.HasValue ? (object)notification.TacheId.Value : DBNull.Value);
+                    cmd.Parameters.AddWithValue("@UtilisateurId", utilisateurId);
+                    cmd.Parameters.AddWithValue("@DemandeEchangeVMId", notification.DemandeEchangeVMId.HasValue ? (object)notification.DemandeEchangeVMId.Value : DBNull.Value);
+                    
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+        
+        #endregion
     }
 }

@@ -49,6 +49,7 @@ namespace BacklogManager.Services
         
         // Notifications
         List<Notification> GetNotifications();
+        List<Notification> GetNotificationsByUtilisateur(int utilisateurId);
         void AddOrUpdateNotification(Notification notification);
         void DeleteNotification(int notificationId);
         void DeleteNotificationsLues();
@@ -81,5 +82,26 @@ namespace BacklogManager.Services
         void ModifierProgramme(Programme programme);
         void SupprimerProgramme(int id);
         List<Projet> GetProjetsByProgramme(int programmeId);
+        
+        // Planning VM
+        List<PlanningVMJour> GetPlanningsVM();
+        PlanningVMJour GetPlanningVMById(int id);
+        void AjouterPlanningVM(PlanningVMJour planning);
+        void ModifierPlanningVM(PlanningVMJour planning);
+        void SupprimerPlanningVM(int id);
+        
+        // Demandes d'échange VM
+        List<DemandeEchangeVM> GetDemandesEchangeVM();
+        DemandeEchangeVM GetDemandeEchangeVMById(int id);
+        void AjouterDemandeEchangeVM(DemandeEchangeVM demande);
+        int GetDerniereDemandeEchangeVMId();
+        void ModifierDemandeEchangeVM(DemandeEchangeVM demande);
+        void SupprimerDemandeEchangeVM(int id);
+        void AnnulerDemandeEchangeVM(int demandeId);
+        List<DemandeEchangeVM> GetDemandesEchangeVMEnAttentePourUtilisateur(int utilisateurId);
+        void AccepterEchangeVM(int demandeId, int planningVMJourId, int ancienUtilisateurId, int nouvelUtilisateurId);
+        
+        // Notification avec utilisateur cible
+        void AjouterNotification(Notification notification, int utilisateurId);
     }
 }

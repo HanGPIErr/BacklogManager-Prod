@@ -20,5 +20,8 @@ namespace BacklogManager.Domain
         
         // Statut de l'utilisateur : BAU, PROJECTS, Temporary, Hiring ongoing
         public string Statut { get; set; }
+        
+        // Propriété calculée pour l'affichage
+        public string NomComplet => $"{Prenom} {Nom}";
     }
 }
