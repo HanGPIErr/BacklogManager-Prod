@@ -367,7 +367,18 @@ namespace BacklogManager.Views
                         if (File.Exists(saveDialog.FileName))
                             File.Delete(saveDialog.FileName);
 
-                        ZipFile.CreateFromDirectory(tempFolder, saveDialog.FileName);
+                        // Créer le ZIP en excluant les fichiers .log
+                        using (var archive = ZipFile.Open(saveDialog.FileName, System.IO.Compression.ZipArchiveMode.Create))
+                        {
+                            foreach (var file in Directory.GetFiles(tempFolder, "*", SearchOption.AllDirectories))
+                            {
+                                if (!file.EndsWith(".log", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    var entryName = file.Substring(tempFolder.Length + 1);
+                                    archive.CreateEntryFromFile(file, entryName);
+                                }
+                            }
+                        }
 
                         var fileInfo = new FileInfo(saveDialog.FileName);
                         MessageBox.Show(

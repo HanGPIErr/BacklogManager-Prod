@@ -462,11 +462,21 @@ namespace BacklogManager.Views
                             $"- JSON: Utiliser 'Importer JSON' dans les paramètres\n", 
                             Encoding.UTF8);
 
-                        // Créer le ZIP
+                        // Créer le ZIP en excluant les fichiers .log
                         if (File.Exists(saveDialog.FileName))
                             File.Delete(saveDialog.FileName);
                         
-                        System.IO.Compression.ZipFile.CreateFromDirectory(tempFolder, saveDialog.FileName);
+                        using (var archive = System.IO.Compression.ZipFile.Open(saveDialog.FileName, System.IO.Compression.ZipArchiveMode.Create))
+                        {
+                            foreach (var file in Directory.GetFiles(tempFolder, "*", SearchOption.AllDirectories))
+                            {
+                                if (!file.EndsWith(".log", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    var entryName = file.Substring(tempFolder.Length + 1);
+                                    archive.CreateEntryFromFile(file, entryName);
+                                }
+                            }
+                        }
 
                         var fileInfo = new FileInfo(saveDialog.FileName);
                         MessageBox.Show(
