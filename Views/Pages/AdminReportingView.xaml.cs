@@ -404,6 +404,12 @@ namespace BacklogManager.Views.Pages
                 // Contributions des ressources - Agrégées sur tous les projets
                 ChargerContributionsRessources(taches);
                 
+                // Calculer et afficher les stats comparatives (avant / période / reste)
+                CalculerEtAfficherStatsComparatives(toutesLesTaches);
+                
+                // Calculer les statistiques supplémentaires
+                CalculerStatistiquesSupplementaires(taches, tachesToutes, projets);
+                
                 // Afficher les KPIs
                 AfficherKPIs();
             }
@@ -540,6 +546,12 @@ namespace BacklogManager.Views.Pages
                 // Contributions des ressources
                 ChargerContributionsRessources(taches);
                 
+                // Calculer et afficher les stats comparatives (avant / période / reste)
+                CalculerEtAfficherStatsComparatives(tachesProjet);
+                
+                // Calculer les statistiques supplémentaires
+                CalculerStatistiquesSupplementaires(taches, tachesProjet, new List<Projet> { projet });
+                
                 // Afficher les KPIs
                 AfficherKPIs();
             }
@@ -638,6 +650,7 @@ namespace BacklogManager.Views.Pages
         {
             PanelAucuneSelection.Visibility = Visibility.Collapsed;
             PanelKPIs.Visibility = Visibility.Visible;
+            PanelComparatif.Visibility = Visibility.Visible;
             PanelTimelineGains.Visibility = Visibility.Visible;
             PanelContributions.Visibility = Visibility.Visible;
         }
@@ -646,8 +659,309 @@ namespace BacklogManager.Views.Pages
         {
             PanelAucuneSelection.Visibility = Visibility.Visible;
             PanelKPIs.Visibility = Visibility.Collapsed;
+            PanelComparatif.Visibility = Visibility.Collapsed;
             PanelTimelineGains.Visibility = Visibility.Collapsed;
             PanelContributions.Visibility = Visibility.Collapsed;
+        }
+
+        private void CalculerEtAfficherStatsComparatives(List<BacklogItem> toutesLesTaches)
+        {
+            // Calculer les stats pour les 3 périodes
+            var statsAvant = CalculerStatsPeriode(toutesLesTaches, null, _dateDebutFiltre);
+            var statsPeriode = CalculerStatsPeriode(toutesLesTaches, _dateDebutFiltre, _dateFinFiltre);
+            var statsReste = CalculerStatsPeriode(toutesLesTaches, _dateFinFiltre, null, true);
+
+            // Si tout est terminé (rien à faire), afficher en 2 colonnes
+            bool toutEstFait = statsReste.NbTaches == 0;
+
+            if (toutEstFait)
+            {
+                GridComparatif3Col.Visibility = Visibility.Collapsed;
+                GridComparatif2Col.Visibility = Visibility.Visible;
+
+                // Remplir la version 2 colonnes
+                TxtAvantTaches2Col.Text = statsAvant.NbTaches.ToString();
+                TxtAvantCharge2Col.Text = string.Format("{0:0.#}j", statsAvant.ChargeJours);
+
+                TxtPeriodeTaches2Col.Text = statsPeriode.NbTaches.ToString();
+                TxtPeriodeCharge2Col.Text = string.Format("{0:0.#}j", statsPeriode.ChargeJours);
+            }
+            else
+            {
+                GridComparatif3Col.Visibility = Visibility.Visible;
+                GridComparatif2Col.Visibility = Visibility.Collapsed;
+
+                // Remplir la version 3 colonnes
+                TxtAvantTaches.Text = statsAvant.NbTaches.ToString();
+                TxtAvantCharge.Text = string.Format("{0:0.#}j", statsAvant.ChargeJours);
+
+                TxtPeriodeTaches.Text = statsPeriode.NbTaches.ToString();
+                TxtPeriodeCharge.Text = string.Format("{0:0.#}j", statsPeriode.ChargeJours);
+
+                TxtResteTaches.Text = statsReste.NbTaches.ToString();
+                TxtResteCharge.Text = string.Format("{0:0.#}j", statsReste.ChargeJours);
+            }
+        }
+
+        private class StatsPeriode
+        {
+            public int NbTaches { get; set; }
+            public double ChargeJours { get; set; }
+        }
+
+        private StatsPeriode CalculerStatsPeriode(List<BacklogItem> taches, DateTime? dateDebut, DateTime? dateFin, bool sontTachesRestantes = false)
+        {
+            var stats = new StatsPeriode();
+
+            List<BacklogItem> tachesFiltrees;
+
+            if (sontTachesRestantes)
+            {
+                // Tâches restantes = tâches non terminées après la période
+                tachesFiltrees = taches.Where(t => 
+                {
+                    bool estNonTerminee = t.Statut != Statut.Termine && !t.EstArchive;
+                    
+                    if (!dateFin.HasValue)
+                    {
+                        return estNonTerminee;
+                    }
+
+                    // Doit être non terminée ET avoir été créée après la période OU toujours en cours après la période
+                    var tacheDebut = t.DateDebut ?? t.DateCreation;
+                    return estNonTerminee && (tacheDebut > dateFin.Value || 
+                           !t.DateFinAttendue.HasValue || t.DateFinAttendue.Value > dateFin.Value);
+                }).ToList();
+            }
+            else if (!dateDebut.HasValue && dateFin.HasValue)
+            {
+                // Avant la période : tâches terminées avant la date de début
+                tachesFiltrees = taches.Where(t => 
+                {
+                    bool estTerminee = t.Statut == Statut.Termine || t.EstArchive;
+                    var tacheDebut = t.DateDebut ?? t.DateCreation;
+                    var tacheFin = t.DateFinAttendue ?? DateTime.Now;
+                    
+                    // Tâche terminée ET commencée et finie avant le début de la période
+                    return estTerminee && tacheFin < dateFin.Value;
+                }).ToList();
+            }
+            else if (dateDebut.HasValue && dateFin.HasValue)
+            {
+                // Pendant la période : tâches actives pendant cette période
+                tachesFiltrees = taches.Where(t =>
+                {
+                    var tacheDebut = t.DateDebut ?? t.DateCreation;
+                    var tacheFin = t.DateFinAttendue ?? DateTime.Now;
+                    
+                    // Si terminée, vérifier qu'elle était active pendant la période
+                    if (t.Statut == Statut.Termine || t.EstArchive)
+                    {
+                        return tacheDebut <= dateFin.Value && tacheFin >= dateDebut.Value;
+                    }
+                    
+                    // Si en cours, vérifier qu'elle a été créée avant la fin de la période
+                    return tacheDebut <= dateFin.Value && 
+                           (!t.DateFinAttendue.HasValue || t.DateFinAttendue.Value >= dateDebut.Value);
+                }).ToList();
+            }
+            else
+            {
+                // Toutes les tâches
+                tachesFiltrees = taches;
+            }
+
+            stats.NbTaches = tachesFiltrees.Count;
+            stats.ChargeJours = tachesFiltrees.Sum(t => t.ChiffrageHeures.HasValue ? t.ChiffrageHeures.Value / 8.0 : 0);
+
+            return stats;
+        }
+
+        private void CalculerStatistiquesSupplementaires(List<BacklogItem> tachesPeriode, List<BacklogItem> toutesLesTaches, List<Projet> projets)
+        {
+            // 1. Vélocité (tâches terminées par mois dans la période)
+            if (_dateDebutFiltre.HasValue && _dateFinFiltre.HasValue)
+            {
+                var tachesTerminees = tachesPeriode.Count(t => t.Statut == Statut.Termine || t.EstArchive);
+                var dureeEnMois = Math.Max(1, (_dateFinFiltre.Value - _dateDebutFiltre.Value).TotalDays / 30.0);
+                var velocite = Math.Round(tachesTerminees / dureeEnMois, 1);
+                TxtVelocite.Text = velocite.ToString("0.#");
+            }
+            else
+            {
+                // Vue globale - calculer sur toute la durée du projet/programme
+                var tachesTerminees = tachesPeriode.Count(t => t.Statut == Statut.Termine || t.EstArchive);
+                var dateMin = toutesLesTaches.Min(t => t.DateCreation);
+                var dureeEnMois = Math.Max(1, (DateTime.Now - dateMin).TotalDays / 30.0);
+                var velocite = Math.Round(tachesTerminees / dureeEnMois, 1);
+                TxtVelocite.Text = velocite.ToString("0.#");
+            }
+
+            // 2. Écart Charge (Réel vs Estimé)
+            var tachesAvecEstimationEtReel = tachesPeriode.Where(t => 
+                t.ChiffrageHeures.HasValue && t.TempsReelHeures.HasValue).ToList();
+            
+            if (tachesAvecEstimationEtReel.Any())
+            {
+                var totalEstime = tachesAvecEstimationEtReel.Sum(t => t.ChiffrageHeures.Value);
+                var totalReel = tachesAvecEstimationEtReel.Sum(t => t.TempsReelHeures.Value);
+                var ecartPourcent = totalEstime > 0 ? Math.Round(((totalReel - totalEstime) / totalEstime) * 100, 0) : 0;
+                
+                TxtEcartCharge.Text = ecartPourcent >= 0 ? $"+{ecartPourcent}%" : $"{ecartPourcent}%";
+                
+                // Changer la couleur selon l'écart
+                if (ecartPourcent > 20)
+                {
+                    TxtEcartCharge.Foreground = new SolidColorBrush(Color.FromRgb(244, 67, 54)); // Rouge
+                }
+                else if (ecartPourcent > 0)
+                {
+                    TxtEcartCharge.Foreground = new SolidColorBrush(Color.FromRgb(255, 152, 0)); // Orange
+                }
+                else
+                {
+                    TxtEcartCharge.Foreground = new SolidColorBrush(Color.FromRgb(76, 175, 80)); // Vert
+                }
+            }
+            else
+            {
+                TxtEcartCharge.Text = "-";
+                TxtEcartCharge.Foreground = new SolidColorBrush(Color.FromRgb(153, 153, 153));
+            }
+
+            // 3. Répartition par Priorité
+            int prioUrgent = tachesPeriode.Count(t => t.Priorite == Priorite.Urgent);
+            int prioHaute = tachesPeriode.Count(t => t.Priorite == Priorite.Haute);
+            int prioMoyenne = tachesPeriode.Count(t => t.Priorite == Priorite.Moyenne);
+            int prioBasse = tachesPeriode.Count(t => t.Priorite == Priorite.Basse);
+            
+            TxtPrioriteHaute.Text = (prioUrgent + prioHaute).ToString();
+            TxtPrioriteMoyenne.Text = prioMoyenne.ToString();
+            TxtPrioriteBasse.Text = prioBasse.ToString();
+
+            // 4. Statut RAG (si disponible dans les projets)
+            // Toujours afficher le RAG
+            BorderStatutRAG.Visibility = Visibility.Visible;
+            
+            if (projets.Count == 1)
+            {
+                string statutRAG = projets[0].StatutRAG;
+                
+                // Si pas de statut défini, calculer automatiquement
+                if (string.IsNullOrEmpty(statutRAG))
+                {
+                    // Calculer basé sur avancement et retards
+                    int totalTaches = tachesPeriode.Count;
+                    int tachesCompletes = tachesPeriode.Count(t => t.Statut == Statut.Termine || t.EstArchive);
+                    double avancement = totalTaches > 0 ? (double)tachesCompletes / totalTaches * 100 : 0;
+                    
+                    var maintenant = DateTime.Now;
+                    var nbEnRetard = tachesPeriode.Count(t => 
+                        t.Statut != Statut.Termine && 
+                        !t.EstArchive && 
+                        t.DateFinAttendue.HasValue && 
+                        t.DateFinAttendue.Value < maintenant);
+                    
+                    var tauxRetard = totalTaches > 0 ? (nbEnRetard * 100.0 / totalTaches) : 0;
+                    
+                    if (tauxRetard > 30 || (avancement < 30 && nbEnRetard > 0))
+                        statutRAG = "Red";
+                    else if (tauxRetard > 15 || (avancement < 60 && nbEnRetard > 3))
+                        statutRAG = "Amber";
+                    else
+                        statutRAG = "Green";
+                }
+                
+                switch (statutRAG.ToLower())
+                {
+                    case "green":
+                        BadgeRAG.Background = new SolidColorBrush(Color.FromRgb(76, 175, 80)); // #4CAF50
+                        TxtStatutRAG.Text = "GREEN";
+                        TxtStatutRAGLabel.Text = "On Track";
+                        TxtStatutRAGLabel.Foreground = new SolidColorBrush(Color.FromRgb(76, 175, 80));
+                        break;
+                    case "amber":
+                    case "orange":
+                        BadgeRAG.Background = new SolidColorBrush(Color.FromRgb(255, 152, 0)); // #FF9800
+                        TxtStatutRAG.Text = "AMBER";
+                        TxtStatutRAGLabel.Text = "At Risk";
+                        TxtStatutRAGLabel.Foreground = new SolidColorBrush(Color.FromRgb(255, 152, 0));
+                        break;
+                    case "red":
+                        BadgeRAG.Background = new SolidColorBrush(Color.FromRgb(244, 67, 54)); // #F44336
+                        TxtStatutRAG.Text = "RED";
+                        TxtStatutRAGLabel.Text = "Delayed";
+                        TxtStatutRAGLabel.Foreground = new SolidColorBrush(Color.FromRgb(244, 67, 54));
+                        break;
+                    default:
+                        BadgeRAG.Background = new SolidColorBrush(Color.FromRgb(158, 158, 158)); // Grey
+                        TxtStatutRAG.Text = "N/A";
+                        TxtStatutRAGLabel.Text = "Non défini";
+                        TxtStatutRAGLabel.Foreground = new SolidColorBrush(Color.FromRgb(153, 153, 153));
+                        break;
+                }
+            }
+            else if (projets.Count > 1)
+            {
+                // Pour un programme, calculer le pire statut
+                bool hasRed = projets.Any(p => p.StatutRAG?.ToLower() == "red");
+                bool hasAmber = projets.Any(p => p.StatutRAG?.ToLower() == "amber" || p.StatutRAG?.ToLower() == "orange");
+                
+                if (hasRed)
+                {
+                    BadgeRAG.Background = new SolidColorBrush(Color.FromRgb(244, 67, 54));
+                    TxtStatutRAG.Text = "RED";
+                    TxtStatutRAGLabel.Text = "Projets en retard";
+                    TxtStatutRAGLabel.Foreground = new SolidColorBrush(Color.FromRgb(244, 67, 54));
+                }
+                else if (hasAmber)
+                {
+                    BadgeRAG.Background = new SolidColorBrush(Color.FromRgb(255, 152, 0));
+                    TxtStatutRAG.Text = "AMBER";
+                    TxtStatutRAGLabel.Text = "Projets à risque";
+                    TxtStatutRAGLabel.Foreground = new SolidColorBrush(Color.FromRgb(255, 152, 0));
+                }
+                else
+                {
+                    BadgeRAG.Background = new SolidColorBrush(Color.FromRgb(76, 175, 80));
+                    TxtStatutRAG.Text = "GREEN";
+                    TxtStatutRAGLabel.Text = "Tous on track";
+                    TxtStatutRAGLabel.Foreground = new SolidColorBrush(Color.FromRgb(76, 175, 80));
+                }
+            }
+
+            // 5. Tâches en retard
+            var now = DateTime.Now;
+            var tachesEnRetard = tachesPeriode.Count(t => 
+                t.Statut != Statut.Termine && 
+                !t.EstArchive && 
+                t.DateFinAttendue.HasValue && 
+                t.DateFinAttendue.Value < now);
+            
+            TxtTachesRetard.Text = tachesEnRetard.ToString();
+            
+            if (tachesEnRetard > 0)
+            {
+                TxtRetardInfo.Text = tachesEnRetard == 1 ? "tâche en retard" : "tâches en retard";
+                TxtTachesRetard.Foreground = new SolidColorBrush(Color.FromRgb(244, 67, 54));
+            }
+            else
+            {
+                TxtRetardInfo.Text = "Aucun retard";
+                TxtTachesRetard.Foreground = new SolidColorBrush(Color.FromRgb(76, 175, 80));
+            }
+
+            // 6. Complexité moyenne
+            var tachesAvecComplexite = tachesPeriode.Where(t => t.Complexite.HasValue).ToList();
+            if (tachesAvecComplexite.Any())
+            {
+                var complexiteMoyenne = Math.Round(tachesAvecComplexite.Average(t => t.Complexite.Value), 1);
+                TxtComplexiteMoyenne.Text = complexiteMoyenne.ToString("0.#");
+            }
+            else
+            {
+                TxtComplexiteMoyenne.Text = "-";
+            }
         }
     }
 

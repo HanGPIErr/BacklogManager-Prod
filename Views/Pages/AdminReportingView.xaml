@@ -224,15 +224,23 @@
 
             <!-- KPIs en cards - FULL WIDTH GRID (caché par défaut) -->
             <Grid x:Name="PanelKPIs" Grid.Row="3" Margin="0,0,0,20" Visibility="Collapsed">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="15"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="15"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="15"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="15"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <!-- Ligne 1: KPIs principaux -->
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="15"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="15"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="15"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
                 
                 <!-- Avancement -->
                 <Border Grid.Column="0" Background="White" CornerRadius="12" Padding="25,20">
@@ -291,11 +299,243 @@
                                    Foreground="#F44336" Margin="0,10,0,0" Text="--"/>
                         <TextBlock x:Name="TxtDeadlineInfo" FontSize="11" Foreground="#666" Margin="0,8,0,0"/>
                     </StackPanel>
-                </Border>
-            </Grid>
+                </Border>                </Grid>
+                
+                <!-- Ligne 2: 6 KPIs supplémentaires -->
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <!-- Vélocité -->
+                    <Border Grid.Column="0" Background="White" CornerRadius="12" Padding="25,20">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.1" Color="#000000"/>
+                        </Border.Effect>
+                        <StackPanel>
+                            <TextBlock Text="VÉLOCITÉ" FontSize="10" Foreground="#999" FontWeight="Bold"/>
+                            <TextBlock FontSize="36" FontWeight="Bold" Foreground="#00915A" Margin="0,10,0,0">
+                                <Run x:Name="TxtVelocite" Text="0"/>
+                            </TextBlock>
+                            <TextBlock Text="tâche(s) / mois" FontSize="11" Foreground="#999" Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- Écart Charge -->
+                    <Border Grid.Column="2" Background="White" CornerRadius="12" Padding="25,20">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.1" Color="#000000"/>
+                        </Border.Effect>
+                        <StackPanel>
+                            <TextBlock Text="ÉCART ESTIMATION" FontSize="10" Foreground="#999" FontWeight="Bold"/>
+                            <TextBlock x:Name="TxtEcartCharge" FontSize="36" FontWeight="Bold" Foreground="#FF9800" Margin="0,10,0,8" Text="-"/>
+                            <TextBlock Text="Réel vs Estimé" FontSize="11" Foreground="#999" Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- Priorités -->
+                    <Border Grid.Column="4" Background="White" CornerRadius="12" Padding="20,18">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.1" Color="#000000"/>
+                        </Border.Effect>
+                        <StackPanel>
+                            <TextBlock Text="PRIORITÉS" FontSize="10" Foreground="#999" FontWeight="Bold" Margin="0,0,0,8"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                                    <Ellipse Width="16" Height="16" Fill="#F44336" Margin="0,0,0,4"/>
+                                    <TextBlock x:Name="TxtPrioriteHaute" Text="0" FontSize="24" FontWeight="Bold" 
+                                               Foreground="#F44336" TextAlignment="Center"/>
+                                </StackPanel>
+                                
+                                <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                                    <Ellipse Width="16" Height="16" Fill="#FF9800" Margin="0,0,0,4"/>
+                                    <TextBlock x:Name="TxtPrioriteMoyenne" Text="0" FontSize="24" FontWeight="Bold" 
+                                               Foreground="#FF9800" TextAlignment="Center"/>
+                                </StackPanel>
+                                
+                                <StackPanel Grid.Column="2" HorizontalAlignment="Center">
+                                    <Ellipse Width="16" Height="16" Fill="#4CAF50" Margin="0,0,0,4"/>
+                                    <TextBlock x:Name="TxtPrioriteBasse" Text="0" FontSize="24" FontWeight="Bold" 
+                                               Foreground="#4CAF50" TextAlignment="Center"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- Statut RAG -->
+                    <Border x:Name="BorderStatutRAG" Grid.Column="6" Background="White" CornerRadius="12" Padding="20,18">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.1" Color="#000000"/>
+                        </Border.Effect>
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="STATUT SANTÉ" FontSize="10" Foreground="#999" FontWeight="Bold" TextAlignment="Center" Margin="0,0,0,10"/>
+                            
+                            <!-- Badge RAG comme dans DetailProjetSteerCoView -->
+                            <Border x:Name="BadgeRAG" CornerRadius="15" Padding="15,8" Background="#4CAF50" 
+                                    HorizontalAlignment="Center">
+                                <TextBlock x:Name="TxtStatutRAG" FontSize="13" FontWeight="Bold" 
+                                           Foreground="White" Text="GREEN" TextAlignment="Center"/>
+                            </Border>
+                            
+                            <TextBlock x:Name="TxtStatutRAGLabel" Text="On Track" FontSize="10" Foreground="#4CAF50" 
+                                       FontWeight="SemiBold" TextAlignment="Center" Margin="0,8,0,0"/>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- Tâches en retard -->
+                    <Border Grid.Column="8" Background="White" CornerRadius="12" Padding="20,18">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.1" Color="#000000"/>
+                        </Border.Effect>
+                        <StackPanel>
+                            <TextBlock Text="EN RETARD" FontSize="10" Foreground="#999" FontWeight="Bold"/>
+                            <TextBlock FontSize="32" FontWeight="Bold" Foreground="#F44336" Margin="0,8,0,0">
+                                <Run x:Name="TxtTachesRetard" Text="0"/>
+                            </TextBlock>
+                            <TextBlock x:Name="TxtRetardInfo" Text="tâche(s)" FontSize="10" Foreground="#666" Margin="0,6,0,0"/>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- Complexité -->
+                    <Border Grid.Column="10" Background="White" CornerRadius="12" Padding="20,18">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.1" Color="#000000"/>
+                        </Border.Effect>
+                        <StackPanel>
+                            <TextBlock Text="COMPLEXITÉ" FontSize="10" Foreground="#999" FontWeight="Bold"/>
+                            <TextBlock FontSize="32" FontWeight="Bold" Foreground="#673AB7" Margin="0,8,0,0">
+                                <Run x:Name="TxtComplexiteMoyenne" Text="-"/>
+                            </TextBlock>
+                            <TextBlock Text="Moyenne" FontSize="10" Foreground="#666" Margin="0,6,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>            </Grid>
+
+            <!-- Section Comparative (avant / période / reste) -->
+            <Border x:Name="PanelComparatif" Grid.Row="4" Background="White" CornerRadius="12" 
+                    Padding="30,25" Margin="0,0,0,20" Visibility="Collapsed">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.1" Color="#000000"/>
+                </Border.Effect>
+                <StackPanel>
+                    <TextBlock Text="📈 VUE COMPARATIVE" FontSize="16" FontWeight="Bold" 
+                               Foreground="#333" Margin="0,0,0,20"/>
+                    
+                    <Grid x:Name="GridComparatif3Col">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="15"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="15"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <!-- Avant la période -->
+                        <Border Grid.Column="0" Background="#F5F5F5" CornerRadius="10" Padding="20">
+                            <StackPanel>
+                                <TextBlock Text="⏮️ AVANT LA PÉRIODE" FontSize="13" FontWeight="Bold" 
+                                           Foreground="#666" Margin="0,0,0,15" TextAlignment="Center"/>
+                                <TextBlock Text="Tâches terminées" FontSize="11" Foreground="#999" Margin="0,0,0,5"/>
+                                <TextBlock x:Name="TxtAvantTaches" FontSize="24" FontWeight="Bold" 
+                                           Foreground="#4CAF50" Text="0"/>
+                                <TextBlock Text="Charge (jours)" FontSize="11" Foreground="#999" Margin="0,10,0,5"/>
+                                <TextBlock x:Name="TxtAvantCharge" FontSize="18" FontWeight="Bold" 
+                                           Foreground="#666" Text="0j"/>
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- Pendant la période -->
+                        <Border Grid.Column="2" Background="#E3F2FD" BorderBrush="#2196F3" 
+                                BorderThickness="2" CornerRadius="10" Padding="20">
+                            <StackPanel>
+                                <TextBlock Text="🔍 PÉRIODE SÉLECTIONNÉE" FontSize="13" FontWeight="Bold" 
+                                           Foreground="#1976D2" Margin="0,0,0,15" TextAlignment="Center"/>
+                                <TextBlock Text="Tâches" FontSize="11" Foreground="#1565C0" Margin="0,0,0,5"/>
+                                <TextBlock x:Name="TxtPeriodeTaches" FontSize="24" FontWeight="Bold" 
+                                           Foreground="#2196F3" Text="0"/>
+                                <TextBlock Text="Charge (jours)" FontSize="11" Foreground="#1565C0" Margin="0,10,0,5"/>
+                                <TextBlock x:Name="TxtPeriodeCharge" FontSize="18" FontWeight="Bold" 
+                                           Foreground="#1976D2" Text="0j"/>
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- Reste à faire -->
+                        <Border Grid.Column="4" Background="#FFF3E0" CornerRadius="10" Padding="20">
+                            <StackPanel>
+                                <TextBlock Text="⏭️ RESTE À FAIRE" FontSize="13" FontWeight="Bold" 
+                                           Foreground="#E65100" Margin="0,0,0,15" TextAlignment="Center"/>
+                                <TextBlock Text="Tâches restantes" FontSize="11" Foreground="#999" Margin="0,0,0,5"/>
+                                <TextBlock x:Name="TxtResteTaches" FontSize="24" FontWeight="Bold" 
+                                           Foreground="#FF9800" Text="0"/>
+                                <TextBlock Text="Charge estimée (jours)" FontSize="11" Foreground="#999" Margin="0,10,0,5"/>
+                                <TextBlock x:Name="TxtResteCharge" FontSize="18" FontWeight="Bold" 
+                                           Foreground="#F57C00" Text="0j"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                    
+                    <!-- Version 2 colonnes (si tout est fait) -->
+                    <Grid x:Name="GridComparatif2Col" Visibility="Collapsed">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="15"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <!-- Avant la période -->
+                        <Border Grid.Column="0" Background="#F5F5F5" CornerRadius="10" Padding="20">
+                            <StackPanel>
+                                <TextBlock Text="⏮️ AVANT LA PÉRIODE" FontSize="13" FontWeight="Bold" 
+                                           Foreground="#666" Margin="0,0,0,15" TextAlignment="Center"/>
+                                <TextBlock Text="Tâches terminées" FontSize="11" Foreground="#999" Margin="0,0,0,5"/>
+                                <TextBlock x:Name="TxtAvantTaches2Col" FontSize="24" FontWeight="Bold" 
+                                           Foreground="#4CAF50" Text="0"/>
+                                <TextBlock Text="Charge (jours)" FontSize="11" Foreground="#999" Margin="0,10,0,5"/>
+                                <TextBlock x:Name="TxtAvantCharge2Col" FontSize="18" FontWeight="Bold" 
+                                           Foreground="#666" Text="0j"/>
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- Pendant la période -->
+                        <Border Grid.Column="2" Background="#E3F2FD" BorderBrush="#2196F3" 
+                                BorderThickness="2" CornerRadius="10" Padding="20">
+                            <StackPanel>
+                                <TextBlock Text="🔍 PÉRIODE SÉLECTIONNÉE" FontSize="13" FontWeight="Bold" 
+                                           Foreground="#1976D2" Margin="0,0,0,15" TextAlignment="Center"/>
+                                <TextBlock Text="Tâches" FontSize="11" Foreground="#1565C0" Margin="0,0,0,5"/>
+                                <TextBlock x:Name="TxtPeriodeTaches2Col" FontSize="24" FontWeight="Bold" 
+                                           Foreground="#2196F3" Text="0"/>
+                                <TextBlock Text="Charge (jours)" FontSize="11" Foreground="#1565C0" Margin="0,10,0,5"/>
+                                <TextBlock x:Name="TxtPeriodeCharge2Col" FontSize="18" FontWeight="Bold" 
+                                           Foreground="#1976D2" Text="0j"/>
+                                <Border Background="#4CAF50" CornerRadius="5" Padding="10,5" Margin="0,15,0,0">
+                                    <TextBlock Text="✅ TOUT EST TERMINÉ" FontSize="11" FontWeight="Bold" 
+                                               Foreground="White" TextAlignment="Center"/>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </StackPanel>
+            </Border>
 
             <!-- Timeline & Gains (caché par défaut) -->
-            <Grid x:Name="PanelTimelineGains" Grid.Row="4" Margin="0,0,0,20" Visibility="Collapsed">
+            <Grid x:Name="PanelTimelineGains" Grid.Row="5" Margin="0,0,0,20" Visibility="Collapsed">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="15"/>
@@ -374,7 +614,7 @@
             </Grid>
 
             <!-- Section Contributions des Ressources (caché par défaut) -->
-            <Border x:Name="PanelContributions" Grid.Row="5" Background="White" CornerRadius="12" 
+            <Border x:Name="PanelContributions" Grid.Row="6" Background="White" CornerRadius="12" 
                     Padding="30,25" Margin="0,0,0,0" Visibility="Collapsed">
                 <Border.Effect>
                     <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.1" Color="#000000"/>
