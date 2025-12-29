@@ -291,6 +291,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Pages\AdminReportingView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\EquipeEditionWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -561,6 +565,9 @@
     </Compile>
     <Compile Include="Views\Pages\DetailProjetSteerCoView.xaml.cs">
       <DependentUpon>DetailProjetSteerCoView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Pages\AdminReportingView.xaml.cs">
+      <DependentUpon>AdminReportingView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\EquipeEditionWindow.xaml.cs">
       <DependentUpon>EquipeEditionWindow.xaml</DependentUpon>

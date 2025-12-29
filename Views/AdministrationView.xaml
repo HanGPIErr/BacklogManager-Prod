@@ -267,6 +267,28 @@
                     </Border>
                 </TabItem>
 
+                <!-- Tab Reporting & Pilotage -->
+                <TabItem>
+                    <TabItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="📈" FontSize="16" Margin="0,0,8,0"/>
+                            <TextBlock Text="Reporting" FontSize="14"/>
+                        </StackPanel>
+                    </TabItem.Header>
+                    <Border CornerRadius="10" Padding="0" Margin="0,10,0,0">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#FFFFFF" Offset="0"/>
+                                <GradientStop Color="#FAFAFA" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="16" ShadowDepth="0" Opacity="0.2" Color="#D0D0D0"/>
+                        </Border.Effect>
+                        <Frame x:Name="FrameReporting" NavigationUIVisibility="Hidden"/>
+                    </Border>
+                </TabItem>
+
                 <!-- Tab Historique Chat -->
                 <TabItem>
                     <TabItem.Header>

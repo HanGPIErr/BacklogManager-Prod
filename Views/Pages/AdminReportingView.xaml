@@ -1,0 +1,490 @@
+<UserControl x:Class="BacklogManager.Views.Pages.AdminReportingView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:BacklogManager.Views.Pages"
+             Background="#F5F7FA"
+             HorizontalAlignment="Stretch"
+             VerticalAlignment="Stretch">
+    <UserControl.Resources>
+        <local:ReportingPercentageToWidthConverter x:Key="PercentageToWidthConverter"/>
+    </UserControl.Resources>
+    
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <Grid Margin="40,25">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header avec titre -->
+            <Border Grid.Row="0" CornerRadius="12" Padding="35,25" Margin="0,0,0,25">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#00915A" Offset="0"/>
+                        <GradientStop Color="#00A566" Offset="0.5"/>
+                        <GradientStop Color="#00B96E" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="20" ShadowDepth="3" Opacity="0.25" Color="#00915A"/>
+                </Border.Effect>
+                <StackPanel>
+                    <TextBlock FontSize="32" FontWeight="Bold" Foreground="White">
+                        <Run Text="📊 "/>
+                        <Run Text="REPORTING &amp; PILOTAGE"/>
+                    </TextBlock>
+                    <TextBlock Text="Analyse consolidée des programmes et projets pour le pilotage stratégique" 
+                               FontSize="14" Foreground="White" Opacity="0.9" Margin="0,8,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Sélecteur de périmètre (Programme / Projet) -->
+            <Border Grid.Row="1" Background="White" CornerRadius="12" Padding="30,25" Margin="0,0,0,20">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.1" Color="#000000"/>
+                </Border.Effect>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="20"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <!-- Toggle Programme / Projet -->
+                    <Border Grid.Row="0" Background="#F5F5F5" CornerRadius="25" Padding="5" HorizontalAlignment="Left">
+                        <StackPanel Orientation="Horizontal">
+                            <Button x:Name="BtnModeProgramme" 
+                                    Background="#00915A" Foreground="White" 
+                                    FontSize="14" FontWeight="SemiBold" Padding="28,12"
+                                    Margin="0" BorderThickness="0" Cursor="Hand"
+                                    Click="BtnModeProgramme_Click">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border Background="{TemplateBinding Background}" 
+                                                            CornerRadius="20" Padding="{TemplateBinding Padding}">
+                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </Button.Style>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="📊" Margin="0,0,8,0"/>
+                                    <TextBlock Text="Vue Programme"/>
+                                </StackPanel>
+                            </Button>
+                            
+                            <Button x:Name="BtnModeProjet" 
+                                    Background="Transparent" Foreground="#6D6D6D" 
+                                    FontSize="14" FontWeight="Normal" Padding="28,12"
+                                    Margin="5,0,0,0" BorderThickness="0" Cursor="Hand"
+                                    Click="BtnModeProjet_Click">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border Background="{TemplateBinding Background}" 
+                                                            CornerRadius="20" Padding="{TemplateBinding Padding}">
+                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </Button.Style>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="📁" Margin="0,0,8,0"/>
+                                    <TextBlock Text="Vue Projet"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- Sélecteurs dynamiques -->
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="20"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="20"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <!-- Sélecteur Programme -->
+                        <StackPanel x:Name="PanelProgramme" Grid.Column="0" Visibility="Visible">
+                            <TextBlock Text="Programme *" FontSize="13" FontWeight="Bold" Foreground="#333" Margin="0,0,0,8"/>
+                            <ComboBox x:Name="ComboProgramme" Height="40" FontSize="13" 
+                                      DisplayMemberPath="Nom" SelectionChanged="ComboProgramme_SelectionChanged"/>
+                        </StackPanel>
+                        
+                        <!-- Sélecteur Équipe (visible en mode Projet) -->
+                        <StackPanel x:Name="PanelEquipe" Grid.Column="0" Visibility="Collapsed">
+                            <TextBlock Text="Équipe *" FontSize="13" FontWeight="Bold" Foreground="#333" Margin="0,0,0,8"/>
+                            <ComboBox x:Name="ComboEquipe" Height="40" FontSize="13" 
+                                      DisplayMemberPath="Nom" SelectionChanged="ComboEquipe_SelectionChanged"/>
+                        </StackPanel>
+                        
+                        <!-- Sélecteur Projet (visible en mode Projet) -->
+                        <StackPanel x:Name="PanelProjet" Grid.Column="2" Visibility="Collapsed">
+                            <TextBlock Text="Projet *" FontSize="13" FontWeight="Bold" Foreground="#333" Margin="0,0,0,8"/>
+                            <ComboBox x:Name="ComboProjet" Height="40" FontSize="13" 
+                                      DisplayMemberPath="Nom" SelectionChanged="ComboProjet_SelectionChanged"/>
+                        </StackPanel>
+                        
+                        <!-- Sélecteur de période -->
+                        <StackPanel Grid.Column="4" MinWidth="250">
+                            <TextBlock Text="Période d'analyse *" FontSize="13" FontWeight="Bold" Foreground="#333" Margin="0,0,0,8"/>
+                            <ComboBox x:Name="ComboPeriode" Height="40" FontSize="13" 
+                                      SelectedIndex="3" SelectionChanged="ComboPeriode_SelectionChanged">
+                                <ComboBoxItem Content="Dernier mois"/>
+                                <ComboBoxItem Content="2 derniers mois"/>
+                                <ComboBoxItem Content="Période personnalisée"/>
+                                <ComboBoxItem Content="Vue globale"/>
+                            </ComboBox>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <!-- Sélecteur de période personnalisée (caché par défaut) -->
+            <Border x:Name="PanelPeriodePersonnalisee" Grid.Row="2" Background="White" CornerRadius="12" 
+                    Padding="30,20" Margin="0,0,0,20" Visibility="Collapsed">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.1" Color="#000000"/>
+                </Border.Effect>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Mois de début" FontSize="13" FontWeight="Bold" Foreground="#333" Margin="0,0,0,8"/>
+                        <DatePicker x:Name="DateDebutPeriode" Height="40" FontSize="13" Width="160"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Mois de fin" FontSize="13" FontWeight="Bold" Foreground="#333" Margin="0,0,0,8"/>
+                        <DatePicker x:Name="DateFinPeriode" Height="40" FontSize="13" Width="160"/>
+                    </StackPanel>
+                    
+                    <Button x:Name="BtnAppliquerPeriode" Grid.Column="4" VerticalAlignment="Bottom"
+                            Height="40" Padding="25,0" Background="#00915A" Foreground="White"
+                            BorderThickness="0" Cursor="Hand" Click="BtnAppliquerPeriode_Click">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="8" 
+                                                    Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#00A568"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <TextBlock Text="Appliquer" FontSize="13" FontWeight="SemiBold"/>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <!-- Message si rien n'est sélectionné -->
+            <Border x:Name="PanelAucuneSelection" Grid.Row="3" Background="White" CornerRadius="12" 
+                    Padding="50" Margin="0,20,0,0" Visibility="Visible">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.1" Color="#000000"/>
+                </Border.Effect>
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock Text="📊" FontSize="48" TextAlignment="Center" Margin="0,0,0,15"/>
+                    <TextBlock Text="Sélectionnez un programme ou un projet" FontSize="16" 
+                               Foreground="#999" TextAlignment="Center"/>
+                    <TextBlock Text="pour afficher les indicateurs de pilotage" FontSize="14" 
+                               Foreground="#BBB" TextAlignment="Center" Margin="0,5,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <!-- KPIs en cards - FULL WIDTH GRID (caché par défaut) -->
+            <Grid x:Name="PanelKPIs" Grid.Row="3" Margin="0,0,0,20" Visibility="Collapsed">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="15"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="15"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="15"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- Avancement -->
+                <Border Grid.Column="0" Background="White" CornerRadius="12" Padding="25,20">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.1" Color="#000000"/>
+                    </Border.Effect>
+                    <StackPanel>
+                        <TextBlock Text="AVANCEMENT" FontSize="10" Foreground="#999" FontWeight="Bold"/>
+                        <TextBlock FontSize="36" FontWeight="Bold" Foreground="#2196F3" Margin="0,10,0,8">
+                            <Run x:Name="TxtAvancement" Text="0"/>
+                            <Run Text="%" FontSize="22"/>
+                        </TextBlock>
+                        <ProgressBar x:Name="BarAvancement" Height="8" Minimum="0" Maximum="100" 
+                                     Value="0" Background="#E0E0E0" Foreground="#2196F3" BorderThickness="0"/>
+                    </StackPanel>
+                </Border>
+                
+                <!-- Tâches -->
+                <Border Grid.Column="2" Background="White" CornerRadius="12" Padding="25,20">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.1" Color="#000000"/>
+                    </Border.Effect>
+                    <StackPanel>
+                        <TextBlock Text="TÂCHES" FontSize="10" Foreground="#999" FontWeight="Bold"/>
+                        <TextBlock FontSize="36" FontWeight="Bold" Foreground="#9C27B0" Margin="0,10,0,0">
+                            <Run x:Name="TxtTachesCompletes" Text="0"/>
+                            <Run Text="/" FontSize="24" Foreground="#999"/>
+                            <Run x:Name="TxtTachesTotal" Text="0" FontSize="24" Foreground="#999"/>
+                        </TextBlock>
+                        <TextBlock x:Name="TxtTachesRestantes" FontSize="11" Foreground="#666" Margin="0,8,0,0"/>
+                    </StackPanel>
+                </Border>
+                
+                <!-- Équipes -->
+                <Border Grid.Column="4" Background="White" CornerRadius="12" Padding="25,20">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.1" Color="#000000"/>
+                    </Border.Effect>
+                    <StackPanel>
+                        <TextBlock x:Name="TxtLabelEquipes" Text="ÉQUIPES" FontSize="10" Foreground="#999" FontWeight="Bold"/>
+                        <TextBlock FontSize="36" FontWeight="Bold" Foreground="#FF9800" Margin="0,10,0,0">
+                            <Run x:Name="TxtNbEquipes" Text="0"/>
+                        </TextBlock>
+                        <TextBlock x:Name="TxtDescriptionEquipes" Text="équipe(s) impliquée(s)" FontSize="11" Foreground="#666" Margin="0,8,0,0"/>
+                    </StackPanel>
+                </Border>
+                
+                <!-- Livraison -->
+                <Border Grid.Column="6" Background="White" CornerRadius="12" Padding="25,20">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.1" Color="#000000"/>
+                    </Border.Effect>
+                    <StackPanel>
+                        <TextBlock Text="LIVRAISON" FontSize="10" Foreground="#999" FontWeight="Bold"/>
+                        <TextBlock x:Name="TxtTargetDelivery" FontSize="20" FontWeight="Bold" 
+                                   Foreground="#F44336" Margin="0,10,0,0" Text="--"/>
+                        <TextBlock x:Name="TxtDeadlineInfo" FontSize="11" Foreground="#666" Margin="0,8,0,0"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- Timeline & Gains (caché par défaut) -->
+            <Grid x:Name="PanelTimelineGains" Grid.Row="4" Margin="0,0,0,20" Visibility="Collapsed">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="15"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="15"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- Timeline visuelle -->
+                <Border Grid.Column="0" Background="White" CornerRadius="12" Padding="25,20">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.1" Color="#000000"/>
+                    </Border.Effect>
+                    <StackPanel>
+                        <TextBlock Text="📅 TIMELINE &amp; ÉCHÉANCES" FontSize="14" FontWeight="Bold" 
+                                   Foreground="#333" Margin="0,0,0,15"/>
+                        
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="DATE DÉBUT" FontSize="10" Foreground="#999" FontWeight="Bold"/>
+                                <TextBlock x:Name="TxtDateDebut" FontSize="16" FontWeight="Bold" 
+                                           Foreground="#666" Margin="0,5,0,0"/>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="DATE FIN" FontSize="10" Foreground="#999" FontWeight="Bold"/>
+                                <TextBlock x:Name="TxtDateFin" FontSize="16" FontWeight="Bold" 
+                                           Foreground="#666" Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                        
+                        <Grid Margin="0,15,0,10">
+                            <Border Height="10" Background="#E8EAF0" CornerRadius="5"/>
+                            <Border x:Name="ProgressTemporel" Height="10" Background="#2196F3" 
+                                    CornerRadius="5" HorizontalAlignment="Left" Width="0"/>
+                        </Grid>
+                        
+                        <TextBlock x:Name="TxtProgressionTemps" FontSize="12" Foreground="#666" 
+                                   TextAlignment="Center" Margin="0,5,0,0" Text="--"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Gains Temps -->
+                <Border Grid.Column="2" Background="#E3F2FD" BorderBrush="#2196F3" BorderThickness="2" 
+                        CornerRadius="12" Padding="25,20">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.1" Color="#2196F3"/>
+                    </Border.Effect>
+                    <StackPanel>
+                        <TextBlock Text="⏱️ GAINS TEMPS" FontSize="14" Foreground="#1976D2" FontWeight="Bold" Margin="0,0,0,15"/>
+                        <TextBlock x:Name="TxtGainsTemps" FontSize="26" FontWeight="Bold" 
+                                   Foreground="#1565C0" TextWrapping="Wrap" TextAlignment="Center" 
+                                   VerticalAlignment="Center" Margin="0,20,0,20" Text="--"/>
+                    </StackPanel>
+                </Border>
+                
+                <!-- Gains Financiers -->
+                <Border Grid.Column="4" Background="#E8F5E9" BorderBrush="#4CAF50" BorderThickness="2" 
+                        CornerRadius="12" Padding="25,20">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.1" Color="#4CAF50"/>
+                    </Border.Effect>
+                    <StackPanel>
+                        <TextBlock Text="💰 GAINS FINANCIERS" FontSize="14" Foreground="#2E7D32" FontWeight="Bold" Margin="0,0,0,15"/>
+                        <TextBlock x:Name="TxtGainsFinanciers" FontSize="26" FontWeight="Bold" 
+                                   Foreground="#1B5E20" TextWrapping="Wrap" TextAlignment="Center"
+                                   VerticalAlignment="Center" Margin="0,20,0,20" Text="--"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- Section Contributions des Ressources (caché par défaut) -->
+            <Border x:Name="PanelContributions" Grid.Row="5" Background="White" CornerRadius="12" 
+                    Padding="30,25" Margin="0,0,0,0" Visibility="Collapsed">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.1" Color="#000000"/>
+                </Border.Effect>
+                <StackPanel>
+                    <TextBlock Text="👥 CONTRIBUTIONS DES RESSOURCES" FontSize="16" FontWeight="Bold" 
+                               Foreground="#333" Margin="0,0,0,20"/>
+                    
+                    <DataGrid x:Name="ListeContributions" AutoGenerateColumns="False" 
+                              IsReadOnly="True" HeadersVisibility="Column"
+                              GridLinesVisibility="None" Background="Transparent"
+                              BorderThickness="0" RowHeight="50">
+                        <DataGrid.ColumnHeaderStyle>
+                            <Style TargetType="DataGridColumnHeader">
+                                <Setter Property="Background" Value="#F5F5F5"/>
+                                <Setter Property="Foreground" Value="#666"/>
+                                <Setter Property="FontWeight" Value="Bold"/>
+                                <Setter Property="FontSize" Value="11"/>
+                                <Setter Property="Padding" Value="15,10"/>
+                                <Setter Property="BorderThickness" Value="0,0,0,2"/>
+                                <Setter Property="BorderBrush" Value="#E0E0E0"/>
+                            </Style>
+                        </DataGrid.ColumnHeaderStyle>
+                        <DataGrid.RowStyle>
+                            <Style TargetType="DataGridRow">
+                                <Setter Property="Background" Value="White"/>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#F9F9F9"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGrid.RowStyle>
+                        <DataGrid.CellStyle>
+                            <Style TargetType="DataGridCell">
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="Padding" Value="15,10"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="DataGridCell">
+                                            <Border Background="{TemplateBinding Background}" 
+                                                    Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </DataGrid.CellStyle>
+                        
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="MEMBRES" Binding="{Binding NomDeveloppeur}" 
+                                                Width="*" FontSize="13" FontWeight="SemiBold"/>
+                            
+                            <DataGridTextColumn Header="TÂCHES COMPLÉTÉES" Width="150" FontSize="13">
+                                <DataGridTextColumn.Binding>
+                                    <MultiBinding StringFormat="{}{0} / {1}">
+                                        <Binding Path="TachesCompletes"/>
+                                        <Binding Path="TachesTotal"/>
+                                    </MultiBinding>
+                                </DataGridTextColumn.Binding>
+                            </DataGridTextColumn>
+                            
+                            <DataGridTextColumn Header="TAUX COMPLÉTION" Binding="{Binding TauxCompletion}" 
+                                                Width="140" FontSize="13" FontWeight="Bold">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="#4CAF50"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            
+                            <DataGridTextColumn Header="JOURS ESTIMÉS" Binding="{Binding JoursEstimes}" 
+                                                Width="150" FontSize="13" FontWeight="SemiBold"/>
+                            
+                            <DataGridTemplateColumn Header="CONTRIBUTION" Width="200">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="50"/>
+                                            </Grid.ColumnDefinitions>
+                                            
+                                            <Border Grid.Column="0" Height="20" Background="#E0E0E0" 
+                                                    CornerRadius="10" Margin="0,0,10,0">
+                                                <Border Height="20" Background="#FF9800" CornerRadius="10" 
+                                                        HorizontalAlignment="Left">
+                                                    <Border.Width>
+                                                        <MultiBinding Converter="{StaticResource PercentageToWidthConverter}">
+                                                            <Binding Path="PourcentageContribution"/>
+                                                            <Binding RelativeSource="{RelativeSource AncestorType=Border}" Path="ActualWidth"/>
+                                                        </MultiBinding>
+                                                    </Border.Width>
+                                                </Border>
+                                            </Border>
+                                            
+                                            <TextBlock Grid.Column="1" FontSize="13" FontWeight="Bold" 
+                                                       Foreground="#FF9800" VerticalAlignment="Center">
+                                                <Run Text="{Binding PourcentageContribution, StringFormat={}{0:0.0}}"/>
+                                                <Run Text="%"/>
+                                            </TextBlock>
+                                        </Grid>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

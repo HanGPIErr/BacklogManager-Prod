@@ -11,12 +11,14 @@ namespace BacklogManager.Views
     {
         private readonly IDatabase _database;
         private readonly AuditLogService _auditLogService;
+        private readonly AuthenticationService _authService;
 
-        public AdministrationView(IDatabase database, AuditLogService auditLogService = null)
+        public AdministrationView(IDatabase database, AuditLogService auditLogService = null, AuthenticationService authService = null)
         {
             InitializeComponent();
             _database = database;
             _auditLogService = auditLogService;
+            _authService = authService;
 
             // Charger les pages dans les frames
             ChargerPages();
@@ -27,13 +29,38 @@ namespace BacklogManager.Views
             try
             {
                 // Charger la première page de chaque groupe par défaut
-                FrameUtilisateursRoles.Content = new GestionUtilisateursPage(_database, _auditLogService);
-                FrameProjetsEquipe.Content = new GestionProgrammesPage(_database); // Charger Programmes par défaut
-                FrameAudit.Content = new AuditLogPage(_database, _auditLogService);
+                if (FrameUtilisateursRoles != null)
+                {
+                    FrameUtilisateursRoles.Content = new GestionUtilisateursPage(_database, _auditLogService);
+                }
+                
+                if (FrameProjetsEquipe != null)
+                {
+                    FrameProjetsEquipe.Content = new GestionProgrammesPage(_database);
+                }
+                
+                if (FrameAudit != null)
+                {
+                    FrameAudit.Content = new AuditLogPage(_database, _auditLogService);
+                }
+                
+                // Charger la page de Reporting seulement si authService est disponible
+                if (FrameReporting != null && _authService != null)
+                {
+                    try
+                    {
+                        FrameReporting.Content = new AdminReportingView(_database, _authService);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Erreur lors du chargement du Reporting: {ex.Message}\n\nStackTrace: {ex.StackTrace}", 
+                            "Erreur Reporting", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erreur lors du chargement des pages: {ex.Message}", 
+                MessageBox.Show($"Erreur lors du chargement des pages: {ex.Message}\n\nStackTrace: {ex.StackTrace}", 
                     "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }

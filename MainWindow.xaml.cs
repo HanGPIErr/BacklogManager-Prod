@@ -210,7 +210,7 @@ namespace BacklogManager
                 }
 
                 var auditLogService = _authService.GetAuditLogService();
-                var adminView = new AdministrationView(_database, auditLogService);
+                var adminView = new AdministrationView(_database, auditLogService, _authService);
                 var contentControl = (System.Windows.Controls.ContentControl)this.FindName("MainContentControl");
                 if (contentControl != null)
                 {
