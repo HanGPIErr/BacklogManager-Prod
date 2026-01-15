@@ -21,6 +21,9 @@ namespace BacklogManager.Views
             _equipeService = new EquipeService(_database);
             _equipeId = equipeId;
 
+            // Initialiser les textes traduits
+            InitialiserTextes();
+
             if (_equipeId.HasValue)
             {
                 Title = "Modifier l'équipe";
@@ -32,6 +35,38 @@ namespace BacklogManager.Views
             }
 
             ChargerManagers();
+        }
+
+        private void InitialiserTextes()
+        {
+            // Textes de l'interface
+            TxtTitle.Text = "🏢 " + LocalizationService.Instance.GetString("Modal_Team_Title");
+            TxtSubtitle.Text = LocalizationService.Instance.GetString("Modal_Team_Subtitle");
+            LblName.Text = LocalizationService.Instance.GetString("Modal_Team_Name");
+            LblCode.Text = LocalizationService.Instance.GetString("Modal_Team_Code");
+            LblDescription.Text = LocalizationService.Instance.GetString("Modal_Team_Description");
+            LblFunctionalScope.Text = LocalizationService.Instance.GetString("Modal_Team_FunctionalScope");
+            LblManager.Text = "👤 " + LocalizationService.Instance.GetString("Modal_Team_Manager");
+            LblManagerNote.Text = LocalizationService.Instance.GetString("Modal_Team_ManagerNote");
+            LblContact.Text = LocalizationService.Instance.GetString("Modal_Team_Contact");
+            BtnAnnuler.Content = LocalizationService.Instance.GetString("Common_Cancel");
+            BtnEnregistrer.Content = LocalizationService.Instance.GetString("Common_Save");
+
+            // S'abonner aux changements de langue
+            LocalizationService.Instance.PropertyChanged += (s, e) =>
+            {
+                TxtTitle.Text = "🏢 " + LocalizationService.Instance.GetString("Modal_Team_Title");
+                TxtSubtitle.Text = LocalizationService.Instance.GetString("Modal_Team_Subtitle");
+                LblName.Text = LocalizationService.Instance.GetString("Modal_Team_Name");
+                LblCode.Text = LocalizationService.Instance.GetString("Modal_Team_Code");
+                LblDescription.Text = LocalizationService.Instance.GetString("Modal_Team_Description");
+                LblFunctionalScope.Text = LocalizationService.Instance.GetString("Modal_Team_FunctionalScope");
+                LblManager.Text = "👤 " + LocalizationService.Instance.GetString("Modal_Team_Manager");
+                LblManagerNote.Text = LocalizationService.Instance.GetString("Modal_Team_ManagerNote");
+                LblContact.Text = LocalizationService.Instance.GetString("Modal_Team_Contact");
+                BtnAnnuler.Content = LocalizationService.Instance.GetString("Common_Cancel");
+                BtnEnregistrer.Content = LocalizationService.Instance.GetString("Common_Save");
+            };
         }
 
         private void ChargerEquipe()

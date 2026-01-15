@@ -1,0 +1,4176 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  
+  <!-- Common -->
+  <data name="AppName" xml:space="preserve">
+    <value>BacklogManager</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>Sí</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancelar</value>
+  </data>
+  <data name="OK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Guardar</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Cerrar</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Eliminar</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Editar</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>Añadir</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>Buscar</value>
+  </data>
+  <data name="Filter" xml:space="preserve">
+    <value>Filtrar</value>
+  </data>
+  <data name="Export" xml:space="preserve">
+    <value>Exportar</value>
+  </data>
+  <data name="Import" xml:space="preserve">
+    <value>Importar</value>
+  </data>
+  <data name="Browse" xml:space="preserve">
+    <value>Examinar</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="Success" xml:space="preserve">
+    <value>Éxito</value>
+  </data>
+  <data name="Warning" xml:space="preserve">
+    <value>Advertencia</value>
+  </data>
+  <data name="Information" xml:space="preserve">
+    <value>Información</value>
+  </data>
+  <data name="Loading" xml:space="preserve">
+    <value>Cargando...</value>
+  </data>
+  <data name="Refresh" xml:space="preserve">
+    <value>Actualizar</value>
+  </data>
+  
+  <!-- Menu Principal -->
+  <data name="Menu_Dashboard" xml:space="preserve">
+    <value>Panel de control</value>
+  </data>
+  <data name="Menu_Backlog" xml:space="preserve">
+    <value>Backlog</value>
+  </data>
+  <data name="Menu_Kanban" xml:space="preserve">
+    <value>Kanban</value>
+  </data>
+  <data name="Menu_Projects" xml:space="preserve">
+    <value>Proyectos</value>
+  </data>
+  <data name="Menu_Timeline" xml:space="preserve">
+    <value>Línea de tiempo</value>
+  </data>
+  <data name="Menu_Demands" xml:space="preserve">
+    <value>Solicitudes</value>
+  </data>
+  <data name="Menu_Statistics" xml:space="preserve">
+    <value>Estadísticas</value>
+  </data>
+  <data name="Menu_CRATracking" xml:space="preserve">
+    <value>Seguimiento CRA</value>
+  </data>
+  <data name="Menu_CRA" xml:space="preserve">
+    <value>Hoja de horas</value>
+  </data>
+  <data name="Menu_Poker" xml:space="preserve">
+    <value>Planning Poker</value>
+  </data>
+  <data name="Menu_AgentChat" xml:space="preserve">
+    <value>Agente IA</value>
+  </data>
+  <data name="Menu_Notifications" xml:space="preserve">
+    <value>Notificaciones</value>
+  </data>
+  <data name="Menu_Archives" xml:space="preserve">
+    <value>Archivos</value>
+  </data>
+  <data name="Menu_Administration" xml:space="preserve">
+    <value>Administración</value>
+  </data>
+  <data name="Menu_Settings" xml:space="preserve">
+    <value>Configuración</value>
+  </data>
+  <data name="Menu_UserGuide" xml:space="preserve">
+    <value>Guía del usuario</value>
+  </data>
+  
+  <!-- Settings Page -->
+  <data name="Settings_Title" xml:space="preserve">
+    <value>CONFIGURACIÓN</value>
+  </data>
+  <data name="Settings_Description" xml:space="preserve">
+    <value>Configuración de la aplicación y gestión de datos</value>
+  </data>
+  <data name="Settings_Database" xml:space="preserve">
+    <value>Base de datos</value>
+  </data>
+  <data name="Settings_DatabasePath" xml:space="preserve">
+    <value>Ruta de la base de datos:</value>
+  </data>
+  <data name="Settings_ChangePath" xml:space="preserve">
+    <value>Examinar</value>
+  </data>
+  <data name="Settings_RestartRequired" xml:space="preserve">
+    <value>Reinicio requerido después de modificar la ruta</value>
+  </data>
+  <data name="Settings_ExportImport" xml:space="preserve">
+    <value>Exportar / Importar datos</value>
+  </data>
+  <data name="Settings_ExportFull" xml:space="preserve">
+    <value>Exportar datos (base completa):</value>
+  </data>
+  <data name="Settings_ExportSQLite" xml:space="preserve">
+    <value>Exportar SQLite (.db)</value>
+  </data>
+  <data name="Settings_ExportJSON" xml:space="preserve">
+    <value>Exportar JSON completo</value>
+  </data>
+  <data name="Settings_ExportComplete" xml:space="preserve">
+    <value>Exportación completa (SQLite+JSON)</value>
+  </data>
+  <data name="Settings_ExportPartial" xml:space="preserve">
+    <value>Exportación parcial:</value>
+  </data>
+  <data name="Settings_ExportCSV" xml:space="preserve">
+    <value>Exportar backlog a CSV</value>
+  </data>
+  <data name="Settings_ImportData" xml:space="preserve">
+    <value>Importar datos:</value>
+  </data>
+  <data name="Settings_ImportSQLite" xml:space="preserve">
+    <value>Importar SQLite (.db)</value>
+  </data>
+  <data name="Settings_ImportJSON" xml:space="preserve">
+    <value>Importar JSON</value>
+  </data>
+  <data name="Settings_Appearance" xml:space="preserve">
+    <value>Apariencia</value>
+  </data>
+  <data name="Settings_Language" xml:space="preserve">
+    <value>Idioma de la interfaz:</value>
+  </data>
+  <data name="Settings_Theme" xml:space="preserve">
+    <value>Tema:</value>
+  </data>
+  <data name="Settings_Maintenance" xml:space="preserve">
+    <value>Mantenimiento</value>
+  </data>
+  <data name="Settings_ResetData" xml:space="preserve">
+    <value>Restablecer todos los datos</value>
+  </data>
+  <data name="Settings_ResetDataWarning" xml:space="preserve">
+    <value>⚠️ Atención: ¡Esta acción eliminará todos los datos de forma permanente!</value>
+  </data>
+  <data name="Settings_About" xml:space="preserve">
+    <value>Acerca de</value>
+  </data>
+  <data name="Settings_Version" xml:space="preserve">
+    <value>Versión:</value>
+  </data>
+  <data name="Settings_CheckUpdates" xml:space="preserve">
+    <value>Buscar actualizaciones</value>
+  </data>
+  <data name="Settings_PersonalSettings" xml:space="preserve">
+    <value>Configuración personal</value>
+  </data>
+  <data name="Settings_PersonalInfo" xml:space="preserve">
+    <value>Aquí puede personalizar su experiencia (idioma, tema, notificaciones).\n\nLas secciones sensibles (Exportar/Importar, Mantenimiento, gestión de base de datos) están reservadas para administradores por razones de seguridad.</value>
+  </data>
+  
+  <!-- Languages -->
+  <data name="Language_French" xml:space="preserve">
+    <value>Francés</value>
+  </data>
+  <data name="Language_English" xml:space="preserve">
+    <value>Inglés</value>
+  </data>
+  <data name="Language_Spanish" xml:space="preserve">
+    <value>Español</value>
+  </data>
+  
+  <!-- Confirmation Messages -->
+  <data name="Confirm_LanguageChange" xml:space="preserve">
+    <value>El idioma se cambiará en el próximo inicio de la aplicación.\n\n¿Desea reiniciar ahora?</value>
+  </data>
+  <data name="Confirm_LanguageChangeTitle" xml:space="preserve">
+    <value>Confirmación</value>
+  </data>
+  
+  <!-- Login -->
+  <data name="Login_Title" xml:space="preserve">
+    <value>Iniciar sesión</value>
+  </data>
+  <data name="Login_Username" xml:space="preserve">
+    <value>Nombre de usuario</value>
+  </data>
+  <data name="Login_Password" xml:space="preserve">
+    <value>Contraseña</value>
+  </data>
+  <data name="Login_Button" xml:space="preserve">
+    <value>Iniciar sesión</value>
+  </data>
+  <data name="Login_Error" xml:space="preserve">
+    <value>Nombre de usuario o contraseña incorrectos</value>
+  </data>
+  
+  <!-- Menu Sections -->
+  <data name="Menu_Section_Views" xml:space="preserve">
+    <value>VISTAS</value>
+  </data>
+  <data name="Menu_Section_TimeAndCRA" xml:space="preserve">
+    <value>TIEMPO Y HORAS</value>
+  </data>
+  <data name="Menu_Section_Administration" xml:space="preserve">
+    <value>ADMINISTRACIÓN</value>
+  </data>
+  <data name="Menu_Section_Actions" xml:space="preserve">
+    <value>ACCIONES</value>
+  </data>
+  <data name="Menu_ChangeUser" xml:space="preserve">
+    <value>Cambiar de usuario</value>
+  </data>
+  <data name="Menu_Projects" xml:space="preserve">
+    <value>PROYECTOS</value>
+  </data>
+  <data name="Menu_ManageProjects" xml:space="preserve">
+    <value>Gestionar proyectos</value>
+  </data>
+  <data name="Menu_ActiveProjects" xml:space="preserve">
+    <value>{0} proyecto(s) activo(s)</value>
+  </data>
+  
+  <!-- Dashboard -->
+  <data name="Dashboard_Title" xml:space="preserve">
+    <value>PANEL DE CONTROL</value>
+  </data>
+  <data name="Dashboard_Subtitle" xml:space="preserve">
+    <value>Resumen de su actividad</value>
+  </data>
+  <data name="Dashboard_MyTasks" xml:space="preserve">
+    <value>MIS TAREAS</value>
+  </data>
+  <data name="Dashboard_InProgress" xml:space="preserve">
+    <value>En curso</value>
+  </data>
+  <data name="Dashboard_ToDo" xml:space="preserve">
+    <value>Por hacer</value>
+  </data>
+  <data name="Dashboard_Blocked" xml:space="preserve">
+    <value>Bloqueadas</value>
+  </data>
+  <data name="Dashboard_Completed" xml:space="preserve">
+    <value>Completadas</value>
+  </data>
+  <data name="Dashboard_ViewAll" xml:space="preserve">
+    <value>Ver todo</value>
+  </data>
+  <data name="Dashboard_TeamActivity" xml:space="preserve">
+    <value>ACTIVIDAD DEL EQUIPO</value>
+  </data>
+  <data name="Dashboard_RecentUpdates" xml:space="preserve">
+    <value>Actualizaciones recientes</value>
+  </data>
+  <data name="Dashboard_Priority" xml:space="preserve">
+    <value>Prioridad</value>
+  </data>
+  <data name="Dashboard_High" xml:space="preserve">
+    <value>Alta</value>
+  </data>
+  <data name="Dashboard_Medium" xml:space="preserve">
+    <value>Media</value>
+  </data>
+  <data name="Dashboard_Low" xml:space="preserve">
+    <value>Baja</value>
+  </data>
+  <data name="Dashboard_DueDate" xml:space="preserve">
+    <value>Fecha de vencimiento</value>
+  </data>
+  <data name="Dashboard_Status" xml:space="preserve">
+    <value>Estado</value>
+  </data>
+  <data name="Dashboard_AssignedTo" xml:space="preserve">
+    <value>Asignado a</value>
+  </data>
+  <data name="Dashboard_NoTasks" xml:space="preserve">
+    <value>Sin tareas</value>
+  </data>
+  <data name="Dashboard_Statistics" xml:space="preserve">
+    <value>ESTADÍSTICAS</value>
+  </data>
+  <data name="Dashboard_TotalTasks" xml:space="preserve">
+    <value>Total de tareas</value>
+  </data>
+  <data name="Dashboard_CompletionRate" xml:space="preserve">
+    <value>Tasa de finalización</value>
+  </data>
+  <data name="Dashboard_ActiveSprints" xml:space="preserve">
+    <value>Sprints activos</value>
+  </data>
+  <data name="Dashboard_TeamMembers" xml:space="preserve">
+    <value>Miembros del equipo</value>
+  </data>
+  <data name="Dashboard_Hello" xml:space="preserve">
+    <value>Hola</value>
+  </data>
+  <data name="Dashboard_Guide" xml:space="preserve">
+    <value>Guía</value>
+  </data>
+  <data name="Dashboard_AllTeams" xml:space="preserve">
+    <value>TODOS LOS EQUIPOS</value>
+  </data>
+  <data name="Dashboard_ClickForDetails" xml:space="preserve">
+    <value>Haga clic para ver detalles →</value>
+  </data>
+  <data name="Dashboard_LoadPerTeam" xml:space="preserve">
+    <value>Carga / Equipo</value>
+  </data>
+  <data name="Dashboard_Teams" xml:space="preserve">
+    <value>Equipos</value>
+  </data>
+  <data name="Dashboard_Projects" xml:space="preserve">
+    <value>Proyectos</value>
+  </data>
+  <data name="Dashboard_Resources" xml:space="preserve">
+    <value>Recursos</value>
+  </data>
+  <data name="Dashboard_Urgent" xml:space="preserve">
+    <value>Urgentes</value>
+  </data>
+  <data name="Dashboard_CRAToValidate" xml:space="preserve">
+    <value>Hojas de horas para validar</value>
+  </data>
+  <data name="Dashboard_MyTeam" xml:space="preserve">
+    <value>MI EQUIPO</value>
+  </data>
+  <data name="Dashboard_ResourceDistribution" xml:space="preserve">
+    <value>DISTRIBUCIÓN DE RECURSOS POR EQUIPO</value>
+  </data>
+  <data name="Dashboard_ActiveMembers" xml:space="preserve">
+    <value>Número de miembros activos (sin gerentes)</value>
+  </data>
+  <data name="Dashboard_ProjectsOverview" xml:space="preserve">
+    <value>RESUMEN DE PROYECTOS</value>
+  </data>
+  <data name="Dashboard_Tasks" xml:space="preserve">
+    <value>tareas</value>
+  </data>
+  <data name="Dashboard_MyUrgentTasks" xml:space="preserve">
+    <value>MIS TAREAS URGENTES</value>
+  </data>
+  <data name="Dashboard_ViewAllArrow" xml:space="preserve">
+    <value>Ver todo →</value>
+  </data>
+  <data name="Dashboard_PerTeam" xml:space="preserve">
+    <value>proy/equipo</value>
+  </data>  <data name="Dashboard_RecentActivity" xml:space="preserve">
+    <value>📊 ACTIVIDAD RECIENTE</value>
+  </data>
+  <data name="Dashboard_QuickActions" xml:space="preserve">
+    <value>⚡ ACCIONES</value>
+  </data>
+  <data name="Dashboard_NewTask" xml:space="preserve">
+    <value>Nueva tarea</value>
+  </data>
+  <data name="Dashboard_ViewKanban" xml:space="preserve">
+    <value>Ver Kanban</value>
+  </data>
+  <data name="Dashboard_TimelineProject" xml:space="preserve">
+    <value>Cronología del proyecto</value>
+  </data>
+  <data name="Dashboard_Modified" xml:space="preserve">
+    <value>Modificado</value>
+  </data>
+  <data name="Dashboard_TaskModification" xml:space="preserve">
+    <value>Modificación de la tarea</value>
+  </data>
+  <data name="TeamDetail_Back" xml:space="preserve">
+    <value>Volver</value>
+  </data>
+  <data name="TeamDetail_PlanningVM" xml:space="preserve">
+    <value>Planificación VM</value>
+  </data>
+  <data name="TeamDetail_Contact" xml:space="preserve">
+    <value>CONTACTO</value>
+  </data>
+  <data name="TeamDetail_Members" xml:space="preserve">
+    <value>MIEMBROS</value>
+  </data>
+  <data name="TeamDetail_ActiveProjects" xml:space="preserve">
+    <value>PROYECTOS ACTIVOS</value>
+  </data>
+  <data name="TeamDetail_FunctionalScope" xml:space="preserve">
+    <value>ÁMBITO FUNCIONAL</value>
+  </data>
+  <data name="TeamDetail_TeamMembers" xml:space="preserve">
+    <value>MIEMBROS DEL EQUIPO</value>
+  </data>
+  <data name="TeamDetail_Member" xml:space="preserve">
+    <value>👤 MIEMBRO</value>
+  </data>
+  <data name="TeamDetail_Role" xml:space="preserve">
+    <value>🎯 ROL</value>
+  </data>
+  <data name="TeamDetail_NoMembers" xml:space="preserve">
+    <value>Ningún miembro asignado a este equipo</value>
+  </data>
+  <data name="TeamDetail_AssociatedProjects" xml:space="preserve">
+    <value>PROYECTOS ASOCIADOS</value>
+  </data>
+  <data name="TeamDetail_NoProjects" xml:space="preserve">
+    <value>Ningún proyecto asociado a este equipo</value>
+  </data>
+  <data name="TeamDetail_View" xml:space="preserve">
+    <value>→ Ver</value>
+  </data>
+  <data name="TeamDetail_Persons" xml:space="preserve">
+    <value>persona(s)</value>
+  </data>
+  <data name="TeamDetail_Projects" xml:space="preserve">
+    <value>proyecto(s)</value>
+  </data>
+  <data name="Activity_Created" xml:space="preserve">
+    <value>✅ Creado</value>
+  </data>
+  <data name="Activity_Modified" xml:space="preserve">
+    <value>📝 Modificado</value>
+  </data>
+  <data name="Activity_Deleted" xml:space="preserve">
+    <value>🗑️ Eliminado</value>
+  </data>
+  <data name="Activity_Leave" xml:space="preserve">
+    <value>🏖️ Vacaciones</value>
+  </data>
+  <data name="Activity_Absence" xml:space="preserve">
+    <value>⏸️ Ausencia</value>
+  </data>
+  <data name="Activity_Support" xml:space="preserve">
+    <value>🤝 Soporte</value>
+  </data>
+  <data name="Activity_Work" xml:space="preserve">
+    <value>💼 Trabajo</value>
+  </data>
+  <data name="Activity_TimeLogged" xml:space="preserve">
+    <value>⏱️ Tiempo registrado</value>
+  </data>
+  <data name="Activity_Task" xml:space="preserve">
+    <value>Tarea</value>
+  </data>
+  <data name="Activity_TaskNumber" xml:space="preserve">
+    <value>Tarea #{0}</value>
+  </data>
+  <data name="Activity_Project" xml:space="preserve">
+    <value>Proyecto</value>
+  </data>
+  <data name="Activity_Tasks" xml:space="preserve">
+    <value>tarea</value>
+  </data>
+  <data name="Activity_TasksPlural" xml:space="preserve">
+    <value>tareas</value>
+  </data>
+  <data name="Activity_On" xml:space="preserve">
+    <value>en</value>
+  </data>
+  <data name="Activity_NoActivity" xml:space="preserve">
+    <value>ℹ️ Sin actividad reciente</value>
+  </data>
+  <data name="Activity_StartWorking" xml:space="preserve">
+    <value>Comience a trabajar en tareas</value>
+  </data>
+  <data name="Activity_Error" xml:space="preserve">
+    <value>⚠️ Error</value>
+  </data>
+  <data name="Activity_LoadError" xml:space="preserve">
+    <value>No se pueden cargar las actividades</value>
+  </data>
+  <data name="Activity_JustNow" xml:space="preserve">
+    <value>Justo ahora</value>
+  </data>
+  <data name="Activity_MinutesAgo" xml:space="preserve">
+    <value>Hace {0} min</value>
+  </data>
+  <data name="Activity_HoursAgo" xml:space="preserve">
+    <value>Hace {0}h</value>
+  </data>
+  <data name="Activity_Yesterday" xml:space="preserve">
+    <value>Ayer</value>
+  </data>
+  <data name="Activity_DaysAgo" xml:space="preserve">
+    <value>Hace {0}d</value>
+  </data>
+  <data name="Activity_Now" xml:space="preserve">
+    <value>Ahora</value>
+  </data>
+  <data name="Activity_Days" xml:space="preserve">
+    <value>d</value>
+  </data>
+  <data name="Audit_TaskModification" xml:space="preserve">
+    <value>Modificación de la tarea #{0}</value>
+  </data>
+  <data name="Audit_TaskCreation" xml:space="preserve">
+    <value>Creación de la tarea #{0}</value>
+  </data>
+  <data name="TeamDetail_GeneralInfo" xml:space="preserve">
+    <value>INFORMACIÓN GENERAL</value>
+  </data>
+  <data name="TeamDetail_Manager" xml:space="preserve">
+    <value>GERENTE</value>
+  </data>
+  <data name="TeamDetail_Status" xml:space="preserve">
+    <value>📊 ESTADO</value>
+  </data>
+  <data name="TeamDetail_NotDefined" xml:space="preserve">
+    <value>No definido</value>
+  </data>
+  <data name="TeamDetail_NoDescription" xml:space="preserve">
+    <value>Sin descripción</value>
+  </data>
+  <data name="TeamDetail_NotAssigned" xml:space="preserve">
+    <value>No asignado</value>
+  </data>
+  <data name="TeamDetail_Active" xml:space="preserve">
+    <value>Activo</value>
+  </data>
+  <data name="TeamDetail_Inactive" xml:space="preserve">
+    <value>Inactivo</value>
+  </data>
+  <data name="TeamDetail_Code" xml:space="preserve">
+    <value>Código: {0}</value>
+  </data>
+  <data name="Role_Administrateur" xml:space="preserve">
+    <value>Administrador</value>
+  </data>
+  <data name="Role_ChefDeProjet" xml:space="preserve">
+    <value>Jefe de proyecto</value>
+  </data>
+  <data name="Role_BusinessAnalyst" xml:space="preserve">
+    <value>Analista de negocios</value>
+  </data>
+  <data name="Role_Developpeur" xml:space="preserve">
+    <value>Desarrollador</value>
+  </data>
+  <data name="Role_Manager" xml:space="preserve">
+    <value>Gerente</value>
+  </data>
+  <data name="Scope_TacticalSolutions" xml:space="preserve">
+    <value>Soluciones rápidas, desarrollo táctico</value>
+  </data>
+  <data name="Scope_RapidDelivery" xml:space="preserve">
+    <value>Soluciones tácticas y entrega rápida</value>
+  </data>
+  <data name="PlanningVM_Title" xml:space="preserve">
+    <value>🖥️ PLANIFICACIÓN VM</value>
+  </data>
+  <data name="PlanningVM_Today" xml:space="preserve">
+    <value>📅 Hoy</value>
+  </data>
+  <data name="Day_Monday" xml:space="preserve">
+    <value>LUN</value>
+  </data>
+  <data name="Day_Tuesday" xml:space="preserve">
+    <value>MAR</value>
+  </data>
+  <data name="Day_Wednesday" xml:space="preserve">
+    <value>MIÉ</value>
+  </data>
+  <data name="Day_Thursday" xml:space="preserve">
+    <value>JUE</value>
+  </data>
+  <data name="Day_Friday" xml:space="preserve">
+    <value>VIE</value>
+  </data>
+  <data name="Day_Saturday" xml:space="preserve">
+    <value>SÁB</value>
+  </data>
+  <data name="Day_Sunday" xml:space="preserve">
+    <value>DOM</value>
+  </data>
+  <data name="PlanningVM_AssignQuestion" xml:space="preserve">
+    <value>¿Cómo le gustaría asignarse para administrar la VM?</value>
+  </data>
+  <data name="PlanningVM_OnlyThisDay" xml:space="preserve">
+    <value>📅 Solo este día ({0})</value>
+  </data>
+  <data name="PlanningVM_WholeWeek" xml:space="preserve">
+    <value>📋 Toda la semana ({0} → {1})</value>
+  </data>
+  <data name="PlanningVM_Cancel" xml:space="preserve">
+    <value>✕ Cancelar</value>
+  </data>
+  <data name="PlanningVM_AssignSuccess" xml:space="preserve">
+    <value>¡Ha sido asignado con éxito!\n\nActualice la página para ver los cambios.</value>
+  </data>
+  <data name="PlanningVM_AssignError" xml:space="preserve">
+    <value>Error de asignación:\n\n{0}\n{1}\n\nStack Trace:\n{2}</value>
+  </data>
+  <data name="PlanningVM_Title" xml:space="preserve">
+    <value>Planificación VM</value>
+  </data>
+  <data name="PlanningVM_AlreadyAssigned" xml:space="preserve">
+    <value>Este día ya está asignado a {0}.\n\nSolo {0} puede retirarse o solicitar un intercambio.</value>
+  </data>
+  <data name="PlanningVM_Info" xml:space="preserve">
+    <value>Información</value>
+  </data>
+  <data name="PlanningVM_Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="PlanningVM_DaysAlreadyAssigned" xml:space="preserve">
+    <value>\n❌ Días ya asignados ({0}):\n</value>
+  </data>
+  <data name="PlanningVM_ConfirmAssign" xml:space="preserve">
+    <value>\n\n¿Desea asignarse a los {0} día(s) disponible(s)?</value>
+  </data>
+  <data name="PlanningVM_AssignedSuccess" xml:space="preserve">
+    <value>✅ ¡Ha sido asignado a {0} día(s) con éxito!</value>
+  </data>
+  <data name="PlanningVM_Success" xml:space="preserve">
+    <value>Éxito</value>
+  </data>
+  <data name="PlanningVM_ErrorAfterAssign" xml:space="preserve">
+    <value>Error después de {0} asignación(es):\n\n{1}</value>
+  </data>
+  <data name="PlanningVM_AcceptExchange" xml:space="preserve">
+    <value>¡Ha aceptado el intercambio!\n\nAhora está asignado(a) para administrar la VM el {0}.</value>
+  </data>
+  <data name="PlanningVM_Confirmation" xml:space="preserve">
+    <value>Confirmación</value>
+  </data>
+  <data name="PlanningVM_ExchangeRequest" xml:space="preserve">
+    <value>Solicitud de Intercambio - Planificación VM</value>
+  </data>
+  <data name="PlanningVM_AssignedOn" xml:space="preserve">
+    <value>Está asignado(a) el {0}</value>
+  </data>
+  <data name="PlanningVM_RequestExchangeLabel" xml:space="preserve">
+    <value>Solicitar a otro miembro que tome su lugar:</value>
+  </data>
+  <data name="PlanningVM_Validate" xml:space="preserve">
+    <value>✓ Validar</value>
+  </data>
+  <data name="PlanningVM_SelectMember" xml:space="preserve">
+    <value>Por favor seleccione un miembro.</value>
+  </data>
+  <data name="PlanningVM_Warning" xml:space="preserve">
+    <value>Atención</value>
+  </data>
+  <data name="PlanningVM_ExchangeSent" xml:space="preserve">
+    <value>Su solicitud ha sido enviada a {0} {1}.\n\nÉl/Ella recibirá una notificación.</value>
+  </data>
+  <data name="PlanningVM_RequestSent" xml:space="preserve">
+    <value>Solicitud Enviada</value>
+  </data>
+  <data name="PlanningVM_ExchangeError" xml:space="preserve">
+    <value>Error al solicitar el intercambio: {0}</value>
+  </data>
+  <data name="PlanningVM_NotifExchangeTitle" xml:space="preserve">
+    <value>🔄 Solicitud de Intercambio - Planificación VM</value>
+  </data>
+  <data name="PlanningVM_NotifExchangeMessage" xml:space="preserve">
+    <value>{0} {1} le solicita intercambiar la gestión de VM el {2}.</value>
+  </data>
+  <data name="PlanningVM_NotifSentTitle" xml:space="preserve">
+    <value>🔄 Solicitud de Intercambio Enviada - Planificación VM</value>
+  </data>
+  <data name="PlanningVM_NotifSentMessage" xml:space="preserve">
+    <value>Ha solicitado a {0} {1} que tome su lugar el {2}. Esperando respuesta...</value>
+  </data>
+  <data name="PlanningVM_NotifAcceptedTitle" xml:space="preserve">
+    <value>✅ Intercambio Aceptado - Planificación VM</value>
+  </data>
+  <data name="PlanningVM_NotifAcceptedMessage" xml:space="preserve">
+    <value>{0} {1} ha aceptado tomar su lugar el {2}.</value>
+  </data>
+  <data name="Requests_Title" xml:space="preserve">
+    <value>SOLICITUDES</value>
+  </data>
+  <data name="Requests_Subtitle" xml:space="preserve">
+    <value>Gestión de solicitudes de usuarios y seguimiento de procesamientos</value>
+  </data>
+  <data name="Requests_CreateFromEmail" xml:space="preserve">
+    <value>📧 Crear desde Email (IA)</value>
+  </data>
+  <data name="Requests_NewRequest" xml:space="preserve">
+    <value>➕ Nueva solicitud</value>
+  </data>
+  <data name="Requests_ActiveRequests" xml:space="preserve">
+    <value>📋 Solicitudes activas</value>
+  </data>
+  <data name="Requests_Archives" xml:space="preserve">
+    <value>📦 Archivos</value>
+  </data>
+  <data name="Requests_Status" xml:space="preserve">
+    <value>📊 Estado</value>
+  </data>
+  <data name="Requests_Criticality" xml:space="preserve">
+    <value>⚠️ Criticidad</value>
+  </data>
+  <data name="Requests_Team" xml:space="preserve">
+    <value>👥 Equipo</value>
+  </data>
+  <data name="Requests_DateFrom" xml:space="preserve">
+    <value>📅 Fecha desde</value>
+  </data>
+  <data name="Requests_DateTo" xml:space="preserve">
+    <value>📅 Fecha hasta</value>
+  </data>
+  <data name="Requests_Refresh" xml:space="preserve">
+    <value>🔄 Actualizar</value>
+  </data>
+  <data name="Requests_Reset" xml:space="preserve">
+    <value>✕ Restablecer</value>
+  </data>
+  <data name="Requests_All" xml:space="preserve">
+    <value>Todos</value>
+  </data>
+  <data name="Requests_StatusAwaitingSpec" xml:space="preserve">
+    <value>Esperando especificación</value>
+  </data>
+  <data name="Requests_StatusAwaitingQuote" xml:space="preserve">
+    <value>Esperando cotización</value>
+  </data>
+  <data name="Requests_StatusAwaitingManagerValidation" xml:space="preserve">
+    <value>Esperando validación del gerente</value>
+  </data>
+  <data name="Requests_StatusAccepted" xml:space="preserve">
+    <value>Aceptada</value>
+  </data>
+  <data name="Requests_StatusPlannedInUS" xml:space="preserve">
+    <value>Planificada en US</value>
+  </data>
+  <data name="Requests_StatusInProgress" xml:space="preserve">
+    <value>En progreso</value>
+  </data>
+  <data name="Requests_StatusDelivered" xml:space="preserve">
+    <value>Entregada</value>
+  </data>
+  <data name="Requests_StatusRefused" xml:space="preserve">
+    <value>Rechazada</value>
+  </data>
+  <data name="Requests_NotAssigned" xml:space="preserve">
+    <value>No asignado</value>
+  </data>
+  <data name="Requests_ErrorPermission" xml:space="preserve">
+    <value>Error al verificar permisos: {0}</value>
+  </data>
+  <data name="Requests_ErrorLoading" xml:space="preserve">
+    <value>Error al cargar solicitudes: {0}</value>
+  </data>
+  <data name="Requests_ErrorCreating" xml:space="preserve">
+    <value>Error al crear solicitud: {0}</value>
+  </data>
+  <data name="Requests_ErrorDisplayingDetails" xml:space="preserve">
+    <value>Error al mostrar detalles: {0}</value>
+  </data>
+  <data name="Requests_NotFound" xml:space="preserve">
+    <value>Solicitud no encontrada.</value>
+  </data>
+  <data name="Requests_NoPermissionModify" xml:space="preserve">
+    <value>No tiene permiso para modificar esta solicitud.</value>
+  </data>
+  <data name="Requests_ErrorModifying" xml:space="preserve">
+    <value>Error al modificar solicitud: {0}</value>
+  </data>
+  <data name="Requests_ErrorDisplayingComments" xml:space="preserve">
+    <value>Error al mostrar comentarios: {0}</value>
+  </data>
+  <data name="Requests_NoPermissionDelete" xml:space="preserve">
+    <value>No tiene permiso para eliminar solicitudes.</value>
+  </data>
+  <data name="Requests_ConfirmDelete" xml:space="preserve">
+    <value>¿Está seguro de que desea eliminar esta solicitud?\n\nEsta acción es irreversible.</value>
+  </data>
+  <data name="Requests_DeletedSuccess" xml:space="preserve">
+    <value>Solicitud eliminada con éxito.</value>
+  </data>
+  <data name="Requests_Deletion" xml:space="preserve">
+    <value>Eliminación</value>
+  </data>
+  <data name="Requests_ErrorDeleting" xml:space="preserve">
+    <value>Error al eliminar solicitud: {0}</value>
+  </data>
+  <data name="Requests_AlreadyLinkedProject" xml:space="preserve">
+    <value>Esta solicitud ya está vinculada a un proyecto.</value>
+  </data>
+  <data name="Requests_ErrorCreatingProject" xml:space="preserve">
+    <value>Error al crear proyecto: {0}</value>
+  </data>
+  <data name="Requests_AllCriticality" xml:space="preserve">
+    <value>Todas</value>
+  </data>
+  <data name="Requests_AllTeams" xml:space="preserve">
+    <value>Todos los equipos</value>
+  </data>
+  <data name="Requests_CreateProject" xml:space="preserve">
+    <value>� Crear proyecto</value>
+  </data>
+  <data name="Requests_CreateProjectFor" xml:space="preserve">
+    <value>Crear un proyecto para la solicitud: {0}</value>
+  </data>
+  <data name="Requests_CreateTask" xml:space="preserve">
+    <value>🎯 Crear tarea</value>
+  </data>
+  <data name="Requests_Details" xml:space="preserve">
+    <value>📝 Detalles</value>
+  </data>
+  <data name="Requests_Modify" xml:space="preserve">
+    <value>✏️ Modificar</value>
+  </data>
+  <data name="Requests_Comments" xml:space="preserve">
+    <value>💬 Comentarios</value>
+  </data>
+  <data name="Requests_Archive" xml:space="preserve">
+    <value>📦 Archivar</value>
+  </data>
+  <data name="Requests_Delete" xml:space="preserve">
+    <value>🗑️ Eliminar</value>
+  </data>
+  <data name="Requests_Requester" xml:space="preserve">
+    <value>SOLICITANTE</value>
+  </data>
+  <data name="Requests_DateCreation" xml:space="preserve">
+    <value>📅 FECHA CREACIÓN</value>
+  </data>
+  <data name="Requests_Managers" xml:space="preserve">
+    <value>👤 GERENTE(S)</value>
+  </data>
+  <data name="Requests_TeamMembers" xml:space="preserve">
+    <value>👨‍💼 MIEMBROS DEL EQUIPO</value>
+  </data>
+  <data name="Requests_Teams" xml:space="preserve">
+    <value>👥 EQUIPOS</value>
+  </data>
+  <data name="Requests_NoTeam" xml:space="preserve">
+    <value>Ningún equipo</value>
+  </data>
+  <data name="Requests_NoMembers" xml:space="preserve">
+    <value>Ningún miembro</value>
+  </data>
+  <data name="Requests_FilterStatus" xml:space="preserve">
+    <value>📊 Estado</value>
+  </data>
+  <data name="Requests_FilterCriticality" xml:space="preserve">
+    <value>⚠️ Criticidad</value>
+  </data>
+  <data name="Requests_CriticalityHigh" xml:space="preserve">
+    <value>Alta</value>
+  </data>
+  <data name="Requests_CriticalityMedium" xml:space="preserve">
+    <value>Media</value>
+  </data>
+  <data name="Requests_CriticalityLow" xml:space="preserve">
+    <value>Baja</value>
+  </data>
+  <data name="Requests_SelectDate" xml:space="preserve">
+    <value>Seleccione una fecha</value>
+  </data>
+  <data name="Requests_FilterTeam" xml:space="preserve">
+    <value>👥 Equipo</value>
+  </data>
+  <data name="Requests_FilterDateFrom" xml:space="preserve">
+    <value>📅 Fecha desde</value>
+  </data>
+  <data name="Requests_FilterDateTo" xml:space="preserve">
+    <value>📅 Fecha hasta</value>
+  </data>
+  <data name="Requests_FilterAll" xml:space="preserve">
+    <value>Todos</value>
+  </data>
+  <data name="Requests_FilterAllCriticality" xml:space="preserve">
+    <value>Todas</value>
+  </data>
+  <data name="Requests_FilterAllTeams" xml:space="preserve">
+    <value>Todos los equipos</value>
+  </data>
+  <data name="Requests_ActiveTab" xml:space="preserve">
+    <value>📋 Solicitudes activas</value>
+  </data>
+  <data name="Requests_ArchivesTab" xml:space="preserve">
+    <value>📦 Archivos</value>
+  </data>
+  <data name="Requests_CreationDate" xml:space="preserve">
+    <value>📅 FECHA CREACIÓN</value>
+  </data>
+  <data name="Requests_Edit" xml:space="preserve">
+    <value>✏️ Editar</value>
+  </data>
+  <data name="Requests_StatusPendingSpec" xml:space="preserve">
+    <value>Esperando especificación</value>
+  </data>
+  <data name="Requests_StatusPendingEstimate" xml:space="preserve">
+    <value>Esperando estimación</value>
+  </data>
+  <data name="Requests_StatusPendingValidation" xml:space="preserve">
+    <value>Esperando validación del gerente</value>
+  </data>
+  <data name="Requests_StatusPlannedUS" xml:space="preserve">
+    <value>Planificada en US</value>
+  </data>
+  <data name="Requests_StatusRejected" xml:space="preserve">
+    <value>Rechazada</value>
+  </data>
+  <data name="Requests_EditRequest" xml:space="preserve">
+    <value>MODIFICAR SOLICITUD</value>
+  </data>
+  <data name="Requests_RequiredFields" xml:space="preserve">
+    <value>Complete todos los campos obligatorios marcados con asterisco (*)</value>
+  </data>
+  <data name="Requests_TitleLabel" xml:space="preserve">
+    <value>Título</value>
+  </data>
+  <data name="Requests_DescriptionLabel" xml:space="preserve">
+    <value>Descripción</value>
+  </data>
+  <data name="Requests_TypeLabel" xml:space="preserve">
+    <value>Tipo</value>
+  </data>
+  <data name="Requests_TypeDev" xml:space="preserve">
+    <value>Desarrollo</value>
+  </data>
+  <data name="Requests_TypeRun" xml:space="preserve">
+    <value>Ejecutar</value>
+  </data>
+  <data name="Requests_TypeSupport" xml:space="preserve">
+    <value>Soporte</value>
+  </data>
+  <data name="Requests_TypeOther" xml:space="preserve">
+    <value>Otro</value>
+  </data>
+  <data name="Requests_TypeVacation" xml:space="preserve">
+    <value>Vacaciones</value>
+  </data>
+  <data name="Requests_TypeNotWorked" xml:space="preserve">
+    <value>No trabajado</value>
+  </data>
+  <data name="Requests_CriticalityLabel" xml:space="preserve">
+    <value>Criticidad</value>
+  </data>
+  <data name="Requests_ProgramClassification" xml:space="preserve">
+    <value>PROGRAMA Y CLASIFICACIÓN</value>
+  </data>
+  <data name="Requests_AssociatedProgram" xml:space="preserve">
+    <value>Programa asociado</value>
+  </data>
+  <data name="Requests_PriorityLabel" xml:space="preserve">
+    <value>Prioridad</value>
+  </data>
+  <data name="Requests_ProjectType" xml:space="preserve">
+    <value>Tipo de Proyecto</value>
+  </data>
+  <data name="Requests_Category" xml:space="preserve">
+    <value>Categoría</value>
+  </data>
+  <data name="Requests_ProjectLead" xml:space="preserve">
+    <value>Líder del Proyecto</value>
+  </data>
+  <data name="Requests_DriversAmbition" xml:space="preserve">
+    <value>IMPULSORES Y AMBICIÓN</value>
+  </data>
+  <data name="Requests_Drivers" xml:space="preserve">
+    <value>Impulsores</value>
+  </data>
+  <data name="Requests_SelectDrivers" xml:space="preserve">
+    <value>Seleccione los impulsores aplicables (múltiples opciones posibles)</value>
+  </data>
+  <data name="Requests_Ambition" xml:space="preserve">
+    <value>Ambición</value>
+  </data>
+  <data name="Requests_Beneficiaries" xml:space="preserve">
+    <value>Beneficiarios</value>
+  </data>
+  <data name="Requests_WhoBenefits" xml:space="preserve">
+    <value>¿Quién se beneficia de este proyecto? (múltiples opciones posibles)</value>
+  </data>
+  <data name="Requests_ExpectedGains" xml:space="preserve">
+    <value>GANANCIAS ESPERADAS</value>
+  </data>
+  <data name="Requests_TimeGains" xml:space="preserve">
+    <value>Ganancias de Tiempo</value>
+  </data>
+  <data name="Requests_TimeGainsExample" xml:space="preserve">
+    <value>Ejemplos: '15 horas/semana', '3 días/mes', '20% carga de trabajo'</value>
+  </data>
+  <data name="Requests_FinancialGains" xml:space="preserve">
+    <value>Ganancias Financieras (opcional)</value>
+  </data>
+  <data name="Requests_FinancialGainsExample" xml:space="preserve">
+    <value>Ejemplos: '45000€ anuales', '3500€ mensuales', 'N/A'</value>
+  </data>
+  <data name="Requests_AssignedTeams" xml:space="preserve">
+    <value>EQUIPOS ASIGNADOS</value>
+  </data>
+  <data name="Requests_ConcernedTeams" xml:space="preserve">
+    <value>Equipos concernidos</value>
+  </data>
+  <data name="Requests_SelectTeams" xml:space="preserve">
+    <value>Seleccione uno o varios equipos (múltiples opciones posibles)</value>
+  </data>
+  <data name="Requests_BusinessContext" xml:space="preserve">
+    <value>Contexto empresarial</value>
+  </data>
+  <data name="Requests_ExpectedBenefits" xml:space="preserve">
+    <value>Beneficios esperados</value>
+  </data>
+  <data name="Requests_BusinessAnalyst" xml:space="preserve">
+    <value>Analista de Negocio</value>
+  </data>
+  <data name="Requests_ManagersLabel" xml:space="preserve">
+    <value>Gerente(s)</value>
+  </data>
+  <data name="Administration_Title" xml:space="preserve">
+    <value>ADMINISTRACIÓN</value>
+  </data>
+  <data name="Administration_Description" xml:space="preserve">
+    <value>Gestión de usuarios, roles, proyectos y configuración del sistema</value>
+  </data>
+  <data name="Administration_UsersAndRoles" xml:space="preserve">
+    <value>Usuarios y Roles</value>
+  </data>
+  <data name="Administration_ProjectsAndTeam" xml:space="preserve">
+    <value>Proyectos y Equipo</value>
+  </data>
+  <data name="Administration_Reporting" xml:space="preserve">
+    <value>Reportes</value>
+  </data>
+  <data name="Administration_ChatHistory" xml:space="preserve">
+    <value>Historial Chat IA</value>
+  </data>
+  <data name="Administration_AuditLog" xml:space="preserve">
+    <value>Registro de Auditoría</value>
+  </data>
+  <data name="Administration_Users" xml:space="preserve">
+    <value>Usuarios</value>
+  </data>
+  <data name="Administration_Roles" xml:space="preserve">
+    <value>Roles</value>
+  </data>
+  <data name="Administration_Programs" xml:space="preserve">
+    <value>Programas</value>
+  </data>
+  <data name="Administration_Projects" xml:space="preserve">
+    <value>Proyectos</value>
+  </data>
+  <data name="Administration_Teams" xml:space="preserve">
+    <value>Equipos</value>
+  </data>
+  <data name="Administration_OpenChatHistory" xml:space="preserve">
+    <value>Abrir historial de conversaciones</value>
+  </data>
+  <data name="Users_FullName" xml:space="preserve">
+    <value>Nombre Completo</value>
+  </data>
+  <data name="Users_WindowsUsername" xml:space="preserve">
+    <value>Usuario Windows</value>
+  </data>
+  <data name="Users_Role" xml:space="preserve">
+    <value>Rol</value>
+  </data>
+  <data name="Users_Status" xml:space="preserve">
+    <value>Estado</value>
+  </data>
+  <data name="Users_Active" xml:space="preserve">
+    <value>Activo</value>
+  </data>
+  <data name="Users_Yes" xml:space="preserve">
+    <value>Sí</value>
+  </data>
+  <data name="Users_No" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="Users_NewUser" xml:space="preserve">
+    <value>Nuevo Usuario</value>
+  </data>
+  <data name="Users_Modify" xml:space="preserve">
+    <value>Modificar</value>
+  </data>
+  <data name="Users_Delete" xml:space="preserve">
+    <value>Eliminar</value>
+  </data>
+  <data name="Users_Refresh" xml:space="preserve">
+    <value>Actualizar</value>
+  </data>
+  <data name="Users_SearchPlaceholder" xml:space="preserve">
+    <value>Buscar un usuario...</value>
+  </data>
+  <data name="Roles_ConfigurationTitle" xml:space="preserve">
+    <value>Configuración de permisos por rol</value>
+  </data>
+  <data name="Roles_Refresh" xml:space="preserve">
+    <value>Actualizar</value>
+  </data>
+  <data name="Roles_ResetAdminPermissions" xml:space="preserve">
+    <value>Reiniciar permisos Admin</value>
+  </data>
+  <data name="Roles_ResetAdminTooltip" xml:space="preserve">
+    <value>Activa TODOS los permisos para el rol Administrador</value>
+  </data>
+  <data name="Roles_CreateRequests" xml:space="preserve">
+    <value>Crear solicitudes</value>
+  </data>
+  <data name="Roles_Estimate" xml:space="preserve">
+    <value>Estimar</value>
+  </data>
+  <data name="Roles_Prioritize" xml:space="preserve">
+    <value>Priorizar</value>
+  </data>
+  <data name="Roles_ModifyTasks" xml:space="preserve">
+    <value>Modificar tareas</value>
+  </data>
+  <data name="Roles_DeleteTasks" xml:space="preserve">
+    <value>Eliminar tareas</value>
+  </data>
+  <data name="Roles_ManageUsers" xml:space="preserve">
+    <value>Gestionar usuarios</value>
+  </data>
+  <data name="Roles_ManageReferences" xml:space="preserve">
+    <value>Gestionar referencias</value>
+  </data>
+  <data name="Roles_ViewKPI" xml:space="preserve">
+    <value>Ver KPI</value>
+  </data>
+  <data name="Roles_SaveChanges" xml:space="preserve">
+    <value>Guardar cambios</value>
+  </data>
+  <data name="Roles_ErrorLoading" xml:space="preserve">
+    <value>Error al cargar roles: {0}</value>
+  </data>
+  <data name="Roles_ErrorSaving" xml:space="preserve">
+    <value>Error al guardar: {0}</value>
+  </data>
+  <data name="Roles_PermissionsUpdated" xml:space="preserve">
+    <value>Los permisos del rol '{0}' se han actualizado con éxito.</value>
+  </data>
+  <data name="Roles_ResetConfirmTitle" xml:space="preserve">
+    <value>Reiniciar permisos Administrador</value>
+  </data>
+  <data name="Roles_ResetConfirmMessage" xml:space="preserve">
+    <value>¿Desea activar TODOS los permisos para el rol Administrador?</value>
+  </data>
+  <data name="Roles_ResetPermissionsList" xml:space="preserve">
+    <value>Esto incluye:\n✓ Crear solicitudes\n✓ Estimar\n✓ Priorizar\n✓ Modificar tareas\n✓ Eliminar tareas\n✓ Gestionar usuarios\n✓ Gestionar referencias\n✓ Ver KPI</value>
+  </data>
+  <data name="Roles_AdminPermissionsReset" xml:space="preserve">
+    <value>Los permisos del rol Administrador se han reiniciado con éxito.\n\nTodos los permisos están ahora activados.</value>
+  </data>
+  <data name="Common_Success" xml:space="preserve">
+    <value>Éxito</value>
+  </data>
+  <data name="Common_Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="Users_DisplayingFrom" xml:space="preserve">
+    <value>Mostrando de</value>
+  </data>
+  <data name="Users_To" xml:space="preserve">
+    <value>a</value>
+  </data>
+  <data name="Users_Of" xml:space="preserve">
+    <value>de</value>
+  </data>
+  <data name="Users_TotalUsers" xml:space="preserve">
+    <value>usuario(s)</value>
+  </data>
+  <data name="Users_Previous" xml:space="preserve">
+    <value>◀ Anterior</value>
+  </data>
+  <data name="Users_Next" xml:space="preserve">
+    <value>Siguiente ▶</value>
+  </data>
+  <data name="Users_Page" xml:space="preserve">
+    <value>Página</value>
+  </data>
+  <data name="Requests_NoManagersAssigned" xml:space="preserve">
+    <value>Ningún gerente asignado a los equipos seleccionados</value>
+  </data>
+  <data name="Requests_SelectTeamsForManagers" xml:space="preserve">
+    <value>Selecciona equipos para ver gerentes</value>
+  </data>
+  <data name="Requests_Estimation" xml:space="preserve">
+    <value>ESTIMACIÓN</value>
+  </data>
+  <data name="Requests_EstimatingDeveloper" xml:space="preserve">
+    <value>Desarrollador estimador</value>
+  </data>
+  <data name="Requests_EstimationDays" xml:space="preserve">
+    <value>Estimación (días)</value>
+  </data>
+  <data name="Requests_ManagerValidation" xml:space="preserve">
+    <value>VALIDACIÓN DEL GERENTE</value>
+  </data>
+  <data name="Requests_ValidationPending" xml:space="preserve">
+    <value>Esta solicitud está pendiente de validación del gerente. Decida si acepta o rechaza el lanzamiento del proyecto.</value>
+  </data>
+  <data name="Requests_DetailedSpecifications" xml:space="preserve">
+    <value>ESPECIFICACIONES DETALLADAS</value>
+  </data>
+  <data name="Requests_DefineSpecifications" xml:space="preserve">
+    <value>Defina las especificaciones funcionales y técnicas de la solicitud</value>
+  </data>
+  <data name="Requests_TitleSection" xml:space="preserve">
+    <value>TÍTULO DE LA SOLICITUD</value>
+  </data>
+  <data name="Requests_GeneralInfo" xml:space="preserve">
+    <value>INFORMACIÓN GENERAL</value>
+  </data>
+  <data name="Requests_ExpectedDate" xml:space="preserve">
+    <value>FECHA ESPERADA</value>
+  </data>
+  <data name="Requests_Stakeholders" xml:space="preserve">
+    <value>INTERESADOS</value>
+  </data>
+  <data name="Requests_Developer" xml:space="preserve">
+    <value>Desarrollador</value>
+  </data>
+  <data name="Requests_EstimationLabel" xml:space="preserve">
+    <value>Estimación</value>
+  </data>
+  <data name="Requests_Program" xml:space="preserve">
+    <value>PROGRAMA</value>
+  </data>
+  <data name="Requests_Implemented" xml:space="preserve">
+    <value>IMPLEMENTADO</value>
+  </data>
+  <data name="Requests_NoTeamAssigned" xml:space="preserve">
+    <value>Ningún equipo asignado</value>
+  </data>
+  <data name="Common_Hours" xml:space="preserve">
+    <value>horas</value>
+  </data>
+  <data name="Common_Description" xml:space="preserve">
+    <value>DESCRIPCIÓN</value>
+  </data>
+  <data name="Common_Status" xml:space="preserve">
+    <value>ESTADO</value>
+  </data>
+  <data name="Comments_Title" xml:space="preserve">
+    <value>COMENTARIOS</value>
+  </data>
+  <data name="Comments_AddComment" xml:space="preserve">
+    <value>A\u00d1ADIR UN COMENTARIO</value>
+  </data>
+  <data name="Comments_NoComments" xml:space="preserve">
+    <value>Sin comentarios</value>
+  </data>
+  <data name="Comments_OneComment" xml:space="preserve">
+    <value>1 comentario</value>
+  </data>
+  <data name="Comments_MultipleComments" xml:space="preserve">
+    <value>{0} comentarios</value>
+  </data>
+  <data name="Common_Close" xml:space="preserve">
+    <value>Cerrar</value>
+  </data>
+  <data name="Common_Add" xml:space="preserve">
+    <value>A\u00f1adir</value>
+  </data>
+  <data name="Projects_NewProject" xml:space="preserve">
+    <value>Nuevo Proyecto</value>
+  </data>
+  <data name="Projects_EditProject" xml:space="preserve">
+    <value>Modificar Proyecto</value>
+  </data>
+  <data name="Projects_ProjectInfo" xml:space="preserve">
+    <value>Información del Proyecto</value>
+  </data>
+  <data name="Projects_ProjectName" xml:space="preserve">
+    <value>Nombre del proyecto</value>
+  </data>
+  <data name="Projects_DescriptionHint" xml:space="preserve">
+    <value>Describa brevemente el objetivo y alcance del proyecto</value>
+  </data>
+  <data name="Projects_StartDate" xml:space="preserve">
+    <value>Fecha de inicio</value>
+  </data>
+  <data name="Projects_EndDate" xml:space="preserve">
+    <value>Fecha de finalización prevista</value>
+  </data>
+  <data name="Projects_ProjectPhase" xml:space="preserve">
+    <value>Fase del proyecto</value>
+  </data>
+  <data name="Projects_SelectPhase" xml:space="preserve">
+    <value>Seleccione la fase actual del proyecto</value>
+  </data>
+  <data name="Projects_ProjectTeams" xml:space="preserve">
+    <value>Equipos trabajando en este proyecto</value>
+  </data>
+  <data name="Projects_UncheckToArchive" xml:space="preserve">
+    <value>Desmarque para archivar el proyecto</value>
+  </data>
+  <data name="Projects_NoProgram" xml:space="preserve">
+    <value>Ningún programa</value>
+  </data>
+  <data name="Projects_PhaseFraming" xml:space="preserve">
+    <value>Framing / Diseño</value>
+  </data>
+  <data name="Projects_PhaseImplementation" xml:space="preserve">
+    <value>Implementación / Gestión del Cambio</value>
+  </data>
+  <data name="Projects_PhaseUAT" xml:space="preserve">
+    <value>UAT</value>
+  </data>
+  <data name="Projects_PhaseGoLive" xml:space="preserve">
+    <value>Go Live</value>
+  </data>
+  <data name="Projects_PriorityTopHigh" xml:space="preserve">
+    <value>Muy Alta</value>
+  </data>
+  <data name="Projects_PriorityHigh" xml:space="preserve">
+    <value>Alta</value>
+  </data>
+  <data name="Projects_PriorityMedium" xml:space="preserve">
+    <value>Media</value>
+  </data>
+  <data name="Projects_PriorityLow" xml:space="preserve">
+    <value>Baja</value>
+  </data>
+  <data name="Projects_DriverAutomation" xml:space="preserve">
+    <value>Automatización</value>
+  </data>
+  <data name="Projects_DriverEfficiency" xml:space="preserve">
+    <value>Ganancias de Eficiencia</value>
+  </data>
+  <data name="Projects_DriverOptimization" xml:space="preserve">
+    <value>Optimización de Procesos</value>
+  </data>
+  <data name="Projects_DriverStandardization" xml:space="preserve">
+    <value>Estandarización</value>
+  </data>
+  <data name="Projects_DriverNone" xml:space="preserve">
+    <value>Ninguno</value>
+  </data>
+  <data name="Projects_BenefSGI" xml:space="preserve">
+    <value>SGI</value>
+  </data>
+  <data name="Projects_BenefTFSC" xml:space="preserve">
+    <value>TFSC</value>
+  </data>
+  <data name="Projects_BenefTransversal" xml:space="preserve">
+    <value>Transversal</value>
+  </data>
+  <data name="Projects_ActiveProject" xml:space="preserve">
+    <value>Proyecto activo</value>
+  </data>
+  <data name="Projects_AlreadyImplemented" xml:space="preserve">
+    <value>Ya implementado</value>
+  </data>
+  <data name="Projects_SaveProject" xml:space="preserve">
+    <value>💾 Guardar</value>
+  </data>
+  <data name="Projects_Cancel" xml:space="preserve">
+    <value>❌ Cancelar</value>
+  </data>
+  <data name="Projects_SelectDate" xml:space="preserve">
+    <value>Seleccionar una fecha</value>
+  </data>
+  <data name="Requests_HeaderSubtitle" xml:space="preserve">
+    <value>Solicitud #{0} • Creada el {1}</value>
+  </data>
+  <data name="Common_NotSpecified" xml:space="preserve">
+    <value>No especificado</value>
+  </data>
+  <data name="Common_Days" xml:space="preserve">
+    <value>día(s)</value>
+  </data>
+  <data name="Requests_NotEstimated" xml:space="preserve">
+    <value>No estimado</value>
+  </data>
+  <data name="Common_NotDefined" xml:space="preserve">
+    <value>No definido</value>
+  </data>
+  <data name="Common_None" xml:space="preserve">
+    <value>Ninguno</value>
+  </data>
+  <data name="Common_NotApplicable" xml:space="preserve">
+    <value>N/A</value>
+  </data>
+  <data name="Common_Yes" xml:space="preserve">
+    <value>Sí</value>
+  </data>
+  <data name="Common_No" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="Common_NotAssigned" xml:space="preserve">
+    <value>No asignado</value>
+  </data>
+  <data name="Requests_DetailedSpecs" xml:space="preserve">
+    <value>ESPECIFICACIONES DETALLADAS</value>
+  </data>
+  <data name="Requests_ManagerValidation" xml:space="preserve">
+    <value>VALIDACIÓN DEL MANAGER</value>
+  </data>
+  <data name="Requests_DefineSpecs" xml:space="preserve">
+    <value>Defina las especificaciones funcionales y técnicas de la solicitud</value>
+  </data>
+  <data name="Requests_EstimationDays" xml:space="preserve">
+    <value>Estimación (en días-hombre)</value>
+  </data>
+  <data name="Requests_AwaitingValidation" xml:space="preserve">
+    <value>Esta solicitud está esperando validación del manager. Decida aceptar o rechazar el lanzamiento del proyecto.</value>
+  </data>
+  <data name="Requests_ValidateAndEstimate" xml:space="preserve">
+    <value>Validar y proceder a la estimación</value>
+  </data>
+  <data name="Common_Accept" xml:space="preserve">
+    <value>Aceptar</value>
+  </data>
+  <data name="Common_Refuse" xml:space="preserve">
+    <value>Rechazar</value>
+  </data>
+  <data name="EmailAnalysis_Title" xml:space="preserve">
+    <value>📧 Análisis IA de Email - Nueva Solicitud</value>
+  </data>
+  <data name="EmailAnalysis_Header" xml:space="preserve">
+    <value>📧 Análisis IA de Email para Nueva Solicitud</value>
+  </data>
+  <data name="EmailAnalysis_Subtitle" xml:space="preserve">
+    <value>Pegue el contenido del email y la IA rellenará automáticamente los campos de la solicitud</value>
+  </data>
+  <data name="EmailAnalysis_EmailContent" xml:space="preserve">
+    <value>📨 Contenido del Email</value>
+  </data>
+  <data name="EmailAnalysis_PasteInstructions" xml:space="preserve">
+    <value>Copie y pegue aquí el contenido completo del email recibido</value>
+  </data>
+  <data name="EmailAnalysis_AnalyzeButton" xml:space="preserve">
+    <value>🤖 Analizar con IA</value>
+  </data>
+  <data name="EmailAnalysis_Cancel" xml:space="preserve">
+    <value>Cancelar</value>
+  </data>
+  <data name="EmailAnalysis_CreateRequest" xml:space="preserve">
+    <value>✅ Crear Solicitud</value>
+  </data>
+  <data name="Requests_EstimatingDeveloper" xml:space="preserve">
+    <value>Desarrollador Estimador</value>
+  </data>
+  <data name="Requests_AlreadyImplemented" xml:space="preserve">
+    <value>Ya Implementado</value>
+  </data>
+  <data name="Requests_DriverAutomation" xml:space="preserve">
+    <value>Automatización</value>
+  </data>
+  <data name="Requests_DriverEfficiency" xml:space="preserve">
+    <value>Ganancias de Eficiencia</value>
+  </data>
+  <data name="Requests_DriverOptimization" xml:space="preserve">
+    <value>Optimización de Procesos</value>
+  </data>
+  <data name="Requests_DriverStandardization" xml:space="preserve">
+    <value>Estandarización</value>
+  </data>
+  <data name="Requests_DriverNone" xml:space="preserve">
+    <value>Ninguno</value>
+  </data>
+  <data name="Requests_SelectDrivers" xml:space="preserve">
+    <value>Seleccione los conductores aplicables (múltiples opciones posibles)</value>
+  </data>
+  <data name="Requests_WhoBenefits" xml:space="preserve">
+    <value>¿Quién se beneficia de este proyecto? (múltiples opciones posibles)</value>
+  </data>
+  <data name="Requests_ConcernedTeams" xml:space="preserve">
+    <value>Equipos Involucrados</value>
+  </data>
+  <data name="Requests_SelectTeamsForManagers" xml:space="preserve">
+    <value>Seleccione equipos para ver gerentes</value>
+  </data>
+  <data name="Requests_AwaitingValidation" xml:space="preserve">
+    <value>Esta solicitud está pendiente de validación del gerente. Decide aceptar o rechazar el lanzamiento del proyecto.</value>
+  </data>
+  <data name="Common_Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="Common_Validation" xml:space="preserve">
+    <value>Validación</value>
+  </data>
+  <data name="Comments_EnterComment" xml:space="preserve">
+    <value>Por favor ingrese un comentario.</value>
+  </data>
+  <data name="Comments_UserNotLoggedIn" xml:space="preserve">
+    <value>Usuario no conectado.</value>
+  </data>
+  <data name="Comments_LoadError" xml:space="preserve">
+    <value>Error al cargar comentarios: {0}</value>
+  </data>
+  <data name="Comments_AddError" xml:space="preserve">
+    <value>Error al agregar comentario: {0}</value>
+  </data>
+  <data name="Comments_UnknownUser" xml:space="preserve">
+    <value>Usuario desconocido</value>
+  </data>
+  <data name="Requests_ArchivePermissionDenied" xml:space="preserve">
+    <value>Solo los administradores pueden archivar solicitudes.</value>
+  </data>
+  <data name="Requests_DeletePermissionDenied" xml:space="preserve">
+    <value>No tienes permisos para eliminar solicitudes.</value>
+  </data>
+  <data name="Requests_RequestNotFound" xml:space="preserve">
+    <value>Solicitud no encontrada.</value>
+  </data>
+  <data name="Requests_ArchiveConfirmation" xml:space="preserve">
+    <value>¿Estás seguro de que quieres {0} esta solicitud?
+
+Título: {1}
+Estado: {2}</value>
+  </data>
+  <data name="Requests_DeleteConfirmation" xml:space="preserve">
+    <value>¿Estás seguro de que quieres eliminar esta solicitud?
+
+Título: {0}
+Estado: {1}
+
+Esta acción es irreversible.</value>
+  </data>
+  <data name="Requests_ArchiveSuccess" xml:space="preserve">
+    <value>Solicitud {0} exitosamente.</value>
+  </data>
+  <data name="Requests_DeleteSuccess" xml:space="preserve">
+    <value>Solicitud eliminada exitosamente.</value>
+  </data>
+  <data name="Requests_ArchiveError" xml:space="preserve">
+    <value>Error al archivar solicitud: {0}</value>
+  </data>
+  <data name="Requests_DeleteError" xml:space="preserve">
+    <value>Error al eliminar solicitud: {0}</value>
+  </data>
+  <data name="Requests_Archive" xml:space="preserve">
+    <value>archivar</value>
+  </data>
+  <data name="Requests_Unarchive" xml:space="preserve">
+    <value>desarchivar</value>
+  </data>
+  <data name="Requests_Archived" xml:space="preserve">
+    <value>archivada</value>
+  </data>
+  <data name="Requests_Unarchived" xml:space="preserve">
+    <value>desarchivada</value>
+  </data>
+  <data name="Common_AccessDenied" xml:space="preserve">
+    <value>Acceso Denegado</value>
+  </data>
+  <data name="Common_Confirmation" xml:space="preserve">
+    <value>Confirmación</value>
+  </data>
+  <data name="Common_DeleteConfirmation" xml:space="preserve">
+    <value>Confirmación de Eliminación</value>
+  </data>
+  <data name="Common_Success" xml:space="preserve">
+    <value>Éxito</value>
+  </data>
+  <data name="Requests_SelectTeamsForManagers" xml:space="preserve">
+    <value>Selecciona equipos para ver gerentes</value>
+  </data>
+  <data name="Programs_NewProgram" xml:space="preserve">
+    <value>Nuevo programa</value>
+  </data>
+  <data name="Programs_Refresh" xml:space="preserve">
+    <value>Actualizar</value>
+  </data>
+  <data name="Programs_NoResponsible" xml:space="preserve">
+    <value>Sin responsable</value>
+  </data>
+  <data name="Programs_Projects" xml:space="preserve">
+    <value>proyecto(s)</value>
+  </data>
+  <data name="Programs_ProjectsCount" xml:space="preserve">
+    <value>{0} proyecto{1}:</value>
+  </data>
+  <data name="Programs_OnTrack" xml:space="preserve">
+    <value>En curso</value>
+  </data>
+  <data name="Programs_NoDescription" xml:space="preserve">
+    <value>Sin descripción</value>
+  </data>
+  <data name="Programs_NotAvailable" xml:space="preserve">
+    <value>N/D</value>
+  </data>
+  <data name="Programs_ErrorLoading" xml:space="preserve">
+    <value>Error al cargar los programas: {0}</value>
+  </data>
+  <data name="Programs_ErrorOpening" xml:space="preserve">
+    <value>Error al abrir el programa: {0}</value>
+  </data>
+  <data name="Programs_ErrorOpeningEditor" xml:space="preserve">
+    <value>Error al abrir la ventana de edición: {0}</value>
+  </data>
+  <data name="Backlog_Programs" xml:space="preserve">
+    <value>Programas</value>
+  </data>
+  <data name="Backlog_Projects" xml:space="preserve">
+    <value>Proyectos</value>
+  </data>
+  <data name="Backlog_Archives" xml:space="preserve">
+    <value>Archivos</value>
+  </data>
+  <data name="ProgramDetails_Title" xml:space="preserve">
+    <value>Detalles del Programa</value>
+  </data>
+  <data name="ProgramDetails_GeneralInfo" xml:space="preserve">
+    <value>INFORMACIÓN GENERAL</value>
+  </data>
+  <data name="ProgramDetails_Name" xml:space="preserve">
+    <value>Nombre:</value>
+  </data>
+  <data name="ProgramDetails_Code" xml:space="preserve">
+    <value>Código:</value>
+  </data>
+  <data name="ProgramDetails_Responsible" xml:space="preserve">
+    <value>Responsable:</value>
+  </data>
+  <data name="ProgramDetails_GlobalStatus" xml:space="preserve">
+    <value>Estado global:</value>
+  </data>
+  <data name="ProgramDetails_StartDate" xml:space="preserve">
+    <value>Fecha de inicio:</value>
+  </data>
+  <data name="ProgramDetails_TargetEndDate" xml:space="preserve">
+    <value>Fecha objetivo:</value>
+  </data>
+  <data name="ProgramDetails_Description" xml:space="preserve">
+    <value>DESCRIPCIÓN</value>
+  </data>
+  <data name="ProgramDetails_Objectives" xml:space="preserve">
+    <value>OBJETIVOS</value>
+  </data>
+  <data name="ProgramDetails_Statistics" xml:space="preserve">
+    <value>ESTADÍSTICAS</value>
+  </data>
+  <data name="ProgramDetails_Projects" xml:space="preserve">
+    <value>Proyectos</value>
+  </data>
+  <data name="ProgramDetails_TotalTasks" xml:space="preserve">
+    <value>Tareas totales</value>
+  </data>
+  <data name="ProgramDetails_Progress" xml:space="preserve">
+    <value>Progreso</value>
+  </data>
+  <data name="ProgramDetails_AssociatedProjects" xml:space="preserve">
+    <value>PROYECTOS ASOCIADOS</value>
+  </data>
+  <data name="ProgramDetails_NotDefined" xml:space="preserve">
+    <value>No definido</value>
+  </data>
+  <data name="ProgramDetails_NotDefinedFem" xml:space="preserve">
+    <value>No definida</value>
+  </data>
+  <data name="Projects_NewProject" xml:space="preserve">
+    <value>Nuevo proyecto</value>
+  </data>
+  <data name="Projects_Modify" xml:space="preserve">
+    <value>Modificar</value>
+  </data>
+  <data name="Projects_Refresh" xml:space="preserve">
+    <value>Actualizar</value>
+  </data>
+  <data name="Projects_Show" xml:space="preserve">
+    <value>Mostrar:</value>
+  </data>
+  <data name="Projects_Title" xml:space="preserve">
+    <value>PROYECTOS</value>
+  </data>
+  <data name="Projects_Todo" xml:space="preserve">
+    <value>Por hacer</value>
+  </data>
+  <data name="Projects_InProgress" xml:space="preserve">
+    <value>En progreso</value>
+  </data>
+  <data name="Projects_InTest" xml:space="preserve">
+    <value>En pruebas</value>
+  </data>
+  <data name="Projects_Completed" xml:space="preserve">
+    <value>Completado</value>
+  </data>
+  <data name="Projects_SearchPlaceholder" xml:space="preserve">
+    <value>Buscar un proyecto...</value>
+  </data>
+  <data name="Projects_ActiveOnly" xml:space="preserve">
+    <value>Solo proyectos activos</value>
+  </data>
+  <data name="Projects_Priority" xml:space="preserve">
+    <value>Prioridad:</value>
+  </data>
+  <data name="Projects_StatusRAG" xml:space="preserve">
+    <value>Estado RAG:</value>
+  </data>
+  <data name="Projects_Team" xml:space="preserve">
+    <value>Equipo:</value>
+  </data>
+  <data name="Projects_SortBy" xml:space="preserve">
+    <value>Ordenar por:</value>
+  </data>
+  <data name="Projects_AllFeminine" xml:space="preserve">
+    <value>-- Todas --</value>
+  </data>
+  <data name="Projects_AllMasculine" xml:space="preserve">
+    <value>-- Todos --</value>
+  </data>
+  <data name="Projects_SelectSort" xml:space="preserve">
+    <value>-- Seleccionar orden --</value>
+  </data>
+  <data name="Projects_Reset" xml:space="preserve">
+    <value>Reiniciar</value>
+  </data>
+  <data name="Projects_Tasks" xml:space="preserve">
+    <value>tareas</value>
+  </data>
+  <data name="Projects_SelectProject" xml:space="preserve">
+    <value>Seleccione un proyecto</value>
+  </data>
+  <data name="Projects_Details" xml:space="preserve">
+    <value>Detalles</value>
+  </data>
+  <data name="Projects_ConfirmDelete" xml:space="preserve">
+    <value>¿Está seguro de que desea eliminar la tarea '{0}'?</value>
+  </data>
+  <data name="Projects_ConfirmDeleteTitle" xml:space="preserve">
+    <value>Confirmar eliminación</value>
+  </data>
+  <data name="Projects_TasksTitle" xml:space="preserve">
+    <value>TAREAS</value>
+  </data>
+  <data name="Projects_ReverseSort" xml:space="preserve">
+    <value>Invertir orden</value>
+  </data>
+  <data name="Projects_CreatedOn" xml:space="preserve">
+    <value>Creado el {0:dd/MM/yyyy}</value>
+  </data>
+  <data name="Projects_Start" xml:space="preserve">
+    <value> • Inicio: {0:dd/MM/yyyy}</value>
+  </data>
+  <data name="Projects_DueDate" xml:space="preserve">
+    <value> • Vencimiento: {0:dd/MM/yyyy}</value>
+  </data>
+  <data name="Projects_Modify" xml:space="preserve">
+    <value>Modificar</value>
+  </data>
+  <data name="Projects_Delete" xml:space="preserve">
+    <value>Eliminar</value>
+  </data>
+  <data name="Projects_ModifyProject" xml:space="preserve">
+    <value>Modificar el proyecto</value>
+  </data>
+  <data name="Projects_ViewDetails" xml:space="preserve">
+    <value>Ver detalles del proyecto</value>
+  </data>
+  <data name="Projects_DeleteProject" xml:space="preserve">
+    <value>Eliminar el proyecto</value>
+  </data>
+  <data name="Projects_ConfirmDeleteProject" xml:space="preserve">
+    <value>¿Está seguro de que desea eliminar el proyecto '{0}'?\n\nTodas las tareas asociadas perderán su vínculo con este proyecto.</value>
+  </data>
+  <data name="Projects_SortDateRecent" xml:space="preserve">
+    <value>Fecha (más reciente)</value>
+  </data>
+  <data name="Projects_SortDateOldest" xml:space="preserve">
+    <value>Fecha (más antigua)</value>
+  </data>
+  <data name="Projects_SortNameAZ" xml:space="preserve">
+    <value>Nombre (A-Z)</value>
+  </data>
+  <data name="Projects_SortNameZA" xml:space="preserve">
+    <value>Nombre (Z-A)</value>
+  </data>
+  <data name="Projects_SortTasksMore" xml:space="preserve">
+    <value>Cantidad de tareas (más)</value>
+  </data>
+  <data name="Projects_SortTasksLess" xml:space="preserve">
+    <value>Cantidad de tareas (menos)</value>
+  </data>
+  <data name="ProjectDetails_Title" xml:space="preserve">
+    <value>Detalles del Proyecto</value>
+  </data>
+  <data name="ProjectDetails_Phase" xml:space="preserve">
+    <value>Fase:</value>
+  </data>
+  <data name="ProjectDetails_TotalTasks" xml:space="preserve">
+    <value>Tareas Totales</value>
+  </data>
+  <data name="ProjectDetails_Progress" xml:space="preserve">
+    <value>Progreso</value>
+  </data>
+  <data name="ProjectDetails_EstimatedWorkload" xml:space="preserve">
+    <value>Carga Estimada</value>
+  </data>
+  <data name="ProjectDetails_TimeSpent" xml:space="preserve">
+    <value>Tiempo Empleado</value>
+  </data>
+  <data name="ProjectDetails_AssignedTeams" xml:space="preserve">
+    <value>Equipos Asignados</value>
+  </data>
+  <data name="ProjectDetails_NoTeam" xml:space="preserve">
+    <value>Ningún equipo asignado</value>
+  </data>
+  <data name="ProjectDetails_GlobalProgress" xml:space="preserve">
+    <value>Avance Global</value>
+  </data>
+  <data name="ProjectDetails_TasksOfProject" xml:space="preserve">
+    <value>Tareas del Proyecto</value>
+  </data>
+  <data name="ProjectDetails_SearchPlaceholder" xml:space="preserve">
+    <value>Buscar...</value>
+  </data>
+  <data name="ProjectDetails_All" xml:space="preserve">
+    <value>Todos</value>
+  </data>
+  <data name="ProjectDetails_ShowArchived" xml:space="preserve">
+    <value>Mostrar archivadas</value>
+  </data>
+  <data name="ProjectDetails_DaysEstimated" xml:space="preserve">
+    <value>d estimado</value>
+  </data>
+  <data name="ProjectDetails_DaysSpent" xml:space="preserve">
+    <value>d empleado</value>
+  </data>
+  <data name="ProjectDetails_StatusCompleted" xml:space="preserve">
+    <value>COMPLETADO</value>
+  </data>
+  <data name="ProjectDetails_StatusOnTrack" xml:space="preserve">
+    <value>EN BUEN CAMINO</value>
+  </data>
+  <data name="ProjectDetails_StatusInProgress" xml:space="preserve">
+    <value>EN PROGRESO</value>
+  </data>
+  <data name="ProjectDetails_StatusStarted" xml:space="preserve">
+    <value>INICIADO</value>
+  </data>
+  <data name="ProjectDetails_StatusNotStarted" xml:space="preserve">
+    <value>NO INICIADO</value>
+  </data>
+  <data name="Archives_Title" xml:space="preserve">
+    <value>Archivos</value>
+  </data>
+  <data name="Archives_Subtitle" xml:space="preserve">
+    <value>Tareas archivadas y filtrables</value>
+  </data>
+  <data name="Archives_Found" xml:space="preserve">
+    <value>encontradas</value>
+  </data>
+  <data name="Archives_Refresh" xml:space="preserve">
+    <value>Actualizar</value>
+  </data>
+  <data name="Archives_Search" xml:space="preserve">
+    <value>Buscar...</value>
+  </data>
+  <data name="Archives_BadgeArchived" xml:space="preserve">
+    <value>ARCHIVADA</value>
+  </data>
+  <data name="Archives_Unarchive" xml:space="preserve">
+    <value>Desarchivar</value>
+  </data>
+  <data name="Archives_ArchivedOn" xml:space="preserve">
+    <value>Archivado el</value>
+  </data>
+  <data name="Archives_Realized" xml:space="preserve">
+    <value>realizadas</value>
+  </data>
+  <data name="Archives_All" xml:space="preserve">
+    <value>Todo</value>
+  </data>
+  <data name="Archives_ThisWeek" xml:space="preserve">
+    <value>Esta semana</value>
+  </data>
+  <data name="Archives_ThisMonth" xml:space="preserve">
+    <value>Este mes</value>
+  </data>
+  <data name="Archives_ThisQuarter" xml:space="preserve">
+    <value>Este trimestre</value>
+  </data>
+  <data name="Archives_ThisYear" xml:space="preserve">
+    <value>Este año</value>
+  </data>
+  <data name="Archives_AllProjects" xml:space="preserve">
+    <value>Todos los proyectos</value>
+  </data>
+  <data name="Archives_AllDevelopers" xml:space="preserve">
+    <value>Todos los desarrolladores</value>
+  </data>
+  <data name="Projects_ActiveProjects" xml:space="preserve">
+    <value>Proyectos activos</value>
+  </data>
+  <data name="Projects_ArchivedProjects" xml:space="preserve">
+    <value>Proyectos archivados</value>
+  </data>
+  <data name="Projects_AllProjects" xml:space="preserve">
+    <value>Todos los proyectos</value>
+  </data>
+  <data name="Teams_NewTeam" xml:space="preserve">
+    <value>Nuevo equipo</value>
+  </data>
+  <data name="Teams_Refresh" xml:space="preserve">
+    <value>Actualizar</value>
+  </data>
+  <data name="Teams_Members" xml:space="preserve">
+    <value>miembro(s)</value>
+  </data>
+  <data name="Modal_Program_Title" xml:space="preserve">
+    <value>GESTIÓN DEL PROGRAMA</value>
+  </data>
+  <data name="Modal_Program_Subtitle" xml:space="preserve">
+    <value>Crear o modificar un programa</value>
+  </data>
+  <data name="Modal_Program_Name" xml:space="preserve">
+    <value>Nombre del programa *</value>
+  </data>
+  <data name="Modal_Program_Code" xml:space="preserve">
+    <value>Código</value>
+  </data>
+  <data name="Modal_Program_Description" xml:space="preserve">
+    <value>Descripción</value>
+  </data>
+  <data name="Modal_Program_Responsible" xml:space="preserve">
+    <value>Responsable</value>
+  </data>
+  <data name="Modal_Program_GlobalStatus" xml:space="preserve">
+    <value>Estado global</value>
+  </data>
+  <data name="Modal_Program_StartDate" xml:space="preserve">
+    <value>Fecha de inicio</value>
+  </data>
+  <data name="Modal_Program_EndDate" xml:space="preserve">
+    <value>Fecha fin objetivo</value>
+  </data>
+  <data name="Modal_Program_Objectives" xml:space="preserve">
+    <value>Objetivos</value>
+  </data>
+  <data name="Common_SelectDate" xml:space="preserve">
+    <value>Seleccionar una fecha</value>
+  </data>
+  <data name="Modal_Team_Title" xml:space="preserve">
+    <value>GESTIÓN DEL EQUIPO</value>
+  </data>
+  <data name="Modal_Team_Subtitle" xml:space="preserve">
+    <value>Crear o modificar un equipo</value>
+  </data>
+  <data name="Modal_Team_Name" xml:space="preserve">
+    <value>Nombre del equipo *</value>
+  </data>
+  <data name="Modal_Team_Code" xml:space="preserve">
+    <value>Código *</value>
+  </data>
+  <data name="Modal_Project_Title" xml:space="preserve">
+    <value>PROYECTOS</value>
+  </data>
+  <data name="Modal_Project_NewProject" xml:space="preserve">
+    <value>Nuevo Proyecto</value>
+  </data>
+  <data name="Modal_Project_Count" xml:space="preserve">
+    <value>{0} proyecto(s)</value>
+  </data>
+  <data name="Common_Cancel" xml:space="preserve">
+    <value>Cancelar</value>
+  </data>
+  <data name="Common_Save" xml:space="preserve">
+    <value>Guardar</value>
+  </data>
+  <data name="Teams_NewTeam" xml:space="preserve">
+    <value>Nuevo equipo</value>
+  </data>
+  <data name="Teams_Refresh" xml:space="preserve">
+    <value>Actualizar</value>
+  </data>
+  <data name="Teams_Projects" xml:space="preserve">
+    <value>Proyectos</value>
+  </data>
+  <data name="Teams_Manager" xml:space="preserve">
+    <value>Gestor</value>
+  </data>
+  <data name="Teams_NoManager" xml:space="preserve">
+    <value>Sin gestor</value>
+  </data>
+  <data name="Modal_Team_Title" xml:space="preserve">
+    <value>GESTIÓN DE EQUIPO</value>
+  </data>
+  <data name="Modal_Team_Subtitle" xml:space="preserve">
+    <value>Crear o editar un equipo</value>
+  </data>
+  <data name="Modal_Team_Name" xml:space="preserve">
+    <value>Nombre del equipo *</value>
+  </data>
+  <data name="Modal_Team_Code" xml:space="preserve">
+    <value>Código *</value>
+  </data>
+  <data name="Modal_Team_Description" xml:space="preserve">
+    <value>Descripción</value>
+  </data>
+  <data name="Modal_Team_FunctionalScope" xml:space="preserve">
+    <value>Ámbito funcional</value>
+  </data>
+  <data name="Modal_Team_Manager" xml:space="preserve">
+    <value>Gestor del equipo</value>
+  </data>
+  <data name="Modal_Team_ManagerNote" xml:space="preserve">
+    <value>El gestor no se cuenta en los miembros del equipo</value>
+  </data>
+  <data name="Modal_Team_Contact" xml:space="preserve">
+    <value>Contacto (email)</value>
+  </data>
+  <data name="Administration_Title" xml:space="preserve">
+    <value>ADMINISTRACIÓN</value>
+  </data>
+  <data name="Administration_Description" xml:space="preserve">
+    <value>Gestión de usuarios, roles, proyectos y configuración del sistema</value>
+  </data>
+  <data name="Administration_UsersAndRoles" xml:space="preserve">
+    <value>Usuarios &amp; Roles</value>
+  </data>
+  <data name="Administration_ProjectsAndTeam" xml:space="preserve">
+    <value>Proyectos &amp; Equipo</value>
+  </data>
+  <data name="Administration_Reporting" xml:space="preserve">
+    <value>Reportes</value>
+  </data>
+  <data name="Administration_ChatHistory" xml:space="preserve">
+    <value>Historial Chat IA</value>
+  </data>
+  <data name="Administration_AuditLog" xml:space="preserve">
+    <value>Registro de auditoría</value>
+  </data>
+  <data name="Administration_Users" xml:space="preserve">
+    <value>Usuarios</value>
+  </data>
+  <data name="Administration_Roles" xml:space="preserve">
+    <value>Roles</value>
+  </data>
+  <data name="Administration_Programs" xml:space="preserve">
+    <value>Programas</value>
+  </data>
+  <data name="Administration_Projects" xml:space="preserve">
+    <value>Proyectos</value>
+  </data>
+  <data name="Administration_Teams" xml:space="preserve">
+    <value>Equipos</value>
+  </data>
+  <data name="Administration_OpenChatHistory" xml:space="preserve">
+    <value>Abrir historial de conversaciones</value>
+  </data>
+  <data name="Reporting_Title" xml:space="preserve">
+    <value>REPORTES &amp; DIRECCIÓN</value>
+  </data>
+  <data name="Reporting_Description" xml:space="preserve">
+    <value>Análisis consolidado de programas y proyectos para la dirección estratégica</value>
+  </data>
+  <data name="Reporting_ProgramView" xml:space="preserve">
+    <value>Vista Programa</value>
+  </data>
+  <data name="Reporting_ProjectView" xml:space="preserve">
+    <value>Vista Proyecto</value>
+  </data>
+  <data name="Reporting_ProgramLabel" xml:space="preserve">
+    <value>Programa *</value>
+  </data>
+  <data name="Reporting_ProjectLabel" xml:space="preserve">
+    <value>Proyecto *</value>
+  </data>
+  <data name="Reporting_AnalysisPeriod" xml:space="preserve">
+    <value>Período de análisis *</value>
+  </data>
+  <data name="Reporting_GlobalView" xml:space="preserve">
+    <value>Vista global</value>
+  </data>
+  <data name="Reporting_SelectProgramOrProject" xml:space="preserve">
+    <value>Seleccione un programa o proyecto</value>
+  </data>
+  <data name="Reporting_TeamLabel" xml:space="preserve">
+    <value>Equipo *</value>
+  </data>
+  <data name="Reporting_ApplyButton" xml:space="preserve">
+    <value>Aplicar</value>
+  </data>
+  <data name="Reporting_SelectMessage" xml:space="preserve">
+    <value>Seleccione un programa o proyecto</value>
+  </data>
+  <data name="Reporting_SelectSubMessage" xml:space="preserve">
+    <value>para mostrar indicadores de dirección</value>
+  </data>
+  <data name="Reporting_Teams" xml:space="preserve">
+    <value>EQUIPOS</value>
+  </data>
+  <data name="Reporting_TeamsDescription" xml:space="preserve">
+    <value>equipo(s) involucrado(s)</value>
+  </data>
+  <data name="Reporting_WorkloadDays" xml:space="preserve">
+    <value>Carga (días)</value>
+  </data>
+  <data name="Reporting_EstimatedWorkloadDays" xml:space="preserve">
+    <value>Carga estimada (días)</value>
+  </data>
+  <data name="Reporting_Progress" xml:space="preserve">
+    <value>PROGRESO</value>
+  </data>
+  <data name="Reporting_Tasks" xml:space="preserve">
+    <value>TAREAS</value>
+  </data>
+  <data name="Reporting_RemainingTasks" xml:space="preserve">
+    <value>tarea(s) restante(s)</value>
+  </data>
+  <data name="Reporting_Delivery" xml:space="preserve">
+    <value>ENTREGA</value>
+  </data>
+  <data name="Reporting_InDays" xml:space="preserve">
+    <value>En {0} día(s)</value>
+  </data>
+  <data name="Reporting_Velocity" xml:space="preserve">
+    <value>VELOCIDAD</value>
+  </data>
+  <data name="Reporting_TasksPerMonth" xml:space="preserve">
+    <value>tarea(s) / mes</value>
+  </data>
+  <data name="Reporting_EstimationGap" xml:space="preserve">
+    <value>BRECHA ESTIMACIÓN</value>
+  </data>
+  <data name="Reporting_ActualVsEstimated" xml:space="preserve">
+    <value>Real vs Estimado</value>
+  </data>
+  <data name="Reporting_Priorities" xml:space="preserve">
+    <value>PRIORIDADES</value>
+  </data>
+  <data name="Reporting_HealthStatus" xml:space="preserve">
+    <value>ESTADO SALUD</value>
+  </data>
+  <data name="Reporting_OnTrack" xml:space="preserve">
+    <value>En Curso</value>
+  </data>
+  <data name="Reporting_Delayed" xml:space="preserve">
+    <value>RETRASADO</value>
+  </data>
+  <data name="Reporting_NoDelay" xml:space="preserve">
+    <value>Sin retraso</value>
+  </data>
+  <data name="Reporting_Complexity" xml:space="preserve">
+    <value>COMPLEJIDAD</value>
+  </data>
+  <data name="Reporting_Average" xml:space="preserve">
+    <value>Promedio</value>
+  </data>
+  <data name="Reporting_ComparativeView" xml:space="preserve">
+    <value>VISTA COMPARATIVA</value>
+  </data>
+  <data name="Reporting_BeforePeriod" xml:space="preserve">
+    <value>ANTES DEL PERÍODO</value>
+  </data>
+  <data name="Reporting_CompletedTasks" xml:space="preserve">
+    <value>Tareas completadas</value>
+  </data>
+  <data name="Reporting_SelectedPeriod" xml:space="preserve">
+    <value>PERÍODO SELECCIONADO</value>
+  </data>
+  <data name="Reporting_TasksLabel" xml:space="preserve">
+    <value>Tareas</value>
+  </data>
+  <data name="Reporting_RemainingWork" xml:space="preserve">
+    <value>POR HACER</value>
+  </data>
+  <data name="Reporting_RemainingTasksLabel" xml:space="preserve">
+    <value>Tareas restantes</value>
+  </data>
+  <data name="Reporting_TasksPerMonth" xml:space="preserve">
+    <value>tarea(s) / mes</value>
+  </data>
+  <data name="Reporting_ActualVsEstimated" xml:space="preserve">
+    <value>Real vs Estimado</value>
+  </data>
+  <data name="Reporting_OnTrack" xml:space="preserve">
+    <value>En tiempo</value>
+  </data>
+  <data name="Reporting_TasksLabel" xml:space="preserve">
+    <value>tarea(s)</value>
+  </data>
+  <data name="Reporting_Average" xml:space="preserve">
+    <value>Promedio</value>
+  </data>
+  <data name="Reporting_ContributionsTitle" xml:space="preserve">
+    <value>👥 CONTRIBUCIONES DE RECURSOS</value>
+  </data>
+  <data name="Reporting_Members" xml:space="preserve">
+    <value>MIEMBROS</value>
+  </data>
+  <data name="Reporting_Team" xml:space="preserve">
+    <value>EQUIPO</value>
+  </data>
+  <data name="Reporting_CompletedTasks" xml:space="preserve">
+    <value>TAREAS COMPLETADAS</value>
+  </data>
+  <data name="Reporting_CompletionRate" xml:space="preserve">
+    <value>TASA COMPLETACIÓN</value>
+  </data>
+  <data name="Reporting_EstimatedDays" xml:space="preserve">
+    <value>DÍAS ESTIMADOS</value>
+  </data>
+  <data name="Reporting_Contribution" xml:space="preserve">
+    <value>CONTRIBUCIÓN</value>
+  </data>
+  <data name="Reporting_RemainingTasksCount" xml:space="preserve">
+    <value>tarea(s) restante(s)</value>
+  </data>
+  <data name="Reporting_TeamsInvolved" xml:space="preserve">
+    <value>equipo(s) involucrado(s)</value>
+  </data>
+  <data name="Reporting_DaysRemaining" xml:space="preserve">
+    <value>En {0} día(s)</value>
+  </data>
+  <data name="Reporting_DaysDelayed" xml:space="preserve">
+    <value>Retraso de {0} día(s)</value>
+  </data>
+  <data name="Reporting_Today" xml:space="preserve">
+    <value>¡Hoy!</value>
+  </data>
+  <data name="Reporting_NotDefined" xml:space="preserve">
+    <value>No definida</value>
+  </data>
+  <data name="Reporting_OnTime" xml:space="preserve">
+    <value>A tiempo</value>
+  </data>
+  <data name="Reporting_AllOnTime" xml:space="preserve">
+    <value>Todos a tiempo</value>
+  </data>
+  <data name="Reporting_NoDelay" xml:space="preserve">
+    <value>Sin retraso</value>
+  </data>
+  <data name="Reporting_AtRisk" xml:space="preserve">
+    <value>En riesgo</value>
+  </data>
+  <data name="Reporting_DelayedStatus" xml:space="preserve">
+    <value>Retrasado</value>
+  </data>
+  <data name="Reporting_ProjectsDelayed" xml:space="preserve">
+    <value>Proyectos retrasados</value>
+  </data>
+  <data name="Reporting_ProjectsAtRisk" xml:space="preserve">
+    <value>Proyectos en riesgo</value>
+  </data>
+  <data name="Reporting_Undefined" xml:space="preserve">
+    <value>No definido</value>
+  </data>
+  <data name="Reporting_BeforePeriod" xml:space="preserve">
+    <value>⏮️ ANTES DEL PERÍODO</value>
+  </data>
+  <data name="Reporting_SelectedPeriod" xml:space="preserve">
+    <value>🔍 PERÍODO SELECCIONADO</value>
+  </data>
+  <data name="Reporting_ToDoRemaining" xml:space="preserve">
+    <value>⏭️ PENDIENTE POR HACER</value>
+  </data>
+  <data name="Reporting_CompletedTasks" xml:space="preserve">
+    <value>Tareas completadas</value>
+  </data>
+  <data name="Reporting_Tasks" xml:space="preserve">
+    <value>Tareas</value>
+  </data>
+  <data name="Reporting_AllCompleted" xml:space="preserve">
+    <value>✅ TODO COMPLETADO</value>
+  </data>
+  <data name="ChatHistory_Title" xml:space="preserve">
+    <value>Historial de Conversaciones - Agente IA</value>
+  </data>
+  <data name="ChatHistory_Users" xml:space="preserve">
+    <value>👥 Usuarios</value>
+  </data>
+  <data name="ChatHistory_UserCount" xml:space="preserve">
+    <value>{0} usuario(s)</value>
+  </data>
+  <data name="ChatHistory_LastMessage" xml:space="preserve">
+    <value>Último mensaje: {0}</value>
+  </data>
+  <data name="ChatHistory_FullHistory" xml:space="preserve">
+    <value>Historial completo de todas las conversaciones</value>
+  </data>
+  <data name="ChatHistory_SelectUser" xml:space="preserve">
+    <value>👈 Seleccione un usuario para ver su historial completo</value>
+  </data>
+  <data name="ChatHistory_MessageCount" xml:space="preserve">
+    <value>{0} mensaje(s)</value>
+  </data>
+  <data name="ChatHistory_ConversationCount" xml:space="preserve">
+    <value>{0} conversación(es)</value>
+  </data>
+  <data name="ChatHistory_OneConversation" xml:space="preserve">
+    <value>1 conversación</value>
+  </data>
+  <!-- AuditLog Page -->
+  <data name="AuditLog_Title" xml:space="preserve">
+    <value>Registro de Auditoría</value>
+  </data>
+  <data name="AuditLog_Subtitle" xml:space="preserve">
+    <value>Historial completo de acciones y modificaciones del sistema</value>
+  </data>
+  <data name="AuditLog_FiltersTitle" xml:space="preserve">
+    <value>🔍 Filtros de búsqueda</value>
+  </data>
+  <data name="AuditLog_UserFilter" xml:space="preserve">
+    <value>👤 Usuario</value>
+  </data>
+  <data name="AuditLog_StartDateFilter" xml:space="preserve">
+    <value>📅 Fecha inicio</value>
+  </data>
+  <data name="AuditLog_EndDateFilter" xml:space="preserve">
+    <value>📅 Fecha fin</value>
+  </data>
+  <data name="AuditLog_ActionFilter" xml:space="preserve">
+    <value>⚡ Acción</value>
+  </data>
+  <data name="AuditLog_AllActions" xml:space="preserve">
+    <value>Todas</value>
+  </data>
+  <data name="AuditLog_AllUsers" xml:space="preserve">
+    <value>Todos</value>
+  </data>
+  <data name="AuditLog_ColumnDateTime" xml:space="preserve">
+    <value>📅 Fecha y Hora</value>
+  </data>
+  <data name="AuditLog_ColumnUser" xml:space="preserve">
+    <value>👤 Usuario</value>
+  </data>
+  <data name="AuditLog_ColumnAction" xml:space="preserve">
+    <value>⚡ Acción</value>
+  </data>
+  <data name="AuditLog_ColumnEntityType" xml:space="preserve">
+    <value>📦 Tipo de Entidad</value>
+  </data>
+  <data name="AuditLog_ColumnID" xml:space="preserve">
+    <value>🔑 ID</value>
+  </data>
+  <data name="AuditLog_ColumnDetails" xml:space="preserve">
+    <value>📝 Detalles</value>
+  </data>
+  <data name="AuditLog_BtnFirst" xml:space="preserve">
+    <value>⏮️ Primera</value>
+  </data>
+  <data name="AuditLog_BtnPrevious" xml:space="preserve">
+    <value>⬅️ Anterior</value>
+  </data>
+  <data name="AuditLog_BtnNext" xml:space="preserve">
+    <value>Siguiente ➡️</value>
+  </data>
+  <data name="AuditLog_BtnLast" xml:space="preserve">
+    <value>Última ⏭️</value>
+  </data>
+  <data name="AuditLog_BtnExportCSV" xml:space="preserve">
+    <value>💾 Exportar CSV</value>
+  </data>
+  <data name="AuditLog_BtnRefresh" xml:space="preserve">
+    <value>🔄 Actualizar</value>
+  </data>
+  <data name="AuditLog_PaginationEmpty" xml:space="preserve">
+    <value>Página 1 / 1 (0 entradas)</value>
+  </data>
+  <data name="AuditLog_PaginationFormat" xml:space="preserve">
+    <value>Página {0} / {1} ({2}-{3} de {4} entradas)</value>
+  </data>
+  <data name="AuditLog_ErrorLoading" xml:space="preserve">
+    <value>Error al cargar registros de auditoría:</value>
+  </data>
+  <data name="AuditLog_ErrorFilters" xml:space="preserve">
+    <value>Error al aplicar filtros:</value>
+  </data>
+  <data name="AuditLog_ErrorExport" xml:space="preserve">
+    <value>Error al exportar CSV:</value>
+  </data>
+  <data name="AuditLog_ErrorPagination" xml:space="preserve">
+    <value>Error al actualizar paginación:</value>
+  </data>
+  <data name="AuditLog_ErrorTitle" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="AuditLog_ExportTitle" xml:space="preserve">
+    <value>Exportar registro de auditoría</value>
+  </data>
+  <data name="AuditLog_ExportFilter" xml:space="preserve">
+    <value>Archivos CSV (*.csv)|*.csv</value>
+  </data>
+  <data name="AuditLog_ExportSuccess" xml:space="preserve">
+    <value>¡Exportación exitosa!
+{0} registros exportados.</value>
+  </data>
+  <data name="AuditLog_ExportSuccessTitle" xml:space="preserve">
+    <value>Exportar CSV</value>
+  </data>
+  <data name="AuditLog_CSVHeader" xml:space="preserve">
+    <value>Fecha;Usuario;Acción;Tipo de Entidad;ID Entidad;Valor Antiguo;Valor Nuevo;Detalles</value>
+  </data>
+  <!-- Settings Page -->
+  <data name="Settings_Title" xml:space="preserve">
+    <value>CONFIGURACIÓN</value>
+  </data>
+  <data name="Settings_Subtitle" xml:space="preserve">
+    <value>Configuración de la aplicación y gestión de datos</value>
+  </data>
+  <data name="Settings_DatabaseSection" xml:space="preserve">
+    <value>💾 Base de datos</value>
+  </data>
+  <data name="Settings_DatabasePath" xml:space="preserve">
+    <value>Ruta de la base de datos:</value>
+  </data>
+  <data name="Settings_BtnBrowse" xml:space="preserve">
+    <value>📁 Examinar</value>
+  </data>
+  <data name="Settings_RestartRequired" xml:space="preserve">
+    <value>ℹ️ Reinicio requerido después de modificar la ruta</value>
+  </data>
+  <data name="Settings_ExportImportSection" xml:space="preserve">
+    <value>📤 Exportar / Importar datos</value>
+  </data>
+  <data name="Settings_ExportFull" xml:space="preserve">
+    <value>Exportar datos (base completa):</value>
+  </data>
+  <data name="Settings_BtnExportSQLite" xml:space="preserve">
+    <value>💾 Exportar SQLite (.db)</value>
+  </data>
+  <data name="Settings_BtnExportJSON" xml:space="preserve">
+    <value>📄 Exportar JSON completo</value>
+  </data>
+  <data name="Settings_BtnExportComplete" xml:space="preserve">
+    <value>📦 Exportación completa (SQLite+JSON)</value>
+  </data>
+  <data name="Settings_ExportPartial" xml:space="preserve">
+    <value>Exportación parcial:</value>
+  </data>
+  <data name="Settings_BtnExportCSV" xml:space="preserve">
+    <value>📊 Exportar backlog como CSV</value>
+  </data>
+  <data name="Settings_ImportData" xml:space="preserve">
+    <value>Importar datos:</value>
+  </data>
+  <data name="Settings_BtnImportSQLite" xml:space="preserve">
+    <value>📥 Importar SQLite (.db)</value>
+  </data>
+  <data name="Settings_BtnImportJSON" xml:space="preserve">
+    <value>📥 Importar JSON</value>
+  </data>
+  <data name="Settings_AppearanceSection" xml:space="preserve">
+    <value>🎨 Apariencia</value>
+  </data>
+  <data name="Settings_Theme" xml:space="preserve">
+    <value>Tema de la interfaz:</value>
+  </data>
+  <data name="Settings_ThemeLight" xml:space="preserve">
+    <value>🌞 Claro (predeterminado)</value>
+  </data>
+  <data name="Settings_ThemeDark" xml:space="preserve">
+    <value>🌙 Oscuro (próximamente)</value>
+  </data>
+  <data name="Settings_Language" xml:space="preserve">
+    <value>Idioma de la interfaz:</value>
+  </data>
+  <data name="Settings_LanguageChangeLater" xml:space="preserve">
+    <value>ℹ️ El cambio de idioma se aplicará en el próximo inicio</value>
+  </data>
+  <data name="Settings_NotificationsSection" xml:space="preserve">
+    <value>🔔 Notificaciones</value>
+  </data>
+  <data name="Settings_NotifAssignedTasks" xml:space="preserve">
+    <value>Notificaciones para tareas asignadas</value>
+  </data>
+  <data name="Settings_NotifDeadlines" xml:space="preserve">
+    <value>Alertas para fechas límite cercanas</value>
+  </data>
+  <data name="Settings_NotifComments" xml:space="preserve">
+    <value>Notificaciones para nuevos comentarios</value>
+  </data>
+  <data name="Settings_NotifMentions" xml:space="preserve">
+    <value>Alertas cuando soy mencionado (@usuario)</value>
+  </data>
+  <data name="Settings_NotifInfo" xml:space="preserve">
+    <value>💡 Las notificaciones se gestionan automáticamente. Ajuste fino disponible próximamente</value>
+  </data>
+  <data name="Settings_MaintenanceSection" xml:space="preserve">
+    <value>🔧 Mantenimiento</value>
+  </data>
+  <data name="Settings_Cleanup" xml:space="preserve">
+    <value>Limpieza y optimización:</value>
+  </data>
+  <data name="Settings_BtnClearCache" xml:space="preserve">
+    <value>🗑️ Vaciar caché</value>
+  </data>
+  <data name="Settings_BtnOptimizeDB" xml:space="preserve">
+    <value>⚡ Optimizar base de datos</value>
+  </data>
+  <data name="Settings_BtnReset" xml:space="preserve">
+    <value>🔄 Restablecer app</value>
+  </data>
+  <data name="Settings_ResetWarning" xml:space="preserve">
+    <value>⚠️ Atención: El restablecimiento eliminará TODOS los datos</value>
+  </data>
+  <data name="Settings_InfoSection" xml:space="preserve">
+    <value>ℹ️ Información del sistema</value>
+  </data>
+  <data name="Settings_Version" xml:space="preserve">
+    <value>Versión:</value>
+  </data>
+  <data name="Settings_Database" xml:space="preserve">
+    <value>Base de datos:</value>
+  </data>
+  <data name="Settings_TaskCount" xml:space="preserve">
+    <value>Número de tareas:</value>
+  </data>
+  <data name="Settings_UserCount" xml:space="preserve">
+    <value>Número de usuarios:</value>
+  </data>
+  <data name="Settings_ErrorLoading" xml:space="preserve">
+    <value>Error al cargar configuración:</value>
+  </data>
+  <data name="Settings_ErrorLoadingInfo" xml:space="preserve">
+    <value>Error al cargar información:</value>
+  </data>
+  <data name="Settings_ErrorSaveConfig" xml:space="preserve">
+    <value>Error al guardar configuración:</value>
+  </data>
+  <data name="Settings_ChangeDBPathTitle" xml:space="preserve">
+    <value>Cambio de ruta de base de datos</value>
+  </data>
+  <data name="Settings_ChangeDBPathMessage" xml:space="preserve">
+    <value>¡Ruta actualizada correctamente!
+La aplicación debe reiniciarse para aplicar los cambios.
+
+¿Desea reiniciar ahora?</value>
+  </data>
+  <data name="Settings_ErrorExportSQLite" xml:space="preserve">
+    <value>Error al exportar SQLite:</value>
+  </data>
+  <data name="Settings_FileNotFound" xml:space="preserve">
+    <value>Archivo de base de datos no encontrado.</value>
+  </data>
+  <data name="Settings_ExportSQLiteSuccess" xml:space="preserve">
+    <value>¡Exportación SQLite exitosa!</value>
+  </data>
+  <data name="Settings_ExportSQLiteSuccessMessage" xml:space="preserve">
+    <value>La base de datos ha sido exportada a:
+{0}</value>
+  </data>
+  <data name="Settings_ErrorExportJSON" xml:space="preserve">
+    <value>Error al exportar JSON:</value>
+  </data>
+  <data name="Settings_ExportJSONSuccess" xml:space="preserve">
+    <value>¡Exportación JSON exitosa!</value>
+  </data>
+  <data name="Settings_ExportJSONSuccessMessage" xml:space="preserve">
+    <value>Los datos han sido exportados a:
+{0}</value>
+  </data>
+  <data name="Settings_ErrorExportComplete" xml:space="preserve">
+    <value>Error durante exportación completa:</value>
+  </data>
+  <data name="Settings_ExportCompleteSuccess" xml:space="preserve">
+    <value>¡Exportación completa exitosa!</value>
+  </data>
+  <data name="Settings_ExportCompleteSuccessMessage" xml:space="preserve">
+    <value>Todos los archivos han sido exportados a la carpeta:
+{0}
+
+Archivos creados:
+- Base de datos SQLite
+- Exportación JSON completa
+- Archivo de metadatos</value>
+  </data>
+  <data name="Settings_ErrorExportCSV" xml:space="preserve">
+    <value>Error al exportar CSV:</value>
+  </data>
+  <data name="Settings_ExportCSVSuccess" xml:space="preserve">
+    <value>¡Exportación exitosa!
+{0} tareas exportadas a:
+{1}</value>
+  </data>
+  <data name="Settings_ImportWarningTitle" xml:space="preserve">
+    <value>⚠️ Atención - Importación de datos</value>
+  </data>
+  <data name="Settings_ImportWarningMessage" xml:space="preserve">
+    <value>ATENCIÓN: ¡Esta operación reemplazará TODOS los datos existentes!
+
+Se creará una copia de seguridad automática antes de importar.
+
+¿Está SEGURO de que desea continuar?</value>
+  </data>
+  <data name="Settings_ErrorImportSQLite" xml:space="preserve">
+    <value>Error al importar SQLite:</value>
+  </data>
+  <data name="Settings_ImportSQLiteSuccess" xml:space="preserve">
+    <value>¡Importación SQLite exitosa!</value>
+  </data>
+  <data name="Settings_ImportSQLiteSuccessMessage" xml:space="preserve">
+    <value>La base de datos ha sido importada correctamente.
+La aplicación se reiniciará ahora.</value>
+  </data>
+  <data name="Settings_ImportJSONWarningTitle" xml:space="preserve">
+    <value>⚠️ Atención - Importación JSON</value>
+  </data>
+  <data name="Settings_ImportJSONWarningMessage" xml:space="preserve">
+    <value>Esta operación reemplazará todos los datos actuales con los del archivo JSON.
+
+Se creará una copia de seguridad automáticamente.
+
+¿Continuar?</value>
+  </data>
+  <data name="Settings_ErrorImportJSON" xml:space="preserve">
+    <value>Error durante importación:</value>
+  </data>
+  <data name="Settings_ImportJSONSuccess" xml:space="preserve">
+    <value>¡Importación JSON exitosa!</value>
+  </data>
+  <data name="Settings_ImportJSONSuccessMessage" xml:space="preserve">
+    <value>Los datos han sido importados correctamente.
+La aplicación se recargará ahora.</value>
+  </data>
+  <data name="Settings_ClearCacheSuccess" xml:space="preserve">
+    <value>¡Caché vaciada correctamente!</value>
+  </data>
+  <data name="Settings_ErrorClearCache" xml:space="preserve">
+    <value>Error durante limpieza:</value>
+  </data>
+  <data name="Settings_OptimizeDBSuccess" xml:space="preserve">
+    <value>¡Base de datos optimizada!</value>
+  </data>
+  <data name="Settings_ErrorOptimizeDB" xml:space="preserve">
+    <value>Error durante optimización:</value>
+  </data>
+  <data name="Settings_ResetWarningTitle" xml:space="preserve">
+    <value>⚠️ ATENCIÓN - Restablecimiento completo</value>
+  </data>
+  <data name="Settings_ResetWarningMessage" xml:space="preserve">
+    <value>¡Está a punto de ELIMINAR TODOS los datos de la aplicación!
+
+Esta acción es IRREVERSIBLE.
+
+¿Está absolutamente seguro de que desea continuar?</value>
+  </data>
+  <data name="Settings_ResetSuccess" xml:space="preserve">
+    <value>¡Restablecimiento completado!</value>
+  </data>
+  <data name="Settings_ResetSuccessMessage" xml:space="preserve">
+    <value>Todos los datos han sido eliminados.
+La aplicación se reiniciará.</value>
+  </data>
+  <data name="Settings_ErrorReset" xml:space="preserve">
+    <value>Error durante restablecimiento:</value>
+  </data>
+  <data name="Settings_Success" xml:space="preserve">
+    <value>Éxito</value>
+  </data>
+  <data name="Settings_Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="Settings_Info" xml:space="preserve">
+    <value>Información</value>
+  </data>
+  <data name="Settings_Warning" xml:space="preserve">
+    <value>Atención</value>
+  </data>
+  <!-- Statistics Page -->
+  <data name="Stats_Title" xml:space="preserve">
+    <value>Panel de control</value>
+  </data>
+  <data name="Stats_Subtitle" xml:space="preserve">
+    <value>Resumen de rendimiento y estadísticas</value>
+  </data>
+  <data name="Stats_Period" xml:space="preserve">
+    <value>🗓 Período:</value>
+  </data>
+  <data name="Stats_PeriodCurrentYear" xml:space="preserve">
+    <value>📅 Año actual</value>
+  </data>
+  <data name="Stats_Period6Months" xml:space="preserve">
+    <value>📆 Últimos 6 meses</value>
+  </data>
+  <data name="Stats_PeriodCurrentMonth" xml:space="preserve">
+    <value>📌 Mes actual</value>
+  </data>
+  <data name="Stats_Period3Months" xml:space="preserve">
+    <value>🔖 Últimos 3 meses</value>
+  </data>
+  <data name="Stats_PeriodCustom" xml:space="preserve">
+    <value>⏱ Período personalizado</value>
+  </data>
+  <data name="Stats_PeriodAll" xml:space="preserve">
+    <value>🌐 Mostrar todo</value>
+  </data>
+  <data name="Stats_From" xml:space="preserve">
+    <value>Desde:</value>
+  </data>
+  <data name="Stats_To" xml:space="preserve">
+    <value>Hasta:</value>
+  </data>
+  <data name="Stats_BtnRefresh" xml:space="preserve">
+    <value>🔄 Actualizar</value>
+  </data>
+  <data name="Stats_BtnAnalyzeIA" xml:space="preserve">
+    <value>🤖 Análisis IA</value>
+  </data>
+  <data name="Stats_BtnExportPDF" xml:space="preserve">
+    <value>📄 Exportar PDF</value>
+  </data>
+  <data name="Stats_TotalTasks" xml:space="preserve">
+    <value>📝 Total Tareas</value>
+  </data>
+  <data name="Stats_Completed" xml:space="preserve">
+    <value>✅ Completadas</value>
+  </data>
+  <data name="Stats_InProgress" xml:space="preserve">
+    <value>⏳ En progreso</value>
+  </data>
+  <data name="Stats_ActiveProjects" xml:space="preserve">
+    <value>📊 Proyectos activos</value>
+  </data>
+  <data name="Stats_TotalHours" xml:space="preserve">
+    <value>⏰ Total Horas Ingresadas</value>
+  </data>
+  <data name="Stats_DaysEntered" xml:space="preserve">
+    <value>📅 Días Ingresados (este mes)</value>
+  </data>
+  <data name="Stats_ActiveDevs" xml:space="preserve">
+    <value>👥 Devs Activos</value>
+  </data>
+  <data name="Stats_CompletionRate" xml:space="preserve">
+    <value>🎯 Tasa de Realización</value>
+  </data>
+  <data name="Stats_ActualVsEstimated" xml:space="preserve">
+    <value>Tiempo real vs estimado</value>
+  </data>
+  <data name="Stats_OverrunNote" xml:space="preserve">
+    <value>(>100% = exceso)</value>
+  </data>
+  <data name="Stats_TasksByStatus" xml:space="preserve">
+    <value>📊 Tareas por Estado</value>
+  </data>
+  <data name="Stats_WorkloadByDev" xml:space="preserve">
+    <value>👥 Carga por Desarrollador</value>
+  </data>
+  <data name="Stats_TasksDistribution" xml:space="preserve">
+    <value>Distribución de tareas por estado</value>
+  </data>
+  <data name="Stats_Total" xml:space="preserve">
+    <value>Total:</value>
+  </data>
+  <data name="Stats_Tasks" xml:space="preserve">
+    <value>tareas</value>
+  </data>
+  <data name="Stats_ToDo" xml:space="preserve">
+    <value>Por hacer</value>
+  </data>
+  <data name="Stats_Blocked" xml:space="preserve">
+    <value>Bloqueadas</value>
+  </data>
+  <data name="Stats_ThisMonth" xml:space="preserve">
+    <value>Este mes</value>
+  </data>
+  <data name="Stats_Days" xml:space="preserve">
+    <value>días</value>
+  </data>
+  <data name="Stats_Manager" xml:space="preserve">
+    <value>Manager</value>
+  </data>
+  <data name="Stats_Members" xml:space="preserve">
+    <value>miembros</value>
+  </data>
+  <data name="Stats_Active" xml:space="preserve">
+    <value>activos</value>
+  </data>
+  <data name="Stats_RelativeSize" xml:space="preserve">
+    <value>Tamaño relativo</value>
+  </data>
+  <data name="Stats_Projects" xml:space="preserve">
+    <value>Proyectos</value>
+  </data>
+  <data name="Stats_Load" xml:space="preserve">
+    <value>Carga</value>
+  </data>
+  <data name="Stats_ViewMembers" xml:space="preserve">
+    <value>Ver miembros</value>
+  </data>
+  <data name="Stats_NotAssigned" xml:space="preserve">
+    <value>No asignado</value>
+  </data>
+  <data name="Stats_AverageLoad" xml:space="preserve">
+    <value>Carga prom.</value>
+  </data>
+  <data name="Stats_TotalTeam" xml:space="preserve">
+    <value>Total equipo</value>
+  </data>
+  <data name="AIAnalysis_WindowTitle" xml:space="preserve">
+    <value>Análisis IA - Estadísticas</value>
+  </data>
+  <data name="AIAnalysis_AgentTitle" xml:space="preserve">
+    <value>Agent Project &amp; Change</value>
+  </data>
+  <data name="AIAnalysis_AgentSubtitle" xml:space="preserve">
+    <value>Análisis de estadísticas y tendencias</value>
+  </data>
+  <data name="AIAnalysis_TitlePeriod" xml:space="preserve">
+    <value>📅 Período Analizado</value>
+  </data>
+  <data name="AIAnalysis_TitlePerformanceScore" xml:space="preserve">
+    <value>Puntuación de Rendimiento</value>
+  </data>
+  <data name="AIAnalysis_TitleOverview" xml:space="preserve">
+    <value>📊 Visión General</value>
+  </data>
+  <data name="AIAnalysis_TitleDevPerformance" xml:space="preserve">
+    <value>👥 Rendimiento por Desarrollador</value>
+  </data>
+  <data name="AIAnalysis_TitleTrends" xml:space="preserve">
+    <value>📈 Tendencias y Patrones</value>
+  </data>
+  <data name="AIAnalysis_TitleRecommendations" xml:space="preserve">
+    <value>💡 Recomendaciones</value>
+  </data>
+  <data name="AIAnalysis_TitlePriorityActions" xml:space="preserve">
+    <value>🎯 Acciones Prioritarias</value>
+  </data>
+  <data name="AIAnalysis_LoadingAnalyzing" xml:space="preserve">
+    <value>Agent está analizando las estadísticas...</value>
+  </data>
+  <data name="AIAnalysis_LoadingWait" xml:space="preserve">
+    <value>Esto puede tardar unos momentos...</value>
+  </data>
+  <data name="AIAnalysis_TokenRequired_Title" xml:space="preserve">
+    <value>Token API Requerido</value>
+  </data>
+  <data name="AIAnalysis_TokenRequired_Message" xml:space="preserve">
+    <value>Para utilizar el análisis IA, primero debe configurar su token API de OpenAI.
+
+¿Desea configurarlo ahora?
+
+Nota: Vaya a la sección 💬 Chat con IA para configurar su token.</value>
+  </data>
+  <data name="AIAnalysis_TokenConfig_Title" xml:space="preserve">
+    <value>Configuración</value>
+  </data>
+  <data name="AIAnalysis_TokenConfig_Message" xml:space="preserve">
+    <value>Vaya a la sección '💬 Chat con IA' en el menú principal para configurar su token API.</value>
+  </data>
+  <data name="UserEdit_NewUser" xml:space="preserve">
+    <value>Nuevo Usuario</value>
+  </data>
+  <data name="UserEdit_EditUser" xml:space="preserve">
+    <value>Editar Usuario</value>
+  </data>
+  <data name="UserEdit_UserInformation" xml:space="preserve">
+    <value>Información de Usuario</value>
+  </data>
+  <data name="UserEdit_LastName" xml:space="preserve">
+    <value>Apellido *</value>
+  </data>
+  <data name="UserEdit_FirstName" xml:space="preserve">
+    <value>Nombre</value>
+  </data>
+  <data name="UserEdit_Email" xml:space="preserve">
+    <value>📧 Email</value>
+  </data>
+  <data name="UserEdit_Username" xml:space="preserve">
+    <value>🔑 Usuario de Windows (ID) *</value>
+  </data>
+  <data name="UserEdit_UsernameHint" xml:space="preserve">
+    <value>Utilizado para autenticación de Windows</value>
+  </data>
+  <data name="UserEdit_Role" xml:space="preserve">
+    <value>👥 Rol *</value>
+  </data>
+  <data name="UserEdit_Team" xml:space="preserve">
+    <value>🏢 Equipo</value>
+  </data>
+  <data name="UserEdit_TeamHint" xml:space="preserve">
+    <value>Deje vacío si no hay equipo asignado</value>
+  </data>
+  <data name="UserEdit_NoTeam" xml:space="preserve">
+    <value>-- Sin equipo --</value>
+  </data>
+  <data name="UserEdit_Status" xml:space="preserve">
+    <value>📊 Estado *</value>
+  </data>
+  <data name="UserEdit_StatusHint" xml:space="preserve">
+    <value>Categoría de asignación del usuario</value>
+  </data>
+  <data name="UserEdit_ActiveUser" xml:space="preserve">
+    <value>✅ Usuario activo</value>
+  </data>
+  <data name="UserEdit_Save" xml:space="preserve">
+    <value>💾 Guardar</value>
+  </data>
+  <data name="UserEdit_Cancel" xml:space="preserve">
+    <value>❌ Cancelar</value>
+  </data>
+  <data name="UserEdit_ErrorLoadingRoles" xml:space="preserve">
+    <value>Error al cargar roles</value>
+  </data>
+  <data name="UserEdit_SuccessCreated" xml:space="preserve">
+    <value>Usuario creado con éxito.</value>
+  </data>
+  <data name="UserEdit_SuccessUpdated" xml:space="preserve">
+    <value>Usuario actualizado con éxito.</value>
+  </data>
+  <data name="UserEdit_ErrorSaving" xml:space="preserve">
+    <value>Error al guardar</value>
+  </data>
+  <data name="Common_Details" xml:space="preserve">
+    <value>Detalles</value>
+  </data>
+  <data name="Common_Confirmation" xml:space="preserve">
+    <value>Confirmación</value>
+  </data>
+  <data name="Notifications_Title" xml:space="preserve">
+    <value>CENTRO DE NOTIFICACIONES</value>
+  </data>
+  <data name="Notifications_UnreadCount" xml:space="preserve">
+    <value>{0} notificación(es) no leída(s)</value>
+  </data>
+  <data name="Notifications_MarkAllRead" xml:space="preserve">
+    <value>✓ Marcar todas como leídas</value>
+  </data>
+  <data name="Notifications_DeleteRead" xml:space="preserve">
+    <value>🗑️ Eliminar leídas</value>
+  </data>
+  <data name="Notifications_Filter" xml:space="preserve">
+    <value>🔍 Filtrar:</value>
+  </data>
+  <data name="Notifications_All" xml:space="preserve">
+    <value>Todas</value>
+  </data>
+  <data name="Notifications_UnreadOnly" xml:space="preserve">
+    <value>Solo no leídas</value>
+  </data>
+  <data name="Notifications_Urgent" xml:space="preserve">
+    <value>🔴 Urgente</value>
+  </data>
+  <data name="Notifications_Attention" xml:space="preserve">
+    <value>🟠 Atención</value>
+  </data>
+  <data name="Notifications_Info" xml:space="preserve">
+    <value>🔵 Info</value>
+  </data>
+  <data name="Notifications_Success" xml:space="preserve">
+    <value>✅ Éxito</value>
+  </data>
+  <data name="Notifications_NoNotifications" xml:space="preserve">
+    <value>Sin notificaciones</value>
+  </data>
+  <data name="Notifications_UpToDate" xml:space="preserve">
+    <value>¡Está al día!</value>
+  </data>
+  <data name="Notifications_Task" xml:space="preserve">
+    <value>Tarea</value>
+  </data>
+  <data name="Notifications_Status" xml:space="preserve">
+    <value>Estado</value>
+  </data>
+  <data name="Notifications_Priority" xml:space="preserve">
+    <value>Prioridad</value>
+  </data>
+  <data name="Notifications_TaskDetails" xml:space="preserve">
+    <value>Detalles de la tarea</value>
+  </data>
+  <data name="Notifications_ConfirmDeleteRead" xml:space="preserve">
+    <value>¿Realmente desea eliminar todas las notificaciones leídas?</value>
+  </data>
+  <data name="Notifications_CannotSendEmail" xml:space="preserve">
+    <value>No se puede enviar el correo:
+
+• Ningún desarrollador está asignado a esta tarea, o
+• Falta la dirección de correo del desarrollador.
+
+Por favor, asigne un desarrollador con una dirección de correo válida.</value>
+  </data>
+  <data name="Notifications_EmailUnavailable" xml:space="preserve">
+    <value>Email no disponible</value>
+  </data>
+  <data name="Notifications_ConfirmCancelRequest" xml:space="preserve">
+    <value>¿Realmente desea cancelar esta solicitud de intercambio?</value>
+  </data>
+  <data name="Notifications_CancelSuccess" xml:space="preserve">
+    <value>La solicitud de intercambio se ha cancelado con éxito.</value>
+  </data>
+  <data name="Notifications_CancelSuccessTitle" xml:space="preserve">
+    <value>Cancelación exitosa</value>
+  </data>
+  <data name="Notifications_CancelError" xml:space="preserve">
+    <value>Error durante la cancelación</value>
+  </data>
+  <data name="Notification_CriticalDelay" xml:space="preserve">
+    <value>⚠️ Retraso crítico: {0}</value>
+  </data>
+  <data name="Notification_DelayMessage" xml:space="preserve">
+    <value>Esta tarea tiene {0} día(s) de retraso (Plazo: {1})</value>
+  </data>
+  <data name="Notification_DeadlineNear" xml:space="preserve">
+    <value>📅 Plazo próximo: {0}</value>
+  </data>
+  <data name="Notification_DeadlineMessage" xml:space="preserve">
+    <value>Esta tarea debe completarse en {0} día(s) (Plazo: {1})</value>
+  </data>
+  <data name="Notification_Unassigned" xml:space="preserve">
+    <value>sin asignar</value>
+  </data>
+  <data name="Notification_UrgentUnassigned" xml:space="preserve">
+    <value>🚨 Tarea urgente sin asignar: {0}</value>
+  </data>
+  <data name="Notification_UnassignedMessage" xml:space="preserve">
+    <value>Esta tarea prioritaria aún no tiene un desarrollador asignado</value>
+  </data>
+  <data name="Notification_TaskCompleted" xml:space="preserve">
+    <value>✅ Tarea completada: {0}</value>
+  </data>
+  <data name="Notification_CompletedMessage" xml:space="preserve">
+    <value>¡Felicitaciones! Esta tarea ha sido completada</value>
+  </data>
+  <data name="Notifications_NewBadge" xml:space="preserve">
+    <value>NUEVO</value>
+  </data>
+  <data name="Stats_TasksByPriority" xml:space="preserve">
+    <value>🎯 Tareas por Prioridad</value>
+  </data>
+  <data name="Stats_PriorityDistribution" xml:space="preserve">
+    <value>Distribución de prioridades</value>
+  </data>
+  <data name="Stats_High" xml:space="preserve">
+    <value>Alta</value>
+  </data>
+  <data name="Stats_Medium" xml:space="preserve">
+    <value>Media</value>
+  </data>
+  <data name="Stats_Low" xml:space="preserve">
+    <value>Baja</value>
+  </data>
+  <data name="Stats_TasksByProject" xml:space="preserve">
+    <value>📂 Tareas por Proyecto</value>
+  </data>
+  <data name="Stats_Top10Projects" xml:space="preserve">
+    <value>Top 10 proyectos por volumen</value>
+  </data>
+  <data name="Stats_CompletionTrend" xml:space="preserve">
+    <value>📈 Tendencia de Finalización</value>
+  </data>
+  <data name="Stats_Last12Months" xml:space="preserve">
+    <value>Últimos 12 meses - Tareas completadas</value>
+  </data>
+  <data name="Stats_Month" xml:space="preserve">
+    <value>Mes</value>
+  </data>
+  <data name="Stats_CompletedTasks" xml:space="preserve">
+    <value>Tareas completadas</value>
+  </data>
+  <data name="Stats_Sprint" xml:space="preserve">
+    <value>Sprint:</value>
+  </data>
+  <data name="Stats_NoData" xml:space="preserve">
+    <value>No hay datos disponibles para este período</value>
+  </data>
+  <data name="Stats_Loading" xml:space="preserve">
+    <value>Cargando estadísticas...</value>
+  </data>
+  <data name="Stats_Error" xml:space="preserve">
+    <value>Error al cargar estadísticas</value>
+  </data>
+  <data name="Stats_DoubleClickInfo" xml:space="preserve">
+    <value>💡 Haga doble clic en una tarjeta para ver los detalles de las tareas</value>
+  </data>
+  <data name="Stats_CRAByDev" xml:space="preserve">
+    <value>⏰ Tiempo CRA por Desarrollador</value>
+  </data>
+  <data name="Stats_HoursEnteredValidated" xml:space="preserve">
+    <value>Horas ingresadas y validadas</value>
+  </data>
+  <data name="Stats_DoubleClickCRAInfo" xml:space="preserve">
+    <value>💡 Haga doble clic en una tarjeta para ver el historial de CRA</value>
+  </data>
+  <data name="Stats_ProjectProgress" xml:space="preserve">
+    <value>📁 Progreso de Proyectos</value>
+  </data>
+  <data name="Stats_ResourcesByTeam" xml:space="preserve">
+    <value>🏢 Distribución de Recursos por Equipo</value>
+  </data>
+  <data name="Stats_ActiveMembersExcludingManagers" xml:space="preserve">
+    <value>Número de miembros activos (excluyendo gerentes) por equipo</value>
+  </data>
+  <data name="Stats_ViewFullDetails" xml:space="preserve">
+    <value>Ver detalles completos</value>
+  </data>
+  <data name="Stats_LoadBalance" xml:space="preserve">
+    <value>⚖️ Equilibrio de Carga entre Equipos</value>
+  </data>
+  <data name="Stats_CapacityAnalysis" xml:space="preserve">
+    <value>Análisis de capacidad y carga de trabajo por equipo (horas CRA reales)</value>
+  </data>
+  <data name="Stats_ResourcesAndWorkload" xml:space="preserve">
+    <value>📋 Recursos y Carga de Trabajo</value>
+  </data>
+  <data name="Stats_StatusToDo" xml:space="preserve">
+    <value>Por hacer</value>
+  </data>
+  <data name="Stats_StatusInProgress" xml:space="preserve">
+    <value>En progreso</value>
+  </data>
+  <data name="Stats_StatusInTest" xml:space="preserve">
+    <value>En prueba</value>
+  </data>
+  <data name="Stats_StatusCompleted" xml:space="preserve">
+    <value>Completado</value>
+  </data>
+  <data name="Stats_CompletedTasksIncludingArchived" xml:space="preserve">
+    <value>Tareas completadas (incluidas archivadas) y tiempo CRA ingresado por proyecto</value>
+  </data>
+  <data name="Stats_ArchivedTasksCountedAsCompleted" xml:space="preserve">
+    <value>Las tareas archivadas se cuentan como completadas</value>
+  </data>
+  <data name="Stats_RelativeSize" xml:space="preserve">
+    <value>Tamaño relativo</value>
+  </data>
+  <data name="Stats_Projects" xml:space="preserve">
+    <value>Proyectos</value>
+  </data>
+  <data name="Stats_Load" xml:space="preserve">
+    <value>Carga</value>
+  </data>
+  <data name="Stats_ViewMembers" xml:space="preserve">
+    <value>Ver miembros</value>
+  </data>
+  <data name="Stats_Members" xml:space="preserve">
+    <value>miembros</value>
+  </data>
+  <data name="Stats_Active" xml:space="preserve">
+    <value>activos</value>
+  </data>
+  <data name="Stats_LoadLevelLow" xml:space="preserve">
+    <value>Baja</value>
+  </data>
+  <data name="Stats_LoadLevelNormal" xml:space="preserve">
+    <value>Normal</value>
+  </data>
+  <data name="Stats_LoadLevelHigh" xml:space="preserve">
+    <value>Alta</value>
+  </data>
+  <data name="Stats_LoadLevelVeryHigh" xml:space="preserve">
+    <value>Muy alta</value>
+  </data>
+  <data name="Stats_CapacityAvailable" xml:space="preserve">
+    <value>Capacidad disponible</value>
+  </data>
+  <data name="Stats_BalancedLoad" xml:space="preserve">
+    <value>Carga equilibrada</value>
+  </data>
+  <data name="Stats_HeavyLoad" xml:space="preserve">
+    <value>Carga pesada</value>
+  </data>
+  <data name="Stats_Overload" xml:space="preserve">
+    <value>Sobrecarga</value>
+  </data>
+  <data name="Stats_NoMembers" xml:space="preserve">
+    <value>Sin miembros</value>
+  </data>
+  <data name="Stats_Archived" xml:space="preserve">
+    <value>archivadas</value>
+  </data>
+  
+  <!-- Guía de Usuario -->
+  <data name="Guide_Title" xml:space="preserve">
+    <value>Agente Project &amp; Change - Tu guía de pilotaje</value>
+  </data>
+  <data name="Guide_RolePrefix" xml:space="preserve">
+    <value>Guía</value>
+  </data>
+  <data name="Guide_AgentName" xml:space="preserve">
+    <value>Agente Project &amp; Change</value>
+  </data>
+  <data name="Guide_Subtitle" xml:space="preserve">
+    <value>Pilota eficazmente tus proyectos</value>
+  </data>
+  <data name="Guide_ChatButton" xml:space="preserve">
+    <value>💬 Chatear con IA</value>
+  </data>
+  <data name="Guide_SelectQuestion" xml:space="preserve">
+    <value>Seleccione una pregunta de la lista para ver la respuesta detallada.</value>
+  </data>
+  
+  <!-- Guía Admin -->
+  <data name="Guide_Admin_Q1" xml:space="preserve">
+    <value>¿Cómo gestionar usuarios?</value>
+  </data>
+  <data name="Guide_Admin_A1" xml:space="preserve">
+    <value>📋 GESTIÓN DE USUARIOS
+
+1. Acceda al menú ADMINISTRACIÓN → Gestionar equipo
+2. Verá la lista completa de usuarios
+3. Haga doble clic en un usuario para editar su perfil
+4. Modifique el rol (Admin, Jefe de Proyecto, Desarrollador, Analista de Negocio)
+5. Defina los permisos de acceso a módulos
+6. Valide los cambios con el botón Guardar
+
+💡 Los roles determinan los derechos de acceso y las funcionalidades disponibles.</value>
+  </data>
+  <data name="Guide_Admin_Q2" xml:space="preserve">
+    <value>¿Cómo usar Reporting?</value>
+  </data>
+  <data name="Guide_Admin_A2" xml:space="preserve">
+    <value>📊 REPORTING &amp; PILOTAJE
+
+Menú ADMINISTRACIÓN → Pestaña Reporting
+
+Dos vistas disponibles:
+
+📊 VISTA PROGRAMA:
+• Análisis consolidado de todos los proyectos de un programa
+• KPIs globales: progreso, velocidad, carga
+• Distribución de tareas por prioridad y estado
+• Contribuciones de equipos y recursos
+• Vista comparativa antes/durante el período
+
+📁 VISTA PROYECTO:
+• Análisis detallado de un proyecto específico
+• Salud del proyecto (On track / Retrasado / Crítico)
+• Tareas terminadas vs en curso
+• Tiempo real vs estimado
+• Rendimiento por desarrollador
+
+Filtre por período para análisis temporales precisos.</value>
+  </data>
+  <data name="Guide_Admin_Q3" xml:space="preserve">
+    <value>¿Cómo usar los análisis IA?</value>
+  </data>
+  <data name="Guide_Admin_A3" xml:space="preserve">
+    <value>🤖 ANÁLISIS INTELIGENTES
+
+La IA analiza automáticamente sus datos:
+
+📊 ANÁLISIS PROYECTO (Reporting):
+• Recomendaciones de pilotaje
+• Detección de riesgos
+• Optimización de la carga
+• Previsiones de entrega
+
+📈 ANÁLISIS DESARROLLADOR (Seguimiento CRA):
+• Rendimiento individual
+• Carga de trabajo
+• Sugerencias de mejora
+
+📉 ANÁLISIS ESTADÍSTICAS (Dashboard):
+• Tendencias globales
+• KPIs de equipo
+• Puntos de atención
+
+✅ VALIDACIÓN CRA (Timeline):
+• Análisis de conformidad
+• Detección de anomalías
+• Informe de validación automático
+
+💡 La IA necesita un token API configurado en Parámetros.</value>
+  </data>
+  <data name="Guide_Admin_Q4" xml:space="preserve">
+    <value>¿Cómo validar los CRA?</value>
+  </data>
+  <data name="Guide_Admin_A4" xml:space="preserve">
+    <value>✅ VALIDACIÓN DE CRA
+
+1. Menú ADMINISTRACIÓN → Timeline (Seguimiento CRA)
+2. Seleccione el programa o proyecto
+3. Verifique los tiempos ingresados por cada desarrollador
+4. Use el análisis IA para detectar anomalías
+5. Valide en masa con el botón 'Validar'
+6. Se genera automáticamente un informe detallado
+
+📌 Los CRA validados están bloqueados y no pueden modificarse.
+💡 La IA le señala las tareas retrasadas y las desviaciones de tiempo.</value>
+  </data>
+  <data name="Guide_Admin_Q5" xml:space="preserve">
+    <value>¿Cómo gestionar los archivos?</value>
+  </data>
+  <data name="Guide_Admin_A5" xml:space="preserve">
+    <value>📦 GESTIÓN DE ARCHIVOS
+
+Menú ADMINISTRACIÓN → Archivos
+
+Funcionalidades:
+• Archivar solicitudes obsoletas o terminadas
+• Consultar el historial de elementos archivados
+• Restaurar elementos si es necesario
+• Liberar espacio en el backlog activo
+
+Para archivar una solicitud:
+1. Abra la solicitud en SOLICITUDES
+2. Haga clic en 'Archivar'
+3. Confirme la acción
+
+⚠️ Solo los administradores pueden archivar y restaurar.</value>
+  </data>
+  <data name="Guide_Admin_Q6" xml:space="preserve">
+    <value>¿Cómo gestionar los permisos?</value>
+  </data>
+  <data name="Guide_Admin_A6" xml:space="preserve">
+    <value>🔐 GESTIÓN DE PERMISOS
+
+Menú ADMINISTRACIÓN → Usuarios y Roles
+
+Permisos por rol:
+
+• Administrador: acceso total, reporting, archivos, gestión del sistema
+• Jefe de Proyecto: backlog, asignaciones, validación CRA, estadísticas
+• Desarrollador: consulta de tareas, entrada CRA, comentarios
+• Analista de Negocio: creación de solicitudes, consulta de backlog
+
+Configuración de permisos:
+1. Pestaña 'Roles' en Usuarios y Roles
+2. Marque los permisos para cada rol
+3. Guarde las modificaciones
+4. Los usuarios reciben inmediatamente los nuevos derechos</value>
+  </data>
+  <data name="Guide_Admin_Q7" xml:space="preserve">
+    <value>¿Cómo usar el chat IA?</value>
+  </data>
+  <data name="Guide_Admin_A7" xml:space="preserve">
+    <value>🤖 AGENTE CONVERSACIONAL IA
+
+1. Haga clic en 'Chatear con IA' en la parte inferior de este panel
+2. Primer uso: configure su token API
+   - Vaya a https://genfactory-ai.analytics.cib.echonet
+   - Genere un token Bearer en su perfil
+   - Péguelo en la configuración (Settings)
+3. Haga preguntas sobre BacklogManager
+4. La IA conoce todas las funcionalidades
+
+💡 La IA puede guiarle paso a paso en sus tareas diarias.</value>
+  </data>
+  
+  <!-- Guía Jefe de Proyecto -->
+  <data name="Guide_CP_Q1" xml:space="preserve">
+    <value>¿Cómo crear una tarea?</value>
+  </data>
+  <data name="Guide_CP_A1" xml:space="preserve">
+    <value>➕ CREACIÓN DE TAREA
+
+1. Acceda al menú BACKLOG
+2. Haga clic en el botón ➕ Nueva tarea
+3. Complete la información:
+   • Título claro y conciso
+   • Descripción detallada
+   • Desarrollador asignado
+   • Prioridad (Urgente, Alta, Media, Baja)
+   • Carga estimada en horas
+   • Proyecto asociado
+4. Haga clic en Guardar
+
+La tarea aparece inmediatamente en el backlog y el Kanban.</value>
+  </data>
+  <data name="Guide_CP_Q2" xml:space="preserve">
+    <value>¿Cómo usar el Kanban?</value>
+  </data>
+  <data name="Guide_CP_A2" xml:space="preserve">
+    <value>📋 TABLERO KANBAN
+
+Menú KANBAN para visualizar su flujo de trabajo:
+
+• Columnas: Por hacer, En espera, Por priorizar, En curso, Test, Terminado
+• Arrastre y suelte las tarjetas entre columnas
+• Filtre por proyecto o desarrollador
+• Haga doble clic en una tarjeta para ver los detalles
+• Los colores indican la prioridad
+• Contadores en tiempo real por columna
+
+💡 El Kanban se actualiza en tiempo real para todo el equipo.</value>
+  </data>
+  <data name="Guide_CP_Q3" xml:space="preserve">
+    <value>¿Cómo consultar las estadísticas?</value>
+  </data>
+  <data name="Guide_CP_A3" xml:space="preserve">
+    <value>📊 ESTADÍSTICAS Y ANÁLISIS
+
+Menú ESTADÍSTICAS para pilotar su equipo:
+
+📈 INDICADORES CLAVE:
+• Tareas terminadas vs en curso
+• Productividad del equipo (%)
+• Velocidad promedio
+• Carga de trabajo por desarrollador
+
+📉 GRÁFICOS:
+• Evolución de tareas en el tiempo
+• Distribución por prioridad y estado
+• Tiempo real vs estimado
+
+🤖 ANÁLISIS IA:
+Solicite un análisis inteligente para obtener:
+• Recomendaciones de pilotaje
+• Detección de riesgos
+• Sugerencias de mejora
+
+Exporte las estadísticas en PDF para sus informes.</value>
+  </data>
+  <data name="Guide_CP_Q4" xml:space="preserve">
+    <value>¿Cómo asignar tareas?</value>
+  </data>
+  <data name="Guide_CP_A4" xml:space="preserve">
+    <value>👥 ASIGNACIÓN DE TAREAS
+
+Varios métodos:
+
+1. Desde el BACKLOG:
+   • Seleccione una tarea
+   • Elija el desarrollador en la lista
+   • Guarde
+
+2. Desde el KANBAN:
+   • Doble clic en una tarjeta
+   • Modifique la asignación
+
+El desarrollador recibe una notificación automáticamente.</value>
+  </data>
+  <data name="Guide_CP_Q5" xml:space="preserve">
+    <value>¿Cómo seguir el progreso?</value>
+  </data>
+  <data name="Guide_CP_A5" xml:space="preserve">
+    <value>📈 SEGUIMIENTO DEL PROGRESO
+
+Varios indicadores disponibles:
+
+• Dashboard: Vista general KPIs y gráficos
+• Kanban: Estado en tiempo real de las tareas
+• Timeline: Seguimiento CRA por proyecto y equipo
+• Estadísticas: Gráficos detallados y análisis
+• Notificaciones: Alertas sobre tareas urgentes
+
+💡 Exporte las estadísticas en PDF para sus informes.</value>
+  </data>
+  <data name="Guide_CP_Q6" xml:space="preserve">
+    <value>¿Cómo gestionar las solicitudes?</value>
+  </data>
+  <data name="Guide_CP_A6" xml:space="preserve">
+    <value>📝 GESTIÓN DE SOLICITUDES
+
+1. Menú SOLICITUDES para ver todas las solicitudes
+2. Ordene por criticidad o fecha
+3. Abra una solicitud para analizarla
+4. Transfórmela en tareas del backlog
+5. Asigne a los desarrolladores
+6. Actualice el estado
+
+Los Analistas de Negocio son notificados de los cambios de estado.</value>
+  </data>
+  <data name="Guide_CP_Q7" xml:space="preserve">
+    <value>¿Cómo gestionar las notificaciones?</value>
+  </data>
+  <data name="Guide_CP_A7" xml:space="preserve">
+    <value>🔔 CENTRO DE NOTIFICACIONES
+
+Menú NOTIFICACIONES (icono campana):
+
+Se le notifica para:
+• Nuevas solicitudes creadas
+• Tareas bloqueadas o retrasadas
+• Comentarios en sus proyectos
+• CRA en espera de validación
+• Cambios de estado importantes
+
+Acciones posibles:
+• Marcar como leída
+• Acceder directamente al elemento
+• Filtrar por tipo de notificación
+
+El contador rojo indica el número de notificaciones no leídas.</value>
+  </data>
+  
+  <!-- Guía Desarrollador -->
+  <data name="Guide_Dev_Q1" xml:space="preserve">
+    <value>¿Cómo ingresar mi CRA?</value>
+  </data>
+  <data name="Guide_Dev_A1" xml:space="preserve">
+    <value>⏱️ INGRESO DEL CRA
+
+1. Menú INGRESAR CRA → Vista calendario mensual
+2. Haga clic en un día para agregar tiempo
+3. Seleccione la tarea en la lista desplegable
+4. Indique las horas trabajadas
+5. Agregue un comentario si es necesario
+6. Haga clic en Guardar
+
+💡 El total diario se muestra abajo. Apunte a 7-8h por día.
+📌 Valide su CRA a fin de mes antes de la sumisión al jefe de proyecto.</value>
+  </data>
+  <data name="Guide_Dev_Q2" xml:space="preserve">
+    <value>¿Cómo ver mis tareas?</value>
+  </data>
+  <data name="Guide_Dev_A2" xml:space="preserve">
+    <value>📋 VISTA DE TAREAS
+
+Varias vistas disponibles:
+
+• DASHBOARD: Sus tareas en curso y urgentes
+• BACKLOG: Todas sus tareas asignadas con filtros
+• KANBAN: Vista de flujo de trabajo con arrastrar y soltar
+
+Haga doble clic en una tarea para:
+• Ver descripción completa
+• Agregar comentarios
+• Cambiar el estado
+• Consultar el historial</value>
+  </data>
+  <data name="Guide_Dev_Q3" xml:space="preserve">
+    <value>¿Cómo actualizar una tarea?</value>
+  </data>
+  <data name="Guide_Dev_A3" xml:space="preserve">
+    <value>✏️ ACTUALIZACIÓN DE TAREA
+
+1. Abra la tarea desde BACKLOG o KANBAN
+2. Modifique el estado (Por hacer → En curso → Test → Terminado)
+3. Agregue comentarios sobre su progreso
+4. Actualice el tiempo restante si es necesario
+5. Guarde las modificaciones
+
+🔔 El jefe de proyecto es notificado de los cambios importantes.</value>
+  </data>
+  <data name="Guide_Dev_Q4" xml:space="preserve">
+    <value>¿Cómo crear una tarea especial?</value>
+  </data>
+  <data name="Guide_Dev_A4" xml:space="preserve">
+    <value>✨ TAREAS ESPECIALES
+
+Para crear un permiso, soporte u otro:
+
+1. Menú BACKLOG → Botón ➕
+2. Seleccione el tipo:
+   🏖️ PERMISOS: Días de descanso, RTT, vacaciones
+   🆘 SOPORTE: Asistencia al usuario, helpdesk
+   📝 OTRO: Reuniones, formaciones, administrativo
+3. Complete las fechas y la duración
+4. Agregue una descripción si es necesario
+5. Guarde
+
+Estas tareas aparecen en su CRA y se contabilizan
+en su carga de trabajo.</value>
+  </data>
+  <data name="Guide_Dev_Q5" xml:space="preserve">
+    <value>¿Cómo señalar un bloqueo?</value>
+  </data>
+  <data name="Guide_Dev_A5" xml:space="preserve">
+    <value>🚨 SEÑALAMIENTO DE BLOQUEO
+
+1. Abra la tarea bloqueada
+2. Agregue un comentario detallado explicando:
+   • Naturaleza del bloqueo
+   • Impacto en la planificación
+   • Solución considerada
+3. Cambie la prioridad a 'Urgente' si es necesario
+4. Guarde
+
+💡 Contacte a su jefe de proyecto a través de los comentarios
+o directamente para resolver rápidamente el bloqueo.</value>
+  </data>
+  <data name="Guide_Dev_Q6" xml:space="preserve">
+    <value>¿Cómo consultar mis CRA pasados?</value>
+  </data>
+  <data name="Guide_Dev_A6" xml:space="preserve">
+    <value>📊 HISTORIAL CRA
+
+1. Menú INGRESAR CRA
+2. Use las flechas para navegar entre los meses
+3. Los días con tiempo ingresado están en color
+4. Los días validados están bloqueados (candado)
+5. Haga clic en un día para ver el detalle
+
+Los indicadores visuales:
+• ✅ Verde: día completo y validado
+• 🟡 Naranja: día parcial
+• ⚠️ Rojo: día sin entrada
+• 🔒 Candado: CRA validado, no modificable</value>
+  </data>
+  <data name="Guide_Dev_Q7" xml:space="preserve">
+    <value>¿Cómo usar el chat IA?</value>
+  </data>
+  <data name="Guide_Dev_A7" xml:space="preserve">
+    <value>🤖 ASISTENCIA IA
+
+1. Haga clic en 'Chatear con IA'
+2. Configure su token API si es el primer uso
+3. Haga preguntas como:
+   • '¿Cómo ingresar mi CRA?'
+   • '¿Dónde ver mis tareas retrasadas?'
+   • '¿Cómo señalar un error?'
+
+La IA le guía paso a paso en sus acciones diarias.</value>
+  </data>
+  
+  <!-- Guía Analista de Negocio -->
+  <data name="Guide_BA_Q1" xml:space="preserve">
+    <value>¿Cómo crear una solicitud?</value>
+  </data>
+  <data name="Guide_BA_A1" xml:space="preserve">
+    <value>➕ CREACIÓN DE SOLICITUD
+
+1. Menú SOLICITUDES → Botón ➕ Nueva solicitud
+2. Complete el formulario:
+   • Título explícito
+   • Descripción detallada de la necesidad
+   • Criticidad (Baja, Normal, Alta, Urgente)
+   • Proyecto o servicio concernido
+   • Beneficios esperados
+3. Agregue archivos adjuntos si es necesario
+4. Envíe la solicitud
+
+El jefe de proyecto recibe una notificación y analiza la solicitud.</value>
+  </data>
+  <data name="Guide_BA_Q2" xml:space="preserve">
+    <value>¿Cómo seguir mis solicitudes?</value>
+  </data>
+  <data name="Guide_BA_A2" xml:space="preserve">
+    <value>📊 SEGUIMIENTO DE SOLICITUDES
+
+El menú SOLICITUDES muestra todas sus solicitudes con:
+
+• Estado actual (Nueva, En análisis, Aceptada, En curso, Terminada)
+• Fecha de creación y última actualización
+• Jefe de proyecto asignado
+• Comentarios e historial
+
+Filtre por estado o proyecto para encontrar rápidamente sus solicitudes.
+🔔 Recibe notificaciones en cada cambio de estado.</value>
+  </data>
+  <data name="Guide_BA_Q3" xml:space="preserve">
+    <value>¿Cómo priorizar las solicitudes?</value>
+  </data>
+  <data name="Guide_BA_A3" xml:space="preserve">
+    <value>🎯 PRIORIZACIÓN
+
+Use la criticidad para indicar la urgencia:
+
+• URGENTE: Impacto de negocio inmediato, bloqueo de usuarios
+• ALTA: Importante para operaciones, deadline cercano
+• NORMAL: Mejora estándar, sin deadline estricto
+• BAJA: Nice to have, puede esperar
+
+El jefe de proyecto toma estos elementos en cuenta para planificar.</value>
+  </data>
+  <data name="Guide_BA_Q4" xml:space="preserve">
+    <value>¿Cómo colaborar con el equipo?</value>
+  </data>
+  <data name="Guide_BA_A4" xml:space="preserve">
+    <value>👥 COLABORACIÓN
+
+1. Agregue comentarios detallados en sus solicitudes
+2. Responda rápidamente a las preguntas del jefe de proyecto
+3. Participe en las reuniones de refinement del backlog
+4. Valide las soluciones propuestas
+5. Pruebe los desarrollos entregados
+
+💡 Cuanto más preciso sea, más rápido se tratará su solicitud.</value>
+  </data>
+  <data name="Guide_BA_Q5" xml:space="preserve">
+    <value>¿Cómo consultar el backlog?</value>
+  </data>
+  <data name="Guide_BA_A5" xml:space="preserve">
+    <value>📋 CONSULTA DEL BACKLOG
+
+Menú BACKLOG para ver:
+
+• Todas las tareas planificadas
+• Su estado de progreso
+• Los desarrolladores asignados
+• Las estimaciones y tiempo pasado
+
+Use los filtros para ver únicamente:
+• Sus solicitudes transformadas en tareas
+• Un proyecto específico
+• Un sprint dado</value>
+  </data>
+  <data name="Guide_BA_Q6" xml:space="preserve">
+    <value>¿Cómo usar el chat IA?</value>
+  </data>
+  <data name="Guide_BA_A6" xml:space="preserve">
+    <value>🤖 ASISTENTE IA
+
+La IA puede ayudarle a:
+
+• Redactar solicitudes claras y completas
+• Comprender el estado de sus solicitudes
+• Saber cómo seguir el progreso
+• Navegar en la aplicación
+
+Haga clic en 'Chatear con IA' y configure su token API.
+¡Haga preguntas en lenguaje natural!</value>
+  </data>
+  
+  <!-- Guía General -->
+  <data name="Guide_General_Q1" xml:space="preserve">
+    <value>¿Cómo navegar en la aplicación?</value>
+  </data>
+  <data name="Guide_General_A1" xml:space="preserve">
+    <value>Use el menú lateral izquierdo para acceder a las diferentes secciones.</value>
+  </data>
+  
+  <!-- AI Chat -->
+  <data name="AIChat_AgentTitle" xml:space="preserve">
+    <value>Agente Project &amp; Change</value>
+  </data>
+  <data name="AIChat_AgentSubtitle" xml:space="preserve">
+    <value>Tu asistente virtual para gestionar tu backlog</value>
+  </data>
+  <data name="AIChat_WelcomeMessage" xml:space="preserve">
+    <value>¡Hola! Soy tu asistente virtual para gestionar tu backlog. ¿Cómo puedo ayudarte hoy? 😊</value>
+  </data>
+  <data name="AIChat_WelcomeMessageFull" xml:space="preserve">
+    <value>¡Hola! Soy tu asistente virtual para gestionar tu backlog. Estoy aquí para ayudarte, aconsejarte y responder a todas tus preguntas sobre gestión de proyectos, tareas, CRA y mucho más. ¡No dudes en hacerme tus preguntas! 😊</value>
+  </data>
+  <data name="AIChat_BtnReturn" xml:space="preserve">
+    <value>← Volver</value>
+  </data>
+  <data name="AIChat_BtnSend" xml:space="preserve">
+    <value>Enviar ▶</value>
+  </data>
+  <data name="AIChat_SendHint" xml:space="preserve">
+    <value>Presione Enter para enviar, Shift+Enter para un salto de línea</value>
+  </data>
+  <data name="AIChat_BtnNewConversation" xml:space="preserve">
+    <value>➕ Nueva conversación</value>
+  </data>
+  <data name="AIChat_BtnClearHistory" xml:space="preserve">
+    <value>🗑️ Borrar historial</value>
+  </data>
+  <data name="AIChat_BtnModifyToken" xml:space="preserve">
+    <value>🔑 Modificar token</value>
+  </data>
+  <data name="AIChat_NewConversationTitle" xml:space="preserve">
+    <value>Nueva conversación</value>
+  </data>
+  <data name="AIChat_NewConversationMessage" xml:space="preserve">
+    <value>¿Desea iniciar una nueva conversación?
+
+El historial actual se conservará en la base de datos.</value>
+  </data>
+  <data name="AIChat_NewConversationStarted" xml:space="preserve">
+    <value>¡Nueva conversación iniciada! ¿Cómo puedo ayudarte? 😊</value>
+  </data>
+  <data name="AIChat_ModifyTokenTitle" xml:space="preserve">
+    <value>Modificar token</value>
+  </data>
+  
+  <!-- Kanban -->
+  <data name="Kanban_Title" xml:space="preserve">
+    <value>TABLERO KANBAN</value>
+  </data>
+  <data name="Kanban_RealTimeView" xml:space="preserve">
+    <value>Vista en Tiempo Real</value>
+  </data>
+  <data name="Kanban_AdminZone" xml:space="preserve">
+    <value>ZONA ADMINISTRADOR</value>
+  </data>
+  <data name="Kanban_RestrictedAccess" xml:space="preserve">
+    <value>Acceso restringido</value>
+  </data>
+  <data name="Kanban_OnHold" xml:space="preserve">
+    <value>⏸ EN ESPERA</value>
+  </data>
+  <data name="Kanban_ToPrioritize" xml:space="preserve">
+    <value>⚡ A PRIORIZAR</value>
+  </data>
+  <data name="Kanban_Filters" xml:space="preserve">
+    <value>Filtros</value>
+  </data>
+  <data name="Kanban_Team" xml:space="preserve">
+    <value>🏢 Equipo:</value>
+  </data>
+  <data name="Kanban_Members" xml:space="preserve">
+    <value>👤 Miembros:</value>
+  </data>
+  <data name="Kanban_Project" xml:space="preserve">
+    <value>Proyecto:</value>
+  </data>
+  <data name="Kanban_Search" xml:space="preserve">
+    <value>🔎 Búsqueda:</value>
+  </data>
+  <data name="Kanban_SearchPlaceholder" xml:space="preserve">
+    <value>Buscar por título...</value>
+  </data>
+  <data name="Kanban_BtnRefresh" xml:space="preserve">
+    <value>🔄 Actualizar</value>
+  </data>
+  <data name="Kanban_BtnClearFilters" xml:space="preserve">
+    <value>🗑️ Borrar filtros</value>
+  </data>
+  <data name="Kanban_ToDo" xml:space="preserve">
+    <value>📋 POR HACER</value>
+  </data>
+  <data name="Kanban_InProgress" xml:space="preserve">
+    <value>⚙️ EN CURSO</value>
+  </data>
+  <data name="Kanban_InTest" xml:space="preserve">
+    <value>🧪 EN PRUEBA</value>
+  </data>
+  <data name="Kanban_Done" xml:space="preserve">
+    <value>✅ TERMINADO</value>
+  </data>
+  <data name="Kanban_DaysRemaining" xml:space="preserve">
+    <value>día(s) restante(s)</value>
+  </data>
+  <data name="Kanban_Remaining" xml:space="preserve">
+    <value>restante(s)</value>
+  </data>
+  <data name="Kanban_BtnPutOnHold" xml:space="preserve">
+    <value>⏸ Poner en espera</value>
+  </data>
+  <data name="Kanban_DoneLabel" xml:space="preserve">
+    <value>✓ TERMINADO</value>
+  </data>
+  <data name="Kanban_BtnReactivate" xml:space="preserve">
+    <value>🔄 Reactivar</value>
+  </data>
+  <data name="Kanban_BtnActivate" xml:space="preserve">
+    <value>✓ Activar</value>
+  </data>
+  <data name="Kanban_BtnArchive" xml:space="preserve">
+    <value>📦 Archivar</value>
+  </data>
+  <data name="Kanban_NotAssigned" xml:space="preserve">
+    <value>No asignado</value>
+  </data>
+  <data name="Kanban_NotEstimated" xml:space="preserve">
+    <value>No estimado</value>
+  </data>
+  <data name="Kanban_RemainingOn" xml:space="preserve">
+    <value>restante de</value>
+  </data>
+  <data name="Kanban_HalfDay" xml:space="preserve">
+    <value>½d</value>
+  </data>
+  <data name="Kanban_LessThanHalfDay" xml:space="preserve">
+    <value>&lt; ½d</value>
+  </data>
+  <data name="Kanban_Completed" xml:space="preserve">
+    <value>Completado</value>
+  </data>
+  <data name="Kanban_StatusOK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Kanban_StatusAttention" xml:space="preserve">
+    <value>ATENCIÓN</value>
+  </data>
+  <data name="Kanban_StatusUrgent" xml:space="preserve">
+    <value>URGENTE</value>
+  </data>
+  
+  <!-- CRA Calendar Page -->
+  <data name="CRA_Title" xml:space="preserve">
+    <value>⏱️ REGISTRO DE HORAS</value>
+  </data>
+  <data name="CRA_Company" xml:space="preserve">
+    <value>BNP Paribas</value>
+  </data>
+  <data name="CRA_BtnToday" xml:space="preserve">
+    <value>📅 Hoy</value>
+  </data>
+  <data name="CRA_BtnValidatePending" xml:space="preserve">
+    <value>✓ Validar horas pendientes</value>
+  </data>
+  <data name="CRA_BtnValidatePendingTooltip" xml:space="preserve">
+    <value>Valida solo las horas en naranja (antes de hoy y no validadas)</value>
+  </data>
+  <data name="CRA_BtnValidateAll" xml:space="preserve">
+    <value>✓ Validar todas las horas</value>
+  </data>
+  <data name="CRA_BtnValidateAllTooltip" xml:space="preserve">
+    <value>Valida todas las horas no validadas del miembro</value>
+  </data>
+  <data name="CRA_BtnCancelValidation" xml:space="preserve">
+    <value>✗ Cancelar validación</value>
+  </data>
+  <data name="CRA_BtnCancelValidationTooltip" xml:space="preserve">
+    <value>Cancela la validación de unas horas validadas</value>
+  </data>
+  <data name="CRA_Team" xml:space="preserve">
+    <value>🏢 Equipo:</value>
+  </data>
+  <data name="CRA_Members" xml:space="preserve">
+    <value>👤 Miembros:</value>
+  </data>
+  <data name="CRA_AllTasks" xml:space="preserve">
+    <value>Todas las tareas</value>
+  </data>
+  <data name="CRA_Monday" xml:space="preserve">
+    <value>LUN</value>
+  </data>
+  <data name="CRA_Tuesday" xml:space="preserve">
+    <value>MAR</value>
+  </data>
+  <data name="CRA_Wednesday" xml:space="preserve">
+    <value>MIÉ</value>
+  </data>
+  <data name="CRA_Thursday" xml:space="preserve">
+    <value>JUE</value>
+  </data>
+  <data name="CRA_Friday" xml:space="preserve">
+    <value>VIE</value>
+  </data>
+  <data name="CRA_Saturday" xml:space="preserve">
+    <value>SÁB</value>
+  </data>
+  <data name="CRA_Sunday" xml:space="preserve">
+    <value>DOM</value>
+  </data>
+  <data name="CRA_SelectedDay" xml:space="preserve">
+    <value>📅 DÍA SELECCIONADO</value>
+  </data>
+  <data name="CRA_EnterCRA" xml:space="preserve">
+    <value>✏️ REGISTRAR HORAS</value>
+  </data>
+  <data name="CRA_Task" xml:space="preserve">
+    <value>Tarea</value>
+  </data>
+  <data name="CRA_TimeInDays" xml:space="preserve">
+    <value>Tiempo (en días)</value>
+  </data>
+  <data name="CRA_EnterOnPeriod" xml:space="preserve">
+    <value>📅 Registrar en un período (del... al...)</value>
+  </data>
+  <data name="CRA_EndDate" xml:space="preserve">
+    <value>📅 Fecha de fin del período</value>
+  </data>
+  <data name="CRA_Comment" xml:space="preserve">
+    <value>Comentario (opcional)</value>
+  </data>
+  <data name="CRA_BtnSave" xml:space="preserve">
+    <value>✓ Guardar</value>
+  </data>
+  <data name="CRA_ListTitle" xml:space="preserve">
+    <value>📋 HORAS REGISTRADAS HOY</value>
+  </data>
+  <data name="CRA_BtnReposition" xml:space="preserve">
+    <value>Reposicionar al próximo día disponible</value>
+  </data>
+  <data name="CRA_BtnValidateDay" xml:space="preserve">
+    <value>✓ Validar</value>
+  </data>
+  <data name="CRA_BtnValidateDayTooltip" xml:space="preserve">
+    <value>Validar las horas de este día</value>
+  </data>
+  <data name="CRA_AutoAllocationTitle" xml:space="preserve">
+    <value>El sistema planificará inteligentemente saltando los días ocupados</value>
+  </data>
+  <data name="CRA_BtnAutoAllocation" xml:space="preserve">
+    <value>🤖 Asignación Automática Inteligente</value>
+  </data>
+  <data name="CRA_ManualEntry" xml:space="preserve">
+    <value>📝 O entrada manual a continuación:</value>
+  </data>
+  <data name="CRA_TaskPlaceholder" xml:space="preserve">
+    <value>-- Seleccione una tarea --</value>
+  </data>
+
+  <!-- Suivi CRA -->
+  <data name="SuiviCRA_Title" xml:space="preserve">
+    <value>📊 SEGUIMIENTO DE CRA</value>
+  </data>
+  <data name="SuiviCRA_Subtitle" xml:space="preserve">
+    <value>Vista administrativa - Seguimiento detallado por equipo y miembro</value>
+  </data>
+  <data name="SuiviCRA_Team" xml:space="preserve">
+    <value>🏢 Equipo:</value>
+  </data>
+  <data name="SuiviCRA_Members" xml:space="preserve">
+    <value>👤 Miembros:</value>
+  </data>
+  <data name="SuiviCRA_ModeMonth" xml:space="preserve">
+    <value>📅 Mes</value>
+  </data>
+  <data name="SuiviCRA_ModeList" xml:space="preserve">
+    <value>📋 Lista</value>
+  </data>
+  <data name="SuiviCRA_ModeTimelineProgramme" xml:space="preserve">
+    <value>📊 Línea de tiempo del programa</value>
+  </data>
+  <data name="SuiviCRA_ModeTimelineProjet" xml:space="preserve">
+    <value>📋 Línea de tiempo del proyecto</value>
+  </data>
+  <data name="SuiviCRA_BtnToday" xml:space="preserve">
+    <value>🎯 Hoy</value>
+  </data>
+  <data name="SuiviCRA_Programme" xml:space="preserve">
+    <value>🎯 Programa:</value>
+  </data>
+  <data name="SuiviCRA_Projet" xml:space="preserve">
+    <value>📋 Proyecto:</value>
+  </data>
+  <data name="SuiviCRA_SelectProgramme" xml:space="preserve">
+    <value>Seleccione un programa</value>
+  </data>
+  <data name="SuiviCRA_SelectProjet" xml:space="preserve">
+    <value>Seleccione un proyecto</value>
+  </data>
+  <data name="SuiviCRA_Start" xml:space="preserve">
+    <value>🚀 Inicio: </value>
+  </data>
+  <data name="SuiviCRA_Target" xml:space="preserve">
+    <value>🎯 Objetivo: </value>
+  </data>
+  <data name="SuiviCRA_Green" xml:space="preserve">
+    <value> Verde</value>
+  </data>
+  <data name="SuiviCRA_Amber" xml:space="preserve">
+    <value> Ámbar</value>
+  </data>
+  <data name="SuiviCRA_Red" xml:space="preserve">
+    <value> Rojo</value>
+  </data>
+  <data name="SuiviCRA_Projects" xml:space="preserve">
+    <value>Proyectos</value>
+  </data>
+  <data name="SuiviCRA_TotalTasks" xml:space="preserve">
+    <value>Tareas totales</value>
+  </data>
+  <data name="SuiviCRA_Progress" xml:space="preserve">
+    <value>Progreso</value>
+  </data>
+  <data name="SuiviCRA_EstimatedBudget" xml:space="preserve">
+    <value>Presupuesto estimado</value>
+  </data>
+  <data name="SuiviCRA_RealTime" xml:space="preserve">
+    <value>Tiempo real</value>
+  </data>
+  <data name="SuiviCRA_GlobalProgress" xml:space="preserve">
+    <value>📈 PROGRESO GLOBAL DEL PROGRAMA</value>
+  </data>
+  <data name="SuiviCRA_TasksCompleted" xml:space="preserve">
+    <value> tareas completadas</value>
+  </data>
+  <data name="SuiviCRA_AnalyzeWithAI" xml:space="preserve">
+    <value>Analizar con IA</value>
+  </data>
+  <data name="SuiviCRA_TeamsProgramme" xml:space="preserve">
+    <value>👥 EQUIPOS INVOLUCRADOS EN EL PROGRAMA</value>
+  </data>
+  <data name="SuiviCRA_TeamsCount" xml:space="preserve">
+    <value> equipo(s)</value>
+  </data>
+  <data name="SuiviCRA_ViewInDashboard" xml:space="preserve">
+    <value>Ver en Dashboard</value>
+  </data>
+  <data name="SuiviCRA_Tasks" xml:space="preserve">
+    <value>tareas</value>
+  </data>
+  <data name="SuiviCRA_DatesToCome" xml:space="preserve">
+    <value>Fechas del proyecto por venir</value>
+  </data>
+  <data name="SuiviCRA_ExtensionDetected" xml:space="preserve">
+    <value>🔔 Extensión de proyecto detectada</value>
+  </data>
+  <data name="SuiviCRA_ValidateExtension" xml:space="preserve">
+    <value>✓ Validar la extensión</value>
+  </data>
+  <data name="SuiviCRA_Start2" xml:space="preserve">
+    <value>INICIO</value>
+  </data>
+  <data name="SuiviCRA_Objective" xml:space="preserve">
+    <value>OBJETIVO</value>
+  </data>
+  <data name="SuiviCRA_NoTask" xml:space="preserve">
+    <value>No hay tareas en este proyecto</value>
+  </data>
+  <data name="SuiviCRA_SelectProjectWithTasks" xml:space="preserve">
+    <value>Seleccione un proyecto con tareas para ver la línea de tiempo</value>
+  </data>
+  <data name="SuiviCRA_Mon" xml:space="preserve">
+    <value>LUN</value>
+  </data>
+  <data name="SuiviCRA_Tue" xml:space="preserve">
+    <value>MAR</value>
+  </data>
+  <data name="SuiviCRA_Wed" xml:space="preserve">
+    <value>MIÉ</value>
+  </data>
+  <data name="SuiviCRA_Thu" xml:space="preserve">
+    <value>JUE</value>
+  </data>
+  <data name="SuiviCRA_Fri" xml:space="preserve">
+    <value>VIE</value>
+  </data>
+  <data name="SuiviCRA_Sat" xml:space="preserve">
+    <value>SÁB</value>
+  </data>
+  <data name="SuiviCRA_Sun" xml:space="preserve">
+    <value>DOM</value>
+  </data>
+  <data name="SuiviCRA_Total" xml:space="preserve">
+    <value>TOTAL</value>
+  </data>
+  <data name="SuiviCRA_Days" xml:space="preserve">
+    <value> día(s)</value>
+  </data>
+  <data name="SuiviCRA_Statistics" xml:space="preserve">
+    <value>👥 ESTADÍSTICAS</value>
+  </data>
+  <data name="SuiviCRA_DaysSaved" xml:space="preserve">
+    <value>día(s) ingresado(s)</value>
+  </data>
+  <data name="SuiviCRA_Work" xml:space="preserve">
+    <value>Trabajo:</value>
+  </data>
+  <data name="SuiviCRA_Leave" xml:space="preserve">
+    <value>Vacaciones:</value>
+  </data>
+  <data name="SuiviCRA_NotWorked" xml:space="preserve">
+    <value>No trabajado:</value>
+  </data>
+  <data name="SuiviCRA_DayDetail" xml:space="preserve">
+    <value>📅 DETALLE DEL DÍA</value>
+  </data>
+  <data name="SuiviCRA_NoCRA" xml:space="preserve">
+    <value>No se ingresó CRA para este día</value>
+  </data>
+  <data name="SuiviCRA_NoProjectSelected" xml:space="preserve">
+    <value>Seleccione un proyecto antes de iniciar el análisis de IA.</value>
+  </data>
+  <data name="SuiviCRA_NoProjectSelectedTitle" xml:space="preserve">
+    <value>Ningún proyecto seleccionado</value>
+  </data>
+  <data name="SuiviCRA_NoTaskToAnalyze" xml:space="preserve">
+    <value>Este proyecto no contiene ninguna tarea para analizar.</value>
+  </data>
+  <data name="SuiviCRA_NoTaskTitle" xml:space="preserve">
+    <value>Ninguna tarea</value>
+  </data>
+  <data name="SuiviCRA_NoProgrammeSelected" xml:space="preserve">
+    <value>Seleccione un programa antes de iniciar el análisis de IA.</value>
+  </data>
+  <data name="SuiviCRA_NoProgrammeSelectedTitle" xml:space="preserve">
+    <value>Ningún programa seleccionado</value>
+  </data>
+  <data name="SuiviCRA_NoProgrammeProject" xml:space="preserve">
+    <value>Este programa no contiene ningún proyecto para analizar.</value>
+  </data>
+  <data name="SuiviCRA_NoProgrammeProjectTitle" xml:space="preserve">
+    <value>Ningún proyecto</value>
+  </data>
+  <data name="SuiviCRA_AnalyzeIATooltipProgramme" xml:space="preserve">
+    <value>Análisis IA: Estado global, riesgos, recomendaciones</value>
+  </data>
+  <data name="SuiviCRA_AnalyzeIATooltipProjet" xml:space="preserve">
+    <value>Análisis IA: Plazos, retrasos, recomendaciones</value>
+  </data>
+  <data name="SuiviCRA_AllTeams" xml:space="preserve">
+    <value>-- Todos los equipos --</value>
+  </data>
+  <data name="SuiviCRA_AllMembers" xml:space="preserve">
+    <value>Todos los miembros</value>
+  </data>
+</root>

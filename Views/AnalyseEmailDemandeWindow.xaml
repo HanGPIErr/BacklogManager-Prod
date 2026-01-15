@@ -1,7 +1,7 @@
 <Window x:Class="BacklogManager.Views.AnalyseEmailDemandeWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="📧 Analyse IA d'Email - Nouvelle Demande" 
+        Title="{Binding TitleText}" 
         Height="900" Width="1200"
         WindowStartupLocation="CenterScreen"
         Background="#F5F5F5"
@@ -53,9 +53,9 @@
         <!-- En-tête -->
         <Border Grid.Row="0" Background="#6264A7" Padding="20,15">
             <StackPanel>
-                <TextBlock Text="📧 Analyse IA d'Email pour Nouvelle Demande" 
+                <TextBlock Text="{Binding HeaderText}" 
                           FontSize="20" FontWeight="Bold" Foreground="White"/>
-                <TextBlock Text="Collez le contenu d'un email et l'IA pré-remplira automatiquement les champs de la demande" 
+                <TextBlock Text="{Binding SubtitleText}" 
                           FontSize="12" Foreground="#E0E0E0" Margin="0,5,0,0"/>
             </StackPanel>
         </Border>
@@ -67,8 +67,8 @@
                 <Border Background="White" CornerRadius="8" Padding="15" Margin="0,0,0,15"
                         BorderBrush="#E0E0E0" BorderThickness="1">
                     <StackPanel>
-                        <TextBlock Text="📨 Contenu de l'Email" Style="{StaticResource SectionTitle}"/>
-                        <TextBlock Text="Copiez-collez ici le contenu complet de l'email reçu" 
+                        <TextBlock Text="{Binding EmailContentText}" Style="{StaticResource SectionTitle}"/>
+                        <TextBlock Text="{Binding PasteInstructionsText}" 
                                   FontSize="11" Foreground="#757575" Margin="0,0,0,8"/>
                         
                         <TextBox x:Name="TxtEmail" 
@@ -84,7 +84,7 @@
                                 BorderThickness="1"/>
 
                         <Button x:Name="BtnAnalyser" 
-                               Content="🤖 Analyser avec l'IA" 
+                               Content="{Binding AnalyzeButtonText}" 
                                Style="{StaticResource ActionButton}"
                                Background="#6264A7" 
                                Foreground="White"
@@ -310,7 +310,7 @@
                         <ComboBox x:Name="CmbBusinessAnalystResult" Height="35" FontSize="13" Margin="0,0,0,15"/>
                         
                         <!-- Manager(s) -->
-                        <TextBlock Text="Manager(s)" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <TextBlock x:Name="TxtManagersLabel" Text="Manager(s)" FontWeight="Bold" Margin="0,0,0,5"/>
                         <TextBlock x:Name="TxtManagersResult" FontSize="13" Margin="0,0,0,15" 
                                   Padding="8" Background="#F5F5F5" 
                                   Text="Sélectionnez les équipes pour voir les managers" 
@@ -367,14 +367,14 @@
         <Border Grid.Row="2" Background="White" BorderBrush="#E0E0E0" BorderThickness="0,1,0,0" Padding="20,15">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button x:Name="BtnAnnuler" 
-                       Content="❌ Annuler" 
+                       Content="Cancel" 
                        Style="{StaticResource ActionButton}"
                        Background="#95A5A6" 
                        Foreground="White"
                        Click="BtnAnnuler_Click"/>
                 
                 <Button x:Name="BtnCreerDemande" 
-                       Content="✅ Créer la Demande" 
+                       Content="{Binding CreateRequestText}" 
                        Style="{StaticResource ActionButton}"
                        Background="#27AE60" 
                        Foreground="White"

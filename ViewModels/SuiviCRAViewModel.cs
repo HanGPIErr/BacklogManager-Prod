@@ -467,6 +467,12 @@ namespace BacklogManager.ViewModels
         public ICommand OuvrirTimelineProjetCommand { get; }
         public ICommand ValiderExtensionProjetCommand { get; }
 
+        // Propriétés localisées pour les DataTemplates
+        public string LabelDaysSaved => LocalizationService.Instance.GetString("SuiviCRA_DaysSaved");
+        public string LabelWork => LocalizationService.Instance.GetString("SuiviCRA_Work");
+        public string LabelLeave => LocalizationService.Instance.GetString("SuiviCRA_Leave");
+        public string LabelNotWorked => LocalizationService.Instance.GetString("SuiviCRA_NotWorked");
+
         public SuiviCRAViewModel(CRAService craService, BacklogService backlogService, ProgrammeService programmeService, PermissionService permissionService)
         {
             _craService = craService;
@@ -692,7 +698,7 @@ namespace BacklogManager.ViewModels
         private void ChargerDevs()
         {
             Devs.Clear();
-            Devs.Add(new Utilisateur { Id = 0, Nom = "Tous les membres" });
+            Devs.Add(new Utilisateur { Id = 0, Nom = LocalizationService.Instance.GetString("SuiviCRA_AllMembers") });
 
             var users = _backlogService.GetAllUtilisateurs();
             
@@ -713,7 +719,7 @@ namespace BacklogManager.ViewModels
         private void ChargerEquipes()
         {
             Equipes.Clear();
-            Equipes.Add(new Equipe { Id = 0, Nom = "-- Toutes les équipes --" });
+            Equipes.Add(new Equipe { Id = 0, Nom = LocalizationService.Instance.GetString("SuiviCRA_AllTeams") });
 
             var equipes = _backlogService.GetAllEquipes();
             foreach (var equipe in equipes.OrderBy(e => e.Nom))

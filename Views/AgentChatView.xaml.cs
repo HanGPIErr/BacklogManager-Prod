@@ -71,6 +71,16 @@ namespace BacklogManager.Views
             DataContext = this;
             Messages = new ObservableCollection<ChatMessage>();
             
+            // Initialiser les textes localisés
+            TxtAgentTitle.Text = LocalizationService.Instance.GetString("AIChat_AgentTitle");
+            TxtAgentSubtitle.Text = LocalizationService.Instance.GetString("AIChat_AgentSubtitle");
+            BtnRetour.Content = LocalizationService.Instance.GetString("AIChat_BtnReturn");
+            BtnSend.Content = LocalizationService.Instance.GetString("AIChat_BtnSend");
+            TxtSendHint.Text = LocalizationService.Instance.GetString("AIChat_SendHint");
+            BtnNewConversation.Content = LocalizationService.Instance.GetString("AIChat_BtnNewConversation");
+            BtnClearHistory.Content = LocalizationService.Instance.GetString("AIChat_BtnClearHistory");
+            BtnModifyToken.Content = LocalizationService.Instance.GetString("AIChat_BtnModifyToken");
+            
             _chatHistoryService = chatHistoryService;
             _currentUser = currentUser;
             _mainWindow = mainWindow;
@@ -105,8 +115,8 @@ namespace BacklogManager.Views
                     Messages.Add(new ChatMessage
                     {
                         IsUser = false,
-                        Auteur = "Agent Project & Change",
-                        Message = "Bonjour ! Je suis votre assistante virtuelle pour gérer votre backlog. Comment puis-je vous aider aujourd'hui ? 😊",
+                        Auteur = LocalizationService.Instance.GetString("AIChat_AgentTitle"),
+                        Message = LocalizationService.Instance.GetString("AIChat_WelcomeMessage"),
                         Horodatage = DateTime.Now.ToString("HH:mm")
                     });
                 }
@@ -330,8 +340,8 @@ namespace BacklogManager.Views
         private void NewConversation_Click(object sender, RoutedEventArgs e)
         {
             var result = MessageBox.Show(
-                "Voulez-vous démarrer une nouvelle conversation ?\n\nL'historique actuel sera conservé dans la base de données.",
-                "Nouvelle conversation",
+                LocalizationService.Instance.GetString("AIChat_NewConversationMessage"),
+                LocalizationService.Instance.GetString("AIChat_NewConversationTitle"),
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Question);
 
@@ -343,8 +353,8 @@ namespace BacklogManager.Views
                 Messages.Add(new ChatMessage
                 {
                     IsUser = false,
-                    Auteur = "Agent Project & Change",
-                    Message = "Nouvelle conversation démarrée ! Comment puis-je vous aider ? 😊",
+                    Auteur = LocalizationService.Instance.GetString("AIChat_AgentTitle"),
+                    Message = LocalizationService.Instance.GetString("AIChat_NewConversationStarted"),
                     Horodatage = DateTime.Now.ToString("HH:mm")
                 });
             }
@@ -386,8 +396,8 @@ namespace BacklogManager.Views
         private void ChangeToken_Click(object sender, RoutedEventArgs e)
         {
             var result = MessageBox.Show(
-                "Voulez-vous modifier votre token d'accès API ?\n\nVous devrez saisir un nouveau token.",
-                "Modifier le token",
+                LocalizationService.Instance.GetString("AIAnalysis_TokenConfig_Message"),
+                LocalizationService.Instance.GetString("AIChat_ModifyTokenTitle"),
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Question);
 

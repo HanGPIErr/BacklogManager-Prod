@@ -1,10 +1,15 @@
 <Window x:Class="BacklogManager.Views.ProgrammeEditionWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:BacklogManager.Services"
         Title="Programme" Height="650" Width="650"
         WindowStartupLocation="CenterOwner"
         Background="#F5F5F5"
         ResizeMode="CanResize">
+    
+    <Window.Resources>
+        <local:LocalizationService x:Key="Localization"/>
+    </Window.Resources>
     
     <Grid>
         <Grid.RowDefinitions>
@@ -22,9 +27,9 @@
                 </LinearGradientBrush>
             </Border.Background>
             <StackPanel>
-                <TextBlock Text="📊 GESTION DU PROGRAMME" 
+                <TextBlock x:Name="TxtTitle" Text="📊 GESTION DU PROGRAMME" 
                            FontSize="20" FontWeight="Bold" Foreground="White"/>
-                <TextBlock Text="Créer ou modifier un programme" 
+                <TextBlock x:Name="TxtSubtitle" Text="Créer ou modifier un programme" 
                            FontSize="12" Foreground="White" Opacity="0.9" Margin="0,5,0,0"/>
             </StackPanel>
         </Border>
@@ -38,34 +43,34 @@
                 
                 <StackPanel>
                     <!-- Nom -->
-                    <TextBlock Text="Nom du programme *" FontSize="13" FontWeight="SemiBold" 
+                    <TextBlock x:Name="LblName" Text="Nom du programme *" FontSize="13" FontWeight="SemiBold" 
                                Foreground="#333" Margin="0,0,0,8"/>
                     <TextBox x:Name="TxtNom" FontSize="14" Padding="12,10" Height="40"
                              BorderBrush="#E0E0E0" BorderThickness="1" Margin="0,0,0,20"/>
 
                     <!-- Code -->
-                    <TextBlock Text="Code" FontSize="13" FontWeight="SemiBold" 
+                    <TextBlock x:Name="LblCode" Text="Code" FontSize="13" FontWeight="SemiBold" 
                                Foreground="#333" Margin="0,0,0,8"/>
                     <TextBox x:Name="TxtCode" FontSize="14" Padding="12,10" Height="40"
                              BorderBrush="#E0E0E0" BorderThickness="1" Margin="0,0,0,20"
                              CharacterCasing="Upper"/>
 
                     <!-- Description -->
-                    <TextBlock Text="Description" FontSize="13" FontWeight="SemiBold" 
+                    <TextBlock x:Name="LblDescription" Text="Description" FontSize="13" FontWeight="SemiBold" 
                                Foreground="#333" Margin="0,0,0,8"/>
                     <TextBox x:Name="TxtDescription" FontSize="14" Padding="12,10" Height="60"
                              BorderBrush="#E0E0E0" BorderThickness="1" Margin="0,0,0,20"
                              TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"/>
 
                     <!-- Objectifs -->
-                    <TextBlock Text="Objectifs" FontSize="13" FontWeight="SemiBold" 
+                    <TextBlock x:Name="LblObjectifs" Text="Objectifs" FontSize="13" FontWeight="SemiBold" 
                                Foreground="#333" Margin="0,0,0,8"/>
                     <TextBox x:Name="TxtObjectifs" FontSize="14" Padding="12,10" Height="80"
                              BorderBrush="#E0E0E0" BorderThickness="1" Margin="0,0,0,20"
                              TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"/>
 
                     <!-- Responsable -->
-                    <TextBlock Text="👤 Responsable du programme" FontSize="13" FontWeight="SemiBold" 
+                    <TextBlock x:Name="LblResponsable" Text="👤 Responsable du programme" FontSize="13" FontWeight="SemiBold" 
                                Foreground="#333" Margin="0,0,0,8"/>
                     <ComboBox x:Name="CboResponsable" FontSize="14" Padding="12,10" Height="40"
                               BorderBrush="#E0E0E0" BorderThickness="1" Margin="0,0,0,20"
@@ -81,7 +86,7 @@
 
                         <!-- Date début -->
                         <StackPanel Grid.Column="0">
-                            <TextBlock Text="Date de début" FontSize="13" FontWeight="SemiBold" 
+                            <TextBlock x:Name="LblStartDate" Text="Date de début" FontSize="13" FontWeight="SemiBold" 
                                        Foreground="#333" Margin="0,0,0,8"/>
                             <DatePicker x:Name="DtpDateDebut" FontSize="14" Padding="12,10" Height="40"
                                         BorderBrush="#E0E0E0" BorderThickness="1"/>
@@ -89,7 +94,7 @@
 
                         <!-- Date fin cible -->
                         <StackPanel Grid.Column="2">
-                            <TextBlock Text="Date fin cible" FontSize="13" FontWeight="SemiBold" 
+                            <TextBlock x:Name="LblEndDate" Text="Date fin cible" FontSize="13" FontWeight="SemiBold" 
                                        Foreground="#333" Margin="0,0,0,8"/>
                             <DatePicker x:Name="DtpDateFinCible" FontSize="14" Padding="12,10" Height="40"
                                         BorderBrush="#E0E0E0" BorderThickness="1"/>
@@ -97,7 +102,7 @@
                     </Grid>
 
                     <!-- Statut global -->
-                    <TextBlock Text="Statut global" FontSize="13" FontWeight="SemiBold" 
+                    <TextBlock x:Name="LblGlobalStatus" Text="Statut global" FontSize="13" FontWeight="SemiBold" 
                                Foreground="#333" Margin="0,0,0,8"/>
                     <ComboBox x:Name="CboStatutGlobal" FontSize="14" Padding="12,10" Height="40"
                               BorderBrush="#E0E0E0" BorderThickness="1" Margin="0,0,0,10">

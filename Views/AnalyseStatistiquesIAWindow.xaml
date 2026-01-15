@@ -21,9 +21,9 @@
                        Width="50" Height="50" Margin="0,0,15,0" VerticalAlignment="Center"/>
 
                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                    <TextBlock Text="Agent Project &amp; Change" 
+                    <TextBlock x:Name="TxtAgentTitle" Text="Agent Project &amp; Change" 
                                FontSize="20" FontWeight="Bold" Foreground="#252423"/>
-                    <TextBlock Text="Analyse des statistiques et tendances" 
+                    <TextBlock x:Name="TxtAgentSubtitle" Text="Analyse des statistiques et tendances" 
                                FontSize="13" Foreground="#666666" Margin="0,3,0,0"/>
                 </StackPanel>
             </Grid>
@@ -38,7 +38,7 @@
                         <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.1"/>
                     </Border.Effect>
                     <StackPanel>
-                        <TextBlock Text="📅 Période Analysée" FontSize="15" FontWeight="Bold" Foreground="#00915A" Margin="0,0,0,10"/>
+                        <TextBlock x:Name="TxtTitlePeriode" Text="📅 Période Analysée" FontSize="15" FontWeight="Bold" Foreground="#00915A" Margin="0,0,0,10"/>
                         <TextBlock x:Name="TxtPeriode" FontSize="13" Foreground="#666666" TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>
@@ -61,7 +61,7 @@
                         </Border>
 
                         <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                            <TextBlock Text="Score de Performance" FontSize="16" FontWeight="Bold" Foreground="#252423"/>
+                            <TextBlock x:Name="TxtTitlePerformanceScore" Text="Score de Performance" FontSize="16" FontWeight="Bold" Foreground="#252423"/>
                             <TextBlock x:Name="TxtScoreDescription" FontSize="13" Foreground="#666666" 
                                        TextWrapping="Wrap" Margin="0,5,0,0"/>
                         </StackPanel>
@@ -74,7 +74,7 @@
                         <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.1"/>
                     </Border.Effect>
                     <StackPanel>
-                        <TextBlock Text="📊 Vue d'Ensemble" FontSize="15" FontWeight="Bold" 
+                        <TextBlock x:Name="TxtTitleOverview" Text="📊 Vue d'Ensemble" FontSize="15" FontWeight="Bold" 
                                    Foreground="#00915A" Margin="0,0,0,10"/>
                         <TextBlock x:Name="TxtVueEnsemble" FontSize="13" Foreground="#444444" 
                                    TextWrapping="Wrap" LineHeight="22"/>
@@ -87,7 +87,7 @@
                         <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.1"/>
                     </Border.Effect>
                     <StackPanel>
-                        <TextBlock Text="👥 Performance par Développeur" FontSize="15" FontWeight="Bold" 
+                        <TextBlock x:Name="TxtTitleDevPerformance" Text="👥 Performance par Développeur" FontSize="15" FontWeight="Bold" 
                                    Foreground="#00915A" Margin="0,0,0,10"/>
                         <TextBlock x:Name="TxtPerformanceDev" FontSize="13" Foreground="#444444" 
                                    TextWrapping="Wrap" LineHeight="22"/>
@@ -100,7 +100,7 @@
                         <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.1"/>
                     </Border.Effect>
                     <StackPanel>
-                        <TextBlock Text="📈 Tendances et Patterns" FontSize="15" FontWeight="Bold" 
+                        <TextBlock x:Name="TxtTitleTrends" Text="📈 Tendances et Patterns" FontSize="15" FontWeight="Bold" 
                                    Foreground="#00915A" Margin="0,0,0,10"/>
                         <TextBlock x:Name="TxtTendances" FontSize="13" Foreground="#444444" 
                                    TextWrapping="Wrap" LineHeight="22"/>
@@ -113,7 +113,7 @@
                         <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.1"/>
                     </Border.Effect>
                     <StackPanel>
-                        <TextBlock Text="💡 Recommandations" FontSize="15" FontWeight="Bold" 
+                        <TextBlock x:Name="TxtTitleRecommendations" Text="💡 Recommandations" FontSize="15" FontWeight="Bold" 
                                    Foreground="#667eea" Margin="0,0,0,10"/>
                         <TextBlock x:Name="TxtRecommandations" FontSize="13" Foreground="#444444" 
                                    TextWrapping="Wrap" LineHeight="22"/>
@@ -126,7 +126,7 @@
                         <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.1"/>
                     </Border.Effect>
                     <StackPanel>
-                        <TextBlock Text="🎯 Actions Prioritaires" FontSize="15" FontWeight="Bold" 
+                        <TextBlock x:Name="TxtTitlePriorityActions" Text="🎯 Actions Prioritaires" FontSize="15" FontWeight="Bold" 
                                    Foreground="#FF6F00" Margin="0,0,0,10"/>
                         <TextBlock x:Name="TxtActions" FontSize="13" Foreground="#444444" 
                                    TextWrapping="Wrap" LineHeight="22"/>
@@ -154,9 +154,9 @@
                         </EventTrigger>
                     </TextBlock.Triggers>
                 </TextBlock>
-                <TextBlock Text="Agent analyse les statistiques..." 
+                <TextBlock x:Name="TxtLoadingAnalyzing" Text="Agent analyse les statistiques..." 
                           FontSize="16" Foreground="White" HorizontalAlignment="Center"/>
-                <TextBlock Text="Cela peut prendre quelques instants..." 
+                <TextBlock x:Name="TxtLoadingWait" Text="Cela peut prendre quelques instants..." 
                           FontSize="12" Foreground="#CCCCCC" HorizontalAlignment="Center" Margin="0,5,0,0"/>
             </StackPanel>
         </Grid>

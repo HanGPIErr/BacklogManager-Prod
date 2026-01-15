@@ -22,9 +22,44 @@ namespace BacklogManager.Views
             _viewModel = viewModel;
             _periodeDescription = periodeDescription;
             
+            InitialiserTextes();
             TxtPeriode.Text = periodeDescription;
             
             Loaded += async (s, e) => await AnalyserStatistiques();
+        }
+
+        private void InitialiserTextes()
+        {
+            var loc = Services.LocalizationService.Instance;
+
+            // Titres de header
+            TxtAgentTitle.Text = loc.GetString("AIAnalysis_AgentTitle");
+            TxtAgentSubtitle.Text = loc.GetString("AIAnalysis_AgentSubtitle");
+
+            // Titres des sections
+            TxtTitlePeriode.Text = loc.GetString("AIAnalysis_TitlePeriod");
+            TxtTitlePerformanceScore.Text = loc.GetString("AIAnalysis_TitlePerformanceScore");
+            TxtTitleOverview.Text = loc.GetString("AIAnalysis_TitleOverview");
+            TxtTitleDevPerformance.Text = loc.GetString("AIAnalysis_TitleDevPerformance");
+            TxtTitleTrends.Text = loc.GetString("AIAnalysis_TitleTrends");
+            TxtTitleRecommendations.Text = loc.GetString("AIAnalysis_TitleRecommendations");
+            TxtTitlePriorityActions.Text = loc.GetString("AIAnalysis_TitlePriorityActions");
+
+            // Textes de chargement
+            TxtLoadingAnalyzing.Text = loc.GetString("AIAnalysis_LoadingAnalyzing");
+            TxtLoadingWait.Text = loc.GetString("AIAnalysis_LoadingWait");
+
+            // Titre de la fenêtre
+            this.Title = loc.GetString("AIAnalysis_WindowTitle");
+
+            // Écouter les changements de langue
+            loc.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == "Item[]")
+                {
+                    InitialiserTextes();
+                }
+            };
         }
 
         private async Task AnalyserStatistiques()

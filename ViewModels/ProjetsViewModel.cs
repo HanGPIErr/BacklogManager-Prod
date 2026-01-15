@@ -352,18 +352,18 @@ namespace BacklogManager.ViewModels
 
             OptionsTriDisponibles = new ObservableCollection<string>
             {
-                "Date (plus récent)",
-                "Date (plus ancien)",
-                "Nom (A-Z)",
-                "Nom (Z-A)",
-                "Nb tâches (plus)",
-                "Nb tâches (moins)"
+                LocalizationService.Instance.GetString("Projects_SortDateRecent"),
+                LocalizationService.Instance.GetString("Projects_SortDateOldest"),
+                LocalizationService.Instance.GetString("Projects_SortNameAZ"),
+                LocalizationService.Instance.GetString("Projects_SortNameZA"),
+                LocalizationService.Instance.GetString("Projects_SortTasksMore"),
+                LocalizationService.Instance.GetString("Projects_SortTasksLess")
             };
 
             // Priorités projets (nouvelles valeurs)
             PrioritesDisponibles = new ObservableCollection<string>
             {
-                "-- Toutes --",
+                LocalizationService.Instance.GetString("Projects_AllFeminine"),
                 "Top High",
                 "High",
                 "Medium",
@@ -373,14 +373,14 @@ namespace BacklogManager.ViewModels
             // Statuts RAG
             StatutsRAGDisponibles = new ObservableCollection<string>
             {
-                "-- Tous --",
+                LocalizationService.Instance.GetString("Projects_AllMasculine"),
                 "Green",
                 "Amber",
                 "Red"
             };
 
             // Équipes disponibles
-            EquipesDisponibles = new ObservableCollection<string> { "-- Toutes --" };
+            EquipesDisponibles = new ObservableCollection<string> { LocalizationService.Instance.GetString("Projects_AllFeminine") };
             var equipes = _backlogService.GetAllEquipes();
             foreach (var equipe in equipes)
             {
@@ -388,10 +388,10 @@ namespace BacklogManager.ViewModels
             }
 
             _filterActifsOnly = true;
-            _triSelection = "Date (plus récent)";
-            _prioriteSelectionnee = "-- Toutes --";
-            _statutRAGSelectionne = "-- Tous --";
-            _equipeSelectionnee = "-- Toutes --";
+            _triSelection = LocalizationService.Instance.GetString("Projects_SortDateRecent");
+            _prioriteSelectionnee = LocalizationService.Instance.GetString("Projects_AllFeminine");
+            _statutRAGSelectionne = LocalizationService.Instance.GetString("Projects_AllMasculine");
+            _equipeSelectionnee = LocalizationService.Instance.GetString("Projects_AllFeminine");
 
             AjouterProjetCommand = new RelayCommand(_ => AjouterProjet(), _ => CanAjouterProjet());
             RefreshCommand = new RelayCommand(_ => LoadProjets());
@@ -461,14 +461,14 @@ namespace BacklogManager.ViewModels
             }
 
             // Filtre Priorité (nouvelles valeurs: Top High, High, Medium, Low)
-            if (!string.IsNullOrWhiteSpace(PrioriteSelectionnee) && PrioriteSelectionnee != "-- Toutes --")
+            if (!string.IsNullOrWhiteSpace(PrioriteSelectionnee) && PrioriteSelectionnee != LocalizationService.Instance.GetString("Projects_AllFeminine"))
             {
                 projetsFiltered = projetsFiltered.Where(p => 
                     p.Projet.Priorite != null && p.Projet.Priorite.Equals(PrioriteSelectionnee, StringComparison.OrdinalIgnoreCase));
             }
 
             // Filtre Équipe
-            if (!string.IsNullOrWhiteSpace(EquipeSelectionnee) && EquipeSelectionnee != "-- Toutes --")
+            if (!string.IsNullOrWhiteSpace(EquipeSelectionnee) && EquipeSelectionnee != LocalizationService.Instance.GetString("Projects_AllFeminine"))
             {
                 var equipe = _backlogService.GetAllEquipes().FirstOrDefault(e => e.Nom == EquipeSelectionnee);
                 if (equipe != null)
@@ -481,7 +481,7 @@ namespace BacklogManager.ViewModels
             }
 
             // Filtre Statut RAG
-            if (!string.IsNullOrWhiteSpace(StatutRAGSelectionne) && StatutRAGSelectionne != "-- Tous --")
+            if (!string.IsNullOrWhiteSpace(StatutRAGSelectionne) && StatutRAGSelectionne != LocalizationService.Instance.GetString("Projects_AllMasculine"))
             {
                 // Filtrer sur le StatutRAGDisplay calculé (pas le manuel)
                 projetsFiltered = projetsFiltered.Where(p => 
@@ -491,22 +491,22 @@ namespace BacklogManager.ViewModels
             // Tri
             switch (TriSelection)
             {
-                case "Date (plus récent)":
+                case var sort when sort == LocalizationService.Instance.GetString("Projects_SortDateRecent"):
                     projetsFiltered = projetsFiltered.OrderByDescending(p => p.Projet.DateCreation);
                     break;
-                case "Date (plus ancien)":
+                case var sort when sort == LocalizationService.Instance.GetString("Projects_SortDateOldest"):
                     projetsFiltered = projetsFiltered.OrderBy(p => p.Projet.DateCreation);
                     break;
-                case "Nom (A-Z)":
+                case var sort when sort == LocalizationService.Instance.GetString("Projects_SortNameAZ"):
                     projetsFiltered = projetsFiltered.OrderBy(p => p.Projet.Nom);
                     break;
-                case "Nom (Z-A)":
+                case var sort when sort == LocalizationService.Instance.GetString("Projects_SortNameZA"):
                     projetsFiltered = projetsFiltered.OrderByDescending(p => p.Projet.Nom);
                     break;
-                case "Nb tâches (plus)":
+                case var sort when sort == LocalizationService.Instance.GetString("Projects_SortTasksMore"):
                     projetsFiltered = projetsFiltered.OrderByDescending(p => p.TotalTaches);
                     break;
-                case "Nb tâches (moins)":
+                case var sort when sort == LocalizationService.Instance.GetString("Projects_SortTasksLess"):
                     projetsFiltered = projetsFiltered.OrderBy(p => p.TotalTaches);
                     break;
             }
@@ -522,9 +522,10 @@ namespace BacklogManager.ViewModels
         {
             SearchText = "";
             FilterActifsOnly = true;
-            TriSelection = "Date (plus récent)";
-            PrioriteSelectionnee = "-- Toutes --";
-            StatutRAGSelectionne = "-- Tous --";
+            TriSelection = LocalizationService.Instance.GetString("Projects_SortDateRecent");
+            PrioriteSelectionnee = LocalizationService.Instance.GetString("Projects_AllFeminine");
+            StatutRAGSelectionne = LocalizationService.Instance.GetString("Projects_AllMasculine");
+            EquipeSelectionnee = LocalizationService.Instance.GetString("Projects_AllFeminine");
         }
 
         private void LoadTachesProjet()

@@ -33,8 +33,8 @@
                     <DropShadowEffect BlurRadius="16" ShadowDepth="2" Opacity="0.2" Color="#00915A"/>
                 </Border.Effect>
                 <StackPanel>
-                    <TextBlock Text="⚙️ PARAMÈTRES" FontSize="28" FontWeight="Bold" Foreground="White"/>
-                    <TextBlock Text="Configuration de l'application et gestion des données" 
+                    <TextBlock x:Name="TxtTitle" Text="⚙️ PARAMÈTRES" FontSize="28" FontWeight="Bold" Foreground="White"/>
+                    <TextBlock x:Name="TxtSubtitle" Text="Configuration de l'application et gestion des données" 
                                FontSize="14" Foreground="White" Opacity="0.9" Margin="0,5,0,0"/>
                 </StackPanel>
             </Border>
@@ -51,9 +51,9 @@
                     <DropShadowEffect BlurRadius="16" ShadowDepth="0" Opacity="0.2" Color="#D0D0D0"/>
                 </Border.Effect>
                 <StackPanel>
-                    <TextBlock Text="💾 Base de données" Style="{StaticResource SectionTitle}"/>
+                    <TextBlock x:Name="TxtDatabaseSection" Text="💾 Base de données" Style="{StaticResource SectionTitle}"/>
                     
-                    <TextBlock Text="Chemin de la base de données:" FontWeight="SemiBold" Margin="0,0,0,8" Foreground="#666"/>
+                    <TextBlock x:Name="TxtDatabasePath" Text="Chemin de la base de données:" FontWeight="SemiBold" Margin="0,0,0,8" Foreground="#666"/>
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -91,7 +91,7 @@
                         </Button>
                     </Grid>
                     
-                    <TextBlock Text="ℹ️ Redémarrage requis après modification du chemin" 
+                    <TextBlock x:Name="TxtRestartRequired" Text="ℹ️ Redémarrage requis après modification du chemin" 
                                Foreground="#FF8C00" FontSize="12" Margin="0,8,0,0" 
                                FontStyle="Italic"/>
                 </StackPanel>
@@ -109,9 +109,9 @@
                     <DropShadowEffect BlurRadius="16" ShadowDepth="0" Opacity="0.2" Color="#D0D0D0"/>
                 </Border.Effect>
                 <StackPanel>
-                    <TextBlock Text="📤 Export / Import des données" Style="{StaticResource SectionTitle}"/>
+                    <TextBlock x:Name="TxtExportImportSection" Text="📤 Export / Import des données" Style="{StaticResource SectionTitle}"/>
                     
-                    <TextBlock Text="Export des données (base complète):" FontWeight="SemiBold" Margin="0,0,0,10" Foreground="#666"/>
+                    <TextBlock x:Name="TxtExportFull" Text="Export des données (base complète):" FontWeight="SemiBold" Margin="0,0,0,10" Foreground="#666"/>
                     <WrapPanel Orientation="Horizontal" Margin="0,0,0,20">
                         <Button x:Name="BtnExportSQLite" Content="💾 Exporter SQLite (.db)" 
                                 Background="#00915A" Foreground="White" 
@@ -124,12 +124,12 @@
                                 Click="BtnExportComplet_Click"/>
                     </WrapPanel>
                     
-                    <TextBlock Text="Export partiel:" FontWeight="SemiBold" Margin="0,0,0,10" Foreground="#666"/>
+                    <TextBlock x:Name="TxtExportPartial" Text="Export partiel:" FontWeight="SemiBold" Margin="0,0,0,10" Foreground="#666"/>
                     <Button x:Name="BtnExportCSV" Content="📊 Exporter backlog en CSV" 
                             Background="#95A5A6" Foreground="White" 
                             Click="BtnExportCSV_Click" Width="240" HorizontalAlignment="Left" Margin="5,0,0,20"/>
 
-                    <TextBlock Text="Import des données:" FontWeight="SemiBold" Margin="0,0,0,10" Foreground="#666"/>
+                    <TextBlock x:Name="TxtImportData" Text="Import des données:" FontWeight="SemiBold" Margin="0,0,0,10" Foreground="#666"/>
                     <WrapPanel Orientation="Horizontal">
                         <Button x:Name="BtnImportSQLite" Content="📥 Importer SQLite (.db)" 
                                 Background="#E67E22" Foreground="White" 
@@ -153,24 +153,24 @@
                     <DropShadowEffect BlurRadius="16" ShadowDepth="0" Opacity="0.2" Color="#D0D0D0"/>
                 </Border.Effect>
                 <StackPanel>
-                    <TextBlock Text="🎨 Apparence" Style="{StaticResource SectionTitle}"/>
+                    <TextBlock x:Name="TxtAppearanceSection" Text="🎨 Apparence" Style="{StaticResource SectionTitle}"/>
                     
-                    <TextBlock Text="Thème de l'interface:" FontWeight="SemiBold" Margin="0,0,0,8" Foreground="#666"/>
+                    <TextBlock x:Name="TxtTheme" Text="Thème de l'interface:" FontWeight="SemiBold" Margin="0,0,0,8" Foreground="#666"/>
                     <ComboBox x:Name="CboTheme" Height="40" Padding="12" FontSize="13" Margin="0,0,0,15"
                               SelectedIndex="0" SelectionChanged="CboTheme_SelectionChanged">
-                        <ComboBoxItem Content="🌞 Clair (par défaut)"/>
-                        <ComboBoxItem Content="🌙 Sombre (prochainement)"/>
+                        <ComboBoxItem x:Name="CboThemeLight" Content="🌞 Clair (par défaut)"/>
+                        <ComboBoxItem x:Name="CboThemeDark" Content="🌙 Sombre (prochainement)"/>
                     </ComboBox>
                     
-                    <TextBlock Text="Langue de l'interface:" FontWeight="SemiBold" Margin="0,0,0,8" Foreground="#666"/>
+                    <TextBlock x:Name="TxtLanguage" Text="Langue de l'interface:" FontWeight="SemiBold" Margin="0,0,0,8" Foreground="#666"/>
                     <ComboBox x:Name="CboLangue" Height="40" Padding="12" FontSize="13" Margin="0,0,0,10"
-                              SelectedIndex="0" SelectionChanged="CboLangue_SelectionChanged">
-                        <ComboBoxItem Content="🇫🇷 Français (actuel)"/>
-                        <ComboBoxItem Content="🇬🇧 English (prochainement)"/>
-                        <ComboBoxItem Content="🇪🇸 Español (prochainement)"/>
+                              SelectionChanged="CboLangue_SelectionChanged">
+                        <ComboBoxItem Content="🇫🇷 Français" Tag="fr"/>
+                        <ComboBoxItem Content="🇬🇧 English" Tag="en"/>
+                        <ComboBoxItem Content="🇪🇸 Español" Tag="es"/>
                     </ComboBox>
                     
-                    <TextBlock Text="💡 Les changements de langue et de thème seront disponibles dans une prochaine version" 
+                    <TextBlock x:Name="TxtLanguageChangeLater" Text="ℹ️ Le changement de langue sera appliqué au prochain démarrage" 
                                Foreground="#3498DB" FontSize="12" Margin="0,5,0,0" 
                                FontStyle="Italic"/>
                 </StackPanel>
@@ -188,7 +188,7 @@
                     <DropShadowEffect BlurRadius="16" ShadowDepth="0" Opacity="0.2" Color="#D0D0D0"/>
                 </Border.Effect>
                 <StackPanel>
-                    <TextBlock Text="🔔 Notifications" Style="{StaticResource SectionTitle}"/>
+                    <TextBlock x:Name="TxtNotificationsSection" Text="🔔 Notifications" Style="{StaticResource SectionTitle}"/>
                     
                     <CheckBox x:Name="ChkNotifTachesAssignees" Content="Notifications pour les tâches assignées" 
                               FontSize="13" Margin="0,0,0,10" IsChecked="True"/>
@@ -199,7 +199,7 @@
                     <CheckBox x:Name="ChkNotifMentions" Content="Alertes quand je suis mentionné (@utilisateur)" 
                               FontSize="13" Margin="0,0,0,10" IsChecked="True"/>
                     
-                    <TextBlock Text="💡 Les notifications sont actuellement gérées automatiquement. Paramétrage fin disponible prochainement" 
+                    <TextBlock x:Name="TxtNotifInfo" Text="💡 Les notifications sont actuellement gérées automatiquement. Paramétrage fin disponible prochainement" 
                                Foreground="#3498DB" FontSize="12" Margin="0,5,0,0" 
                                FontStyle="Italic"/>
                 </StackPanel>
@@ -217,9 +217,9 @@
                     <DropShadowEffect BlurRadius="16" ShadowDepth="0" Opacity="0.2" Color="#D0D0D0"/>
                 </Border.Effect>
                 <StackPanel>
-                    <TextBlock Text="🔧 Maintenance" Style="{StaticResource SectionTitle}"/>
+                    <TextBlock x:Name="TxtMaintenanceSection" Text="🔧 Maintenance" Style="{StaticResource SectionTitle}"/>
                     
-                    <TextBlock Text="Nettoyage et optimisation:" FontWeight="SemiBold" Margin="0,0,0,10" Foreground="#666"/>
+                    <TextBlock x:Name="TxtCleanup" Text="Nettoyage et optimisation:" FontWeight="SemiBold" Margin="0,0,0,10" Foreground="#666"/>
                     <WrapPanel Orientation="Horizontal" Margin="0,0,0,20">
                         <Button x:Name="BtnViderCache" Content="🗑️ Vider le cache" 
                                 Background="#E74C3C" Foreground="White" 
@@ -232,7 +232,7 @@
                                 Click="BtnReinitialiser_Click"/>
                     </WrapPanel>
                     
-                    <TextBlock Text="⚠️ Attention: La réinitialisation supprimera TOUTES les données" 
+                    <TextBlock x:Name="TxtResetWarning" Text="⚠️ Attention: La réinitialisation supprimera TOUTES les données" 
                                Foreground="#E74C3C" FontSize="12" Margin="0,0,0,0" 
                                FontWeight="SemiBold"/>
                 </StackPanel>
@@ -250,7 +250,7 @@
                     <DropShadowEffect BlurRadius="16" ShadowDepth="0" Opacity="0.2" Color="#D0D0D0"/>
                 </Border.Effect>
                 <StackPanel>
-                    <TextBlock Text="ℹ️ Informations système" Style="{StaticResource SectionTitle}"/>
+                    <TextBlock x:Name="TxtInfoSection" Text="ℹ️ Informations système" Style="{StaticResource SectionTitle}"/>
                     
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -264,16 +264,16 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Version:" FontWeight="SemiBold" Margin="0,0,0,8" Foreground="#666"/>
+                        <TextBlock Grid.Row="0" Grid.Column="0" x:Name="TxtLabelVersion" Text="Version:" FontWeight="SemiBold" Margin="0,0,0,8" Foreground="#666"/>
                         <TextBlock Grid.Row="0" Grid.Column="1" x:Name="TxtVersion" Text="1.0.0" Margin="0,0,0,8" Foreground="#333"/>
                         
-                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Base de données:" FontWeight="SemiBold" Margin="0,0,0,8" Foreground="#666"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" x:Name="TxtLabelDatabase" Text="Base de données:" FontWeight="SemiBold" Margin="0,0,0,8" Foreground="#666"/>
                         <TextBlock Grid.Row="1" Grid.Column="1" x:Name="TxtTailleDB" Text="-" Margin="0,0,0,8" Foreground="#333"/>
                         
-                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Nombre de tâches:" FontWeight="SemiBold" Margin="0,0,0,8" Foreground="#666"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" x:Name="TxtLabelTaskCount" Text="Nombre de tâches:" FontWeight="SemiBold" Margin="0,0,0,8" Foreground="#666"/>
                         <TextBlock Grid.Row="2" Grid.Column="1" x:Name="TxtNbTaches" Text="-" Margin="0,0,0,8" Foreground="#333"/>
                         
-                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Nombre d'utilisateurs:" FontWeight="SemiBold" Foreground="#666"/>
+                        <TextBlock Grid.Row="3" Grid.Column="0" x:Name="TxtLabelUserCount" Text="Nombre d'utilisateurs:" FontWeight="SemiBold" Foreground="#666"/>
                         <TextBlock Grid.Row="3" Grid.Column="1" x:Name="TxtNbUtilisateurs" Text="-" Foreground="#333"/>
                     </Grid>
                 </StackPanel>

@@ -1,6 +1,7 @@
 <Window x:Class="BacklogManager.Views.EquipeEditionWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:BacklogManager.Services"
         Title="Équipe" Height="500" Width="600"
         WindowStartupLocation="CenterOwner"
         Background="#F5F5F5"
@@ -22,9 +23,9 @@
                 </LinearGradientBrush>
             </Border.Background>
             <StackPanel>
-                <TextBlock Text="🏢 GESTION DE L'ÉQUIPE" 
+                <TextBlock x:Name="TxtTitle" Text="🏢 GESTION DE L'ÉQUIPE" 
                            FontSize="20" FontWeight="Bold" Foreground="White"/>
-                <TextBlock Text="Créer ou modifier une équipe" 
+                <TextBlock x:Name="TxtSubtitle" Text="Créer ou modifier une équipe" 
                            FontSize="12" Foreground="White" Opacity="0.9" Margin="0,5,0,0"/>
             </StackPanel>
         </Border>
@@ -38,43 +39,43 @@
                 
                 <StackPanel>
                     <!-- Nom -->
-                    <TextBlock Text="Nom de l'équipe *" FontSize="13" FontWeight="SemiBold" 
+                    <TextBlock x:Name="LblName" Text="Nom de l'équipe *" FontSize="13" FontWeight="SemiBold" 
                                Foreground="#333" Margin="0,0,0,8"/>
                     <TextBox x:Name="TxtNom" FontSize="14" Padding="12,10" Height="40"
                              BorderBrush="#E0E0E0" BorderThickness="1" Margin="0,0,0,20"/>
 
                     <!-- Code -->
-                    <TextBlock Text="Code *" FontSize="13" FontWeight="SemiBold" 
+                    <TextBlock x:Name="LblCode" Text="Code *" FontSize="13" FontWeight="SemiBold" 
                                Foreground="#333" Margin="0,0,0,8"/>
                     <TextBox x:Name="TxtCode" FontSize="14" Padding="12,10" Height="40"
                              BorderBrush="#E0E0E0" BorderThickness="1" Margin="0,0,0,20"
                              CharacterCasing="Upper"/>
 
                     <!-- Description -->
-                    <TextBlock Text="Description" FontSize="13" FontWeight="SemiBold" 
+                    <TextBlock x:Name="LblDescription" Text="Description" FontSize="13" FontWeight="SemiBold" 
                                Foreground="#333" Margin="0,0,0,8"/>
                     <TextBox x:Name="TxtDescription" FontSize="14" Padding="12,10" Height="60"
                              BorderBrush="#E0E0E0" BorderThickness="1" Margin="0,0,0,20"
                              TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"/>
 
                     <!-- Périmètre fonctionnel -->
-                    <TextBlock Text="Périmètre fonctionnel" FontSize="13" FontWeight="SemiBold" 
+                    <TextBlock x:Name="LblFunctionalScope" Text="Périmètre fonctionnel" FontSize="13" FontWeight="SemiBold" 
                                Foreground="#333" Margin="0,0,0,8"/>
                     <TextBox x:Name="TxtPerimetreFonctionnel" FontSize="14" Padding="12,10" Height="60"
                              BorderBrush="#E0E0E0" BorderThickness="1" Margin="0,0,0,20"
                              TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"/>
 
                     <!-- Manager -->
-                    <TextBlock Text="👤 Manager de l'équipe" FontSize="13" FontWeight="SemiBold" 
+                    <TextBlock x:Name="LblManager" Text="👤 Manager de l'équipe" FontSize="13" FontWeight="SemiBold" 
                                Foreground="#333" Margin="0,0,0,8"/>
                     <ComboBox x:Name="CboManager" FontSize="14" Padding="12,10" Height="40"
                               BorderBrush="#E0E0E0" BorderThickness="1" Margin="0,0,0,5"
                               DisplayMemberPath="Display" SelectedValuePath="Id"/>
-                    <TextBlock Text="Le manager n'est pas compté dans les membres de l'équipe" 
+                    <TextBlock x:Name="LblManagerNote" Text="Le manager n'est pas compté dans les membres de l'équipe" 
                                FontSize="11" Foreground="#999" Margin="0,0,0,15" FontStyle="Italic"/>
 
                     <!-- Contact -->
-                    <TextBlock Text="Contact (email)" FontSize="13" FontWeight="SemiBold" 
+                    <TextBlock x:Name="LblContact" Text="Contact (email)" FontSize="13" FontWeight="SemiBold" 
                                Foreground="#333" Margin="0,0,0,8"/>
                     <TextBox x:Name="TxtContact" FontSize="14" Padding="12,10" Height="40"
                              BorderBrush="#E0E0E0" BorderThickness="1" Margin="0,0,0,10"/>

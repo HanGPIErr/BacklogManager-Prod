@@ -11,6 +11,7 @@
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <shared:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
         <converters:BarWidthConverter x:Key="BarWidthConverter"/>
+        <converters:LocalizationConverter x:Key="LocalizationConverter"/>
         
         <!-- BNP Paribas Branding Colors -->
         <SolidColorBrush x:Key="BNPGreenBrush" Color="#00915A"/>

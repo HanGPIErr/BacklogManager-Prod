@@ -38,7 +38,7 @@
                     
                     <StackPanel Grid.Column="0" Orientation="Horizontal">
                         <TextBlock Text="📊" FontSize="28" VerticalAlignment="Center" Margin="0,0,12,0"/>
-                        <TextBlock Text="KANBAN BOARD" FontSize="26" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="TxtKanbanTitle" Text="KANBAN BOARD" FontSize="26" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
                         <Border Background="White" Opacity="0.3" Width="2" Height="32" Margin="20,0" CornerRadius="1"/>
                         <TextBlock Text="BNP Paribas" FontSize="18" Foreground="White" 
                                    VerticalAlignment="Center" FontWeight="SemiBold" Opacity="0.95"/>
@@ -51,7 +51,7 @@
                             </Border.Effect>
                             <TextBlock FontSize="13" Foreground="#00915A" FontWeight="Bold">
                                 <Run Text="✓"/>
-                                <Run Text="Vue Temps Réel"/>
+                                <Run x:Name="TxtRealTimeView" Text="Vue Temps Réel"/>
                             </TextBlock>
                         </Border>
                     </StackPanel>
@@ -68,10 +68,10 @@
             <StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
                     <TextBlock Text="🔐" FontSize="20" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                    <TextBlock Text="ZONE ADMINISTRATEUR" FontSize="18" FontWeight="Bold" 
+                    <TextBlock x:Name="TxtAdminZone" Text="ZONE ADMINISTRATEUR" FontSize="18" FontWeight="Bold" 
                                Foreground="#E65100" VerticalAlignment="Center"/>
                     <Border Background="#FFB800" CornerRadius="4" Padding="8,3" Margin="12,0,0,0">
-                        <TextBlock Text="Accès restreint" FontSize="10" FontWeight="Bold" Foreground="White"/>
+                        <TextBlock x:Name="TxtRestrictedAccess" Text="Accès restreint" FontSize="10" FontWeight="Bold" Foreground="White"/>
                     </Border>
                 </StackPanel>
                 
@@ -92,7 +92,7 @@
                                     <DropShadowEffect BlurRadius="6" ShadowDepth="0" Opacity="0.3" Color="#9C27B0"/>
                                 </Border.Effect>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <TextBlock Text="⏸ EN ATTENTE" Foreground="White" FontSize="13" FontWeight="Bold" Margin="0,0,8,0"/>
+                                    <TextBlock x:Name="TxtOnHold" Text="⏸ EN ATTENTE" Foreground="White" FontSize="13" FontWeight="Bold" Margin="0,0,8,0"/>
                                     <Border Background="White" CornerRadius="10" Padding="8,2" MinWidth="24">
                                         <TextBlock Text="{Binding ItemsEnAttente.Count}" Foreground="#9C27B0" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center"/>
                                     </Border>
@@ -123,7 +123,7 @@
                                                         <TextBlock Text="{Binding DevDisplayName}" FontSize="10" 
                                                                    Foreground="#666" Margin="0,0,10,0"/>
                                                         
-                                                        <Button Content="🔄 Réactiver" 
+                                                        <Button Content="{Binding DataContext.BtnReactivate, RelativeSource={RelativeSource AncestorType=UserControl}}" 
                                                                 Command="{Binding DataContext.ReactiverTacheCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                                 CommandParameter="{Binding Item}"
                                                                 Padding="6,3" Background="#4CAF50" Foreground="White" 
@@ -171,7 +171,7 @@
                                     <DropShadowEffect BlurRadius="6" ShadowDepth="0" Opacity="0.3" Color="#E91E63"/>
                                 </Border.Effect>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <TextBlock Text="⚡ A PRIORISER" Foreground="White" FontSize="13" FontWeight="Bold" Margin="0,0,8,0"/>
+                                    <TextBlock x:Name="TxtToPrioritize" Text="⚡ A PRIORISER" Foreground="White" FontSize="13" FontWeight="Bold" Margin="0,0,8,0"/>
                                     <Border Background="White" CornerRadius="10" Padding="8,2" MinWidth="24">
                                         <TextBlock Text="{Binding ItemsAPrioriser.Count}" Foreground="#E91E63" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center"/>
                                     </Border>
@@ -202,7 +202,7 @@
                                                         <TextBlock Text="{Binding DevDisplayName}" FontSize="10" 
                                                                    Foreground="#666" Margin="0,0,10,0"/>
                                                         
-                                                        <Button Content="✓ Activer" 
+                                                        <Button Content="{Binding DataContext.BtnActivate, RelativeSource={RelativeSource AncestorType=UserControl}}" 
                                                                 Command="{Binding DataContext.ReactiverTacheCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                                 CommandParameter="{Binding Item}"
                                                                 Padding="6,3" Background="#4CAF50" Foreground="White" 
@@ -257,12 +257,12 @@
                 <Border Background="#E8F5E9" CornerRadius="8" Padding="10,8" Margin="0,0,15,0">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="🔍" FontSize="18" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                        <TextBlock Text="Filtres" FontWeight="Bold" FontSize="15" 
+                        <TextBlock x:Name="TxtFilters" Text="Filtres" FontWeight="Bold" FontSize="15" 
                                    VerticalAlignment="Center" Foreground="#00915A"/>
                     </StackPanel>
                 </Border>
                 
-                <TextBlock Text="🏢 Équipe:" FontSize="13" VerticalAlignment="Center" Margin="10,0,8,0" FontWeight="SemiBold" Foreground="#555"/>
+                <TextBlock x:Name="TxtTeamFilter" Text="🏢 Équipe:" FontSize="13" VerticalAlignment="Center" Margin="10,0,8,0" FontWeight="SemiBold" Foreground="#555"/>
                 <ComboBox ItemsSource="{Binding Equipes}" DisplayMemberPath="Nom"
                           SelectedValue="{Binding SelectedEquipeId}" SelectedValuePath="Id" 
                           Width="200" Padding="10,7" Margin="0,0,15,0">
@@ -280,7 +280,7 @@
                     </ComboBox.Style>
                 </ComboBox>
                 
-                <TextBlock Text="👤 Membres:" FontSize="13" VerticalAlignment="Center" Margin="10,0,8,0" FontWeight="SemiBold" Foreground="#555"/>
+                <TextBlock x:Name="TxtMembersFilter" Text="👤 Membres:" FontSize="13" VerticalAlignment="Center" Margin="10,0,8,0" FontWeight="SemiBold" Foreground="#555"/>
                 <ComboBox ItemsSource="{Binding Devs}" DisplayMemberPath="Nom"
                           SelectedValue="{Binding SelectedDevId}" SelectedValuePath="Id" 
                           Width="170" Padding="10,7" Margin="0,0,15,0">
@@ -316,7 +316,7 @@
                     </ComboBox.ItemContainerStyle>
                 </ComboBox>
                 
-                <TextBlock Text="Projet:" FontSize="13" VerticalAlignment="Center" Margin="10,0,8,0" FontWeight="SemiBold" Foreground="#555"/>
+                <TextBlock x:Name="TxtProjectFilter" Text="Projet:" FontSize="13" VerticalAlignment="Center" Margin="10,0,8,0" FontWeight="SemiBold" Foreground="#555"/>
                 <ComboBox ItemsSource="{Binding Projets}" DisplayMemberPath="Nom"
                           SelectedValue="{Binding SelectedProjetId}" SelectedValuePath="Id" 
                           Width="170" Padding="10,7" Margin="0,0,15,0">
@@ -335,8 +335,9 @@
                 </ComboBox>
                 
                 <!-- Recherche rapide -->
-                <TextBlock Text="🔎 Recherche:" FontSize="13" VerticalAlignment="Center" Margin="10,0,8,0" FontWeight="SemiBold" Foreground="#555"/>
+                <TextBlock x:Name="TxtSearchFilter" Text="🔎 Recherche:" FontSize="13" VerticalAlignment="Center" Margin="10,0,8,0" FontWeight="SemiBold" Foreground="#555"/>
                 <TextBox Text="{Binding RechercheTexte, UpdateSourceTrigger=PropertyChanged}" 
+                         Tag="{Binding SearchPlaceholder}"
                          Width="220" Padding="10,7" Margin="0,0,15,0"
                          FontSize="13" VerticalAlignment="Center">
                     <TextBox.Style>
@@ -354,7 +355,8 @@
                                         <Setter.Value>
                                             <VisualBrush Stretch="None" AlignmentX="Left">
                                                 <VisualBrush.Visual>
-                                                    <TextBlock Text="Rechercher par titre..." Foreground="#999" Margin="10,0,0,0" FontSize="13"/>
+                                                    <TextBlock Text="{Binding Tag, RelativeSource={RelativeSource AncestorType=TextBox}}" 
+                                                               Foreground="#999" Margin="10,0,0,0" FontSize="13"/>
                                                 </VisualBrush.Visual>
                                             </VisualBrush>
                                         </Setter.Value>
@@ -365,7 +367,7 @@
                     </TextBox.Style>
                 </TextBox>
                 
-                <Button Content="🔄 Actualiser" Command="{Binding RefreshCommand}"
+                <Button x:Name="BtnRefresh" Content="🔄 Actualiser" Command="{Binding RefreshCommand}"
                         Padding="12,7" Margin="0,0,10,0" Foreground="White" 
                         BorderThickness="0" FontSize="13" FontWeight="Bold" Cursor="Hand">
                     <Button.Background>
@@ -403,7 +405,7 @@
                     </Button.Style>
                 </Button>
 
-                <Button Content="🗑️ Effacer filtres" Command="{Binding ClearFiltersCommand}"
+                <Button x:Name="BtnClearFilters" Content="🗑️ Effacer filtres" Command="{Binding ClearFiltersCommand}"
                         Padding="12,7" Background="#F5F5F5" Foreground="#666" 
                         BorderThickness="0" FontSize="13" FontWeight="Bold" Cursor="Hand">
                     <Button.Style>
@@ -466,7 +468,7 @@
                             <DropShadowEffect BlurRadius="6" ShadowDepth="0" Opacity="0.3" Color="#757575"/>
                         </Border.Effect>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <TextBlock Text="📋 À FAIRE" FontWeight="Bold" FontSize="14" 
+                            <TextBlock x:Name="TxtToDo" Text="📋 À FAIRE" FontWeight="Bold" FontSize="14" 
                                        Foreground="White" Margin="0,0,8,0"/>
                             <Border Background="White" CornerRadius="10" Padding="8,3" MinWidth="28">
                                 <TextBlock Text="{Binding ItemsAfaire.Count}" Foreground="#757575" 
@@ -576,7 +578,7 @@
                                                         </Style>
                                                     </TextBlock.Style>
                                                 </TextBlock>
-                                                <TextBlock Text=" jour(s) restant(s)" FontSize="11" Margin="2,0,0,0"/>
+                                                <TextBlock Text="{Binding DataContext.DaysRemaining, RelativeSource={RelativeSource AncestorType=UserControl}}" FontSize="11" Margin="2,0,0,0"/>
                                             </StackPanel>
 
                                             <!-- Charge et Avancement -->
@@ -603,7 +605,7 @@
                                                         </Style.Triggers>
                                                     </Style>
                                                 </Border.Style>
-                                                <TextBlock Text="{Binding AlertLevel}" FontSize="10" FontWeight="Bold" 
+                                                <TextBlock Text="{Binding AlertLevelDisplay}" FontSize="10" FontWeight="Bold" 
                                                            HorizontalAlignment="Center">
                                                     <TextBlock.Style>
                                                         <Style TargetType="TextBlock">
@@ -622,7 +624,8 @@
                                             </Border>
 
                                             <!-- Bouton Mettre en attente pour admin uniquement -->
-                                            <Button Content="⏸ Mettre en attente" Command="{Binding DataContext.MettreEnAttenteCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            <Button Content="{Binding DataContext.BtnPutOnHold, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                                    Command="{Binding DataContext.MettreEnAttenteCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                     CommandParameter="{Binding Item}"
                                                     Margin="0,8,0,0" Padding="8,4" Background="#9C27B0" Foreground="White" BorderThickness="0"
                                                     FontSize="11" FontWeight="SemiBold" Cursor="Hand"
@@ -676,7 +679,7 @@
                             <DropShadowEffect BlurRadius="6" ShadowDepth="0" Opacity="0.3" Color="#2196F3"/>
                         </Border.Effect>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <TextBlock Text="⚙️ EN COURS" FontWeight="Bold" FontSize="14" 
+                            <TextBlock x:Name="TxtInProgress" Text="⚙️ EN COURS" FontWeight="Bold" FontSize="14" 
                                        Foreground="White" Margin="0,0,8,0"/>
                             <Border Background="White" CornerRadius="10" Padding="8,3" MinWidth="28">
                                 <TextBlock Text="{Binding ItemsEnCours.Count}" Foreground="#2196F3" 
@@ -786,7 +789,7 @@
                                                         </Style>
                                                     </TextBlock.Style>
                                                 </TextBlock>
-                                                <TextBlock Text=" restant(s)" FontSize="11" Margin="2,0,0,0"/>
+                                                <TextBlock Text="{Binding DataContext.Remaining, RelativeSource={RelativeSource AncestorType=UserControl}}" FontSize="11" Margin="2,0,0,0"/>
                                             </StackPanel>
 
                                             <!-- Charge et Avancement -->
@@ -813,7 +816,7 @@
                                                         </Style.Triggers>
                                                     </Style>
                                                 </Border.Style>
-                                                <TextBlock Text="{Binding AlertLevel}" FontSize="10" FontWeight="Bold" 
+                                                <TextBlock Text="{Binding AlertLevelDisplay}" FontSize="10" FontWeight="Bold" 
                                                            HorizontalAlignment="Center">
                                                     <TextBlock.Style>
                                                         <Style TargetType="TextBlock">
@@ -832,7 +835,8 @@
                                             </Border>
 
                                             <!-- Bouton Mettre en attente pour admin uniquement -->
-                                            <Button Content="⏸ Mettre en attente" Command="{Binding DataContext.MettreEnAttenteCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            <Button Content="{Binding DataContext.BtnPutOnHold, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                                    Command="{Binding DataContext.MettreEnAttenteCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                     CommandParameter="{Binding Item}"
                                                     Margin="0,8,0,0" Padding="8,4" Background="#9C27B0" Foreground="White" BorderThickness="0"
                                                     FontSize="11" FontWeight="SemiBold" Cursor="Hand"
@@ -886,7 +890,7 @@
                             <DropShadowEffect BlurRadius="6" ShadowDepth="0" Opacity="0.3" Color="#FF9800"/>
                         </Border.Effect>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <TextBlock Text="🧪 EN TEST" FontWeight="Bold" FontSize="14" 
+                            <TextBlock x:Name="TxtInTest" Text="🧪 EN TEST" FontWeight="Bold" FontSize="14" 
                                        Foreground="White" Margin="0,0,8,0"/>
                             <Border Background="White" CornerRadius="10" Padding="8,3" MinWidth="28">
                                 <TextBlock Text="{Binding ItemsEnTest.Count}" Foreground="#FF9800" 
@@ -996,7 +1000,7 @@
                                                         </Style>
                                                     </TextBlock.Style>
                                                 </TextBlock>
-                                                <TextBlock Text=" restant(s)" FontSize="11" Margin="2,0,0,0"/>
+                                                <TextBlock Text="{Binding DataContext.Remaining, RelativeSource={RelativeSource AncestorType=UserControl}}" FontSize="11" Margin="2,0,0,0"/>
                                             </StackPanel>
 
                                             <!-- Charge et Avancement -->
@@ -1023,7 +1027,7 @@
                                                         </Style.Triggers>
                                                     </Style>
                                                 </Border.Style>
-                                                <TextBlock Text="{Binding AlertLevel}" FontSize="10" FontWeight="Bold" 
+                                                <TextBlock Text="{Binding AlertLevelDisplay}" FontSize="10" FontWeight="Bold" 
                                                            HorizontalAlignment="Center">
                                                     <TextBlock.Style>
                                                         <Style TargetType="TextBlock">
@@ -1042,7 +1046,8 @@
                                             </Border>
 
                                             <!-- Bouton Mettre en attente pour admin uniquement -->
-                                            <Button Content="⏸ Mettre en attente" Command="{Binding DataContext.MettreEnAttenteCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            <Button Content="{Binding DataContext.BtnPutOnHold, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                                    Command="{Binding DataContext.MettreEnAttenteCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                     CommandParameter="{Binding Item}"
                                                     Margin="0,8,0,0" Padding="8,4" Background="#9C27B0" Foreground="White" BorderThickness="0"
                                                     FontSize="11" FontWeight="SemiBold" Cursor="Hand"
@@ -1096,7 +1101,7 @@
                             <DropShadowEffect BlurRadius="6" ShadowDepth="0" Opacity="0.35" Color="#00915A"/>
                         </Border.Effect>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <TextBlock Text="✅ TERMINÉ" FontWeight="Bold" FontSize="14" 
+                            <TextBlock x:Name="TxtDone" Text="✅ TERMINÉ" FontWeight="Bold" FontSize="14" 
                                        Foreground="White" Margin="0,0,8,0"/>
                             <Border Background="White" CornerRadius="10" Padding="8,3" MinWidth="28">
                                 <TextBlock Text="{Binding ItemsTermine.Count}" Foreground="#00915A" 
@@ -1206,7 +1211,7 @@
                                                         </Style>
                                                     </TextBlock.Style>
                                                 </TextBlock>
-                                                <TextBlock Text=" restant(s)" FontSize="11" Margin="2,0,0,0"/>
+                                                <TextBlock Text="{Binding DataContext.Remaining, RelativeSource={RelativeSource AncestorType=UserControl}}" FontSize="11" Margin="2,0,0,0"/>
                                             </StackPanel>
 
                                             <!-- Charge et Avancement -->
@@ -1220,12 +1225,13 @@
                                             </StackPanel>
 
                                             <Border Margin="0,5,0,0" Padding="5" CornerRadius="4" Background="#E8F5E9">
-                                                <TextBlock Text="✓ TERMINÉ" FontSize="10" FontWeight="Bold" 
+                                                <TextBlock Text="{Binding DataContext.DoneLabel, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                                           FontSize="10" FontWeight="Bold" 
                                                            HorizontalAlignment="Center" Foreground="#2E7D32"/>
                                             </Border>
 
                                             <!-- Bouton Archiver (Admin uniquement) -->
-                                            <Button Content="📦 Archiver" 
+                                            <Button Content="{Binding DataContext.BtnArchive, RelativeSource={RelativeSource AncestorType=UserControl}}" 
                                                     Command="{Binding DataContext.ArchiverTacheCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                     CommandParameter="{Binding Item}"
                                                     Padding="8,5" Background="#00915A" Foreground="White" 

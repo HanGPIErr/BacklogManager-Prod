@@ -52,18 +52,19 @@ namespace BacklogManager.Services
             {
                 try
                 {
+                    var loc = LocalizationService.Instance;
                     if (isUpdate && oldItem != null)
                     {
                         var oldValue = $"Titre: {oldItem.Titre}, Statut: {oldItem.Statut}, Priorité: {oldItem.Priorite}, Complexité: {oldItem.Complexite}";
                         var newValue = $"Titre: {savedItem.Titre}, Statut: {savedItem.Statut}, Priorité: {savedItem.Priorite}, Complexité: {savedItem.Complexite}";
                         _auditLogService.LogUpdate("BacklogItem", savedItem.Id, oldValue, newValue, 
-                            $"Modification de la tâche #{savedItem.Id}");
+                            string.Format(loc["Audit_TaskModification"], savedItem.Id));
                     }
                     else
                     {
                         var newValue = $"Titre: {savedItem.Titre}, Statut: {savedItem.Statut}, Priorité: {savedItem.Priorite}";
                         _auditLogService.LogCreate("BacklogItem", savedItem.Id, newValue, 
-                            $"Création de la tâche #{savedItem.Id}");
+                            string.Format(loc["Audit_TaskCreation"], savedItem.Id));
                     }
                 }
                 catch

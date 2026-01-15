@@ -25,6 +25,9 @@ namespace BacklogManager.Views.Pages
             _database = database;
             _authService = authService;
             
+            // Initialiser les textes traduits
+            InitialiserTextes();
+            
             try
             {
                 ChargerDonnees();
@@ -36,6 +39,134 @@ namespace BacklogManager.Views.Pages
                 MessageBox.Show($"Erreur lors du chargement des données: {ex.Message}",
                     "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private void InitialiserTextes()
+        {
+            // Header principal
+            TxtReportingTitle.Text = LocalizationService.Instance.GetString("Reporting_Title");
+            TxtReportingDescription.Text = LocalizationService.Instance.GetString("Reporting_Description");
+            
+            // Boutons Vue Programme/Projet
+            TxtProgramView.Text = LocalizationService.Instance.GetString("Reporting_ProgramView");
+            TxtProjectView.Text = LocalizationService.Instance.GetString("Reporting_ProjectView");
+            
+            // Labels des formulaires
+            LblProgramme.Text = LocalizationService.Instance.GetString("Reporting_ProgramLabel");
+            LblProjet.Text = LocalizationService.Instance.GetString("Reporting_ProjectLabel");
+            LblEquipe.Text = LocalizationService.Instance.GetString("Reporting_TeamLabel");
+            LblPeriode.Text = LocalizationService.Instance.GetString("Reporting_AnalysisPeriod");
+            
+            // Bouton et messages
+            TxtApplyButton.Text = LocalizationService.Instance.GetString("Reporting_ApplyButton");
+            TxtSelectMessage.Text = LocalizationService.Instance.GetString("Reporting_SelectMessage");
+            TxtSelectSubMessage.Text = LocalizationService.Instance.GetString("Reporting_SelectSubMessage");
+            
+            // Labels KPIs
+            TxtLabelEquipes.Text = LocalizationService.Instance.GetString("Reporting_Teams");
+            TxtDescriptionEquipes.Text = LocalizationService.Instance.GetString("Reporting_TeamsDescription");
+            LblWorkloadDays1.Text = LocalizationService.Instance.GetString("Reporting_WorkloadDays");
+            LblWorkloadDays2.Text = LocalizationService.Instance.GetString("Reporting_WorkloadDays");
+            LblEstimatedWorkloadDays.Text = LocalizationService.Instance.GetString("Reporting_EstimatedWorkloadDays");
+
+            // Nouveaux KPIs
+            LblProgress.Text = LocalizationService.Instance.GetString("Reporting_Progress");
+            LblTasks.Text = LocalizationService.Instance.GetString("Reporting_Tasks");
+            LblDelivery.Text = LocalizationService.Instance.GetString("Reporting_Delivery");
+            LblVelocity.Text = LocalizationService.Instance.GetString("Reporting_Velocity");
+            LblPriorities.Text = LocalizationService.Instance.GetString("Reporting_Priorities");
+            LblHealthStatus.Text = LocalizationService.Instance.GetString("Reporting_HealthStatus");
+            LblDelayed.Text = LocalizationService.Instance.GetString("Reporting_Delayed");
+            LblComplexity.Text = LocalizationService.Instance.GetString("Reporting_Complexity");
+            LblComparativeView.Text = "📈 " + LocalizationService.Instance.GetString("Reporting_ComparativeView");
+            LblRemainingTasksComp.Text = LocalizationService.Instance.GetString("Reporting_RemainingTasks");
+            
+            // Métriques détaillées
+            LblTasksPerMonth.Text = LocalizationService.Instance.GetString("Reporting_TasksPerMonth");
+            LblActualVsEstimated.Text = LocalizationService.Instance.GetString("Reporting_ActualVsEstimated");
+            LblOnTrack.Text = LocalizationService.Instance.GetString("Reporting_OnTrack");
+            LblRetardTasks.Text = LocalizationService.Instance.GetString("Reporting_TasksLabel");
+            LblAverageComplexity.Text = LocalizationService.Instance.GetString("Reporting_Average");
+            
+            // Section Contributions des Ressources
+            LblContributionsTitle.Text = LocalizationService.Instance.GetString("Reporting_ContributionsTitle");
+            
+            // Vue Comparative
+            LblBeforePeriod1.Text = LocalizationService.Instance.GetString("Reporting_BeforePeriod");
+            LblBeforePeriod2.Text = LocalizationService.Instance.GetString("Reporting_BeforePeriod");
+            LblSelectedPeriod1.Text = LocalizationService.Instance.GetString("Reporting_SelectedPeriod");
+            LblSelectedPeriod2.Text = LocalizationService.Instance.GetString("Reporting_SelectedPeriod");
+            LblToDoRemaining.Text = LocalizationService.Instance.GetString("Reporting_ToDoRemaining");
+            LblCompletedTasksLabel1.Text = LocalizationService.Instance.GetString("Reporting_CompletedTasks");
+            LblCompletedTasksLabel2.Text = LocalizationService.Instance.GetString("Reporting_CompletedTasks");
+            LblTasksLabel1.Text = LocalizationService.Instance.GetString("Reporting_Tasks");
+            LblTasksLabel2.Text = LocalizationService.Instance.GetString("Reporting_Tasks");
+            LblWorkloadDays3.Text = LocalizationService.Instance.GetString("Reporting_WorkloadDays");
+            LblWorkloadDays4.Text = LocalizationService.Instance.GetString("Reporting_WorkloadDays");
+            LblAllCompleted.Text = LocalizationService.Instance.GetString("Reporting_AllCompleted");
+            
+            // Mettre à jour les en-têtes des colonnes du DataGrid
+            MettreAJourEntetes();
+
+            // S'abonner aux changements de langue
+            LocalizationService.Instance.PropertyChanged += (s, e) =>
+            {
+                TxtReportingTitle.Text = LocalizationService.Instance.GetString("Reporting_Title");
+                TxtReportingDescription.Text = LocalizationService.Instance.GetString("Reporting_Description");
+                TxtProgramView.Text = LocalizationService.Instance.GetString("Reporting_ProgramView");
+                TxtProjectView.Text = LocalizationService.Instance.GetString("Reporting_ProjectView");
+                LblProgramme.Text = LocalizationService.Instance.GetString("Reporting_ProgramLabel");
+                LblProjet.Text = LocalizationService.Instance.GetString("Reporting_ProjectLabel");
+                LblEquipe.Text = LocalizationService.Instance.GetString("Reporting_TeamLabel");
+                LblPeriode.Text = LocalizationService.Instance.GetString("Reporting_AnalysisPeriod");
+                TxtApplyButton.Text = LocalizationService.Instance.GetString("Reporting_ApplyButton");
+                TxtSelectMessage.Text = LocalizationService.Instance.GetString("Reporting_SelectMessage");
+                TxtSelectSubMessage.Text = LocalizationService.Instance.GetString("Reporting_SelectSubMessage");
+                TxtLabelEquipes.Text = LocalizationService.Instance.GetString("Reporting_Teams");
+                TxtDescriptionEquipes.Text = LocalizationService.Instance.GetString("Reporting_TeamsDescription");
+                LblWorkloadDays1.Text = LocalizationService.Instance.GetString("Reporting_WorkloadDays");
+                LblWorkloadDays2.Text = LocalizationService.Instance.GetString("Reporting_WorkloadDays");
+                LblEstimatedWorkloadDays.Text = LocalizationService.Instance.GetString("Reporting_EstimatedWorkloadDays");
+                
+                // Nouveaux KPIs
+                LblProgress.Text = LocalizationService.Instance.GetString("Reporting_Progress");
+                LblTasks.Text = LocalizationService.Instance.GetString("Reporting_Tasks");
+                LblDelivery.Text = LocalizationService.Instance.GetString("Reporting_Delivery");
+                LblVelocity.Text = LocalizationService.Instance.GetString("Reporting_Velocity");
+                LblPriorities.Text = LocalizationService.Instance.GetString("Reporting_Priorities");
+                LblHealthStatus.Text = LocalizationService.Instance.GetString("Reporting_HealthStatus");
+                LblDelayed.Text = LocalizationService.Instance.GetString("Reporting_Delayed");
+                LblComplexity.Text = LocalizationService.Instance.GetString("Reporting_Complexity");
+                LblComparativeView.Text = "📈 " + LocalizationService.Instance.GetString("Reporting_ComparativeView");
+                LblRemainingTasksComp.Text = LocalizationService.Instance.GetString("Reporting_RemainingTasks");
+                
+                // Métriques détaillées
+                LblTasksPerMonth.Text = LocalizationService.Instance.GetString("Reporting_TasksPerMonth");
+                LblActualVsEstimated.Text = LocalizationService.Instance.GetString("Reporting_ActualVsEstimated");
+                LblOnTrack.Text = LocalizationService.Instance.GetString("Reporting_OnTrack");
+                LblRetardTasks.Text = LocalizationService.Instance.GetString("Reporting_TasksLabel");
+                LblAverageComplexity.Text = LocalizationService.Instance.GetString("Reporting_Average");
+                
+                // Section Contributions des Ressources
+                LblContributionsTitle.Text = LocalizationService.Instance.GetString("Reporting_ContributionsTitle");
+                
+                // Vue Comparative
+                LblBeforePeriod1.Text = LocalizationService.Instance.GetString("Reporting_BeforePeriod");
+                LblBeforePeriod2.Text = LocalizationService.Instance.GetString("Reporting_BeforePeriod");
+                LblSelectedPeriod1.Text = LocalizationService.Instance.GetString("Reporting_SelectedPeriod");
+                LblSelectedPeriod2.Text = LocalizationService.Instance.GetString("Reporting_SelectedPeriod");
+                LblToDoRemaining.Text = LocalizationService.Instance.GetString("Reporting_ToDoRemaining");
+                LblCompletedTasksLabel1.Text = LocalizationService.Instance.GetString("Reporting_CompletedTasks");
+                LblCompletedTasksLabel2.Text = LocalizationService.Instance.GetString("Reporting_CompletedTasks");
+                LblTasksLabel1.Text = LocalizationService.Instance.GetString("Reporting_Tasks");
+                LblTasksLabel2.Text = LocalizationService.Instance.GetString("Reporting_Tasks");
+                LblWorkloadDays3.Text = LocalizationService.Instance.GetString("Reporting_WorkloadDays");
+                LblWorkloadDays4.Text = LocalizationService.Instance.GetString("Reporting_WorkloadDays");
+                LblAllCompleted.Text = LocalizationService.Instance.GetString("Reporting_AllCompleted");
+                
+                // Mettre à jour les en-têtes des colonnes du DataGrid
+                MettreAJourEntetes();
+            };
         }
 
         private void ChargerDonnees()
@@ -289,7 +420,7 @@ namespace BacklogManager.Views.Pages
                 TxtTachesCompletes.Text = tachesCompletes.ToString();
                 TxtTachesTotal.Text = totalTaches.ToString();
                 int tachesRestantes = totalTaches - tachesCompletes;
-                TxtTachesRestantes.Text = string.Format("{0} tâche(s) restante(s)", tachesRestantes);
+                TxtTachesRestantes.Text = string.Format("{0} " + LocalizationService.Instance.GetString("Reporting_RemainingTasksCount"), tachesRestantes);
                 
                 // Équipes impliquées (unique)
                 var equipesIds = new HashSet<int>();
@@ -304,7 +435,7 @@ namespace BacklogManager.Views.Pages
                     }
                 }
                 TxtNbEquipes.Text = equipesIds.Count.ToString();
-                TxtDescriptionEquipes.Text = "équipe(s) impliquée(s)";
+                TxtDescriptionEquipes.Text = LocalizationService.Instance.GetString("Reporting_TeamsInvolved");
                 
                 // Livraison - calculer la date de fin la plus tardive
                 DateTime? dateFinMax = null;
@@ -325,21 +456,21 @@ namespace BacklogManager.Views.Pages
                     var joursRestants = (dateFinMax.Value - DateTime.Now).Days;
                     if (joursRestants > 0)
                     {
-                        TxtDeadlineInfo.Text = string.Format("Dans {0} jour(s)", joursRestants);
+                        TxtDeadlineInfo.Text = string.Format(LocalizationService.Instance.GetString("Reporting_DaysRemaining"), joursRestants);
                     }
                     else if (joursRestants == 0)
                     {
-                        TxtDeadlineInfo.Text = "Aujourd'hui !";
+                        TxtDeadlineInfo.Text = LocalizationService.Instance.GetString("Reporting_Today");
                     }
                     else
                     {
-                        TxtDeadlineInfo.Text = string.Format("Retard de {0} jour(s)", Math.Abs(joursRestants));
+                        TxtDeadlineInfo.Text = string.Format(LocalizationService.Instance.GetString("Reporting_DaysDelayed"), Math.Abs(joursRestants));
                         TxtDeadlineInfo.Foreground = new SolidColorBrush(Color.FromRgb(244, 67, 54));
                     }
                 }
                 else
                 {
-                    TxtTargetDelivery.Text = "Non définie";
+                    TxtTargetDelivery.Text = LocalizationService.Instance.GetString("Reporting_NotDefined");
                     TxtDeadlineInfo.Text = "";
                 }
                 
@@ -458,7 +589,7 @@ namespace BacklogManager.Views.Pages
                 TxtTachesCompletes.Text = tachesCompletes.ToString();
                 TxtTachesTotal.Text = totalTaches.ToString();
                 int tachesRestantes = totalTaches - tachesCompletes;
-                TxtTachesRestantes.Text = string.Format("{0} tâche(s) restante(s)", tachesRestantes);
+                TxtTachesRestantes.Text = string.Format("{0} " + LocalizationService.Instance.GetString("Reporting_RemainingTasksCount"), tachesRestantes);
                 
                 // Équipes
                 if (equipe != null)
@@ -470,7 +601,7 @@ namespace BacklogManager.Views.Pages
                 {
                     int nbEquipes = projet.EquipesAssigneesIds != null ? projet.EquipesAssigneesIds.Count : 0;
                     TxtNbEquipes.Text = nbEquipes.ToString();
-                    TxtDescriptionEquipes.Text = "équipe(s) assignée(s)";
+                    TxtDescriptionEquipes.Text = LocalizationService.Instance.GetString("Reporting_TeamsInvolved");
                 }
                 
                 // Livraison
@@ -480,15 +611,15 @@ namespace BacklogManager.Views.Pages
                     var joursRestants = (projet.DateFinPrevue.Value - DateTime.Now).Days;
                     if (joursRestants > 0)
                     {
-                        TxtDeadlineInfo.Text = string.Format("Dans {0} jour(s)", joursRestants);
+                        TxtDeadlineInfo.Text = string.Format(LocalizationService.Instance.GetString("Reporting_DaysRemaining"), joursRestants);
                     }
                     else if (joursRestants == 0)
                     {
-                        TxtDeadlineInfo.Text = "Aujourd'hui !";
+                        TxtDeadlineInfo.Text = LocalizationService.Instance.GetString("Reporting_Today");
                     }
                     else
                     {
-                        TxtDeadlineInfo.Text = string.Format("Retard de {0} jour(s)", Math.Abs(joursRestants));
+                        TxtDeadlineInfo.Text = string.Format(LocalizationService.Instance.GetString("Reporting_DaysDelayed"), Math.Abs(joursRestants));
                         TxtDeadlineInfo.Foreground = new SolidColorBrush(Color.FromRgb(244, 67, 54));
                     }
                 }
@@ -611,9 +742,21 @@ namespace BacklogManager.Views.Pages
                         
                         if (!contributions.ContainsKey(devKey))
                         {
+                            // Récupérer le nom de l'équipe du développeur
+                            string nomEquipe = "-";
+                            if (dev.EquipeId.HasValue)
+                            {
+                                var equipe = _database.GetAllEquipes().FirstOrDefault(e => e.Id == dev.EquipeId.Value);
+                                if (equipe != null)
+                                {
+                                    nomEquipe = equipe.Nom;
+                                }
+                            }
+                            
                             contributions[devKey] = new ReportingContributionInfo
                             {
                                 NomDeveloppeur = devKey,
+                                NomEquipe = nomEquipe,
                                 TachesTotal = 0,
                                 TachesCompletes = 0,
                                 HeuresEstimees = 0
@@ -653,6 +796,23 @@ namespace BacklogManager.Views.Pages
             PanelComparatif.Visibility = Visibility.Visible;
             PanelTimelineGains.Visibility = Visibility.Visible;
             PanelContributions.Visibility = Visibility.Visible;
+
+            // Mettre à jour les en-têtes des colonnes du DataGrid
+            MettreAJourEntetes();
+        }
+        
+        private void MettreAJourEntetes()
+        {
+            // Mettre à jour les en-têtes des colonnes du DataGrid Contributions
+            if (ListeContributions?.Columns != null && ListeContributions.Columns.Count >= 6)
+            {
+                ((DataGridTextColumn)ListeContributions.Columns[0]).Header = LocalizationService.Instance.GetString("Reporting_Members");
+                ((DataGridTextColumn)ListeContributions.Columns[1]).Header = LocalizationService.Instance.GetString("Reporting_Team");
+                ((DataGridTextColumn)ListeContributions.Columns[2]).Header = LocalizationService.Instance.GetString("Reporting_CompletedTasks");
+                ((DataGridTextColumn)ListeContributions.Columns[3]).Header = LocalizationService.Instance.GetString("Reporting_CompletionRate");
+                ((DataGridTextColumn)ListeContributions.Columns[4]).Header = LocalizationService.Instance.GetString("Reporting_EstimatedDays");
+                ((DataGridTemplateColumn)ListeContributions.Columns[5]).Header = LocalizationService.Instance.GetString("Reporting_Contribution");
+            }
         }
 
         private void MasquerKPIs()
@@ -877,27 +1037,27 @@ namespace BacklogManager.Views.Pages
                     case "green":
                         BadgeRAG.Background = new SolidColorBrush(Color.FromRgb(76, 175, 80)); // #4CAF50
                         TxtStatutRAG.Text = "GREEN";
-                        TxtStatutRAGLabel.Text = "On Track";
-                        TxtStatutRAGLabel.Foreground = new SolidColorBrush(Color.FromRgb(76, 175, 80));
+                        LblOnTrack.Text = LocalizationService.Instance.GetString("Reporting_OnTime");
+                        LblOnTrack.Foreground = new SolidColorBrush(Color.FromRgb(76, 175, 80));
                         break;
                     case "amber":
                     case "orange":
                         BadgeRAG.Background = new SolidColorBrush(Color.FromRgb(255, 152, 0)); // #FF9800
                         TxtStatutRAG.Text = "AMBER";
-                        TxtStatutRAGLabel.Text = "At Risk";
-                        TxtStatutRAGLabel.Foreground = new SolidColorBrush(Color.FromRgb(255, 152, 0));
+                        LblOnTrack.Text = LocalizationService.Instance.GetString("Reporting_AtRisk");
+                        LblOnTrack.Foreground = new SolidColorBrush(Color.FromRgb(255, 152, 0));
                         break;
                     case "red":
                         BadgeRAG.Background = new SolidColorBrush(Color.FromRgb(244, 67, 54)); // #F44336
                         TxtStatutRAG.Text = "RED";
-                        TxtStatutRAGLabel.Text = "Delayed";
-                        TxtStatutRAGLabel.Foreground = new SolidColorBrush(Color.FromRgb(244, 67, 54));
+                        LblOnTrack.Text = LocalizationService.Instance.GetString("Reporting_DelayedStatus");
+                        LblOnTrack.Foreground = new SolidColorBrush(Color.FromRgb(244, 67, 54));
                         break;
                     default:
                         BadgeRAG.Background = new SolidColorBrush(Color.FromRgb(158, 158, 158)); // Grey
                         TxtStatutRAG.Text = "N/A";
-                        TxtStatutRAGLabel.Text = "Non défini";
-                        TxtStatutRAGLabel.Foreground = new SolidColorBrush(Color.FromRgb(153, 153, 153));
+                        LblOnTrack.Text = LocalizationService.Instance.GetString("Reporting_Undefined");
+                        LblOnTrack.Foreground = new SolidColorBrush(Color.FromRgb(153, 153, 153));
                         break;
                 }
             }
@@ -911,22 +1071,22 @@ namespace BacklogManager.Views.Pages
                 {
                     BadgeRAG.Background = new SolidColorBrush(Color.FromRgb(244, 67, 54));
                     TxtStatutRAG.Text = "RED";
-                    TxtStatutRAGLabel.Text = "Projets en retard";
-                    TxtStatutRAGLabel.Foreground = new SolidColorBrush(Color.FromRgb(244, 67, 54));
+                    LblOnTrack.Text = LocalizationService.Instance.GetString("Reporting_ProjectsDelayed");
+                    LblOnTrack.Foreground = new SolidColorBrush(Color.FromRgb(244, 67, 54));
                 }
                 else if (hasAmber)
                 {
                     BadgeRAG.Background = new SolidColorBrush(Color.FromRgb(255, 152, 0));
                     TxtStatutRAG.Text = "AMBER";
-                    TxtStatutRAGLabel.Text = "Projets à risque";
-                    TxtStatutRAGLabel.Foreground = new SolidColorBrush(Color.FromRgb(255, 152, 0));
+                    LblOnTrack.Text = LocalizationService.Instance.GetString("Reporting_ProjectsAtRisk");
+                    LblOnTrack.Foreground = new SolidColorBrush(Color.FromRgb(255, 152, 0));
                 }
                 else
                 {
                     BadgeRAG.Background = new SolidColorBrush(Color.FromRgb(76, 175, 80));
                     TxtStatutRAG.Text = "GREEN";
-                    TxtStatutRAGLabel.Text = "Tous on track";
-                    TxtStatutRAGLabel.Foreground = new SolidColorBrush(Color.FromRgb(76, 175, 80));
+                    LblOnTrack.Text = LocalizationService.Instance.GetString("Reporting_AllOnTime");
+                    LblOnTrack.Foreground = new SolidColorBrush(Color.FromRgb(76, 175, 80));
                 }
             }
 
@@ -942,12 +1102,12 @@ namespace BacklogManager.Views.Pages
             
             if (tachesEnRetard > 0)
             {
-                TxtRetardInfo.Text = tachesEnRetard == 1 ? "tâche en retard" : "tâches en retard";
+                LblRetardTasks.Text = tachesEnRetard == 1 ? "tâche en retard" : "tâches en retard";
                 TxtTachesRetard.Foreground = new SolidColorBrush(Color.FromRgb(244, 67, 54));
             }
             else
             {
-                TxtRetardInfo.Text = "Aucun retard";
+                LblRetardTasks.Text = LocalizationService.Instance.GetString("Reporting_NoDelay");
                 TxtTachesRetard.Foreground = new SolidColorBrush(Color.FromRgb(76, 175, 80));
             }
 
@@ -968,6 +1128,7 @@ namespace BacklogManager.Views.Pages
     public class ReportingContributionInfo
     {
         public string NomDeveloppeur { get; set; }
+        public string NomEquipe { get; set; }
         public int TachesTotal { get; set; }
         public int TachesCompletes { get; set; }
         public double HeuresEstimees { get; set; }

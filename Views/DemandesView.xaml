@@ -2,11 +2,14 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:BacklogManager.Views"
+             xmlns:converters="clr-namespace:BacklogManager.Converters"
+             xmlns:services="clr-namespace:BacklogManager.Services"
              Background="#F0F2F5">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <local:StatutToColorConverter x:Key="StatutColorConverter"/>
         <local:CriticiteToColorConverter x:Key="CriticiteColorConverter"/>
+        <converters:LocalizationConverter x:Key="Localize"/>
     </UserControl.Resources>
     
     <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -31,11 +34,11 @@
                 <StackPanel>
                     <WrapPanel Orientation="Horizontal" Margin="0,0,0,20">
                         <StackPanel Margin="0,0,20,10">
-                            <TextBlock FontSize="28" FontWeight="Bold" Foreground="White">
-                                <Run Text="📝 "/>
-                                <Run Text="DEMANDES"/>
-                            </TextBlock>
-                            <TextBlock Text="Gestion des demandes utilisateurs et suivi des traitements" 
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="📝 " FontSize="28" FontWeight="Bold" Foreground="White"/>
+                                <TextBlock x:Name="TxtTitre" FontSize="28" FontWeight="Bold" Foreground="White" Text="DEMANDES"/>
+                            </StackPanel>
+                            <TextBlock x:Name="TxtSousTitre" Text="Gestion des demandes utilisateurs et suivi des traitements" 
                                        FontSize="14" Foreground="White" Opacity="0.9" Margin="0,5,0,0"/>
                         </StackPanel>
                         
@@ -179,35 +182,35 @@
                     <!-- Filtres -->
                     <WrapPanel Orientation="Horizontal" Margin="0,0,0,15">
                         <StackPanel Margin="0,0,15,10" MinWidth="180">
-                            <TextBlock Text="📊 Statut" FontSize="12" FontWeight="SemiBold" Foreground="#666" Margin="0,0,0,6"/>
+                            <TextBlock x:Name="TxtLabelStatut" Text="📊 Statut" FontSize="12" FontWeight="SemiBold" Foreground="#666" Margin="0,0,0,6"/>
                             <ComboBox x:Name="CmbFiltreStatut" Height="38" FontSize="13" 
                                      BorderBrush="#DDD" BorderThickness="1" Padding="12,0"
                                      Background="White" SelectedIndex="0"/>
                         </StackPanel>
                         
                         <StackPanel Margin="0,0,15,10" MinWidth="180">
-                            <TextBlock Text="⚠️ Criticité" FontSize="12" FontWeight="SemiBold" Foreground="#666" Margin="0,0,0,6"/>
+                            <TextBlock x:Name="TxtLabelCriticite" Text="⚠️ Criticité" FontSize="12" FontWeight="SemiBold" Foreground="#666" Margin="0,0,0,6"/>
                             <ComboBox x:Name="CmbFiltreCriticite" Height="38" FontSize="13"
                                      BorderBrush="#DDD" BorderThickness="1" Padding="12,0"
                                      Background="White" SelectedIndex="0"/>
                         </StackPanel>
                         
                         <StackPanel Margin="0,0,15,10" MinWidth="180">
-                            <TextBlock Text="� Équipe" FontSize="12" FontWeight="SemiBold" Foreground="#666" Margin="0,0,0,6"/>
+                            <TextBlock x:Name="TxtLabelEquipe" Text="👥 Équipe" FontSize="12" FontWeight="SemiBold" Foreground="#666" Margin="0,0,0,6"/>
                             <ComboBox x:Name="CmbFiltreEquipe" Height="38" FontSize="13"
                                      BorderBrush="#DDD" BorderThickness="1" Padding="12,0"
                                      Background="White" DisplayMemberPath="Nom" SelectedValuePath="Id"/>
                         </StackPanel>
                         
                         <StackPanel Margin="0,0,15,10" MinWidth="180">
-                            <TextBlock Text="�📅 Date de" FontSize="12" FontWeight="SemiBold" Foreground="#666" Margin="0,0,0,6"/>
+                            <TextBlock x:Name="TxtLabelDateDebut" Text="📅 Date de" FontSize="12" FontWeight="SemiBold" Foreground="#666" Margin="0,0,0,6"/>
                             <DatePicker x:Name="DpDateDebut" Height="38" FontSize="13"
                                        BorderBrush="#DDD" BorderThickness="1" Padding="12,0"
                                        Background="White"/>
                         </StackPanel>
                         
                         <StackPanel Margin="0,0,0,10" MinWidth="180">
-                            <TextBlock Text="📅 Date à" FontSize="12" FontWeight="SemiBold" Foreground="#666" Margin="0,0,0,6"/>
+                            <TextBlock x:Name="TxtLabelDateFin" Text="📅 Date à" FontSize="12" FontWeight="SemiBold" Foreground="#666" Margin="0,0,0,6"/>
                             <DatePicker x:Name="DpDateFin" Height="38" FontSize="13"
                                        BorderBrush="#DDD" BorderThickness="1" Padding="12,0"
                                        Background="White"/>
@@ -428,13 +431,13 @@
                                         </Grid.ColumnDefinitions>
                                         
                                         <StackPanel Grid.Column="0">
-                                            <TextBlock Text="DEMANDEUR" FontSize="10" Foreground="#999" FontWeight="SemiBold"/>
+                                            <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Requests_Requester]}" FontSize="10" Foreground="#999" FontWeight="SemiBold"/>
                                             <TextBlock Text="{Binding Demandeur}" FontSize="13" FontWeight="Bold" 
                                                       Foreground="#1A1919" Margin="0,3,0,0"/>
                                         </StackPanel>
                                         
                                         <StackPanel Grid.Column="1" Margin="20,0,0,0">
-                                            <TextBlock Text="📅 DATE CRÉATION" FontSize="10" Foreground="#999" FontWeight="SemiBold"/>
+                                            <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Requests_CreationDate], Mode=OneWay}" FontSize="10" Foreground="#999" FontWeight="SemiBold"/>
                                             <TextBlock Text="{Binding DateCreation, StringFormat=dd/MM/yyyy}" 
                                                       FontSize="13" FontWeight="Bold" Foreground="#00915A" Margin="0,3,0,0"/>
                                         </StackPanel>
@@ -449,19 +452,19 @@
                                         </Grid.ColumnDefinitions>
                                         
                                         <StackPanel Grid.Column="0">
-                                            <TextBlock Text="👥 ÉQUIPES" FontSize="10" Foreground="#999" FontWeight="SemiBold"/>
+                                            <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Requests_Teams], Mode=OneWay}" FontSize="10" Foreground="#999" FontWeight="SemiBold"/>
                                             <TextBlock Text="{Binding EquipesNoms}" FontSize="12" 
                                                       Foreground="#00915A" Margin="0,3,0,0" TextWrapping="Wrap"/>
                                         </StackPanel>
                                         
                                         <StackPanel Grid.Column="1">
-                                            <TextBlock Text="👤 MANAGER(S)" FontSize="10" Foreground="#999" FontWeight="SemiBold"/>
+                                            <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Requests_Managers], Mode=OneWay}" FontSize="10" Foreground="#999" FontWeight="SemiBold"/>
                                             <TextBlock Text="{Binding Managers}" FontSize="12" 
                                                       Foreground="#1976D2" Margin="0,3,0,0" TextWrapping="Wrap"/>
                                         </StackPanel>
                                         
                                         <StackPanel Grid.Column="2">
-                                            <TextBlock Text="👨‍💼 MEMBRES ÉQUIPES" FontSize="10" Foreground="#999" FontWeight="SemiBold"/>
+                                            <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Requests_TeamMembers], Mode=OneWay}" FontSize="10" Foreground="#999" FontWeight="SemiBold"/>
                                             <TextBlock Text="{Binding MembresEquipes}" FontSize="11" 
                                                       Foreground="#666" Margin="0,3,0,0" TextWrapping="Wrap"/>
                                         </StackPanel>
@@ -470,11 +473,12 @@
                                 
                                 <!-- Actions -->
                                 <WrapPanel Grid.Row="3" Orientation="Horizontal">
-                                    <Button Content="📁 Créer projet" Height="34" Padding="14,0" Margin="0,0,8,0"
+                                    <Button Height="34" Padding="14,0" Margin="0,0,8,0"
                                            Background="#9C27B0" Foreground="White" BorderThickness="0"
                                            FontSize="12" Cursor="Hand" Tag="{Binding Id}" FontWeight="SemiBold"
                                            Click="BtnCreerProjetClick"
                                            Visibility="{Binding EstAccepteeSansProjet, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Requests_CreateProject], Mode=OneWay}"/>
                                         <Button.Style>
                                             <Style TargetType="Button">
                                                 <Setter Property="Template">
@@ -495,11 +499,12 @@
                                             </Style>
                                         </Button.Style>
                                     </Button>
-                                    <Button Content="🎯 Créer tâche" Height="34" Padding="14,0" Margin="0,0,8,0"
+                                    <Button Height="34" Padding="14,0" Margin="0,0,8,0"
                                            Background="#FF6F00" Foreground="White" BorderThickness="0"
                                            FontSize="12" Cursor="Hand" Tag="{Binding Id}" FontWeight="SemiBold"
                                            Click="BtnCreerTacheClick"
                                            Visibility="{Binding EstAccepteeAvecProjet, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Requests_CreateTask], Mode=OneWay}"/>
                                         <Button.Style>
                                             <Style TargetType="Button">
                                                 <Setter Property="Template">
@@ -520,10 +525,11 @@
                                             </Style>
                                         </Button.Style>
                                     </Button>
-                                    <Button Content="📝 Détails" Height="34" Padding="14,0" Margin="0,0,8,0"
+                                    <Button Height="34" Padding="14,0" Margin="0,0,8,0"
                                            Background="#00915A" Foreground="White" BorderThickness="0"
                                            FontSize="12" Cursor="Hand" Tag="{Binding Id}" FontWeight="SemiBold"
                                            Click="BtnDetailsClick">
+                                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Requests_Details], Mode=OneWay}"/>
                                         <Button.Style>
                                             <Style TargetType="Button">
                                                 <Setter Property="Template">
@@ -544,10 +550,11 @@
                                             </Style>
                                         </Button.Style>
                                     </Button>
-                                    <Button Content="✏️ Modifier" Height="34" Padding="14,0" Margin="0,0,8,0"
+                                    <Button Height="34" Padding="14,0" Margin="0,0,8,0"
                                            Background="#0078D7" Foreground="White" BorderThickness="0"
                                            FontSize="12" Cursor="Hand" Tag="{Binding Id}" FontWeight="SemiBold"
                                            Click="BtnModifierClick">
+                                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Requests_Modify], Mode=OneWay}"/>
                                         <Button.Style>
                                             <Style TargetType="Button">
                                                 <Setter Property="Template">
@@ -568,10 +575,11 @@
                                             </Style>
                                         </Button.Style>
                                     </Button>
-                                    <Button Content="💬 Commentaires" Height="34" Padding="14,0" Margin="0,0,8,0"
+                                    <Button Height="34" Padding="14,0" Margin="0,0,8,0"
                                            Background="#666666" Foreground="White" BorderThickness="0"
                                            FontSize="12" Cursor="Hand" Tag="{Binding Id}" FontWeight="SemiBold"
                                            Click="BtnCommentairesClick">
+                                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Requests_Comments], Mode=OneWay}"/>
                                         <Button.Style>
                                             <Style TargetType="Button">
                                                 <Setter Property="Template">
@@ -592,13 +600,14 @@
                                             </Style>
                                         </Button.Style>
                                     </Button>
-                                    <Button Content="📦 Archiver" Height="34" Padding="14,0" Margin="0,0,8,0"
+                                    <Button Height="34" Padding="14,0" Margin="0,0,8,0"
                                            Background="#9C27B0" Foreground="White" BorderThickness="0"
                                            FontSize="12" Cursor="Hand" Tag="{Binding Id}" FontWeight="SemiBold"
                                            Click="BtnArchiverClick"
                                            Visibility="{Binding DataContext.PeutArchiverDemandes, 
                                                        RelativeSource={RelativeSource AncestorType=UserControl},
                                                        Converter={StaticResource BooleanToVisibilityConverter}}">
+                                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Requests_Archive], Mode=OneWay}"/>
                                         <Button.Style>
                                             <Style TargetType="Button">
                                                 <Setter Property="Template">
@@ -619,13 +628,14 @@
                                             </Style>
                                         </Button.Style>
                                     </Button>
-                                    <Button Content="🗑️ Supprimer" Height="34" Padding="14,0" Margin="0,0,0,0"
+                                    <Button Height="34" Padding="14,0" Margin="0,0,0,0"
                                            Background="#D32F2F" Foreground="White" BorderThickness="0"
                                            FontSize="12" Cursor="Hand" Tag="{Binding Id}" FontWeight="SemiBold"
                                            Click="BtnSupprimerClick"
                                            Visibility="{Binding DataContext.PeutSupprimerDemandes, 
                                                        RelativeSource={RelativeSource AncestorType=UserControl},
                                                        Converter={StaticResource BooleanToVisibilityConverter}}">
+                                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Requests_Delete], Mode=OneWay}"/>
                                         <Button.Style>
                                             <Style TargetType="Button">
                                                 <Setter Property="Template">

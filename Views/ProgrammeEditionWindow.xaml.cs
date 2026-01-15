@@ -21,6 +21,9 @@ namespace BacklogManager.Views
             _programmeService = new ProgrammeService(_database);
             _programmeId = programmeId;
 
+            // Initialiser les textes traduits
+            InitialiserTextes();
+
             if (_programmeId.HasValue)
             {
                 Title = "Modifier le programme";
@@ -32,6 +35,40 @@ namespace BacklogManager.Views
             }
 
             ChargerResponsables();
+        }
+
+        private void InitialiserTextes()
+        {
+            // Textes de l'interface
+            TxtTitle.Text = "📊 " + LocalizationService.Instance.GetString("Modal_Program_Title");
+            TxtSubtitle.Text = LocalizationService.Instance.GetString("Modal_Program_Subtitle");
+            LblName.Text = LocalizationService.Instance.GetString("Modal_Program_Name");
+            LblCode.Text = LocalizationService.Instance.GetString("Modal_Program_Code");
+            LblDescription.Text = LocalizationService.Instance.GetString("Modal_Program_Description");
+            LblObjectifs.Text = LocalizationService.Instance.GetString("Modal_Program_Objectives");
+            LblResponsable.Text = "👤 " + LocalizationService.Instance.GetString("Modal_Program_Responsible");
+            LblStartDate.Text = LocalizationService.Instance.GetString("Modal_Program_StartDate");
+            LblEndDate.Text = LocalizationService.Instance.GetString("Modal_Program_EndDate");
+            LblGlobalStatus.Text = LocalizationService.Instance.GetString("Modal_Program_GlobalStatus");
+            BtnAnnuler.Content = LocalizationService.Instance.GetString("Common_Cancel");
+            BtnEnregistrer.Content = LocalizationService.Instance.GetString("Common_Save");
+
+            // S'abonner aux changements de langue
+            LocalizationService.Instance.PropertyChanged += (s, e) =>
+            {
+                TxtTitle.Text = "📊 " + LocalizationService.Instance.GetString("Modal_Program_Title");
+                TxtSubtitle.Text = LocalizationService.Instance.GetString("Modal_Program_Subtitle");
+                LblName.Text = LocalizationService.Instance.GetString("Modal_Program_Name");
+                LblCode.Text = LocalizationService.Instance.GetString("Modal_Program_Code");
+                LblDescription.Text = LocalizationService.Instance.GetString("Modal_Program_Description");
+                LblObjectifs.Text = LocalizationService.Instance.GetString("Modal_Program_Objectives");
+                LblResponsable.Text = "👤 " + LocalizationService.Instance.GetString("Modal_Program_Responsible");
+                LblStartDate.Text = LocalizationService.Instance.GetString("Modal_Program_StartDate");
+                LblEndDate.Text = LocalizationService.Instance.GetString("Modal_Program_EndDate");
+                LblGlobalStatus.Text = LocalizationService.Instance.GetString("Modal_Program_GlobalStatus");
+                BtnAnnuler.Content = LocalizationService.Instance.GetString("Common_Cancel");
+                BtnEnregistrer.Content = LocalizationService.Instance.GetString("Common_Save");
+            };
         }
 
         private void ChargerProgramme()

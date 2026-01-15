@@ -15,14 +15,34 @@ namespace BacklogManager.Views
         {
             InitializeComponent();
             _backlogService = backlogService;
+            
+            // Initialiser les textes traduits
+            InitialiserTextes();
+            
             ChargerProjets();
+        }
+
+        private void InitialiserTextes()
+        {
+            // Textes de l'interface
+            TxtProjectsTitle.Text = LocalizationService.Instance.GetString("Modal_Project_Title");
+            BtnAjouter.Content = "➕ " + LocalizationService.Instance.GetString("Modal_Project_NewProject");
+
+            // S'abonner aux changements de langue
+            LocalizationService.Instance.PropertyChanged += (s, e) =>
+            {
+                TxtProjectsTitle.Text = LocalizationService.Instance.GetString("Modal_Project_Title");
+                BtnAjouter.Content = "➕ " + LocalizationService.Instance.GetString("Modal_Project_NewProject");
+                // Recharger pour mettre à jour le compteur
+                ChargerProjets();
+            };
         }
 
         private void ChargerProjets()
         {
             var projets = _backlogService.GetAllProjets();
             LstProjets.ItemsSource = projets;
-            TxtCountProjets.Text = $"{projets.Count} projet(s)";
+            TxtCountProjets.Text = string.Format(LocalizationService.Instance.GetString("Modal_Project_Count"), projets.Count);
         }
 
         private void BtnAjouter_Click(object sender, RoutedEventArgs e)

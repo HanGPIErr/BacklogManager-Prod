@@ -35,7 +35,7 @@ namespace BacklogManager.Views
         {
             if (_userRole == null) return;
 
-            TxtRole.Text = string.Format("Guide {0}", _userRole.Nom);
+            TxtRole.Text = string.Format("{0} {1}", LocalizationService.Instance.GetString("Guide_RolePrefix"), _userRole.Nom);
             _questionsReponses = new Dictionary<string, string>();
 
             switch (_userRole.Type)
@@ -205,10 +205,11 @@ namespace BacklogManager.Views
                     "✅ Saisir vos heures dans le CRA (⏱️ Saisir CRA)\n" +
                     "✅ Modifier VOS propres tâches assignées\n" +
                     "✅ Changer le statut de VOS tâches dans le Kanban\n" +
-                    "✅ Participer au Planning Poker (chiffrage)\n" +
-                    "✅ Consulter vos tâches dans le Dashboard et le Kanban\n\n" +
+                    "✅ Créer des tâches spéciales (congés, support, autre)\n" +
+                    "✅ Consulter vos tâches dans le Dashboard et le Kanban\n" +
+                    "✅ Ajouter des commentaires sur vos tâches\n\n" +
                     "**Ce que vous NE POUVEZ PAS faire :**\n" +
-                    "❌ Créer des demandes (réservé aux BA, Chef de Projet, Admin)\n" +
+                    "❌ Créer des demandes métier (réservé aux BA, Chef de Projet, Admin)\n" +
                     "❌ Modifier ou supprimer les tâches des autres développeurs\n" +
                     "❌ Assigner des développeurs aux tâches\n" +
                     "❌ Prioriser les tâches\n" +

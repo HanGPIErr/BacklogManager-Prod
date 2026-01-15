@@ -1,6 +1,7 @@
 <Window x:Class="BacklogManager.Views.GestionProjetsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:BacklogManager.Services"
         Title="Gestion des Projets" Height="550" Width="700"
         WindowStartupLocation="CenterOwner"
         Background="#F5F5F5"
@@ -100,7 +101,7 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Text="PROJETS" FontWeight="Bold" 
+                            <TextBlock x:Name="TxtProjectsTitle" Text="PROJETS" FontWeight="Bold" 
                                        FontSize="12" Foreground="#666"/>
                             <TextBlock Grid.Column="1" x:Name="TxtCountProjets" Text="0 projet(s)" 
                                        FontSize="12" Foreground="#666"/>

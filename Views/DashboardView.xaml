@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:shared="clr-namespace:BacklogManager.Shared"
+             xmlns:services="clr-namespace:BacklogManager.Services"
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="800"
              Background="#F0F2F5"
@@ -130,7 +131,7 @@
                     
                     <StackPanel Grid.Column="0" VerticalAlignment="Center">
                         <TextBlock FontSize="32" FontWeight="Bold" Foreground="White" TextWrapping="Wrap">
-                            <Run Text="👋 Bonjour, "/>
+                            <Run Text="{Binding HelloText, Mode=OneWay}"/>
                             <Run Text="{Binding NomUtilisateur}"/>
                         </TextBlock>
                         <TextBlock FontSize="15" Foreground="#E0F2E9" Margin="0,8,0,0" Opacity="0.95">
@@ -141,7 +142,7 @@
                     
                     <!-- Boutons d'action -->
                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0">
-                        <Button x:Name="BtnVoirGuide" Content="📖 Guide" 
+                        <Button x:Name="BtnVoirGuide" Content="{Binding GuideText, Mode=OneWay}" 
                                 Height="42" Padding="20,0" Margin="0,0,12,0"
                                 Background="White" Foreground="#00915A" FontWeight="Bold"
                                 BorderThickness="0" Cursor="Hand" FontSize="14"
@@ -212,7 +213,7 @@
                                 </Border.Effect>
                                 <TextBlock Text="✅" FontSize="18"/>
                             </Border>
-                            <TextBlock Text="Terminées" FontSize="14" 
+                            <TextBlock Text="{Binding CompletedText, Mode=OneWay}" FontSize="14" 
                                        Foreground="#2E7D32" FontWeight="Bold" VerticalAlignment="Center"/>
                         </StackPanel>
                         <Grid Grid.Row="1">
@@ -254,7 +255,7 @@
                                 </Border.Effect>
                                 <TextBlock Text="🔄" FontSize="18"/>
                             </Border>
-                            <TextBlock Text="En cours" FontSize="14" 
+                            <TextBlock Text="{Binding InProgressText, Mode=OneWay}" FontSize="14" 
                                        Foreground="#1565C0" FontWeight="Bold" VerticalAlignment="Center"/>
                         </StackPanel>
                         <TextBlock Grid.Row="1" Text="{Binding NbTachesEnCours, Mode=OneWay}" 
@@ -283,7 +284,7 @@
                                 </Border.Effect>
                                 <TextBlock Text="⚡" FontSize="18"/>
                             </Border>
-                            <TextBlock Text="Urgentes" FontSize="14" 
+                            <TextBlock Text="{Binding UrgentText, Mode=OneWay}" FontSize="14" 
                                        Foreground="#D84315" FontWeight="Bold" VerticalAlignment="Center"/>
                         </StackPanel>
                         <TextBlock Grid.Row="1" Text="{Binding NbTachesUrgentes, Mode=OneWay}" 
@@ -312,7 +313,7 @@
                                 </Border.Effect>
                                 <TextBlock Text="📁" FontSize="18"/>
                             </Border>
-                            <TextBlock Text="Projets" FontSize="14" 
+                            <TextBlock Text="{Binding ProjectsText, Mode=OneWay}" FontSize="14" 
                                        Foreground="#E65100" FontWeight="Bold" VerticalAlignment="Center"/>
                         </StackPanel>
                         <TextBlock Grid.Row="1" Text="{Binding NbProjetsActifs, Mode=OneWay}" 
@@ -341,7 +342,7 @@
                                 </Border.Effect>
                                 <TextBlock Text="🏢" FontSize="18"/>
                             </Border>
-                            <TextBlock Text="Équipes" FontSize="14" 
+                            <TextBlock Text="{Binding TeamsText, Mode=OneWay}" FontSize="14" 
                                        Foreground="#01579B" FontWeight="Bold" VerticalAlignment="Center"/>
                         </StackPanel>
                         <TextBlock Grid.Row="1" Text="{Binding NbEquipesActives, Mode=OneWay}" 
@@ -370,7 +371,7 @@
                                 </Border.Effect>
                                 <TextBlock Text="👥" FontSize="18"/>
                             </Border>
-                            <TextBlock Text="Ressources" FontSize="14" 
+                            <TextBlock Text="{Binding ResourcesText, Mode=OneWay}" FontSize="14" 
                                        Foreground="#4A148C" FontWeight="Bold" VerticalAlignment="Center"/>
                         </StackPanel>
                         <TextBlock Grid.Row="1" Text="{Binding NbRessourcesTotal, Mode=OneWay}" 
@@ -399,7 +400,7 @@
                                 </Border.Effect>
                                 <TextBlock Text="⚖️" FontSize="18"/>
                             </Border>
-                            <TextBlock Text="Charge / Équipe" FontSize="14" 
+                            <TextBlock Text="{Binding LoadPerTeamText, Mode=OneWay}" FontSize="14" 
                                        Foreground="#F57F17" FontWeight="Bold" VerticalAlignment="Center"/>
                         </StackPanel>
                         <Grid Grid.Row="1">
@@ -413,7 +414,7 @@
                             </TextBlock>
                             <TextBlock Grid.Column="1" FontSize="14" Foreground="#999999" 
                                        VerticalAlignment="Bottom" Margin="6,0,0,10"
-                                       Text="proj/équipe"/>
+                                       Text="{Binding DataContext.PerTeamText, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=OneWay}"/>
                         </Grid>
                     </Grid>
                 </Border>
@@ -567,7 +568,7 @@
                                         <Run Text=" 📁"/>
                                     </TextBlock>
                                 </Border>
-                            </StackPanel>                                            <TextBlock Grid.Row="2" Text="Cliquer pour voir les détails →" 
+                            </StackPanel>                                            <TextBlock Grid.Row="2" Text="{Binding DataContext.ClickForDetailsText, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=OneWay}" 
                                                        FontSize="11" Foreground="#00915A" Margin="0,8,0,0" 
                                                        FontStyle="Italic"/>
                                         </Grid>
@@ -596,9 +597,9 @@
                                     <TextBlock Text="📊" FontSize="18"/>
                                 </Border>
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                    <TextBlock Text="RÉPARTITION DES RESSOURCES PAR ÉQUIPE" 
+                                    <TextBlock Text="{Binding ResourceDistributionText, Mode=OneWay}" 
                                                FontSize="16" FontWeight="Bold" Foreground="#1A1919"/>
-                                    <TextBlock Text="Nombre de membres actifs (hors managers)" 
+                                    <TextBlock Text="{Binding ActiveMembersText, Mode=OneWay}" 
                                                FontSize="11" Foreground="#666" Margin="0,2,0,0"/>
                                 </StackPanel>
                             </Grid>
@@ -775,7 +776,7 @@
                         </Border>
                         <TextBlock Grid.Column="1" FontSize="22" FontWeight="Bold" 
                                    Foreground="#1A1919" VerticalAlignment="Center">
-                            <Run Text="APERÇU DES PROJETS"/>
+                            <Run Text="{Binding ProjectsOverviewText, Mode=OneWay}"/>
                         </TextBlock>
                     </Grid>
                     
@@ -868,7 +869,8 @@
                                 </Border.Background>
                                 <TextBlock FontSize="11" Foreground="#1B5E20" FontWeight="Bold">
                                     <Run Text="{Binding NbTachesTotal}"/>
-                                    <Run Text=" tâches"/>
+                                    <Run Text=" "/>
+                                    <Run Text="{Binding DataContext.TasksText, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=OneWay}"/>
                                 </TextBlock>
                             </Border>
                             <Border CornerRadius="8" Padding="10,5">
@@ -979,10 +981,10 @@
                         
                         <TextBlock Grid.Column="1" FontSize="20" FontWeight="Bold" 
                                    Foreground="#1A1919" VerticalAlignment="Center">
-                            <Run Text="MES TÂCHES URGENTES"/>
+                            <Run Text="{Binding MyUrgentTasksText, Mode=OneWay}"/>
                         </TextBlock>
                         
-                        <Button Grid.Column="2" Content="Voir tout →" 
+                        <Button Grid.Column="2" Content="{Binding ViewAllArrowText, Mode=OneWay}" 
                                 Style="{StaticResource ViewAllButton}"
                                 Click="VoirToutesUrgentes_Click"/>
                     </Grid>
@@ -1156,7 +1158,7 @@
                     <StackPanel>
                         <Grid Margin="0,0,0,18">
                             <TextBlock FontSize="20" FontWeight="Bold" Foreground="#1A1919">
-                                <Run Text="📊 ACTIVITÉ RÉCENTE"/>
+                                <Run Text="{Binding RecentActivityText, Mode=OneWay}"/>
                             </TextBlock>
                         </Grid>
                         
@@ -1227,7 +1229,7 @@
                     <StackPanel>
                         <Grid Margin="0,0,0,18">
                             <TextBlock FontSize="20" FontWeight="Bold" Foreground="#1A1919">
-                                <Run Text="⚡ ACTIONS"/>
+                                <Run Text="{Binding QuickActionsText, Mode=OneWay}"/>
                             </TextBlock>
                         </Grid>
                         
@@ -1253,7 +1255,7 @@
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="➕" FontSize="16" Foreground="White" 
                                                Margin="0,0,8,0"/>
-                                    <TextBlock Text="Nouvelle tâche" FontSize="14" 
+                                    <TextBlock Text="{Binding NewTaskText, Mode=OneWay}" FontSize="14" 
                                                FontWeight="Bold" Foreground="White"/>
                                 </StackPanel>
                             </Button>
@@ -1278,7 +1280,7 @@
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="📋" FontSize="16" Foreground="#00695C" 
                                                Margin="0,0,8,0"/>
-                                    <TextBlock Text="Voir Kanban" FontSize="14" 
+                                    <TextBlock Text="{Binding ViewKanbanText, Mode=OneWay}" FontSize="14" 
                                                FontWeight="Bold" Foreground="#00695C"/>
                                 </StackPanel>
                             </Button>
@@ -1303,7 +1305,7 @@
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="📅" FontSize="16" Foreground="#6A1B9A" 
                                                Margin="0,0,8,0"/>
-                                    <TextBlock Text="Timeline projet" FontSize="14" 
+                                    <TextBlock Text="{Binding TimelineProjectText, Mode=OneWay}" FontSize="14" 
                                                FontWeight="Bold" Foreground="#6A1B9A"/>
                                 </StackPanel>
                             </Button>

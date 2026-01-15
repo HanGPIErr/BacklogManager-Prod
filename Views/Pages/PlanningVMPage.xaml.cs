@@ -12,7 +12,7 @@ using BacklogManager.Services;
 
 namespace BacklogManager.Views.Pages
 {
-    public partial class PlanningVMPage : UserControl
+    public partial class PlanningVMPage : UserControl, INotifyPropertyChanged
     {
         private readonly IDatabase _database;
         private readonly NotificationService _notificationService;
@@ -22,6 +22,24 @@ namespace BacklogManager.Views.Pages
         private DateTime _moisCourant;
         private List<Utilisateur> _membresEquipe;
         public ICommand JourClickCommand { get; private set; }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged(string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        // Propriétés traduites
+        public string BackText => LocalizationService.Instance["TeamDetail_Back"];
+        public string PlanningVMText => LocalizationService.Instance["PlanningVM_Title"];
+        public string TodayText => LocalizationService.Instance["PlanningVM_Today"];
+        public string MondayText => LocalizationService.Instance["Day_Monday"];
+        public string TuesdayText => LocalizationService.Instance["Day_Tuesday"];
+        public string WednesdayText => LocalizationService.Instance["Day_Wednesday"];
+        public string ThursdayText => LocalizationService.Instance["Day_Thursday"];
+        public string FridayText => LocalizationService.Instance["Day_Friday"];
+        public string SaturdayText => LocalizationService.Instance["Day_Saturday"];
+        public string SundayText => LocalizationService.Instance["Day_Sunday"];
 
         public PlanningVMPage(IDatabase database, NotificationService notificationService, 
             AuthenticationService authService, int equipeId, Action retourCallback)
@@ -34,11 +52,36 @@ namespace BacklogManager.Views.Pages
             _retourCallback = retourCallback;
             _moisCourant = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
             
+            DataContext = this;
+            
             // Initialiser le Command
             JourClickCommand = new RelayCommand<JourCalendrierVM>(OnJourClick);
 
             ChargerMembresEquipe();
             AfficherCalendrier();
+            
+            // S'abonner aux changements de langue
+            LocalizationService.Instance.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == "Item[]")
+                {
+                    InitialiserTextes();
+                }
+            };
+        }
+
+        private void InitialiserTextes()
+        {
+            OnPropertyChanged(nameof(BackText));
+            OnPropertyChanged(nameof(PlanningVMText));
+            OnPropertyChanged(nameof(TodayText));
+            OnPropertyChanged(nameof(MondayText));
+            OnPropertyChanged(nameof(TuesdayText));
+            OnPropertyChanged(nameof(WednesdayText));
+            OnPropertyChanged(nameof(ThursdayText));
+            OnPropertyChanged(nameof(FridayText));
+            OnPropertyChanged(nameof(SaturdayText));
+            OnPropertyChanged(nameof(SundayText));
         }
 
         private void BtnRetour_Click(object sender, RoutedEventArgs e)
@@ -55,8 +98,8 @@ namespace BacklogManager.Views.Pages
 
         private void AfficherCalendrier()
         {
-            // Mettre à jour le titre du mois
-            var culture = new CultureInfo("fr-FR");
+            // Mettre à jour le titre du mois avec la culture appropriée
+            var culture = LocalizationService.Instance.CurrentCulture;
             TxtMoisAnnee.Text = _moisCourant.ToString("MMMM yyyy", culture);
             TxtMoisAnnee.Text = char.ToUpper(TxtMoisAnnee.Text[0]) + TxtMoisAnnee.Text.Substring(1);
 
@@ -424,8 +467,9 @@ namespace BacklogManager.Views.Pages
                         nbAssignations++;
                     }
                     
-                    MessageBox.Show($"✅ Vous avez été assigné(e) à {nbAssignations} jour(s) avec succès!", 
-                        "Planning VM", MessageBoxButton.OK, MessageBoxImage.Information);
+                    var loc = LocalizationService.Instance;
+                    MessageBox.Show(string.Format(loc["PlanningVM_AssignedSuccess"], nbAssignations), 
+                        loc["PlanningVM_Success"], MessageBoxButton.OK, MessageBoxImage.Information);
                     
                     // Rafraîchir le calendrier
                     Dispatcher.BeginInvoke(new Action(() => AfficherCalendrier()), 
@@ -433,8 +477,9 @@ namespace BacklogManager.Views.Pages
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Erreur après {nbAssignations} assignation(s):\n\n{ex.Message}", 
-                        "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                    var loc = LocalizationService.Instance;
+                    MessageBox.Show(string.Format(loc["PlanningVM_ErrorAfterAssign"], nbAssignations, ex.Message), 
+                        loc["PlanningVM_Error"], MessageBoxButton.OK, MessageBoxImage.Error);
                     
                     // Rafraîchir quand même pour voir ce qui a été fait
                     Dispatcher.BeginInvoke(new Action(() => AfficherCalendrier()), 
@@ -508,19 +553,22 @@ namespace BacklogManager.Views.Pages
             {
                 // Un autre membre est assigné - afficher l'info
                 var nomMembre = GetNomUtilisateur(jour.UtilisateurId.Value);
-                MessageBox.Show($"Ce jour est déjà assigné à {nomMembre}.\n\nSeul(e) {nomMembre} peut se désister ou demander un échange.", 
-                    "Planning VM", MessageBoxButton.OK, MessageBoxImage.Information);
+                var loc = LocalizationService.Instance;
+                MessageBox.Show(string.Format(loc["PlanningVM_AlreadyAssigned"], nomMembre, nomMembre), 
+                    loc["PlanningVM_Title"], MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
 
         private void AfficherDialogueAssignation(JourCalendrierVM jour)
         {
             var utilisateurConnecte = _authService.CurrentUser;
+            var loc = LocalizationService.Instance;
+            var culture = loc.CurrentCulture;
             
             // Créer une fenêtre de choix
             var dialog = new Window
             {
-                Title = $"Planning VM - {jour.Date:dddd dd MMMM yyyy}",
+                Title = $"{loc["PlanningVM_Title"]} - {jour.Date.ToString("dddd dd MMMM yyyy", culture)}",
                 Width = 450,
                 Height = 230,
                 WindowStartupLocation = WindowStartupLocation.CenterScreen,
@@ -533,7 +581,7 @@ namespace BacklogManager.Views.Pages
             // Message
             var message = new TextBlock
             {
-                Text = $"Comment voulez-vous vous assigner pour gérer la VM ?",
+                Text = loc["PlanningVM_AssignQuestion"],
                 FontSize = 14,
                 TextWrapping = TextWrapping.Wrap,
                 Margin = new Thickness(0, 0, 0, 20),
@@ -544,7 +592,7 @@ namespace BacklogManager.Views.Pages
             // Option 1: Ce jour uniquement
             var btnJourUniquement = new Button
             {
-                Content = $"📅 Ce jour uniquement ({jour.Date:dddd dd/MM})",
+                Content = string.Format(loc["PlanningVM_OnlyThisDay"], jour.Date.ToString("dddd dd/MM", culture)),
                 Height = 45,
                 Margin = new Thickness(0, 0, 0, 10),
                 Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00915A")),
@@ -563,7 +611,7 @@ namespace BacklogManager.Views.Pages
             
             var btnTouteLaSemaine = new Button
             {
-                Content = $"📋 Toute la semaine ({lundiDeLaSemaine:dd/MM} → {vendrediDeLaSemaine:dd/MM})",
+                Content = string.Format(loc["PlanningVM_WholeWeek"], lundiDeLaSemaine.ToString("dd/MM"), vendrediDeLaSemaine.ToString("dd/MM")),
                 Height = 45,
                 Margin = new Thickness(0, 0, 0, 10),
                 Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#007A4D")),
@@ -644,9 +692,10 @@ namespace BacklogManager.Views.Pages
                 };
 
                 _database.AjouterPlanningVM(planning);
+                var loc = LocalizationService.Instance;
                 
-                MessageBox.Show("Vous avez été assigné(e) avec succès !\n\nActualisez la page pour voir les modifications.", 
-                    "Planning VM", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(loc["PlanningVM_AssignSuccess"], 
+                    loc["PlanningVM_Title"], MessageBoxButton.OK, MessageBoxImage.Information);
                 
                 // Rafraîchir le calendrier
                 Dispatcher.BeginInvoke(new Action(() => AfficherCalendrier()), 
@@ -654,8 +703,9 @@ namespace BacklogManager.Views.Pages
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erreur lors de l'assignation :\n\n{ex.GetType().Name}\n{ex.Message}\n\nStack Trace:\n{ex.StackTrace}", 
-                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                var loc = LocalizationService.Instance;
+                MessageBox.Show($"{loc["PlanningVM_AssignError"]}:\n\n{ex.GetType().Name}\n{ex.Message}\n\nStack Trace:\n{ex.StackTrace}", 
+                    loc["PlanningVM_Error"], MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -688,10 +738,15 @@ namespace BacklogManager.Views.Pages
 
                 // Créer une notification pour le membre cible
                 var utilisateurDemandeur = _authService.CurrentUser;
+                var loc = LocalizationService.Instance;
+                var culture = loc.CurrentCulture;
+                
                 var notification = new Notification
                 {
-                    Titre = "🔄 Demande d'échange - Planning VM",
-                    Message = $"{utilisateurDemandeur.Prenom} {utilisateurDemandeur.Nom} vous demande de prendre sa place pour la gestion de la VM le {jour.Date:dddd dd MMMM yyyy}.",
+                    Titre = loc["PlanningVM_NotifExchangeTitle"],
+                    Message = string.Format(loc["PlanningVM_NotifExchangeMessage"], 
+                        utilisateurDemandeur.Prenom, utilisateurDemandeur.Nom, 
+                        jour.Date.ToString("dddd dd MMMM yyyy", culture)),
                     Type = NotificationType.Info,
                     DateCreation = DateTime.Now,
                     EstLue = false,
@@ -712,8 +767,10 @@ namespace BacklogManager.Views.Pages
                 // Créer une notification pour le demandeur (pour qu'il puisse annuler)
                 var notificationDemandeur = new Notification
                 {
-                    Titre = "🔄 Demande d'échange envoyée - Planning VM",
-                    Message = $"Vous avez demandé à {membreCible.Prenom} {membreCible.Nom} de prendre votre place le {jour.Date:dddd dd MMMM yyyy}. En attente de réponse...",
+                    Titre = loc["PlanningVM_NotifSentTitle"],
+                    Message = string.Format(loc["PlanningVM_NotifSentMessage"], 
+                        membreCible.Prenom, membreCible.Nom, 
+                        jour.Date.ToString("dddd dd MMMM yyyy", culture)),
                     Type = NotificationType.Info,
                     DateCreation = DateTime.Now,
                     EstLue = false,
@@ -731,8 +788,8 @@ namespace BacklogManager.Views.Pages
                     throw;
                 }
 
-                MessageBox.Show($"Votre demande a été envoyée à {membreCible.Prenom} {membreCible.Nom}.\n\nIl/Elle recevra une notification.", 
-                    "Demande envoyée", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(string.Format(loc["PlanningVM_ExchangeSent"], membreCible.Prenom, membreCible.Nom), 
+                    loc["PlanningVM_RequestSent"], MessageBoxButton.OK, MessageBoxImage.Information);
 
                 // Différer le rafraîchissement pour éviter les conflits avec l'événement de clic
                 Dispatcher.BeginInvoke(new Action(() => AfficherCalendrier()), 
@@ -740,8 +797,9 @@ namespace BacklogManager.Views.Pages
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erreur lors de la demande d'échange : {ex.Message}", 
-                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                var loc = LocalizationService.Instance;
+                MessageBox.Show(string.Format(loc["PlanningVM_ExchangeError"], ex.Message), 
+                    loc["PlanningVM_Error"], MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
         
@@ -759,13 +817,17 @@ namespace BacklogManager.Views.Pages
                 // Créer une notification pour le demandeur
                 var utilisateurCible = _authService.CurrentUser;
                 var utilisateurDemandeur = _database.GetUtilisateurs().FirstOrDefault(u => u.Id == demande.UtilisateurDemandeurId);
+                var loc = LocalizationService.Instance;
+                var culture = loc.CurrentCulture;
                 
                 if (utilisateurDemandeur != null)
                 {
                     var notificationConfirmation = new Notification
                     {
-                        Titre = "✅ Échange accepté - Planning VM",
-                        Message = $"{utilisateurCible.Prenom} {utilisateurCible.Nom} a accepté de prendre votre place le {jour.Date:dddd dd MMMM yyyy}.",
+                        Titre = loc["PlanningVM_NotifAcceptedTitle"],
+                        Message = string.Format(loc["PlanningVM_NotifAcceptedMessage"], 
+                            utilisateurCible.Prenom, utilisateurCible.Nom, 
+                            jour.Date.ToString("dddd dd MMMM yyyy", culture)),
                         Type = NotificationType.Success,
                         DateCreation = DateTime.Now,
                         EstLue = false
@@ -774,8 +836,8 @@ namespace BacklogManager.Views.Pages
                     _database.AjouterNotification(notificationConfirmation, demande.UtilisateurDemandeurId);
                 }
                 
-                MessageBox.Show($"Vous avez accepté l'échange !\n\nVous êtes maintenant assigné(e) pour gérer la VM le {jour.Date:dddd dd MMMM yyyy}.", 
-                    "Échange accepté", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(string.Format(loc["PlanningVM_AcceptExchange"], jour.Date.ToString("dddd dd MMMM yyyy", culture)), 
+                    loc["PlanningVM_Confirmation"], MessageBoxButton.OK, MessageBoxImage.Information);
                 
                 // Rafraîchir le calendrier
                 Dispatcher.BeginInvoke(new Action(() => AfficherCalendrier()), 
@@ -783,8 +845,9 @@ namespace BacklogManager.Views.Pages
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erreur lors de l'acceptation de l'échange : {ex.Message}", 
-                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                var loc = LocalizationService.Instance;
+                MessageBox.Show(string.Format(loc["PlanningVM_AssignError"], ex.Message), 
+                    loc["PlanningVM_Error"], MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }
@@ -829,7 +892,10 @@ namespace BacklogManager.Views.Pages
 
         public AssignationMenuDialog(DateTime date, List<Utilisateur> membresEquipe, Utilisateur utilisateurConnecte)
         {
-            Title = "Demande d'échange - Planning VM";
+            var loc = LocalizationService.Instance;
+            var culture = loc.CurrentCulture;
+            
+            Title = loc["PlanningVM_ExchangeRequest"];
             Width = 400;
             Height = 280;
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
@@ -843,7 +909,7 @@ namespace BacklogManager.Views.Pages
             // Titre
             var titre = new TextBlock
             {
-                Text = $"Vous êtes assigné(e) le {date:dddd dd MMMM yyyy}",
+                Text = string.Format(loc["PlanningVM_AssignedOn"], date.ToString("dddd dd MMMM yyyy", culture)),
                 FontSize = 16,
                 FontWeight = FontWeights.Bold,
                 TextWrapping = TextWrapping.Wrap,
@@ -856,7 +922,7 @@ namespace BacklogManager.Views.Pages
             var panel = new StackPanel { Margin = new Thickness(0, 0, 0, 15) };
             var label = new TextBlock
             {
-                Text = "Demander à un autre membre de prendre votre place :",
+                Text = loc["PlanningVM_RequestExchangeLabel"],
                 FontWeight = FontWeights.SemiBold,
                 Margin = new Thickness(0, 0, 0, 10)
             };
@@ -880,10 +946,10 @@ namespace BacklogManager.Views.Pages
             boutonsGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(10) }); // Espacement
             boutonsGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
-            // Bouton annuler (à gauche)
+            // Bouton annuler (a gauche)
             var btnAnnuler = new Button
             {
-                Content = "Annuler",
+                Content = loc["PlanningVM_Cancel"],
                 Height = 40,
                 Background = System.Windows.Media.Brushes.LightGray,
                 Cursor = Cursors.Hand,
@@ -898,10 +964,10 @@ namespace BacklogManager.Views.Pages
             Grid.SetColumn(btnAnnuler, 0);
             boutonsGrid.Children.Add(btnAnnuler);
 
-            // Bouton valider (à droite)
+            // Bouton valider (a droite)
             var btnDemanderEchange = new Button
             {
-                Content = "✓ Valider",
+                Content = loc["PlanningVM_Validate"],
                 Height = 40,
                 Background = new System.Windows.Media.SolidColorBrush(
                     System.Windows.Media.Color.FromRgb(0, 145, 90)),
@@ -922,7 +988,7 @@ namespace BacklogManager.Views.Pages
                 }
                 else
                 {
-                    MessageBox.Show("Veuillez sélectionner un membre.", "Attention", 
+                    MessageBox.Show(loc["PlanningVM_SelectMember"], loc["PlanningVM_Warning"], 
                         MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
             };

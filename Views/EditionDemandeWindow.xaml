@@ -31,7 +31,7 @@
                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
                     <TextBlock x:Name="TxtTitre" Text="NOUVELLE DEMANDE" FontSize="20" 
                               FontWeight="Bold" Foreground="White"/>
-                    <TextBlock Text="Complétez tous les champs obligatoires marqués d'un astérisque (*)" 
+                    <TextBlock x:Name="TxtRequiredFieldsInstruction" Text="Complétez tous les champs obligatoires marqués d'un astérisque (*)" 
                               FontSize="12" Foreground="#E0F2E9" Margin="0,3,0,0"/>
                 </StackPanel>
             </Grid>
@@ -43,7 +43,7 @@
                 
                 <!-- Titre -->
                 <StackPanel Margin="0,0,0,15">
-                    <TextBlock FontWeight="Bold" Margin="0,0,0,5">
+                    <TextBlock x:Name="TxtTitleLabel" FontWeight="Bold" Margin="0,0,0,5">
                         <Run Text="Titre" Foreground="#1A1919"/>
                         <Run Text=" *" Foreground="#F44336" FontWeight="Bold"/>
                     </TextBlock>
@@ -67,7 +67,7 @@
                 
                 <!-- Description -->
                 <StackPanel Margin="0,0,0,15">
-                    <TextBlock FontWeight="Bold" Margin="0,0,0,5">
+                    <TextBlock x:Name="TxtDescriptionLabel" FontWeight="Bold" Margin="0,0,0,5">
                         <Run Text="Description" Foreground="#1A1919"/>
                         <Run Text=" *" Foreground="#F44336" FontWeight="Bold"/>
                     </TextBlock>
@@ -97,7 +97,7 @@
                        Visibility="Collapsed">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                            <TextBlock Text="📋 SPÉCIFICATIONS DÉTAILLÉES" FontWeight="Bold" FontSize="14" 
+                            <TextBlock x:Name="TxtDetailedSpecsSection" Text="📋 SPÉCIFICATIONS DÉTAILLÉES" FontWeight="Bold" FontSize="14" 
                                       Foreground="#FF8C00" VerticalAlignment="Center"/>
                             <Button x:Name="BtnValiderSpecifications" Content="✓ Valider et passer au chiffrage" 
                                    Height="30" Margin="20,0,0,0" Background="#00915A" Foreground="White" 
@@ -105,7 +105,7 @@
                                    Padding="10,0"/>
                         </StackPanel>
                         
-                        <TextBlock Text="Définissez les spécifications fonctionnelles et techniques de la demande" 
+                        <TextBlock x:Name="TxtDefineSpecsInstruction" Text="Définissez les spécifications fonctionnelles et techniques de la demande" 
                                   Foreground="#666666" FontSize="11" Margin="0,0,0,5"/>
                         <TextBox x:Name="TxtSpecifications" Height="150" FontSize="13" 
                                 TextWrapping="Wrap" AcceptsReturn="True" 
@@ -122,12 +122,12 @@
                     </Grid.ColumnDefinitions>
                     
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="Type *" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <TextBlock x:Name="TxtTypeLabel" Text="Type *" FontWeight="Bold" Margin="0,0,0,5"/>
                         <ComboBox x:Name="CmbType" Height="35" FontSize="13"/>
                     </StackPanel>
                     
                     <StackPanel Grid.Column="2">
-                        <TextBlock Text="Criticité *" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <TextBlock x:Name="TxtCriticalityLabel" Text="Criticité *" FontWeight="Bold" Margin="0,0,0,5"/>
                         <ComboBox x:Name="CmbCriticite" Height="35" FontSize="13"/>
                     </StackPanel>
                 </Grid>
@@ -136,11 +136,11 @@
                 <Border Background="#E8F5E9" BorderBrush="#00A651" BorderThickness="1" 
                        CornerRadius="5" Padding="15" Margin="0,0,0,15">
                     <StackPanel>
-                        <TextBlock Text="PROGRAMME ET CLASSIFICATION" FontWeight="Bold" FontSize="14" 
+                        <TextBlock x:Name="TxtProgramClassificationSection" Text="PROGRAMME ET CLASSIFICATION" FontWeight="Bold" FontSize="14" 
                                   Foreground="#00A651" Margin="0,0,0,15"/>
                         
                         <!-- Programme -->
-                        <TextBlock Text="Programme associé" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <TextBlock x:Name="TxtAssociatedProgramLabel" Text="Programme associé" FontWeight="Bold" Margin="0,0,0,5"/>
                         <ComboBox x:Name="CmbProgramme" Height="35" FontSize="13" Margin="0,0,0,15"/>
                         
                         <!-- Priorité, Type Projet, Catégorie -->
@@ -154,17 +154,17 @@
                             </Grid.ColumnDefinitions>
                             
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="Priorité *" FontWeight="Bold" Margin="0,0,0,5"/>
+                                <TextBlock x:Name="TxtPriorityLabel" Text="Priorité *" FontWeight="Bold" Margin="0,0,0,5"/>
                                 <ComboBox x:Name="CmbPriorite" Height="35" FontSize="13"/>
                             </StackPanel>
                             
                             <StackPanel Grid.Column="2">
-                                <TextBlock Text="Type Projet" FontWeight="Bold" Margin="0,0,0,5"/>
+                                <TextBlock x:Name="TxtProjectTypeLabel" Text="Type Projet" FontWeight="Bold" Margin="0,0,0,5"/>
                                 <ComboBox x:Name="CmbTypeProjet" Height="35" FontSize="13"/>
                             </StackPanel>
                             
                             <StackPanel Grid.Column="4">
-                                <TextBlock Text="Catégorie" FontWeight="Bold" Margin="0,0,0,5"/>
+                                <TextBlock x:Name="TxtCategoryLabel" Text="Catégorie" FontWeight="Bold" Margin="0,0,0,5"/>
                                 <ComboBox x:Name="CmbCategorie" Height="35" FontSize="13"/>
                             </StackPanel>
                         </Grid>
@@ -178,7 +178,7 @@
                             </Grid.ColumnDefinitions>
                             
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="Lead Projet" FontWeight="Bold" Margin="0,0,0,5"/>
+                                <TextBlock x:Name="TxtLeadProjetLabel" Text="Lead Projet" FontWeight="Bold" Margin="0,0,0,5"/>
                                 <ComboBox x:Name="CmbLeadProjet" Height="35" FontSize="13"/>
                             </StackPanel>
                             
@@ -194,12 +194,12 @@
                 <Border Background="#E3F2FD" BorderBrush="#2196F3" BorderThickness="1" 
                        CornerRadius="5" Padding="15" Margin="0,0,0,15">
                     <StackPanel>
-                        <TextBlock Text="DRIVERS ET AMBITION" FontWeight="Bold" FontSize="14" 
+                        <TextBlock x:Name="TxtDriversAmbitionSection" Text="DRIVERS ET AMBITION" FontWeight="Bold" FontSize="14" 
                                   Foreground="#1976D2" Margin="0,0,0,15"/>
                         
                         <!-- Drivers (multi-sélection) -->
-                        <TextBlock Text="Drivers" FontWeight="Bold" Margin="0,0,0,5"/>
-                        <TextBlock Text="Sélectionnez les drivers applicables (plusieurs choix possibles)" 
+                        <TextBlock x:Name="TxtDriversLabel" Text="Drivers" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <TextBlock x:Name="TxtSelectDriversInstruction" Text="Sélectionnez les drivers applicables (plusieurs choix possibles)" 
                                   FontSize="11" Foreground="#666666" Margin="0,0,0,5"/>
                         <StackPanel x:Name="PanelDrivers" Margin="0,0,0,15">
                             <CheckBox x:Name="ChkDriverAutomation" Content="Automation" Margin="0,3"/>
@@ -210,12 +210,12 @@
                         </StackPanel>
                         
                         <!-- Ambition -->
-                        <TextBlock Text="Ambition" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <TextBlock x:Name="TxtAmbitionLabel" Text="Ambition" FontWeight="Bold" Margin="0,0,0,5"/>
                         <ComboBox x:Name="CmbAmbition" Height="35" FontSize="13" Margin="0,0,0,15"/>
                         
                         <!-- Bénéficiaires -->
-                        <TextBlock Text="Bénéficiaires" FontWeight="Bold" Margin="0,0,0,5"/>
-                        <TextBlock Text="Qui bénéficie de ce projet ? (plusieurs choix possibles)" 
+                        <TextBlock x:Name="TxtBeneficiariesLabel" Text="Bénéficiaires" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <TextBlock x:Name="TxtWhoBenefitsInstruction" Text="Qui bénéficie de ce projet ? (plusieurs choix possibles)" 
                                   FontSize="11" Foreground="#666666" Margin="0,0,0,5"/>
                         <StackPanel x:Name="PanelBeneficiaires" Margin="0,0,0,0">
                             <CheckBox x:Name="ChkBenefSGI" Content="SGI" Margin="0,3"/>
@@ -229,19 +229,19 @@
                 <Border Background="#FFF3E0" BorderBrush="#FF9800" BorderThickness="1" 
                        CornerRadius="5" Padding="15" Margin="0,0,0,15">
                     <StackPanel>
-                        <TextBlock Text="GAINS ATTENDUS" FontWeight="Bold" FontSize="14" 
+                        <TextBlock x:Name="TxtExpectedGainsSection" Text="GAINS ATTENDUS" FontWeight="Bold" FontSize="14" 
                                   Foreground="#F57C00" Margin="0,0,0,15"/>
                         
                         <!-- Gains Temps -->
-                        <TextBlock Text="Gains Temps *" FontWeight="Bold" Margin="0,0,0,5"/>
-                        <TextBlock Text="Exemples: '15 heures/semaine', '3 jours/mois', '20% workload'" 
+                        <TextBlock x:Name="TxtTimeGainsLabel" Text="Gains Temps *" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <TextBlock x:Name="TxtTimeGainsExample" Text="Exemples: '15 heures/semaine', '3 jours/mois', '20% workload'" 
                                   FontSize="11" Foreground="#666666" Margin="0,0,0,5"/>
                         <TextBox x:Name="TxtGainsTemps" Height="35" FontSize="13" 
                                 Padding="8" Margin="0,0,0,15"/>
                         
                         <!-- Gains Financiers -->
-                        <TextBlock Text="Gains Financiers (optionnel)" FontWeight="Bold" Margin="0,0,0,5"/>
-                        <TextBlock Text="Exemples: '45000€ annuels', '3500€ mensuels', 'N/A'" 
+                        <TextBlock x:Name="TxtFinancialGainsLabel" Text="Gains Financiers (optionnel)" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <TextBlock x:Name="TxtFinancialGainsExample" Text="Exemples: '45000€ annuels', '3500€ mensuels', 'N/A'" 
                                   FontSize="11" Foreground="#666666" Margin="0,0,0,5"/>
                         <TextBox x:Name="TxtGainsFinanciers" Height="35" FontSize="13" 
                                 Padding="8" Margin="0,0,0,0"/>
@@ -252,12 +252,12 @@
                 <Border Background="#F3E5F5" BorderBrush="#9C27B0" BorderThickness="1" 
                        CornerRadius="5" Padding="15" Margin="0,0,0,15">
                     <StackPanel>
-                        <TextBlock Text="ÉQUIPES ASSIGNÉES" FontWeight="Bold" FontSize="14" 
+                        <TextBlock x:Name="TxtAssignedTeamsSection" Text="ÉQUIPES ASSIGNÉES" FontWeight="Bold" FontSize="14" 
                                   Foreground="#7B1FA2" Margin="0,0,0,15"/>
                         
                         <!-- Équipes (multi-sélection) -->
-                        <TextBlock Text="Équipes concernées" FontWeight="Bold" Margin="0,0,0,5"/>
-                        <TextBlock Text="Sélectionnez une ou plusieurs équipes (plusieurs choix possibles)" 
+                        <TextBlock x:Name="TxtConcernedTeamsLabel" Text="Équipes concernées" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <TextBlock x:Name="TxtSelectTeamsInstruction" Text="Sélectionnez une ou plusieurs équipes (plusieurs choix possibles)" 
                                   FontSize="11" Foreground="#666666" Margin="0,0,0,5"/>
                         <StackPanel x:Name="PanelEquipes">
                             <!-- CheckBoxes seront générées dynamiquement -->
@@ -266,26 +266,26 @@
                 </Border>
                 
                 <!-- Contexte -->
-                <TextBlock Text="Contexte métier" FontWeight="Bold" Margin="0,0,0,5"/>
+                <TextBlock x:Name="TxtBusinessContextLabel" Text="Contexte métier" FontWeight="Bold" Margin="0,0,0,5"/>
                 <TextBox x:Name="TxtContexte" Height="80" FontSize="13" 
                         TextWrapping="Wrap" AcceptsReturn="True" 
                         VerticalScrollBarVisibility="Auto" Padding="8" Margin="0,0,0,15"/>
                 
                 <!-- Bénéfices attendus -->
-                <TextBlock Text="Bénéfices attendus" FontWeight="Bold" Margin="0,0,0,5"/>
+                <TextBlock x:Name="TxtExpectedBenefitsLabel" Text="Bénéfices attendus" FontWeight="Bold" Margin="0,0,0,5"/>
                 <TextBox x:Name="TxtBenefices" Height="80" FontSize="13" 
                         TextWrapping="Wrap" AcceptsReturn="True" 
                         VerticalScrollBarVisibility="Auto" Padding="8" Margin="0,0,0,15"/>
                 
                 <!-- Business Analyst -->
-                <TextBlock Text="Business Analyst" FontWeight="Bold" Margin="0,0,0,5"/>
+                <TextBlock x:Name="TxtBusinessAnalystLabel" Text="Business Analyst" FontWeight="Bold" Margin="0,0,0,5"/>
                 <ComboBox x:Name="CmbBusinessAnalyst" Height="35" FontSize="13" Margin="0,0,0,15"/>
                 
                 <!-- Manager(s) -->
-                <TextBlock Text="Manager(s)" FontWeight="Bold" Margin="0,0,0,5"/>
+                <TextBlock x:Name="TxtManagersLabel" Text="Manager(s)" FontWeight="Bold" Margin="0,0,0,5"/>
                 <TextBlock x:Name="TxtManagers" FontSize="13" Margin="0,0,0,15" 
                           Padding="8" Background="#F5F5F5" 
-                          Text="Sélectionnez les équipes pour voir les managers" 
+                          Text="" 
                           TextWrapping="Wrap"/>
                 
                 <!-- Section chiffrage (visible uniquement en modification) -->
@@ -293,7 +293,7 @@
                        BorderThickness="1" CornerRadius="5" Padding="15" Margin="0,0,0,15"
                        Visibility="Collapsed">
                     <StackPanel>
-                        <TextBlock Text="CHIFFRAGE" FontWeight="Bold" FontSize="14" 
+                        <TextBlock x:Name="TxtEstimationSection" Text="CHIFFRAGE" FontWeight="Bold" FontSize="14" 
                                   Foreground="#00A651" Margin="0,0,0,10"/>
                         
                         <Grid>
@@ -304,12 +304,12 @@
                             </Grid.ColumnDefinitions>
                             
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="Développeur chiffreur" FontWeight="Bold" Margin="0,0,0,5"/>
+                                <TextBlock x:Name="TxtEstimatingDeveloperLabel" Text="Développeur chiffreur" FontWeight="Bold" Margin="0,0,0,5"/>
                                 <ComboBox x:Name="CmbDevChiffreur" Height="35" FontSize="13"/>
                             </StackPanel>
                             
                             <StackPanel Grid.Column="2">
-                                <TextBlock Text="Estimation (jours)" FontWeight="Bold" Margin="0,0,0,5"/>
+                                <TextBlock x:Name="TxtEstimationDaysLabel" Text="Estimation (jours)" FontWeight="Bold" Margin="0,0,0,5"/>
                                 <TextBox x:Name="TxtChiffrageEstime" Height="35" FontSize="13" Padding="8"
                                         ToolTip="Exemples: 1 = 1 jour, 0.5 = demi-journée, 2.5 = 2 jours et demi"/>
                             </StackPanel>
@@ -322,10 +322,10 @@
                        BorderThickness="2" CornerRadius="5" Padding="15" Margin="0,0,0,15"
                        Visibility="Collapsed">
                     <StackPanel>
-                        <TextBlock Text="💼 VALIDATION MANAGER" FontWeight="Bold" FontSize="14" 
+                        <TextBlock x:Name="TxtManagerValidationSection" Text="💼 VALIDATION MANAGER" FontWeight="Bold" FontSize="14" 
                                   Foreground="#FF6B00" Margin="0,0,0,10"/>
                         
-                        <TextBlock Text="Cette demande est en attente de validation manager. Décidez d'accepter ou de refuser le lancement du projet." 
+                        <TextBlock x:Name="TxtManagerValidationInstruction" Text="Cette demande est en attente de validation manager. Décidez d'accepter ou de refuser le lancement du projet." 
                                   Foreground="#666666" FontSize="12" Margin="0,0,0,10" TextWrapping="Wrap"/>
                         
                         <StackPanel Orientation="Horizontal" Margin="0,5,0,0">

@@ -16,6 +16,7 @@ namespace BacklogManager.Views
         private List<TacheDetailsViewModel> _allTaches;
         private List<TacheDetailsViewModel> _filteredTaches;
         private bool _afficherArchivees = true; // Afficher par défaut
+        private double _progression = 0; // Stocker la progression pour la réutiliser lors du changement de langue
 
         public ProjetDetailsWindow(Projet projet, BacklogService backlogService)
         {
@@ -23,7 +24,65 @@ namespace BacklogManager.Views
             _projet = projet;
             _backlogService = backlogService;
             
+            InitialiserTextes();
             LoadData();
+        }
+
+        private void InitialiserTextes()
+        {
+            // Mettre à jour le titre de la fenêtre
+            Title = LocalizationService.Instance.GetString("ProjectDetails_Title");
+
+            // Initialiser les ComboBoxItems avec traductions
+            CmbFiltreStatut.Items.Clear();
+            CmbFiltreStatut.Items.Add(new ComboBoxItem { Content = LocalizationService.Instance.GetString("ProjectDetails_All"), IsSelected = true });
+            CmbFiltreStatut.Items.Add(new ComboBoxItem { Content = LocalizationService.Instance.GetString("Projects_Todo") });
+            CmbFiltreStatut.Items.Add(new ComboBoxItem { Content = LocalizationService.Instance.GetString("Projects_InProgress") });
+            CmbFiltreStatut.Items.Add(new ComboBoxItem { Content = LocalizationService.Instance.GetString("Projects_InTest") });
+            CmbFiltreStatut.Items.Add(new ComboBoxItem { Content = LocalizationService.Instance.GetString("Projects_Completed") });
+
+            // S'abonner aux changements de langue
+            LocalizationService.Instance.PropertyChanged += (s, e) =>
+            {
+                Title = LocalizationService.Instance.GetString("ProjectDetails_Title");
+                
+                // Réinitialiser les ComboBoxItems
+                var selectedIndex = CmbFiltreStatut.SelectedIndex;
+                CmbFiltreStatut.Items.Clear();
+                CmbFiltreStatut.Items.Add(new ComboBoxItem { Content = LocalizationService.Instance.GetString("ProjectDetails_All") });
+                CmbFiltreStatut.Items.Add(new ComboBoxItem { Content = LocalizationService.Instance.GetString("Projects_Todo") });
+                CmbFiltreStatut.Items.Add(new ComboBoxItem { Content = LocalizationService.Instance.GetString("Projects_InProgress") });
+                CmbFiltreStatut.Items.Add(new ComboBoxItem { Content = LocalizationService.Instance.GetString("Projects_InTest") });
+                CmbFiltreStatut.Items.Add(new ComboBoxItem { Content = LocalizationService.Instance.GetString("Projects_Completed") });
+                CmbFiltreStatut.SelectedIndex = selectedIndex >= 0 ? selectedIndex : 0;
+                
+                // Mettre à jour le badge de statut avec la progression actuelle
+                UpdateStatutBadge(_progression);
+            };
+        }
+
+        private void UpdateStatutBadge(double progression)
+        {
+            if (progression >= 100)
+            {
+                TxtStatut.Text = "✅ " + LocalizationService.Instance.GetString("ProjectDetails_StatusCompleted");
+            }
+            else if (progression >= 75)
+            {
+                TxtStatut.Text = "🚀 " + LocalizationService.Instance.GetString("ProjectDetails_StatusOnTrack");
+            }
+            else if (progression >= 50)
+            {
+                TxtStatut.Text = "⚠️ " + LocalizationService.Instance.GetString("ProjectDetails_StatusInProgress");
+            }
+            else if (progression > 0)
+            {
+                TxtStatut.Text = "🔵 " + LocalizationService.Instance.GetString("ProjectDetails_StatusStarted");
+            }
+            else
+            {
+                TxtStatut.Text = "⏸️ " + LocalizationService.Instance.GetString("ProjectDetails_StatusNotStarted");
+            }
         }
 
         private void LoadData()
@@ -106,6 +165,7 @@ namespace BacklogManager.Views
             
             // Progression basée sur le nombre de tâches terminées (incluant archivées) - comme dans BacklogView et ProjetsViewModel
             double progression = total > 0 ? Math.Round((double)termine / total * 100) : 0;
+            _progression = progression; // Stocker pour réutilisation lors du changement de langue
 
             // Afficher les métriques
             TxtTotalTaches.Text = total.ToString();
@@ -157,37 +217,35 @@ namespace BacklogManager.Views
             BorderRAG.Background = couleurRAG;
             TxtRAG.Text = statutRAG;
 
-            // Couleur du statut
+            // Couleur du statut - utiliser la nouvelle méthode UpdateStatutBadge
             if (progression >= 100)
             {
                 BorderStatut.Background = new SolidColorBrush(Color.FromRgb(0, 145, 90)); // BNP Green
-                TxtStatut.Text = "✅ TERMINÉ";
                 TxtStatut.Foreground = Brushes.White;
             }
             else if (progression >= 75)
             {
                 BorderStatut.Background = new SolidColorBrush(Color.FromRgb(76, 175, 80)); // Vert clair
-                TxtStatut.Text = "🚀 EN BONNE VOIE";
                 TxtStatut.Foreground = Brushes.White;
             }
             else if (progression >= 50)
             {
                 BorderStatut.Background = new SolidColorBrush(Color.FromRgb(255, 152, 0)); // Orange
-                TxtStatut.Text = "⚠️ EN COURS";
                 TxtStatut.Foreground = Brushes.White;
             }
             else if (progression > 0)
             {
                 BorderStatut.Background = new SolidColorBrush(Color.FromRgb(33, 150, 243)); // Bleu
-                TxtStatut.Text = "🔵 DÉMARRÉ";
                 TxtStatut.Foreground = Brushes.White;
             }
             else
             {
                 BorderStatut.Background = new SolidColorBrush(Color.FromRgb(158, 158, 158)); // Gris
-                TxtStatut.Text = "⏸️ NON DÉMARRÉ";
                 TxtStatut.Foreground = Brushes.White;
             }
+            
+            // Mettre à jour le texte du badge avec traduction
+            UpdateStatutBadge(progression);
         }
 
         private void AppliquerFiltres()

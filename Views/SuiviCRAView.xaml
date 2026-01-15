@@ -32,22 +32,22 @@
             </Border.Effect>
             <WrapPanel Orientation="Horizontal">
                 <StackPanel Margin="0,0,20,10">
-                    <TextBlock Text="📊 SUIVI DES CRA" FontSize="24" FontWeight="Bold" 
+                    <TextBlock x:Name="TxtTitle" Text="📊 SUIVI DES CRA" FontSize="24" FontWeight="Bold" 
                                Foreground="White" Margin="0,0,0,5"/>
-                    <TextBlock Text="Vue administrative - Tracking détaillé par équipe et membre" 
+                    <TextBlock x:Name="TxtSubtitle" Text="Vue administrative - Tracking détaillé par équipe et membre" 
                                FontSize="13" Foreground="White" Opacity="0.9"/>
                 </StackPanel>
 
                 <!-- Sélection équipe et membre -->
                 <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <!-- Équipe -->
-                    <TextBlock Text="🏢 Équipe:" FontSize="13" VerticalAlignment="Center" Margin="0,0,10,0" Foreground="White" FontWeight="SemiBold"/>
+                    <TextBlock x:Name="TxtTeam" Text="🏢 Équipe:" FontSize="13" VerticalAlignment="Center" Margin="0,0,10,0" Foreground="White" FontWeight="SemiBold"/>
                     <ComboBox ItemsSource="{Binding Equipes}" DisplayMemberPath="Nom"
                               SelectedItem="{Binding EquipeSelectionnee}"
                               Width="220" Padding="10,8" FontSize="13" Background="White" BorderBrush="White" BorderThickness="2" Margin="0,0,20,0"/>
                     
                     <!-- Membre -->
-                    <TextBlock Text="👤 Membres:" FontSize="13" VerticalAlignment="Center" Margin="0,0,10,0" Foreground="White" FontWeight="SemiBold"/>
+                    <TextBlock x:Name="TxtMembers" Text="👤 Membres:" FontSize="13" VerticalAlignment="Center" Margin="0,0,10,0" Foreground="White" FontWeight="SemiBold"/>
                     <ComboBox ItemsSource="{Binding Devs}" DisplayMemberPath="Nom"
                               SelectedItem="{Binding DevSelectionne}"
                               Width="200" Padding="10,8" FontSize="13" Background="White" BorderBrush="White" BorderThickness="2"/>
@@ -69,7 +69,7 @@
             <WrapPanel Orientation="Horizontal">
                 <!-- Mode d'affichage -->
                 <WrapPanel Orientation="Horizontal" Margin="0,0,20,10">
-                    <Button Content="📅 Mois" Command="{Binding ChangerModeCommand}" CommandParameter="mois"
+                    <Button x:Name="BtnModeMonth" Content="📅 Mois" Command="{Binding ChangerModeCommand}" CommandParameter="mois"
                             Padding="15,8" Margin="0,0,5,0" FontSize="12" FontWeight="SemiBold" Cursor="Hand"
                             BorderThickness="0">
                         <Button.Style>
@@ -106,7 +106,7 @@
                         </Button.Style>
                     </Button>
 
-                    <Button Content="📋 Liste" Command="{Binding ChangerModeCommand}" CommandParameter="liste"
+                    <Button x:Name="BtnModeList" Content="📋 Liste" Command="{Binding ChangerModeCommand}" CommandParameter="liste"
                             Padding="15,8" Margin="0,0,5,0" FontSize="12" FontWeight="SemiBold" Cursor="Hand"
                             BorderThickness="0">
                         <Button.Style>
@@ -143,7 +143,7 @@
                         </Button.Style>
                     </Button>
 
-                    <Button Content="📊 Timeline Programme" Command="{Binding ChangerModeCommand}" CommandParameter="timeline_programme"
+                    <Button x:Name="BtnModeTimelineProgramme" Content="📊 Timeline Programme" Command="{Binding ChangerModeCommand}" CommandParameter="timeline_programme"
                             Padding="15,8" FontSize="12" FontWeight="SemiBold" Cursor="Hand"
                             BorderThickness="0">
                         <Button.Style>
@@ -180,7 +180,7 @@
                         </Button.Style>
                     </Button>
 
-                    <Button Content="📋 Timeline Projet" Command="{Binding ChangerModeCommand}" CommandParameter="timeline"
+                    <Button x:Name="BtnModeTimelineProjet" Content="📋 Timeline Projet" Command="{Binding ChangerModeCommand}" CommandParameter="timeline"
                             Padding="15,8" FontSize="12" FontWeight="SemiBold" Cursor="Hand"
                             BorderThickness="0">
                         <Button.Style>
@@ -306,7 +306,7 @@
                         </Button.Style>
                     </Button>
 
-                    <Button Content="🎯 Aujourd'hui" Command="{Binding AujourdhuiCommand}"
+                    <Button x:Name="BtnToday" Content="🎯 Aujourd'hui" Command="{Binding AujourdhuiCommand}"
                             Padding="12,8" Background="#E8F5E9" Foreground="#00915A" BorderThickness="1" BorderBrush="#00915A"
                             FontSize="12" FontWeight="SemiBold" Cursor="Hand">
                         <Button.Style>
@@ -343,7 +343,7 @@
                             </Style.Triggers>
                         </Style>
                     </WrapPanel.Style>
-                    <TextBlock Text="🎯 Programme:" FontSize="13" VerticalAlignment="Center" Margin="0,0,10,0" Foreground="#00915A" FontWeight="SemiBold"/>
+                    <TextBlock x:Name="TxtProgramme" Text="🎯 Programme:" FontSize="13" VerticalAlignment="Center" Margin="0,0,10,0" Foreground="#00915A" FontWeight="SemiBold"/>
                     <ComboBox ItemsSource="{Binding Programmes}" DisplayMemberPath="Nom"
                               SelectedItem="{Binding ProgrammeSelectionne}"
                               Width="280" Padding="10,8" FontSize="13"/>
@@ -361,7 +361,7 @@
                             </Style.Triggers>
                         </Style>
                     </WrapPanel.Style>
-                    <TextBlock Text="📋 Projet:" FontSize="13" VerticalAlignment="Center" Margin="0,0,10,0" Foreground="#00915A" FontWeight="SemiBold"/>
+                    <TextBlock x:Name="TxtProjet" Text="📋 Projet:" FontSize="13" VerticalAlignment="Center" Margin="0,0,10,0" Foreground="#00915A" FontWeight="SemiBold"/>
                     <ComboBox ItemsSource="{Binding Projets}" DisplayMemberPath="Nom"
                               SelectedItem="{Binding ProjetSelectionne}"
                               Width="250" Padding="10,8" FontSize="13"/>
@@ -446,14 +446,14 @@
                                     
                                     <Border Grid.Column="0" Background="White" CornerRadius="6" Padding="12,6" Margin="0,0,15,0">
                                         <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="🚀 Début: " FontSize="12" FontWeight="SemiBold" Foreground="#00915A"/>
+                                            <TextBlock x:Name="TxtStart" Text="🚀 Début: " FontSize="12" FontWeight="SemiBold" Foreground="#00915A"/>
                                             <TextBlock Text="{Binding DateDebutProgramme}" FontSize="12" Foreground="#666"/>
                                         </StackPanel>
                                     </Border>
                                     
                                     <Border Grid.Column="2" Background="White" CornerRadius="6" Padding="12,6">
                                         <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="🎯 Objectif: " FontSize="12" FontWeight="SemiBold" Foreground="#FF9800"/>
+                                            <TextBlock x:Name="TxtTarget" Text="🎯 Objectif: " FontSize="12" FontWeight="SemiBold" Foreground="#FF9800"/>
                                             <TextBlock Text="{Binding DateFinCibleProgramme}" FontSize="12" Foreground="#666"/>
                                         </StackPanel>
                                     </Border>
@@ -475,7 +475,7 @@
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="🟢 " FontSize="13"/>
                                             <TextBlock Text="{Binding NbProjetsGreen}" FontSize="13" FontWeight="Bold" Foreground="White" Margin="0,0,3,0"/>
-                                            <TextBlock Text=" Green" FontSize="13" Foreground="White"/>
+                                            <TextBlock x:Name="TxtGreen" Text=" Green" FontSize="13" Foreground="White"/>
                                         </StackPanel>
                                     </Border>
                                     
@@ -493,7 +493,7 @@
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="🟠 " FontSize="13"/>
                                             <TextBlock Text="{Binding NbProjetsAmber}" FontSize="13" FontWeight="Bold" Foreground="White" Margin="0,0,3,0"/>
-                                            <TextBlock Text=" Amber" FontSize="13" Foreground="White"/>
+                                            <TextBlock x:Name="TxtAmber" Text=" Amber" FontSize="13" Foreground="White"/>
                                         </StackPanel>
                                     </Border>
                                     
@@ -511,7 +511,7 @@
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="🔴 " FontSize="13"/>
                                             <TextBlock Text="{Binding NbProjetsRed}" FontSize="13" FontWeight="Bold" Foreground="White" Margin="0,0,3,0"/>
-                                            <TextBlock Text=" Red" FontSize="13" Foreground="White"/>
+                                            <TextBlock x:Name="TxtRed" Text=" Red" FontSize="13" Foreground="White"/>
                                         </StackPanel>
                                     </Border>
                                 </WrapPanel>
@@ -535,7 +535,7 @@
                                 </Border.Effect>
                                 <StackPanel>
                                     <TextBlock Text="📁" FontSize="24" HorizontalAlignment="Center" Margin="0,0,0,8"/>
-                                    <TextBlock Text="Projets" FontSize="11" Foreground="#999" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                                    <TextBlock x:Name="TxtProjects" Text="Projets" FontSize="11" Foreground="#999" HorizontalAlignment="Center" Margin="0,0,0,4"/>
                                     <TextBlock Text="{Binding ProjetsTimelineProgramme.Count}" FontSize="26" FontWeight="Bold" 
                                                Foreground="#00915A" HorizontalAlignment="Center"/>
                                 </StackPanel>
@@ -548,7 +548,7 @@
                                 </Border.Effect>
                                 <StackPanel>
                                     <TextBlock Text="📋" FontSize="24" HorizontalAlignment="Center" Margin="0,0,0,8"/>
-                                    <TextBlock Text="Tâches totales" FontSize="11" Foreground="#999" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                                    <TextBlock x:Name="TxtTotalTasks" Text="Tâches totales" FontSize="11" Foreground="#999" HorizontalAlignment="Center" Margin="0,0,0,4"/>
                                     <TextBlock Text="{Binding NbTotalTachesProgramme}" FontSize="26" FontWeight="Bold" 
                                                Foreground="#FF9800" HorizontalAlignment="Center"/>
                                 </StackPanel>
@@ -561,7 +561,7 @@
                                 </Border.Effect>
                                 <StackPanel>
                                     <TextBlock Text="✓" FontSize="24" HorizontalAlignment="Center" Margin="0,0,0,8"/>
-                                    <TextBlock Text="Progression" FontSize="11" Foreground="#999" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                                    <TextBlock x:Name="TxtProgress" Text="Progression" FontSize="11" Foreground="#999" HorizontalAlignment="Center" Margin="0,0,0,4"/>
                                     <TextBlock Text="{Binding ProgressionGlobaleProgrammeTexte}" FontSize="26" FontWeight="Bold" 
                                                Foreground="#4CAF50" HorizontalAlignment="Center"/>
                                 </StackPanel>
@@ -574,7 +574,7 @@
                                 </Border.Effect>
                                 <StackPanel>
                                     <TextBlock Text="📊" FontSize="24" HorizontalAlignment="Center" Margin="0,0,0,8"/>
-                                    <TextBlock Text="Budget estimé" FontSize="11" Foreground="#999" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                                    <TextBlock x:Name="TxtEstimatedBudget" Text="Budget estimé" FontSize="11" Foreground="#999" HorizontalAlignment="Center" Margin="0,0,0,4"/>
                                     <TextBlock Text="{Binding BudgetTempsEstimeJours}" FontSize="26" FontWeight="Bold" 
                                                Foreground="#2196F3" HorizontalAlignment="Center"/>
                                 </StackPanel>
@@ -587,7 +587,7 @@
                                 </Border.Effect>
                                 <StackPanel>
                                     <TextBlock Text="⏱" FontSize="24" HorizontalAlignment="Center" Margin="0,0,0,8"/>
-                                    <TextBlock Text="Temps réel" FontSize="11" Foreground="#999" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                                    <TextBlock x:Name="TxtRealTime" Text="Temps réel" FontSize="11" Foreground="#999" HorizontalAlignment="Center" Margin="0,0,0,4"/>
                                     <TextBlock Text="{Binding TempsReelJours}" FontSize="26" FontWeight="Bold" 
                                                Foreground="#9C27B0" HorizontalAlignment="Center"/>
                                 </StackPanel>
@@ -601,11 +601,11 @@
                             </Border.Effect>
                             <StackPanel>
                                 <Grid Margin="0,0,0,10">
-                                    <TextBlock Text="📈 PROGRESSION GLOBALE DU PROGRAMME" FontSize="13" FontWeight="SemiBold" 
+                                    <TextBlock x:Name="TxtGlobalProgress" Text="📈 PROGRESSION GLOBALE DU PROGRAMME" FontSize="13" FontWeight="SemiBold" 
                                                Foreground="#00915A" HorizontalAlignment="Left"/>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                                         <!-- Bouton Analyse IA Programme -->
-                                        <Button Padding="12,6" Margin="0,0,15,0"
+                                        <Button x:Name="BtnAnalyzeProgrammeIA" Padding="12,6" Margin="0,0,15,0"
                                                 Background="#667eea" Foreground="White" FontSize="12" FontWeight="SemiBold"
                                                 BorderThickness="0" Cursor="Hand" Click="BtnAnalyserProgrammeIA_Click"
                                                 ToolTip="Analyse IA : État global, risques, recommandations">
@@ -618,7 +618,7 @@
                                                                         CornerRadius="6" Padding="{TemplateBinding Padding}">
                                                                     <StackPanel Orientation="Horizontal">
                                                                         <TextBlock Text="🤖" FontSize="14" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                                                                        <TextBlock Text="Analyser avec IA" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                                                        <TextBlock x:Name="TxtAnalyzeWithAI" Text="Analyser avec IA" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
                                                                     </StackPanel>
                                                                 </Border>
                                                             </ControlTemplate>
@@ -636,7 +636,7 @@
                                         <TextBlock Text="{Binding NbTachesTermineesProgramme}" FontSize="13" FontWeight="Bold" Foreground="#4CAF50"/>
                                         <TextBlock Text=" / " FontSize="13" Foreground="#999" Margin="3,0"/>
                                         <TextBlock Text="{Binding NbTotalTachesProgramme}" FontSize="13" Foreground="#999"/>
-                                        <TextBlock Text=" tâches terminées" FontSize="13" Foreground="#999" Margin="3,0,0,0"/>
+                                        <TextBlock x:Name="TxtTasksCompleted" Text=" tâches terminées" FontSize="13" Foreground="#999" Margin="3,0,0,0"/>
                                     </StackPanel>
                                 </Grid>
                                 <Border Background="#F0F0F0" CornerRadius="12" Height="36" MinWidth="1000">
@@ -658,11 +658,11 @@
                             </Border.Effect>
                             <StackPanel>
                                 <Grid Margin="0,0,0,15">
-                                    <TextBlock Text="👥 ÉQUIPES IMPLIQUÉES DANS LE PROGRAMME" FontSize="13" FontWeight="SemiBold" 
+                                    <TextBlock x:Name="TxtTeamsProgramme" Text="👥 ÉQUIPES IMPLIQUÉES DANS LE PROGRAMME" FontSize="13" FontWeight="SemiBold" 
                                                Foreground="#00915A" HorizontalAlignment="Left"/>
                                     <TextBlock HorizontalAlignment="Right">
                                         <Run Text="{Binding NbEquipesProgramme, Mode=OneWay}" FontSize="13" FontWeight="Bold" Foreground="#00915A"/>
-                                        <Run Text=" équipe(s)" FontSize="13" Foreground="#999"/>
+                                        <Run x:Name="RunTeamsCount" Text=" équipe(s)" FontSize="13" Foreground="#999"/>
                                     </TextBlock>
                                 </Grid>
                                 
@@ -695,7 +695,7 @@
                                                                Margin="0,3,0,0" Opacity="0.8"/>
                                                     <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                                                         <TextBlock Text="📊" FontSize="11" Margin="0,0,4,0"/>
-                                                        <TextBlock Text="Voir dans Dashboard" FontSize="11" 
+                                                        <TextBlock x:Name="TxtViewInDashboard" Text="Voir dans Dashboard" FontSize="11" 
                                                                    Foreground="#00915A" FontWeight="Medium"/>
                                                     </StackPanel>
                                                 </StackPanel>
@@ -857,12 +857,12 @@
                                 <StackPanel Margin="0,0,15,10">
                                     <TextBlock Text="{Binding TachesProjetTimeline.Count, StringFormat='{}{0} tâches'}" 
                                                FontSize="14" FontWeight="SemiBold" Foreground="#00915A"/>
-                                    <TextBlock Text="Dates du projet à venir" FontSize="11" Foreground="#666" 
+                                    <TextBlock x:Name="TxtDatesToCome" Text="Dates du projet à venir" FontSize="11" Foreground="#666" 
                                                Margin="0,3,0,0" FontStyle="Italic"/>
                                 </StackPanel>
                                 
                                 <!-- Bouton Analyse IA -->
-                                <Button Padding="15,10" Margin="0,0,0,10"
+                                <Button x:Name="BtnAnalyzeProjetIA" Padding="15,10" Margin="0,0,0,10"
                                         Background="#667eea" Foreground="White" FontSize="13" FontWeight="SemiBold"
                                         BorderThickness="0" Cursor="Hand" Click="BtnAnalyserProjetIA_Click"
                                         ToolTip="Analyse IA : Deadlines, retards, recommandations"
@@ -917,13 +917,13 @@
                                 </Grid.ColumnDefinitions>
                                 
                                 <StackPanel Grid.Column="0">
-                                    <TextBlock Text="🔔 Extension de projet détectée" FontSize="14" FontWeight="Bold" 
+                                    <TextBlock x:Name="TxtExtensionDetected" Text="🔔 Extension de projet détectée" FontSize="14" FontWeight="Bold" 
                                                Foreground="#856404" Margin="0,0,0,5"/>
                                     <TextBlock Text="{Binding MessageExtension}" FontSize="12" Foreground="#856404" 
                                                TextWrapping="Wrap"/>
                                 </StackPanel>
                                 
-                                <Button Grid.Column="1" Content="✓ Valider l'extension" 
+                                <Button x:Name="BtnValidateExtension" Grid.Column="1" Content="✓ Valider l'extension" 
                                         Command="{Binding ValiderExtensionProjetCommand}"
                                         Padding="12,8" Background="#28A745" Foreground="White" 
                                         FontSize="12" FontWeight="SemiBold" BorderThickness="0" 
@@ -1002,7 +1002,7 @@
                                         </Border.RenderTransform>
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="🚀" FontSize="8" Margin="0,0,2,0"/>
-                                            <TextBlock Text="DÉBUT" FontSize="8" FontWeight="Bold" 
+                                            <TextBlock x:Name="TxtStart2" Text="DÉBUT" FontSize="8" FontWeight="Bold" 
                                                        Foreground="White"/>
                                         </StackPanel>
                                     </Border>
@@ -1025,7 +1025,7 @@
                                         </Border.RenderTransform>
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="🎯" FontSize="8" Margin="0,0,2,0"/>
-                                            <TextBlock Text="OBJECTIF" FontSize="8" FontWeight="Bold" 
+                                            <TextBlock x:Name="TxtObjective" Text="OBJECTIF" FontSize="8" FontWeight="Bold" 
                                                        Foreground="White"/>
                                         </StackPanel>
                                     </Border>
@@ -1196,9 +1196,9 @@
                             </Border.Style>
                             <StackPanel HorizontalAlignment="Center">
                                 <TextBlock Text="📋" FontSize="48" HorizontalAlignment="Center" Opacity="0.3"/>
-                                <TextBlock Text="Aucune tâche dans ce projet" FontSize="14" Foreground="#999" 
+                                <TextBlock x:Name="TxtNoTask" Text="Aucune tâche dans ce projet" FontSize="14" Foreground="#999" 
                                            HorizontalAlignment="Center" Margin="0,10,0,0"/>
-                                <TextBlock Text="Sélectionnez un projet avec des tâches pour voir la timeline" 
+                                <TextBlock x:Name="TxtSelectProjectWithTasks" Text="Sélectionnez un projet avec des tâches pour voir la timeline" 
                                            FontSize="12" Foreground="#999" HorizontalAlignment="Center" 
                                            Margin="0,5,0,0" FontStyle="Italic"/>
                             </StackPanel>
@@ -1267,19 +1267,19 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="0" Text="LUN" HorizontalAlignment="Center" FontWeight="Bold" 
+                        <TextBlock x:Name="TxtMon" Grid.Column="0" Text="LUN" HorizontalAlignment="Center" FontWeight="Bold" 
                                    Foreground="#00915A" FontSize="12"/>
-                        <TextBlock Grid.Column="1" Text="MAR" HorizontalAlignment="Center" FontWeight="Bold" 
+                        <TextBlock x:Name="TxtTue" Grid.Column="1" Text="MAR" HorizontalAlignment="Center" FontWeight="Bold" 
                                    Foreground="#00915A" FontSize="12"/>
-                        <TextBlock Grid.Column="2" Text="MER" HorizontalAlignment="Center" FontWeight="Bold" 
+                        <TextBlock x:Name="TxtWed" Grid.Column="2" Text="MER" HorizontalAlignment="Center" FontWeight="Bold" 
                                    Foreground="#00915A" FontSize="12"/>
-                        <TextBlock Grid.Column="3" Text="JEU" HorizontalAlignment="Center" FontWeight="Bold" 
+                        <TextBlock x:Name="TxtThu" Grid.Column="3" Text="JEU" HorizontalAlignment="Center" FontWeight="Bold" 
                                    Foreground="#00915A" FontSize="12"/>
-                        <TextBlock Grid.Column="4" Text="VEN" HorizontalAlignment="Center" FontWeight="Bold" 
+                        <TextBlock x:Name="TxtFri" Grid.Column="4" Text="VEN" HorizontalAlignment="Center" FontWeight="Bold" 
                                    Foreground="#00915A" FontSize="12"/>
-                        <TextBlock Grid.Column="5" Text="SAM" HorizontalAlignment="Center" FontWeight="Bold" 
+                        <TextBlock x:Name="TxtSat" Grid.Column="5" Text="SAM" HorizontalAlignment="Center" FontWeight="Bold" 
                                    Foreground="#757575" FontSize="12"/>
-                        <TextBlock Grid.Column="6" Text="DIM" HorizontalAlignment="Center" FontWeight="Bold" 
+                        <TextBlock x:Name="TxtSun" Grid.Column="6" Text="DIM" HorizontalAlignment="Center" FontWeight="Bold" 
                                    Foreground="#757575" FontSize="12"/>
                     </Grid>
 
@@ -1486,7 +1486,7 @@
                             <DropShadowEffect BlurRadius="15" ShadowDepth="0" Opacity="0.1" Color="#00915A"/>
                         </Border.Effect>
                         <StackPanel>
-                            <TextBlock Text="👥 STATISTIQUES" FontSize="14" FontWeight="Bold" 
+                            <TextBlock x:Name="TxtStatistics" Text="👥 STATISTIQUES" FontSize="14" FontWeight="Bold" 
                                        Foreground="#00915A" Margin="0,0,0,12"/>
 
                             <ItemsControl ItemsSource="{Binding StatsDev}">
@@ -1520,21 +1520,21 @@
                                                         <TextBlock FontSize="11" Foreground="#666" Margin="0,2,0,0">
                                                             <Run Text="📅"/>
                                                             <Run Text="{Binding NombreJoursSaisis, Mode=OneWay}"/>
-                                                            <Run Text="jour(s) saisi(s)"/>
+                                                            <Run Text="{Binding DataContext.LabelDaysSaved, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=OneWay}"/>
                                                         </TextBlock>
                                                         <TextBlock FontSize="11" Margin="0,4,0,0">
                                                             <Run Text="📋" Foreground="#00915A"/>
-                                                            <Run Text="Travail:" Foreground="#00915A" FontWeight="SemiBold"/>
+                                                            <Run Text="{Binding DataContext.LabelWork, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=OneWay}" Foreground="#00915A" FontWeight="SemiBold"/>
                                                             <Run Text="{Binding JoursTravail, StringFormat='{}{0:F1}j', Mode=OneWay}" Foreground="#00915A"/>
                                                         </TextBlock>
                                                         <TextBlock FontSize="11" Margin="0,2,0,0">
                                                             <Run Text="🏖️" Foreground="#2196F3"/>
-                                                            <Run Text="Congés:" Foreground="#2196F3" FontWeight="SemiBold"/>
+                                                            <Run Text="{Binding DataContext.LabelLeave, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=OneWay}" Foreground="#2196F3" FontWeight="SemiBold"/>
                                                             <Run Text="{Binding JoursConges, StringFormat='{}{0:F1}j', Mode=OneWay}" Foreground="#2196F3"/>
                                                         </TextBlock>
                                                         <TextBlock FontSize="11" Margin="0,2,0,0">
                                                             <Run Text="🚫" Foreground="#757575"/>
-                                                            <Run Text="Non travaillé:" Foreground="#757575" FontWeight="SemiBold"/>
+                                                            <Run Text="{Binding DataContext.LabelNotWorked, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=OneWay}" Foreground="#757575" FontWeight="SemiBold"/>
                                                             <Run Text="{Binding JoursNonTravaille, StringFormat='{}{0:F1}j', Mode=OneWay}" Foreground="#757575"/>
                                                         </TextBlock>
                                                     </StackPanel>
@@ -1559,7 +1559,7 @@
                             <DropShadowEffect BlurRadius="16" ShadowDepth="0" Opacity="0.2" Color="#D0D0D0"/>
                         </Border.Effect>
                         <StackPanel>
-                            <TextBlock Text="📅 DÉTAIL DU JOUR" FontSize="14" FontWeight="Bold" 
+                            <TextBlock x:Name="TxtDayDetail" Text="📅 DÉTAIL DU JOUR" FontSize="14" FontWeight="Bold" 
                                        Foreground="#00915A" Margin="0,0,0,8"/>
 
                             <TextBlock Text="{Binding JourSelectionne.Date, StringFormat='dddd d MMMM yyyy'}" 
@@ -1645,7 +1645,7 @@
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
 
-                            <TextBlock Text="Aucun CRA saisi ce jour" FontSize="12" Foreground="#999" 
+                            <TextBlock x:Name="TxtNoCRA" Text="Aucun CRA saisi ce jour" FontSize="12" Foreground="#999" 
                                        FontStyle="Italic" HorizontalAlignment="Center" Margin="0,20,0,0"/>
                         </StackPanel>
                     </Border>

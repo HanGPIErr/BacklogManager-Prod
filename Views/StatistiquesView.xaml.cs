@@ -20,7 +20,116 @@ namespace BacklogManager.Views
         public StatistiquesView()
         {
             InitializeComponent();
+            InitialiserTextes();
+            LocalizationService.Instance.PropertyChanged += (s, e) => InitialiserTextes();
             Loaded += StatistiquesView_Loaded;
+        }
+
+        private void InitialiserTextes()
+        {
+            // Header
+            if (TxtStatsTitle != null)
+                TxtStatsTitle.Text = "📊 " + LocalizationService.Instance.GetString("Stats_Title");
+            if (TxtStatsSubtitle != null)
+                TxtStatsSubtitle.Text = LocalizationService.Instance.GetString("Stats_Subtitle");
+            
+            // Filtres période
+            if (TxtPeriodLabel != null)
+                TxtPeriodLabel.Text = LocalizationService.Instance.GetString("Stats_Period");
+            if (CboPeriodCurrentYear != null)
+                CboPeriodCurrentYear.Content = LocalizationService.Instance.GetString("Stats_PeriodCurrentYear");
+            if (CboPeriod6Months != null)
+                CboPeriod6Months.Content = LocalizationService.Instance.GetString("Stats_Period6Months");
+            if (CboPeriodCurrentMonth != null)
+                CboPeriodCurrentMonth.Content = LocalizationService.Instance.GetString("Stats_PeriodCurrentMonth");
+            if (CboPeriod3Months != null)
+                CboPeriod3Months.Content = LocalizationService.Instance.GetString("Stats_Period3Months");
+            if (CboPeriodCustom != null)
+                CboPeriodCustom.Content = LocalizationService.Instance.GetString("Stats_PeriodCustom");
+            if (CboPeriodAll != null)
+                CboPeriodAll.Content = LocalizationService.Instance.GetString("Stats_PeriodAll");
+            if (TxtFrom != null)
+                TxtFrom.Text = LocalizationService.Instance.GetString("Stats_From");
+            if (TxtTo != null)
+                TxtTo.Text = LocalizationService.Instance.GetString("Stats_To");
+            
+            // Boutons
+            if (BtnRefresh != null)
+                BtnRefresh.Content = LocalizationService.Instance.GetString("Stats_BtnRefresh");
+            if (BtnAnalyzeIA != null)
+                BtnAnalyzeIA.Content = LocalizationService.Instance.GetString("Stats_BtnAnalyzeIA");
+            if (BtnExportPDF != null)
+                BtnExportPDF.Content = "📄 " + LocalizationService.Instance.GetString("Stats_BtnExportPDF");
+            
+            // KPIs
+            if (TxtTotalTasks != null)
+                TxtTotalTasks.Text = LocalizationService.Instance.GetString("Stats_TotalTasks");
+            if (TxtCompleted != null)
+                TxtCompleted.Text = LocalizationService.Instance.GetString("Stats_Completed");
+            if (TxtInProgress != null)
+                TxtInProgress.Text = LocalizationService.Instance.GetString("Stats_InProgress");
+            if (TxtActiveProjects != null)
+                TxtActiveProjects.Text = LocalizationService.Instance.GetString("Stats_ActiveProjects");
+            
+            // KPIs supplémentaires
+            if (TxtTotalHours != null)
+                TxtTotalHours.Text = LocalizationService.Instance.GetString("Stats_TotalHours");
+            if (TxtDaysEntered != null)
+                TxtDaysEntered.Text = LocalizationService.Instance.GetString("Stats_DaysEntered");
+            if (TxtActiveDevs != null)
+                TxtActiveDevs.Text = LocalizationService.Instance.GetString("Stats_ActiveDevs");
+            if (TxtCompletionRate != null)
+                TxtCompletionRate.Text = LocalizationService.Instance.GetString("Stats_CompletionRate");
+            if (TxtActualVsEstimated != null)
+                TxtActualVsEstimated.Text = LocalizationService.Instance.GetString("Stats_ActualVsEstimated");
+            if (TxtOverrunNote != null)
+                TxtOverrunNote.Text = LocalizationService.Instance.GetString("Stats_OverrunNote");
+            
+            // Sections et titres
+            if (TxtTasksByStatus != null)
+                TxtTasksByStatus.Text = LocalizationService.Instance.GetString("Stats_TasksByStatus");
+            if (TxtWorkloadByDev != null)
+                TxtWorkloadByDev.Text = LocalizationService.Instance.GetString("Stats_WorkloadByDev");
+            if (TxtTasksDistribution != null)
+                TxtTasksDistribution.Text = LocalizationService.Instance.GetString("Stats_TasksDistribution");
+            if (TxtCRAByDev != null)
+                TxtCRAByDev.Text = LocalizationService.Instance.GetString("Stats_CRAByDev");
+            if (TxtHoursEnteredValidated != null)
+                TxtHoursEnteredValidated.Text = LocalizationService.Instance.GetString("Stats_HoursEnteredValidated");
+            if (TxtProjectProgress != null)
+                TxtProjectProgress.Text = LocalizationService.Instance.GetString("Stats_ProjectProgress");
+            if (TxtResourcesByTeam != null)
+                TxtResourcesByTeam.Text = LocalizationService.Instance.GetString("Stats_ResourcesByTeam");
+            if (TxtActiveMembersExcludingManagers != null)
+                TxtActiveMembersExcludingManagers.Text = LocalizationService.Instance.GetString("Stats_ActiveMembersExcludingManagers");
+            if (TxtLoadBalance != null)
+                TxtLoadBalance.Text = LocalizationService.Instance.GetString("Stats_LoadBalance");
+            if (TxtCapacityAnalysis != null)
+                TxtCapacityAnalysis.Text = LocalizationService.Instance.GetString("Stats_CapacityAnalysis");
+            if (TxtResourcesAndWorkload != null)
+                TxtResourcesAndWorkload.Text = LocalizationService.Instance.GetString("Stats_ResourcesAndWorkload");
+            
+            // Project Progress
+            if (TxtCompletedTasksIncludingArchived != null)
+                TxtCompletedTasksIncludingArchived.Text = LocalizationService.Instance.GetString("Stats_CompletedTasksIncludingArchived");
+            if (TxtArchivedTasksCountedAsCompleted != null)
+                TxtArchivedTasksCountedAsCompleted.Text = "💡 " + LocalizationService.Instance.GetString("Stats_ArchivedTasksCountedAsCompleted");
+            
+            // Infos bulles
+            if (TxtDoubleClickInfo != null)
+                TxtDoubleClickInfo.Text = LocalizationService.Instance.GetString("Stats_DoubleClickInfo");
+            if (TxtDoubleClickCRAInfo != null)
+                TxtDoubleClickCRAInfo.Text = LocalizationService.Instance.GetString("Stats_DoubleClickCRAInfo");
+            
+            // Bouton Voir détail complet
+            if (BtnViewAllResources != null)
+            {
+                var btnContent = BtnViewAllResources.Content as StackPanel;
+                if (btnContent != null && btnContent.Children.Count > 1 && btnContent.Children[1] is TextBlock tb)
+                {
+                    tb.Text = LocalizationService.Instance.GetString("Stats_ViewFullDetails");
+                }
+            }
         }
 
         private void StatistiquesView_Loaded(object sender, System.Windows.RoutedEventArgs e)
@@ -86,23 +195,23 @@ namespace BacklogManager.Views
 
         private void BtnAnalyserIA_Click(object sender, System.Windows.RoutedEventArgs e)
         {
+            var loc = Services.LocalizationService.Instance;
+            
             // Vérifier que le token API est configuré
             var apiToken = BacklogManager.Properties.Settings.Default["AgentChatToken"]?.ToString()?.Trim();
             if (string.IsNullOrWhiteSpace(apiToken))
             {
                 var result = System.Windows.MessageBox.Show(
-                    "Pour utiliser l'analyse IA, vous devez d'abord configurer votre token API OpenAI.\n\n" +
-                    "Voulez-vous le configurer maintenant ?\n\n" +
-                    "Note : Rendez-vous dans la section 💬 Chat avec l'IA pour configurer votre token.",
-                    "Token API requis",
+                    loc.GetString("AIAnalysis_TokenRequired_Message"),
+                    loc.GetString("AIAnalysis_TokenRequired_Title"),
                     System.Windows.MessageBoxButton.YesNo,
                     System.Windows.MessageBoxImage.Information);
                 
                 if (result == System.Windows.MessageBoxResult.Yes)
                 {
                     System.Windows.MessageBox.Show(
-                        "Allez dans la section '💬 Chat avec l'IA' du menu principal pour configurer votre token API.",
-                        "Configuration",
+                        loc.GetString("AIAnalysis_TokenConfig_Message"),
+                        loc.GetString("AIAnalysis_TokenConfig_Title"),
                         System.Windows.MessageBoxButton.OK,
                         System.Windows.MessageBoxImage.Information);
                 }

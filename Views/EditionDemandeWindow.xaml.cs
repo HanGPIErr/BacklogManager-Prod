@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Media;
 using BacklogManager.Domain;
 using BacklogManager.Services;
@@ -27,7 +28,7 @@ namespace BacklogManager.Views
             
             if (_demandeId.HasValue)
             {
-                TxtTitre.Text = "MODIFIER LA DEMANDE";
+                TxtTitre.Text = LocalizationService.Instance["Requests_EditRequest"];
                 ChargerDemande();
                 PanelChiffrage.Visibility = Visibility.Visible;
                 
@@ -63,6 +64,207 @@ namespace BacklogManager.Views
             BtnValiderSpecifications.Click += BtnValiderSpecifications_Click;
             BtnAccepter.Click += BtnAccepter_Click;
             BtnRefuser.Click += BtnRefuser_Click;
+            
+            LocalizationService.Instance.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(LocalizationService.CurrentCulture))
+                {
+                    InitialiserTextes();
+                    InitialiserComboBoxes();
+                }
+            };
+
+            // Initialiser les textes au chargement
+            InitialiserTextes();
+        }
+
+        private void InitialiserTextes()
+        {
+            // Titre de la fenêtre
+            if (_demandeId > 0)
+            {
+                Title = LocalizationService.Instance["Requests_EditRequest"];
+                TxtTitre.Text = LocalizationService.Instance["Requests_EditRequest"];
+            }
+            else
+            {
+                Title = LocalizationService.Instance["Requests_NewRequest"];
+                TxtTitre.Text = LocalizationService.Instance["Requests_NewRequest"];
+            }
+
+            // Sections principales via x:Name
+            TxtDetailedSpecsSection.Text = "📋 " + LocalizationService.Instance["Requests_DetailedSpecs"];
+            TxtProgramClassificationSection.Text = LocalizationService.Instance["Requests_ProgramClassification"];
+            TxtDriversAmbitionSection.Text = LocalizationService.Instance["Requests_DriversAmbition"];
+            TxtExpectedGainsSection.Text = LocalizationService.Instance["Requests_ExpectedGains"];
+            TxtAssignedTeamsSection.Text = LocalizationService.Instance["Requests_AssignedTeams"];
+            TxtEstimationSection.Text = LocalizationService.Instance["Requests_Estimation"];
+            TxtRequiredFieldsInstruction.Text = LocalizationService.Instance["Requests_RequiredFields"];
+            TxtDefineSpecsInstruction.Text = LocalizationService.Instance["Requests_DefineSpecs"];
+            TxtTypeLabel.Text = LocalizationService.Instance["Requests_TypeLabel"] + " *";
+            TxtCriticalityLabel.Text = LocalizationService.Instance["Requests_CriticalityLabel"] + " *";
+            
+            // Labels principaux
+            TxtAssociatedProgramLabel.Text = LocalizationService.Instance["Requests_AssociatedProgram"];
+            TxtBeneficiariesLabel.Text = LocalizationService.Instance["Requests_Beneficiaries"];
+            TxtConcernedTeamsLabel.Text = LocalizationService.Instance["Requests_ConcernedTeams"];
+            TxtBusinessContextLabel.Text = LocalizationService.Instance["Requests_BusinessContext"];
+            TxtExpectedBenefitsLabel.Text = LocalizationService.Instance["Requests_ExpectedBenefits"];
+            TxtBusinessAnalystLabel.Text = LocalizationService.Instance["Requests_BusinessAnalyst"];
+            TxtManagersLabel.Text = LocalizationService.Instance["Requests_Managers"];
+            TxtEstimatingDeveloperLabel.Text = LocalizationService.Instance["Requests_EstimatingDeveloper"];
+            TxtEstimationDaysLabel.Text = LocalizationService.Instance["Requests_EstimationDays"];
+            TxtManagerValidationInstruction.Text = LocalizationService.Instance["Requests_AwaitingValidation"];
+
+            // Instructions et exemples
+            TxtSelectDriversInstruction.Text = LocalizationService.Instance["Requests_SelectDrivers"];
+            TxtWhoBenefitsInstruction.Text = LocalizationService.Instance["Requests_WhoBenefits"];
+            TxtTimeGainsExample.Text = LocalizationService.Instance["Requests_TimeGainsExample"];
+            TxtFinancialGainsExample.Text = LocalizationService.Instance["Requests_FinancialGainsExample"];
+            TxtSelectTeamsInstruction.Text = LocalizationService.Instance["Requests_SelectTeams"];
+
+            // Labels avec Runs - traitement spécial pour les labels avec astérisques
+            ((Run)TxtTitleLabel.Inlines.FirstInline).Text = LocalizationService.Instance["Requests_TitleLabel"];
+            ((Run)TxtDescriptionLabel.Inlines.FirstInline).Text = LocalizationService.Instance["Requests_DescriptionLabel"];
+
+            // Sous-labels via x:Name
+            TxtAssociatedProgramLabel.Text = LocalizationService.Instance["Requests_AssociatedProgram"];
+            TxtDriversLabel.Text = LocalizationService.Instance["Requests_Drivers"];
+            TxtAmbitionLabel.Text = LocalizationService.Instance["Requests_Ambition"];
+            TxtTimeGainsLabel.Text = LocalizationService.Instance["Requests_TimeGains"] + " *";
+            TxtFinancialGainsLabel.Text = LocalizationService.Instance["Requests_FinancialGains"] + " (optionnel)";
+            TxtPriorityLabel.Text = LocalizationService.Instance["Requests_PriorityLabel"] + " *";
+            TxtProjectTypeLabel.Text = LocalizationService.Instance["Requests_ProjectType"];
+            TxtCategoryLabel.Text = LocalizationService.Instance["Requests_Category"];
+            TxtLeadProjetLabel.Text = LocalizationService.Instance["Requests_ProjectLead"];
+
+            // Labels avec FindVisualChildren pour les textes français dans le XAML
+            foreach (var child in FindVisualChildren<TextBlock>(this))
+            {
+                if (child.Text == "Complétez tous les champs obligatoires marqués d'un astérisque (*)")
+                    child.Text = LocalizationService.Instance["Requests_RequiredFields"];
+                else if (child.Text == "PROGRAMME ET CLASSIFICATION")
+                    child.Text = LocalizationService.Instance["Requests_ProgramClassification"];
+                else if (child.Text == "Programme associé")
+                    child.Text = LocalizationService.Instance["Requests_AssociatedProgram"];
+                else if (child.Text == "Priorité *")
+                    child.Text = LocalizationService.Instance["Requests_PriorityLabel"] + " *";
+                else if (child.Text == "Type Projet")
+                    child.Text = LocalizationService.Instance["Requests_ProjectType"];
+                else if (child.Text == "Catégorie")
+                    child.Text = LocalizationService.Instance["Requests_Category"];
+                else if (child.Text == "Lead Projet")
+                    child.Text = LocalizationService.Instance["Requests_ProjectLead"];
+                else if (child.Text == "Type *")
+                    child.Text = LocalizationService.Instance["Requests_TypeLabel"] + " *";
+                else if (child.Text == "Criticité *")
+                    child.Text = LocalizationService.Instance["Requests_CriticalityLabel"] + " *";
+                else if (child.Text == "Sélectionnez les drivers applicables (plusieurs choix possibles)")
+                    child.Text = LocalizationService.Instance["Requests_SelectDrivers"];
+                else if (child.Text == "Bénéficiaires")
+                    child.Text = LocalizationService.Instance["Requests_Beneficiaries"];
+                else if (child.Text == "Qui bénéficie de ce projet ? (plusieurs choix possibles)")
+                    child.Text = LocalizationService.Instance["Requests_WhoBenefits"];
+                else if (child.Text.StartsWith("Exemples: '15 heures/semaine'"))
+                    child.Text = LocalizationService.Instance["Requests_TimeGainsExample"];
+                else if (child.Text.StartsWith("Exemples: '45000€ annuels'"))
+                    child.Text = LocalizationService.Instance["Requests_FinancialGainsExample"];
+                else if (child.Text == "Équipes concernées")
+                    child.Text = LocalizationService.Instance["Requests_ConcernedTeams"];
+                else if (child.Text == "Sélectionnez une ou plusieurs équipes (plusieurs choix possibles)")
+                    child.Text = LocalizationService.Instance["Requests_SelectTeams"];
+                else if (child.Text == "Contexte métier")
+                    child.Text = LocalizationService.Instance["Requests_BusinessContext"];
+                else if (child.Text == "Bénéfices attendus")
+                    child.Text = LocalizationService.Instance["Requests_ExpectedBenefits"];
+                else if (child.Text == "Business Analyst")
+                    child.Text = LocalizationService.Instance["Requests_BusinessAnalyst"];
+                else if (child.Text == "Manager(s)")
+                    child.Text = LocalizationService.Instance["Requests_Managers"];
+                else if (child.Text == LocalizationService.Instance.GetString("Requests_SelectTeamsForManagers"))
+                    child.Text = LocalizationService.Instance["Requests_SelectTeamsForManagers"];
+                else if (child.Text == "Développeur chiffreur")
+                    child.Text = LocalizationService.Instance["Requests_EstimatingDeveloper"];
+                else if (child.Text == "Estimation (jours)")
+                    child.Text = LocalizationService.Instance["Requests_EstimationDays"];
+                else if (child.Text == "Cette demande est en attente de validation manager. Décidez d'accepter ou de refuser le lancement du projet.")
+                    child.Text = LocalizationService.Instance["Requests_AwaitingValidation"];
+                else if (child.Text == "Annuler")
+                    child.Text = LocalizationService.Instance["Cancel"];
+                else if (child.Text == "Enregistrer")
+                    child.Text = LocalizationService.Instance["Save"];
+            }
+
+            // Boutons et CheckBoxes
+            BtnValiderSpecifications.Content = "✓ " + LocalizationService.Instance["Requests_ValidateAndEstimate"];
+            BtnEnregistrer.Content = LocalizationService.Instance["Save"];
+            
+            // Initialiser le texte par défaut pour les managers
+            TxtManagers.Text = LocalizationService.Instance.GetString("Requests_SelectTeamsForManagers");
+            BtnAnnuler.Content = LocalizationService.Instance["Cancel"];
+            BtnAccepter.Content = "✅ " + LocalizationService.Instance["Common_Accept"];
+            BtnRefuser.Content = "❌ " + LocalizationService.Instance["Common_Refuse"];
+            
+            // Traduire les CheckBoxes avec Content
+            foreach (var chk in FindVisualChildren<CheckBox>(this))
+            {
+                if (chk.Content?.ToString() == "Déjà implémenté")
+                    chk.Content = LocalizationService.Instance["Requests_AlreadyImplemented"];
+                else if (chk.Content?.ToString() == "Automation")
+                    chk.Content = LocalizationService.Instance["Requests_DriverAutomation"];
+                else if (chk.Content?.ToString() == "Efficiency Gains")
+                    chk.Content = LocalizationService.Instance["Requests_DriverEfficiency"];
+                else if (chk.Content?.ToString() == "Process Optimization")
+                    chk.Content = LocalizationService.Instance["Requests_DriverOptimization"];
+                else if (chk.Content?.ToString() == "Standardization")
+                    chk.Content = LocalizationService.Instance["Requests_DriverStandardization"];
+                else if (chk.Content?.ToString() == "Aucun")
+                    chk.Content = LocalizationService.Instance["Requests_DriverNone"];
+            }
+
+            // Update TextBlocks with Runs (for labels with asterisks)
+            foreach (var textBlock in FindVisualChildren<TextBlock>(this))
+            {
+                if (textBlock.Inlines.Count == 2)
+                {
+                    var firstRun = textBlock.Inlines.FirstInline as Run;
+                    var secondRun = textBlock.Inlines.LastInline as Run;
+                    
+                    if (firstRun != null && secondRun != null && secondRun.Text == " *")
+                    {
+                        if (firstRun.Text == "Titre")
+                            firstRun.Text = LocalizationService.Instance["Requests_TitleLabel"];
+                        else if (firstRun.Text == "Description")
+                            firstRun.Text = LocalizationService.Instance["Requests_DescriptionLabel"];
+                        else if (firstRun.Text == "Type")
+                            firstRun.Text = LocalizationService.Instance["Requests_TypeLabel"];
+                        else if (firstRun.Text == "Criticité")
+                            firstRun.Text = LocalizationService.Instance["Requests_CriticalityLabel"];
+                        else if (firstRun.Text == "Priorité")
+                            firstRun.Text = LocalizationService.Instance["Requests_PriorityLabel"];
+                    }
+                }
+            }
+        }
+
+        private IEnumerable<T> FindVisualChildren<T>(DependencyObject depObj) where T : DependencyObject
+        {
+            if (depObj != null)
+            {
+                for (int i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++)
+                {
+                    DependencyObject child = VisualTreeHelper.GetChild(depObj, i);
+                    if (child != null && child is T)
+                    {
+                        yield return (T)child;
+                    }
+
+                    foreach (T childOfChild in FindVisualChildren<T>(child))
+                    {
+                        yield return childOfChild;
+                    }
+                }
+            }
         }
 
         private void InitialiserComboBoxes()
@@ -243,7 +445,7 @@ namespace BacklogManager.Views
             
             if (equipesSelectionnees.Count == 0)
             {
-                TxtManagers.Text = "Sélectionnez les équipes pour voir les managers";
+                TxtManagers.Text = LocalizationService.Instance.GetString("Requests_SelectTeamsForManagers");
                 return;
             }
             
@@ -268,7 +470,7 @@ namespace BacklogManager.Views
                 }
             }
             
-            TxtManagers.Text = managers.Count > 0 ? string.Join(", ", managers) : "Aucun manager assigné aux équipes sélectionnées";
+            TxtManagers.Text = managers.Count > 0 ? string.Join(", ", managers) : LocalizationService.Instance.GetString("Requests_NoManagersAssigned");
         }
 
         private string FormatTypeDemande(TypeDemande type)

@@ -16,7 +16,29 @@ namespace BacklogManager.Views.Pages
             InitializeComponent();
             _database = database;
             _auditLogService = auditLogService;
+            
+            // Initialiser les textes traduits
+            InitialiserTextes();
+            
             ChargerRoles();
+        }
+
+        private void InitialiserTextes()
+        {
+            // Textes de l'interface
+            TxtConfigurationTitle.Text = "🎭 " + LocalizationService.Instance.GetString("Roles_ConfigurationTitle");
+            BtnActualiser.Content = "🔄 " + LocalizationService.Instance.GetString("Roles_Refresh");
+            BtnResetAdmin.Content = "⚡ " + LocalizationService.Instance.GetString("Roles_ResetAdminPermissions");
+            BtnResetAdmin.ToolTip = LocalizationService.Instance.GetString("Roles_ResetAdminTooltip");
+
+            // S'abonner aux changements de langue
+            LocalizationService.Instance.PropertyChanged += (s, e) =>
+            {
+                TxtConfigurationTitle.Text = "🎭 " + LocalizationService.Instance.GetString("Roles_ConfigurationTitle");
+                BtnActualiser.Content = "🔄 " + LocalizationService.Instance.GetString("Roles_Refresh");
+                BtnResetAdmin.Content = "⚡ " + LocalizationService.Instance.GetString("Roles_ResetAdminPermissions");
+                BtnResetAdmin.ToolTip = LocalizationService.Instance.GetString("Roles_ResetAdminTooltip");
+            };
         }
 
         private void ChargerRoles()
@@ -28,8 +50,8 @@ namespace BacklogManager.Views.Pages
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erreur lors du chargement des rôles: {ex.Message}", 
-                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(string.Format(LocalizationService.Instance.GetString("Roles_ErrorLoading"), ex.Message), 
+                    LocalizationService.Instance.GetString("Common_Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -64,15 +86,15 @@ namespace BacklogManager.Views.Pages
                     _auditLogService.LogUpdate("Role", role.Id, $"Rôle: {role.Nom}", oldValue, newValue);
                 }
 
-                MessageBox.Show($"Les permissions du rôle '{role.Nom}' ont été mises à jour avec succès.", 
-                    "Succès", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(string.Format(LocalizationService.Instance.GetString("Roles_PermissionsUpdated"), role.Nom), 
+                    LocalizationService.Instance.GetString("Common_Success"), MessageBoxButton.OK, MessageBoxImage.Information);
                 
                 ChargerRoles();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erreur lors de l'enregistrement: {ex.Message}", 
-                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(string.Format(LocalizationService.Instance.GetString("Roles_ErrorSaving"), ex.Message), 
+                    LocalizationService.Instance.GetString("Common_Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -86,17 +108,9 @@ namespace BacklogManager.Views.Pages
             try
             {
                 var result = MessageBox.Show(
-                    "Voulez-vous activer TOUTES les permissions pour le rôle Administrateur ?\n\n" +
-                    "Cela inclut :\n" +
-                    "✓ Créer des demandes\n" +
-                    "✓ Chiffrer\n" +
-                    "✓ Prioriser\n" +
-                    "✓ Modifier les tâches\n" +
-                    "✓ Supprimer les tâches\n" +
-                    "✓ Gérer les utilisateurs\n" +
-                    "✓ Gérer les référentiels\n" +
-                    "✓ Voir les KPI",
-                    "Réinitialiser permissions Administrateur",
+                    LocalizationService.Instance.GetString("Roles_ResetConfirmMessage") + "\n\n" +
+                    LocalizationService.Instance.GetString("Roles_ResetPermissionsList"),
+                    LocalizationService.Instance.GetString("Roles_ResetConfirmTitle"),
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Question);
 
@@ -128,9 +142,8 @@ namespace BacklogManager.Views.Pages
                         }
 
                         MessageBox.Show(
-                            "Les permissions du rôle Administrateur ont été réinitialisées avec succès.\n\n" +
-                            "Toutes les permissions sont maintenant activées.",
-                            "Succès",
+                            LocalizationService.Instance.GetString("Roles_AdminPermissionsReset"),
+                            LocalizationService.Instance.GetString("Common_Success"),
                             MessageBoxButton.OK,
                             MessageBoxImage.Information);
 

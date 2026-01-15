@@ -55,9 +55,9 @@
                 <StackPanel Grid.Column="1">
                     <TextBlock FontSize="22" FontWeight="Bold">
                         <Run Text="📋" FontSize="24"/>
-                        <Run Text=" Journal d'Audit" Foreground="#1A1919"/>
+                        <Run x:Name="TxtTitle" Text=" Journal d'Audit" Foreground="#1A1919"/>
                     </TextBlock>
-                    <TextBlock Text="Historique complet des actions et modifications du système" 
+                    <TextBlock x:Name="TxtSubtitle" Text="Historique complet des actions et modifications du système" 
                                FontSize="13" Foreground="#6D6D6D" Margin="0,4,0,0"/>
                 </StackPanel>
             </Grid>
@@ -70,7 +70,7 @@
                 <DropShadowEffect Color="#E0E0E0" BlurRadius="12" ShadowDepth="2" Opacity="0.2" Direction="270"/>
             </Border.Effect>
             <StackPanel>
-                <TextBlock Text="🔍 Filtres de recherche" FontSize="15" FontWeight="SemiBold" 
+                <TextBlock x:Name="TxtFiltersTitle" Text="🔍 Filtres de recherche" FontSize="15" FontWeight="SemiBold" 
                            Foreground="#1A1919" Margin="0,0,0,18"/>
                 
                 <Grid>
@@ -82,29 +82,29 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                        <TextBlock Text="👤 Utilisateur" FontWeight="SemiBold" 
+                        <TextBlock x:Name="TxtUserFilter" Text="👤 Utilisateur" FontWeight="SemiBold" 
                                    Foreground="#666666" Margin="0,0,0,5"/>
                         <ComboBox x:Name="CmbUtilisateur" DisplayMemberPath="Username" 
                                   SelectionChanged="FiltreChanged"/>
                     </StackPanel>
 
                     <StackPanel Grid.Column="1" Margin="5,0">
-                        <TextBlock Text="📅 Date début" FontWeight="SemiBold" 
+                        <TextBlock x:Name="TxtStartDateFilter" Text="📅 Date début" FontWeight="SemiBold" 
                                    Foreground="#666666" Margin="0,0,0,5"/>
                         <DatePicker x:Name="DpDateDebut" SelectedDateChanged="FiltreChanged"/>
                     </StackPanel>
 
                     <StackPanel Grid.Column="2" Margin="5,0">
-                        <TextBlock Text="📅 Date fin" FontWeight="SemiBold" 
+                        <TextBlock x:Name="TxtEndDateFilter" Text="📅 Date fin" FontWeight="SemiBold" 
                                    Foreground="#666666" Margin="0,0,0,5"/>
                         <DatePicker x:Name="DpDateFin" SelectedDateChanged="FiltreChanged"/>
                     </StackPanel>
 
                     <StackPanel Grid.Column="3" Margin="10,0,0,0">
-                        <TextBlock Text="⚡ Action" FontWeight="SemiBold" 
+                        <TextBlock x:Name="TxtActionFilter" Text="⚡ Action" FontWeight="SemiBold" 
                                    Foreground="#666666" Margin="0,0,0,5"/>
                         <ComboBox x:Name="CmbAction" SelectionChanged="FiltreChanged">
-                            <ComboBoxItem Content="Toutes" IsSelected="True"/>
+                            <ComboBoxItem x:Name="CmbAllActions" Content="Toutes" IsSelected="True"/>
                             <ComboBoxItem Content="CREATE"/>
                             <ComboBoxItem Content="UPDATE"/>
                             <ComboBoxItem Content="DELETE"/>
@@ -162,11 +162,11 @@
                     </Style>
                 </DataGrid.CellStyle>
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="📅 Date &amp; Heure" 
+                    <DataGridTextColumn x:Name="ColDateTime" Header="📅 Date &amp; Heure" 
                                         Binding="{Binding DateAction, StringFormat='dd/MM/yyyy HH:mm:ss'}" 
                                         Width="160" FontWeight="SemiBold" FontSize="13"/>
-                    <DataGridTextColumn Header="👤 Utilisateur" Binding="{Binding Username}" Width="130" FontSize="13"/>
-                    <DataGridTemplateColumn Header="⚡ Action" Width="110">
+                    <DataGridTextColumn x:Name="ColUser" Header="👤 Utilisateur" Binding="{Binding Username}" Width="130" FontSize="13"/>
+                    <DataGridTemplateColumn x:Name="ColAction" Header="⚡ Action" Width="110">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Border x:Name="ActionBadge" CornerRadius="12" Padding="10,5" HorizontalAlignment="Center">
@@ -202,9 +202,9 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTextColumn Header="📦 Type d'Entité" Binding="{Binding EntityType}" Width="140" FontSize="13"/>
-                    <DataGridTextColumn Header="🔑 ID" Binding="{Binding EntityId}" Width="80" FontSize="13"/>
-                    <DataGridTextColumn Header="📝 Détails" Binding="{Binding Details}" Width="*" FontSize="13"/>
+                    <DataGridTextColumn x:Name="ColEntityType" Header="📦 Type d'Entité" Binding="{Binding EntityType}" Width="140" FontSize="13"/>
+                    <DataGridTextColumn x:Name="ColID" Header="🔑 ID" Binding="{Binding EntityId}" Width="80" FontSize="13"/>
+                    <DataGridTextColumn x:Name="ColDetails" Header="📝 Détails" Binding="{Binding Details}" Width="*" FontSize="13"/>
                 </DataGrid.Columns>
             </DataGrid>
         </Border>

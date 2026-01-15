@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using BacklogManager.Domain;
 using BacklogManager.ViewModels;
+using BacklogManager.Services;
 
 namespace BacklogManager.Views
 {
@@ -11,6 +12,16 @@ namespace BacklogManager.Views
         public ProjetsView()
         {
             InitializeComponent();
+            InitialiserTextes();
+        }
+
+        private void InitialiserTextes()
+        {
+            // S'abonner aux changements de langue
+            LocalizationService.Instance.PropertyChanged += (s, e) =>
+            {
+                // Les bindings se mettront à jour automatiquement
+            };
         }
 
         private void Border_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -64,8 +75,8 @@ namespace BacklogManager.Views
             if (button?.Tag is TacheEnrichie tacheEnrichie)
             {
                 var result = MessageBox.Show(
-                    $"Êtes-vous sûr de vouloir supprimer la tâche '{tacheEnrichie.Titre}' ?",
-                    "Confirmation de suppression",
+                    string.Format(LocalizationService.Instance.GetString("Projects_ConfirmDelete"), tacheEnrichie.Titre),
+                    LocalizationService.Instance.GetString("Projects_ConfirmDeleteTitle"),
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Warning);
 
@@ -109,8 +120,8 @@ namespace BacklogManager.Views
             if (projet != null)
             {
                 var result = MessageBox.Show(
-                    $"Êtes-vous sûr de vouloir supprimer le projet '{projet.Nom}' ?\n\nToutes les tâches associées perdront leur lien avec ce projet.",
-                    "Confirmation de suppression",
+                    string.Format(LocalizationService.Instance.GetString("Projects_ConfirmDeleteProject"), projet.Nom),
+                    LocalizationService.Instance.GetString("Projects_ConfirmDeleteTitle"),
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Warning);
 

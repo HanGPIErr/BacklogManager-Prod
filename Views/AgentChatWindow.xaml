@@ -33,7 +33,7 @@
                 </Grid.ColumnDefinitions>
                 
                 <!-- Bouton Retour -->
-                <Button Grid.Column="0" Content="← Retour" Padding="12,8" Margin="0,0,15,0"
+                <Button x:Name="BtnRetour" Grid.Column="0" Content="← Retour" Padding="12,8" Margin="0,0,15,0"
                         Background="#00915A" Foreground="White" FontSize="13" FontWeight="SemiBold"
                         BorderThickness="0" Cursor="Hand" Click="BtnRetour_Click">
                     <Button.Style>
@@ -61,8 +61,8 @@
                        Width="45" Height="45" Margin="0,0,15,0" VerticalAlignment="Center"/>
                 
                 <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                    <TextBlock Text="Agent Project &amp; Change" FontSize="16" FontWeight="SemiBold" Foreground="#252423"/>
-                    <TextBlock Text="Votre assistante virtuelle pour gérer votre backlog" FontSize="12" Foreground="#605E5C" Margin="0,2,0,0"/>
+                    <TextBlock x:Name="TxtAgentTitle" Text="Agent Project &amp; Change" FontSize="16" FontWeight="SemiBold" Foreground="#252423"/>
+                    <TextBlock x:Name="TxtAgentSubtitle" Text="Votre assistante virtuelle pour gérer votre backlog" FontSize="12" Foreground="#605E5C" Margin="0,2,0,0"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -470,7 +470,7 @@
                         </Grid>
                     </Border>
                     
-                    <TextBlock Grid.Row="1" Text="Appuyez sur Entrée pour envoyer, Shift+Entrée pour un saut de ligne" 
+                    <TextBlock x:Name="TxtSendHint" Grid.Row="1" Text="Appuyez sur Entrée pour envoyer, Shift+Entrée pour un saut de ligne" 
                                FontSize="11" Foreground="#8A8886" Margin="0,6,0,0"/>
                 </Grid>
             </Border>
@@ -480,7 +480,7 @@
         <Border Grid.Row="2" Background="#F3F2F1" Padding="12" BorderBrush="#E1DFDD" BorderThickness="0,1,0,0"
                 Visibility="{Binding ChatVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button Content="🗑️ Effacer l'historique" Padding="8,4" FontSize="11"
+                <Button x:Name="BtnClearHistory" Content="🗑️ Effacer l'historique" Padding="8,4" FontSize="11"
                         Background="Transparent" Foreground="#605E5C" BorderThickness="1" BorderBrush="#E1DFDD" Cursor="Hand"
                         Click="ClearHistory_Click">
                     <Button.Style>

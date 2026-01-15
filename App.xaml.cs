@@ -22,6 +22,10 @@ namespace BacklogManager
             LoggingService.Instance.CleanOldLogs();
             LoggingService.Instance.LogInfo("=== Démarrage de l'application ===");
 
+            // Initialiser la localisation et détecter la langue système
+            LocalizationService.Instance.DetectAndApplySystemLanguage();
+            LoggingService.Instance.LogInfo($"Langue appliquée: {LocalizationService.Instance.CurrentLanguageCode}");
+
             // Gestionnaire d'exceptions globales - Exceptions non-UI
             AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
             {

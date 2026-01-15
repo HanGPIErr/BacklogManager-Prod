@@ -55,28 +55,28 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="📊 Tableau de bord" 
+                        <TextBlock x:Name="TxtStatsTitle" Text="📊 Tableau de bord" 
                                    FontSize="28" FontWeight="Bold" Foreground="White"/>
-                        <TextBlock Text="Vue d'ensemble des performances et statistiques" 
+                        <TextBlock x:Name="TxtStatsSubtitle" Text="Vue d'ensemble des performances et statistiques" 
                                    FontSize="14" Foreground="White" Opacity="0.9" Margin="0,5,0,0"/>
                         <!-- Filtres de période -->
                         <StackPanel Orientation="Horizontal" Margin="0,15,0,0">
-                            <TextBlock Text="🗓 Période :" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="White" Margin="0,0,10,0"/>
+                            <TextBlock x:Name="TxtPeriodLabel" Text="🗓 Période :" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="White" Margin="0,0,10,0"/>
                             <ComboBox x:Name="CboPeriode" Width="180" VerticalAlignment="Center" Background="White"
                                       SelectedIndex="{Binding PeriodeSelectionneeIndex, Mode=TwoWay}"
                                       SelectionChanged="CboPeriode_SelectionChanged">
-                                <ComboBoxItem Content="📅 Année en cours"/>
-                                <ComboBoxItem Content="📆 6 derniers mois"/>
-                                <ComboBoxItem Content="📌 Mois en cours"/>
-                                <ComboBoxItem Content="🔖 3 derniers mois"/>
-                                <ComboBoxItem Content="⏱ Période personnalisée"/>
-                                <ComboBoxItem Content="🌐 Tout afficher"/>
+                                <ComboBoxItem x:Name="CboPeriodCurrentYear" Content="📅 Année en cours"/>
+                                <ComboBoxItem x:Name="CboPeriod6Months" Content="📆 6 derniers mois"/>
+                                <ComboBoxItem x:Name="CboPeriodCurrentMonth" Content="📌 Mois en cours"/>
+                                <ComboBoxItem x:Name="CboPeriod3Months" Content="🔖 3 derniers mois"/>
+                                <ComboBoxItem x:Name="CboPeriodCustom" Content="⏱ Période personnalisée"/>
+                                <ComboBoxItem x:Name="CboPeriodAll" Content="🌐 Tout afficher"/>
                             </ComboBox>
                             <StackPanel x:Name="PanelDatesCustom" Orientation="Horizontal" Margin="15,0,0,0" Visibility="Collapsed">
-                                <TextBlock Text="Du :" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                <TextBlock x:Name="TxtFrom" Text="Du :" VerticalAlignment="Center" Margin="0,0,5,0"/>
                                 <DatePicker x:Name="DateDebut" Width="130" VerticalAlignment="Center"
                                             SelectedDate="{Binding DateDebutFiltre, Mode=TwoWay}"/>
-                                <TextBlock Text="Au :" VerticalAlignment="Center" Margin="15,0,5,0"/>
+                                <TextBlock x:Name="TxtTo" Text="Au :" VerticalAlignment="Center" Margin="15,0,5,0"/>
                                 <DatePicker x:Name="DateFin" Width="130" VerticalAlignment="Center"
                                             SelectedDate="{Binding DateFinFiltre, Mode=TwoWay}"/>
                                 <Button Content="✓" Padding="8,5" Margin="10,0,0,0" 
@@ -102,7 +102,7 @@
                         </StackPanel>
                     </StackPanel>
                     <StackPanel Grid.Column="1" Orientation="Horizontal">
-                        <Button Content="🔄 Rafraîchir" 
+                        <Button x:Name="BtnRefresh" Content="🔄 Rafraîchir" 
                                 Command="{Binding RafraichirCommand}"
                                 Background="White" Foreground="#00915A" 
                                 Padding="15,10" FontWeight="SemiBold" FontSize="13"
@@ -132,7 +132,7 @@
                                 </Style>
                             </Button.Style>
                         </Button>
-                        <Button Content="🤖 Analyse IA" 
+                        <Button x:Name="BtnAnalyzeIA" Content="🤖 Analyse IA" 
                                 Click="BtnAnalyserIA_Click"
                                 Background="White" Foreground="#667eea" 
                                 Padding="15,10" FontWeight="SemiBold" FontSize="13"
@@ -162,7 +162,7 @@
                                 </Style>
                             </Button.Style>
                         </Button>
-                        <Button Content="📄 Exporter PDF" 
+                        <Button x:Name="BtnExportPDF" Content="📄 Exporter PDF" 
                                 Command="{Binding ExporterPDFCommand}"
                                 Background="White" Foreground="#FF6F00" 
                                 Padding="15,10" FontWeight="SemiBold" FontSize="13"
@@ -199,26 +199,26 @@
                 <WrapPanel Margin="0,0,0,20">
                     <Border Style="{StaticResource StatCardStyle}" Width="250">
                         <StackPanel>
-                            <TextBlock Text="📝 Total Tâches" FontSize="12" Foreground="#666666"/>
+                            <TextBlock x:Name="TxtTotalTasks" Text="📝 Total Tâches" FontSize="12" Foreground="#666666"/>
                             <TextBlock Text="{Binding TotalTaches}" FontSize="36" FontWeight="Bold" Foreground="#00915A" Margin="0,5,0,0"/>
                         </StackPanel>
                     </Border>
                     <Border Style="{StaticResource StatCardStyle}" Width="250">
                         <StackPanel>
-                            <TextBlock Text="✅ Terminées" FontSize="12" Foreground="#666666"/>
+                            <TextBlock x:Name="TxtCompleted" Text="✅ Terminées" FontSize="12" Foreground="#666666"/>
                             <TextBlock Text="{Binding TachesTerminees}" FontSize="36" FontWeight="Bold" Foreground="#4CAF50" Margin="0,5,0,0"/>
                             <TextBlock Text="{Binding PourcentageTerminees}" FontSize="14" Foreground="#666666" Margin="0,5,0,0"/>
                         </StackPanel>
                     </Border>
                     <Border Style="{StaticResource StatCardStyle}" Width="250">
                         <StackPanel>
-                            <TextBlock Text="⏳ En cours" FontSize="12" Foreground="#666666"/>
+                            <TextBlock x:Name="TxtInProgress" Text="⏳ En cours" FontSize="12" Foreground="#666666"/>
                             <TextBlock Text="{Binding TachesEnCours}" FontSize="36" FontWeight="Bold" Foreground="#2196F3" Margin="0,5,0,0"/>
                         </StackPanel>
                     </Border>
                     <Border Style="{StaticResource StatCardStyle}" Width="250">
                         <StackPanel>
-                            <TextBlock Text="📊 Projets actifs" FontSize="12" Foreground="#666666"/>
+                            <TextBlock x:Name="TxtActiveProjects" Text="📊 Projets actifs" FontSize="12" Foreground="#666666"/>
                             <TextBlock Text="{Binding ProjetsActifs}" FontSize="36" FontWeight="Bold" Foreground="#FF9800" Margin="0,5,0,0"/>
                         </StackPanel>
                     </Border>
@@ -228,30 +228,30 @@
                 <WrapPanel Margin="0,0,0,20">
                     <Border Style="{StaticResource StatCardStyle}" Width="250">
                         <StackPanel>
-                            <TextBlock Text="⏰ Total Heures Saisies" FontSize="12" Foreground="#666666"/>
+                            <TextBlock x:Name="TxtTotalHours" Text="⏰ Total Heures Saisies" FontSize="12" Foreground="#666666"/>
                             <TextBlock Text="{Binding TotalHeuresCRA}" FontSize="36" FontWeight="Bold" Foreground="#00915A" Margin="0,5,0,0"/>
                             <TextBlock Text="{Binding TotalJoursCRA}" FontSize="14" Foreground="#666666" Margin="0,5,0,0"/>
                         </StackPanel>
                     </Border>
                     <Border Style="{StaticResource StatCardStyle}" Width="250">
                         <StackPanel>
-                            <TextBlock Text="📅 Jours Saisis (ce mois)" FontSize="12" Foreground="#666666"/>
+                            <TextBlock x:Name="TxtDaysEntered" Text="📅 Jours Saisis (ce mois)" FontSize="12" Foreground="#666666"/>
                             <TextBlock Text="{Binding JoursSaisisMoisCourant}" FontSize="36" FontWeight="Bold" Foreground="#2196F3" Margin="0,5,0,0"/>
                             <TextBlock Text="{Binding TauxCompletionMois}" FontSize="14" Foreground="#666666" Margin="0,5,0,0"/>
                         </StackPanel>
                     </Border>
                     <Border Style="{StaticResource StatCardStyle}" Width="250">
                         <StackPanel>
-                            <TextBlock Text="👥 Devs Actifs" FontSize="12" Foreground="#666666"/>
+                            <TextBlock x:Name="TxtActiveDevs" Text="👥 Devs Actifs" FontSize="12" Foreground="#666666"/>
                             <TextBlock Text="{Binding DevsActifs}" FontSize="36" FontWeight="Bold" Foreground="#9C27B0" Margin="0,5,0,0"/>
                         </StackPanel>
                     </Border>
                     <Border Style="{StaticResource StatCardStyle}" Width="250">
                         <StackPanel>
-                            <TextBlock Text="🎯 Taux de Réalisation" FontSize="12" Foreground="#666666"/>
+                            <TextBlock x:Name="TxtCompletionRate" Text="🎯 Taux de Réalisation" FontSize="12" Foreground="#666666"/>
                             <TextBlock Text="{Binding TauxRealisation}" FontSize="36" FontWeight="Bold" Foreground="#FF6F00" Margin="0,5,0,0"/>
-                            <TextBlock Text="Temps réel vs estimé" FontSize="14" Foreground="#666666" Margin="0,5,0,0"/>
-                            <TextBlock Text="(>100% = dépassement)" FontSize="11" Foreground="#999999" FontStyle="Italic" Margin="0,2,0,0"/>
+                            <TextBlock x:Name="TxtActualVsEstimated" Text="Temps réel vs estimé" FontSize="14" Foreground="#666666" Margin="0,5,0,0"/>
+                            <TextBlock x:Name="TxtOverrunNote" Text="(>100% = dépassement)" FontSize="11" Foreground="#999999" FontStyle="Italic" Margin="0,2,0,0"/>
                         </StackPanel>
                     </Border>
                 </WrapPanel>
@@ -259,7 +259,7 @@
                 <!-- Graphique: Tâches par statut -->
                 <Border Style="{StaticResource StatCardStyle}" Margin="10,0,10,20">
                     <StackPanel>
-                        <TextBlock Text="📊 Répartition des tâches par statut" 
+                        <TextBlock x:Name="TxtTasksByStatus" Text="📊 Répartition des tâches par statut" 
                                    FontSize="16" FontWeight="Bold" Foreground="#1A1919" Margin="0,0,0,15"/>
                         <ItemsControl ItemsSource="{Binding TachesParStatut}">
                             <ItemsControl.ItemTemplate>
@@ -297,9 +297,9 @@
                     <!-- Charge par développeur (tâches) - VERSION GRAPHIQUE -->
                     <Border Grid.Column="0" Style="{StaticResource StatCardStyle}" Margin="10,0,5,0">
                         <StackPanel>
-                            <TextBlock Text="👥 Charge par développeur" 
+                            <TextBlock x:Name="TxtWorkloadByDev" Text="👥 Charge par développeur" 
                                        FontSize="16" FontWeight="Bold" Foreground="#1A1919" Margin="0,0,0,5"/>
-                            <TextBlock Text="Distribution des tâches par statut" 
+                            <TextBlock x:Name="TxtTasksDistribution" Text="Distribution des tâches par statut" 
                                        FontSize="11" Foreground="#666666" FontStyle="Italic" Margin="0,0,0,15"/>
                             <ItemsControl ItemsSource="{Binding ChargeParDev}">
                                 <ItemsControl.ItemTemplate>
@@ -319,10 +319,12 @@
                                                     <TextBlock Text="{Binding NomDev}" FontWeight="Bold" FontSize="14" 
                                                                Foreground="#1A1919" VerticalAlignment="Center"/>
                                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                                        <TextBlock Text="Total : " FontSize="12" Foreground="#666" VerticalAlignment="Center"/>
+                                                        <TextBlock Text="{Binding LabelTotal, Mode=OneWay}" FontSize="12" Foreground="#666" VerticalAlignment="Center"/>
+                                                        <TextBlock Text=" : " FontSize="12" Foreground="#666" VerticalAlignment="Center"/>
                                                         <TextBlock Text="{Binding Total}" FontWeight="Bold" FontSize="16" 
                                                                    Foreground="#00915A" VerticalAlignment="Center"/>
-                                                        <TextBlock Text=" tâches" FontSize="12" Foreground="#666" VerticalAlignment="Center" Margin="3,0,0,0"/>
+                                                        <TextBlock Text=" " FontSize="12" Foreground="#666" VerticalAlignment="Center"/>
+                                                        <TextBlock Text="{Binding LabelTasks, Mode=OneWay}" FontSize="12" Foreground="#666" VerticalAlignment="Center" Margin="3,0,0,0"/>
                                                     </StackPanel>
                                                 </Grid>
                                                 
@@ -352,17 +354,17 @@
                                                     <StackPanel Grid.Column="0" Orientation="Horizontal">
                                                         <Border Width="12" Height="12" Background="#757575" CornerRadius="2" VerticalAlignment="Center"/>
                                                         <TextBlock Text="{Binding AFaire}" FontWeight="SemiBold" FontSize="13" Margin="5,0,2,0" VerticalAlignment="Center"/>
-                                                        <TextBlock Text="À faire" FontSize="11" Foreground="#666" VerticalAlignment="Center"/>
+                                                        <TextBlock Text="{Binding LabelToDo, Mode=OneWay}" FontSize="11" Foreground="#666" VerticalAlignment="Center"/>
                                                     </StackPanel>
                                                     <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
                                                         <Border Width="12" Height="12" Background="#2196F3" CornerRadius="2" VerticalAlignment="Center"/>
                                                         <TextBlock Text="{Binding EnCours}" FontWeight="SemiBold" FontSize="13" Margin="5,0,2,0" VerticalAlignment="Center"/>
-                                                        <TextBlock Text="En cours" FontSize="11" Foreground="#666" VerticalAlignment="Center"/>
+                                                        <TextBlock Text="{Binding LabelInProgress, Mode=OneWay}" FontSize="11" Foreground="#666" VerticalAlignment="Center"/>
                                                     </StackPanel>
                                                     <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
                                                         <Border Width="12" Height="12" Background="#4CAF50" CornerRadius="2" VerticalAlignment="Center"/>
                                                         <TextBlock Text="{Binding Terminees}" FontWeight="SemiBold" FontSize="13" Margin="5,0,2,0" VerticalAlignment="Center"/>
-                                                        <TextBlock Text="Terminées" FontSize="11" Foreground="#666" VerticalAlignment="Center"/>
+                                                        <TextBlock Text="{Binding LabelCompleted, Mode=OneWay}" FontSize="11" Foreground="#666" VerticalAlignment="Center"/>
                                                     </StackPanel>
                                                 </Grid>
                                             </StackPanel>
@@ -370,7 +372,7 @@
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
-                            <TextBlock Text="💡 Double-cliquez sur une carte pour voir les détails des tâches" 
+                            <TextBlock x:Name="TxtDoubleClickInfo" Text="💡 Double-cliquez sur une carte pour voir les détails des tâches" 
                                        FontSize="10" Foreground="#999" FontStyle="Italic" Margin="0,10,0,0" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Border>
@@ -378,9 +380,9 @@
                     <!-- CRA par développeur (heures) - VERSION GRAPHIQUE -->
                     <Border Grid.Column="1" Style="{StaticResource StatCardStyle}" Margin="5,0,10,0">
                         <StackPanel>
-                            <TextBlock Text="⏰ Temps CRA par développeur" 
+                            <TextBlock x:Name="TxtCRAByDev" Text="⏰ Temps CRA par développeur" 
                                        FontSize="16" FontWeight="Bold" Foreground="#1A1919" Margin="0,0,0,5"/>
-                            <TextBlock Text="Heures saisies et validées" 
+                            <TextBlock x:Name="TxtHoursEnteredValidated" Text="Heures saisies et validées" 
                                        FontSize="11" Foreground="#666666" FontStyle="Italic" Margin="0,0,0,15"/>
                             <ItemsControl ItemsSource="{Binding CRAParDev}">
                                 <ItemsControl.ItemTemplate>
@@ -421,12 +423,12 @@
                                                     </Grid.ColumnDefinitions>
                                                     <StackPanel Grid.Column="0">
                                                         <TextBlock FontSize="11" Foreground="#666">
-                                                            <Run Text="📅 Ce mois :"/><Run Text=" "/><Run Text="{Binding HeuresMois}" FontWeight="SemiBold"/><Run Text="h"/>
+                                                            <Run Text="{Binding LabelThisMonth, Mode=OneWay}"/><Run Text=" : "/><Run Text="{Binding HeuresMois}" FontWeight="SemiBold"/><Run Text="h"/>
                                                         </TextBlock>
                                                     </StackPanel>
                                                     <StackPanel Grid.Column="1" HorizontalAlignment="Right">
                                                         <TextBlock FontSize="11" Foreground="#666">
-                                                            <Run Text="📊 Total :"/><Run Text=" "/><Run Text="{Binding JoursTotal}" FontWeight="SemiBold"/><Run Text=" jours"/>
+                                                            <Run Text="{Binding LabelTotal, Mode=OneWay}"/><Run Text=" : "/><Run Text="{Binding JoursTotal}" FontWeight="SemiBold"/><Run Text=" "/><Run Text="{Binding LabelDays, Mode=OneWay}"/>
                                                         </TextBlock>
                                                     </StackPanel>
                                                 </Grid>
@@ -435,7 +437,7 @@
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
-                            <TextBlock Text="💡 Double-cliquez sur une carte pour voir l'historique CRA" 
+                            <TextBlock x:Name="TxtDoubleClickCRAInfo" Text="💡 Double-cliquez sur une carte pour voir l'historique CRA" 
                                        FontSize="10" Foreground="#999" FontStyle="Italic" Margin="0,10,0,0" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Border>
@@ -444,12 +446,12 @@
                 <!-- Complétion par projet - VERSION GRAPHIQUE -->
                 <Border Style="{StaticResource StatCardStyle}" Margin="10,0,10,20">
                     <StackPanel>
-                        <TextBlock Text="📁 Avancement des projets" 
+                        <TextBlock x:Name="TxtProjectProgress" Text="📁 Avancement des projets" 
                                    FontSize="16" FontWeight="Bold" Foreground="#1A1919" Margin="0,0,0,5"/>
                         <TextBlock FontSize="11" Foreground="#666666" Margin="0,0,0,15">
-                            <Run Text="Tâches terminées (incluant archivées) et temps CRA saisi par projet" FontStyle="Italic"/>
+                            <Run x:Name="TxtCompletedTasksIncludingArchived" Text="Tâches terminées (incluant archivées) et temps CRA saisi par projet" FontStyle="Italic"/>
                             <LineBreak/>
-                            <Run Text="💡 Les tâches archivées sont comptées comme terminées" FontSize="10" Foreground="#00915A" FontWeight="SemiBold"/>
+                            <Run x:Name="TxtArchivedTasksCountedAsCompleted" Text="💡 Les tâches archivées sont comptées comme terminées" FontSize="10" Foreground="#00915A" FontWeight="SemiBold"/>
                         </TextBlock>
                         <ItemsControl ItemsSource="{Binding CompletionParProjet}">
                             <ItemsControl.ItemTemplate>
@@ -487,20 +489,20 @@
                                                 </Grid.ColumnDefinitions>
                                                 <StackPanel Grid.Column="0">
                                                     <TextBlock FontSize="11" Foreground="#666">
-                                                        <Run Text="📋 Total :"/><Run Text=" "/><Run Text="{Binding TotalTaches}" FontWeight="SemiBold"/><Run Text=" tâches"/>
+                                                        <Run Text="{Binding LabelTotal, Mode=OneWay}"/><Run Text=" "/><Run Text="{Binding TotalTaches}" FontWeight="SemiBold"/><Run Text=" "/><Run Text="{Binding LabelTasks, Mode=OneWay}"/>
                                                     </TextBlock>
                                                 </StackPanel>
                                                 <StackPanel Grid.Column="1" HorizontalAlignment="Center">
                                                     <TextBlock FontSize="11" Foreground="#666">
-                                                        <Run Text="✅ Terminées :"/><Run Text=" "/><Run Text="{Binding TachesTerminees}" FontWeight="SemiBold"/>
+                                                        <Run Text="{Binding LabelCompleted, Mode=OneWay}"/><Run Text=" "/><Run Text="{Binding TachesTerminees}" FontWeight="SemiBold"/>
                                                     </TextBlock>
                                                     <TextBlock FontSize="9" Foreground="#00915A" FontStyle="Italic" Margin="0,2,0,0">
-                                                        <Run Text="(+ archivées)"/>
+                                                        <Run Text="{Binding LabelPlusArchived, Mode=OneWay}"/>
                                                     </TextBlock>
                                                 </StackPanel>
                                                 <StackPanel Grid.Column="2" HorizontalAlignment="Right">
                                                     <TextBlock FontSize="11" Foreground="#666">
-                                                        <Run Text="⏰ CRA :"/><Run Text=" "/><Run Text="{Binding HeuresCRA}" FontWeight="SemiBold"/><Run Text="h"/>
+                                                        <Run Text="{Binding LabelCRA, Mode=OneWay}"/><Run Text=" "/><Run Text="{Binding HeuresCRA}" FontWeight="SemiBold"/><Run Text="h"/>
                                                     </TextBlock>
                                                 </StackPanel>
                                             </Grid>
@@ -523,13 +525,13 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="🏢 Répartition des ressources par équipe" 
+                                <TextBlock x:Name="TxtResourcesByTeam" Text="🏢 Répartition des ressources par équipe" 
                                            FontSize="16" FontWeight="Bold" Foreground="#1A1919" Margin="0,0,0,5"/>
-                                <TextBlock Text="Nombre de membres actifs (hors managers) par équipe" 
+                                <TextBlock x:Name="TxtActiveMembersExcludingManagers" Text="Nombre de membres actifs (hors managers) par équipe" 
                                            FontSize="11" Foreground="#666666" FontStyle="Italic"/>
                             </StackPanel>
                             <Button Grid.Column="1" Click="BtnVoirToutesRessources_Click"
-                                    Cursor="Hand" Padding="12,8" BorderThickness="0">
+                                    x:Name="BtnViewAllResources" Cursor="Hand" Padding="12,8" BorderThickness="0">
                                 <Button.Background>
                                     <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
                                         <GradientStop Color="#00915A" Offset="0"/>
@@ -607,7 +609,9 @@
                                                     <TextBlock Text="{Binding NomEquipe}" FontWeight="Bold" FontSize="13" 
                                                                Foreground="#1A1919" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"/>
                                                     <TextBlock FontSize="10" Margin="0,3,0,0">
-                                                        <Run Text="👤 Manager:" Foreground="#666"/>
+                                                        <Run Text="👤 " />
+                                                        <Run Text="{Binding LabelManager, Mode=OneWay}" Foreground="#666"/>
+                                                        <Run Text=": " Foreground="#666"/>
                                                         <Run Text=" " />
                                                         <Run Text="{Binding NomManager, Mode=OneWay}" Foreground="#00915A" FontWeight="SemiBold"/>
                                                     </TextBlock>
@@ -630,8 +634,8 @@
                                                         <TextBlock Text="{Binding NbMembres}" FontWeight="Bold" FontSize="32" 
                                                                    Foreground="#00915A" VerticalAlignment="Center"/>
                                                         <StackPanel Margin="8,0,0,0" VerticalAlignment="Center">
-                                                            <TextBlock Text="membres" FontSize="11" Foreground="#666" FontWeight="SemiBold"/>
-                                                            <TextBlock Text="actifs" FontSize="9" Foreground="#999"/>
+                                                            <TextBlock Text="{Binding LabelMembers, Mode=OneWay}" FontSize="11" Foreground="#666" FontWeight="SemiBold"/>
+                                                            <TextBlock Text="{Binding LabelActive, Mode=OneWay}" FontSize="9" Foreground="#999"/>
                                                         </StackPanel>
                                                     </StackPanel>
                                                 </Border>
@@ -639,7 +643,7 @@
                                             
                                             <!-- Barre comparative stylée -->
                                             <StackPanel Margin="0,0,0,10">
-                                                <TextBlock Text="Taille relative" FontSize="9" Foreground="#999" Margin="0,0,0,4"/>
+                                                <TextBlock Text="{Binding LabelRelativeSize, Mode=OneWay}" FontSize="9" Foreground="#999" Margin="0,0,0,4"/>
                                                 <Grid Height="8">
                                                     <Border Background="#F0F0F0" CornerRadius="4"/>
                                                     <Border CornerRadius="4" HorizontalAlignment="Left"
@@ -663,7 +667,10 @@
                                                 
                                                 <Border Grid.Column="0" Background="#F8F9FA" CornerRadius="6" Padding="8,6" Margin="0,0,4,0">
                                                     <StackPanel>
-                                                        <TextBlock Text="📊 Projets" FontSize="9" Foreground="#666" Margin="0,0,0,2"/>
+                                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                            <TextBlock Text="📊 " FontSize="9" Foreground="#666" Margin="0,0,0,2"/>
+                                                            <TextBlock Text="{Binding LabelProjects, Mode=OneWay}" FontSize="9" Foreground="#666" Margin="0,0,0,2"/>
+                                                        </StackPanel>
                                                         <TextBlock Text="{Binding NbProjets}" FontWeight="Bold" FontSize="16" 
                                                                    Foreground="#1A1919" HorizontalAlignment="Center"/>
                                                     </StackPanel>
@@ -677,7 +684,10 @@
                                                         </LinearGradientBrush>
                                                     </Border.Background>
                                                     <StackPanel>
-                                                        <TextBlock Text="⚡ Charge" FontSize="9" Foreground="White" Opacity="0.9" Margin="0,0,0,2"/>
+                                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                            <TextBlock Text="⚡ " FontSize="9" Foreground="White" Opacity="0.9" Margin="0,0,0,2"/>
+                                                            <TextBlock Text="{Binding LabelLoad, Mode=OneWay}" FontSize="9" Foreground="White" Opacity="0.9" Margin="0,0,0,2"/>
+                                                        </StackPanel>
                                                         <TextBlock Text="{Binding ChargeEquipeDisplay}" FontWeight="Bold" FontSize="16" 
                                                                    Foreground="White" HorizontalAlignment="Center"/>
                                                     </StackPanel>
@@ -694,7 +704,7 @@
                                                 </Border.Background>
                                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                                     <TextBlock Text="👁️" FontSize="12" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                                                    <TextBlock Text="Voir les membres" FontSize="11" 
+                                                    <TextBlock Text="{Binding LabelViewMembers, Mode=OneWay}" FontSize="11" 
                                                                Foreground="#0D47A1" FontWeight="SemiBold" VerticalAlignment="Center"/>
                                                 </StackPanel>
                                             </Border>
@@ -709,9 +719,9 @@
                 <!-- Distribution de charge entre équipes -->
                 <Border Style="{StaticResource StatCardStyle}" Margin="10,0,10,20">
                     <StackPanel>
-                        <TextBlock Text="⚖️ Équilibre de charge entre équipes" 
+                        <TextBlock x:Name="TxtLoadBalance" Text="⚖️ Équilibre de charge entre équipes" 
                                    FontSize="16" FontWeight="Bold" Foreground="#1A1919" Margin="0,0,0,5"/>
-                        <TextBlock Text="Analyse de la capacité et de la charge de travail par équipe (heures CRA réelles)" 
+                        <TextBlock x:Name="TxtCapacityAnalysis" Text="Analyse de la capacité et de la charge de travail par équipe (heures CRA réelles)" 
                                    FontSize="11" Foreground="#666666" FontStyle="Italic" Margin="0,0,0,15"/>
                         <ItemsControl ItemsSource="{Binding ChargeParEquipe}">
                             <ItemsControl.ItemsPanel>
@@ -784,7 +794,7 @@
                                                         <TextBlock Text="📁" FontSize="14" HorizontalAlignment="Center" Margin="0,0,0,2"/>
                                                         <TextBlock Text="{Binding NbProjets}" FontWeight="Bold" FontSize="18" 
                                                                    Foreground="{Binding CouleurBarre}" HorizontalAlignment="Center"/>
-                                                        <TextBlock Text="Projets" FontSize="8" Foreground="#999" 
+                                                        <TextBlock Text="{Binding LabelProjects, Mode=OneWay}" FontSize="8" Foreground="#999" 
                                                                    HorizontalAlignment="Center" Margin="0,1,0,0"/>
                                                     </StackPanel>
                                                 </Border>
@@ -795,7 +805,7 @@
                                                         <TextBlock Text="👥" FontSize="14" HorizontalAlignment="Center" Margin="0,0,0,2"/>
                                                         <TextBlock Text="{Binding NbMembres}" FontWeight="Bold" FontSize="18" 
                                                                    Foreground="#666" HorizontalAlignment="Center"/>
-                                                        <TextBlock Text="Membres" FontSize="8" Foreground="#999" 
+                                                        <TextBlock Text="{Binding LabelMembers, Mode=OneWay}" FontSize="8" Foreground="#999" 
                                                                    HorizontalAlignment="Center" Margin="0,1,0,0"/>
                                                     </StackPanel>
                                                 </Border>
@@ -854,7 +864,7 @@
                                                                 <SolidColorBrush Color="{Binding CouleurBarre}"/>
                                                             </TextBlock.Foreground>
                                                         </TextBlock>
-                                                        <TextBlock Text="Charge moy." FontSize="8" Foreground="#666" 
+                                                        <TextBlock Text="{Binding LabelAverageLoad, Mode=OneWay}" FontSize="8" Foreground="#666" 
                                                                    HorizontalAlignment="Center" Margin="0,1,0,0"/>
                                                     </StackPanel>
                                                 </Border>
@@ -871,7 +881,7 @@
                                                         <TextBlock Text="⚡" FontSize="14" HorizontalAlignment="Center" Margin="0,0,0,2"/>
                                                         <TextBlock Text="{Binding ChargeTotaleDisplay}" FontWeight="Bold" FontSize="18" 
                                                                    Foreground="White" HorizontalAlignment="Center"/>
-                                                        <TextBlock Text="Total équipe" FontSize="8" Foreground="White" Opacity="0.9"
+                                                        <TextBlock Text="{Binding LabelTotalTeam, Mode=OneWay}" FontSize="8" Foreground="White" Opacity="0.9"
                                                                    HorizontalAlignment="Center" Margin="0,1,0,0"/>
                                                     </StackPanel>
                                                 </Border>
@@ -1030,7 +1040,7 @@
                             <DropShadowEffect Color="#D0D0D0" BlurRadius="10" ShadowDepth="0" Opacity="0.15"/>
                         </Border.Effect>
                         <StackPanel>
-                            <TextBlock Text="📋 Ressources et charge de travail" FontSize="16" FontWeight="Bold" 
+                            <TextBlock x:Name="TxtResourcesAndWorkload" Text="📋 Ressources et charge de travail" FontSize="16" FontWeight="Bold" 
                                        Foreground="#1A1919" Margin="0,0,0,15"/>
                             <ItemsControl x:Name="ItemsControlRessources">
                                 <ItemsControl.ItemsPanel>

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -11,7 +12,7 @@ using BacklogManager.Services;
 
 namespace BacklogManager.Views
 {
-    public partial class AnalyseEmailDemandeWindow : Window
+    public partial class AnalyseEmailDemandeWindow : Window, INotifyPropertyChanged
     {
         private const string API_URL = "https://genfactory-ai.analytics.cib.echonet/genai/api/v2/chat/completions";
         private const string MODEL = "gpt-oss-120b";
@@ -21,8 +22,22 @@ namespace BacklogManager.Views
         private readonly AuthenticationService _authService;
         private string _apiToken;
         private List<string> _champsIncertains = new List<string>();
+        private bool _isClosing = false;
 
         public Demande DemandeCreee { get; private set; }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged(string propertyName) =>
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+        public string TitleText => LocalizationService.Instance["EmailAnalysis_Title"];
+        public string HeaderText => LocalizationService.Instance["EmailAnalysis_Header"];
+        public string SubtitleText => LocalizationService.Instance["EmailAnalysis_Subtitle"];
+        public string EmailContentText => LocalizationService.Instance["EmailAnalysis_EmailContent"];
+        public string PasteInstructionsText => LocalizationService.Instance["EmailAnalysis_PasteInstructions"];
+        public string AnalyzeButtonText => LocalizationService.Instance["EmailAnalysis_AnalyzeButton"];
+        public string CancelText => LocalizationService.Instance["EmailAnalysis_Cancel"];
+        public string CreateRequestText => LocalizationService.Instance["EmailAnalysis_CreateRequest"];
 
         public AnalyseEmailDemandeWindow(IDatabase database, AuthenticationService authService)
         {
@@ -30,10 +45,22 @@ namespace BacklogManager.Views
             _database = database;
             _authService = authService;
 
+            this.DataContext = this;
+
             // Charger le token API
             _apiToken = BacklogManager.Properties.Settings.Default[TOKEN_KEY]?.ToString()?.Trim();
 
             InitialiserComboBoxes();
+            InitialiserTextes();
+        }
+
+        private void InitialiserTextes()
+        {
+            TxtManagersLabel.Text = LocalizationService.Instance.GetString("Requests_ManagersLabel");
+            TxtManagersResult.Text = LocalizationService.Instance.GetString("Requests_SelectTeamsForManagers");
+            
+            // Note: Pas d'abonnement aux changements de langue pour cette fenêtre modale
+            // car elle est temporaire et l'utilisateur ne change pas de langue pendant son utilisation
         }
 
         private void InitialiserComboBoxes()
@@ -847,8 +874,31 @@ Analyse maintenant cet email et réponds UNIQUEMENT avec le JSON (pas de texte a
 
         private void BtnAnnuler_Click(object sender, RoutedEventArgs e)
         {
-            DialogResult = false;
-            Close();
+            System.Diagnostics.Debug.WriteLine($"BtnAnnuler_Click called - _isClosing: {_isClosing}");
+            
+            if (_isClosing) 
+            {
+                System.Diagnostics.Debug.WriteLine("Already closing, returning");
+                return;
+            }
+            _isClosing = true;
+            
+            // Désactiver le bouton immédiatement
+            BtnAnnuler.IsEnabled = false;
+            
+            System.Diagnostics.Debug.WriteLine("Setting DialogResult to false");
+            
+            // IMPORTANT: DialogResult DOIT être défini AVANT Hide() ou Close()
+            try
+            {
+                this.DialogResult = false;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error setting DialogResult: {ex.Message}");
+                // Si on ne peut pas définir DialogResult, juste fermer
+                this.Close();
+            }
         }
 
         private string TraduireNomChamp(string nomChampTechnique)
@@ -897,7 +947,7 @@ Analyse maintenant cet email et réponds UNIQUEMENT avec le JSON (pas de texte a
             
             if (equipesSelectionnees.Count == 0)
             {
-                TxtManagersResult.Text = "Sélectionnez les équipes pour voir les managers";
+                TxtManagersResult.Text = LocalizationService.Instance.GetString("Requests_SelectTeamsForManagers");
                 return;
             }
             

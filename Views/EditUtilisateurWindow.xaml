@@ -23,7 +23,7 @@
             <Border Grid.Row="0" Background="#00915A" CornerRadius="6" Padding="15,10" Margin="0,0,0,25">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="👤" FontSize="24" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <TextBlock Text="Informations Utilisateur" 
+                    <TextBlock x:Name="TxtTitle" Text="Informations Utilisateur" 
                                FontSize="20" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
                 </StackPanel>
             </Border>
@@ -34,7 +34,7 @@
                     <!-- Nom -->
                     <Border Background="#FAFAFA" CornerRadius="4" Padding="15" Margin="0,0,0,12">
                         <StackPanel>
-                            <TextBlock Text="Nom *" FontWeight="Bold" FontSize="13" 
+                            <TextBlock x:Name="TxtLabelLastName" Text="Nom *" FontWeight="Bold" FontSize="13" 
                                        Foreground="#333333" Margin="0,0,0,8"/>
                             <TextBox x:Name="TxtNom" Padding="12,10" FontSize="14" 
                                      BorderBrush="#CCCCCC" BorderThickness="1" Height="42"
@@ -45,7 +45,7 @@
                     <!-- Prénom -->
                     <Border Background="#FAFAFA" CornerRadius="4" Padding="15" Margin="0,0,0,12">
                         <StackPanel>
-                            <TextBlock Text="Prénom" FontWeight="Bold" FontSize="13" 
+                            <TextBlock x:Name="TxtLabelFirstName" Text="Prénom" FontWeight="Bold" FontSize="13" 
                                        Foreground="#333333" Margin="0,0,0,8"/>
                             <TextBox x:Name="TxtPrenom" Padding="12,10" FontSize="14" 
                                      BorderBrush="#CCCCCC" BorderThickness="1" Height="42"
@@ -56,7 +56,7 @@
                     <!-- Email -->
                     <Border Background="#FAFAFA" CornerRadius="4" Padding="15" Margin="0,0,0,12">
                         <StackPanel>
-                            <TextBlock Text="📧 Email" FontWeight="Bold" FontSize="13" 
+                            <TextBlock x:Name="TxtLabelEmail" Text="📧 Email" FontWeight="Bold" FontSize="13" 
                                        Foreground="#333333" Margin="0,0,0,8"/>
                             <TextBox x:Name="TxtEmail" Padding="12,10" FontSize="14" 
                                      BorderBrush="#CCCCCC" BorderThickness="1" Height="42"
@@ -67,12 +67,12 @@
                     <!-- Username Windows -->
                     <Border Background="#FAFAFA" CornerRadius="4" Padding="15" Margin="0,0,0,12">
                         <StackPanel>
-                            <TextBlock Text="🔑 Username Windows (Matricule) *" FontWeight="Bold" FontSize="13" 
+                            <TextBlock x:Name="TxtLabelUsername" Text="🔑 Username Windows (Matricule) *" FontWeight="Bold" FontSize="13" 
                                        Foreground="#333333" Margin="0,0,0,8"/>
                             <TextBox x:Name="TxtUsernameWindows" Padding="12,10" FontSize="14" 
                                      BorderBrush="#CCCCCC" BorderThickness="1" Height="42"
                                      VerticalContentAlignment="Center"/>
-                            <TextBlock Text="Utilisé pour l'authentification Windows" 
+                            <TextBlock x:Name="TxtHintUsername" Text="Utilisé pour l'authentification Windows" 
                                        FontSize="11" Foreground="#999999" Margin="0,5,0,0" FontStyle="Italic"/>
                         </StackPanel>
                     </Border>
@@ -80,7 +80,7 @@
                     <!-- Rôle -->
                     <Border Background="#FAFAFA" CornerRadius="4" Padding="15" Margin="0,0,0,12">
                         <StackPanel>
-                            <TextBlock Text="👥 Rôle *" FontWeight="Bold" FontSize="13" 
+                            <TextBlock x:Name="TxtLabelRole" Text="👥 Rôle *" FontWeight="Bold" FontSize="13" 
                                        Foreground="#333333" Margin="0,0,0,8"/>
                             <ComboBox x:Name="CboRole" DisplayMemberPath="Nom" SelectedValuePath="Id"
                                       Padding="12,8" FontSize="14" BorderBrush="#CCCCCC" 
@@ -92,7 +92,7 @@
                     <!-- Équipe -->
                     <Border Background="#FAFAFA" CornerRadius="4" Padding="15" Margin="0,0,0,12">
                         <StackPanel>
-                            <TextBlock Text="🏢 Équipe" FontWeight="Bold" FontSize="13" 
+                            <TextBlock x:Name="TxtLabelTeam" Text="🏢 Équipe" FontWeight="Bold" FontSize="13" 
                                        Foreground="#333333" Margin="0,0,0,8"/>
                             <ComboBox x:Name="CboEquipe" SelectedValuePath="Id"
                                       Padding="12,8" FontSize="14" BorderBrush="#CCCCCC" 
@@ -110,7 +110,7 @@
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
-                            <TextBlock Text="Laissez vide si aucune équipe assignée" 
+                            <TextBlock x:Name="TxtHintTeam" Text="Laissez vide si aucune équipe assignée" 
                                        FontSize="11" Foreground="#999999" Margin="0,5,0,0" FontStyle="Italic"/>
                         </StackPanel>
                     </Border>
@@ -118,7 +118,7 @@
                     <!-- Statut -->
                     <Border Background="#FAFAFA" CornerRadius="4" Padding="15" Margin="0,0,0,12">
                         <StackPanel>
-                            <TextBlock Text="📊 Statut *" FontWeight="Bold" FontSize="13" 
+                            <TextBlock x:Name="TxtLabelStatus" Text="📊 Statut *" FontWeight="Bold" FontSize="13" 
                                        Foreground="#333333" Margin="0,0,0,8"/>
                             <ComboBox x:Name="CboStatut"
                                       Padding="12,8" FontSize="14" BorderBrush="#CCCCCC" 
@@ -129,7 +129,7 @@
                                 <ComboBoxItem Content="⏱️ Temporary" Tag="Temporary"/>
                                 <ComboBoxItem Content="🔍 Hiring ongoing" Tag="Hiring ongoing"/>
                             </ComboBox>
-                            <TextBlock Text="Catégorie d'affectation de l'utilisateur" 
+                            <TextBlock x:Name="TxtHintStatus" Text="Catégorie d'affectation de l'utilisateur" 
                                        FontSize="11" Foreground="#999999" Margin="0,5,0,0" FontStyle="Italic"/>
                         </StackPanel>
                     </Border>
@@ -156,7 +156,7 @@
             <!-- Boutons -->
             <Border Grid.Row="2" Background="#F5F5F5" CornerRadius="6" Padding="15" Margin="0,20,0,0">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Content="💾 Enregistrer" Click="BtnEnregistrer_Click"
+                    <Button x:Name="BtnSave" Content="💾 Enregistrer" Click="BtnEnregistrer_Click"
                             Background="#00915A" Foreground="White" Padding="25,12" 
                             BorderThickness="0" Cursor="Hand" FontWeight="Bold" 
                             FontSize="14" Margin="0,0,10,0">
@@ -181,7 +181,7 @@
                         </Button.Style>
                     </Button>
                     
-                    <Button Content="❌ Annuler" Click="BtnAnnuler_Click"
+                    <Button x:Name="BtnCancel" Content="❌ Annuler" Click="BtnAnnuler_Click"
                             Background="#E0E0E0" Foreground="#1A1919" Padding="25,12" 
                             BorderThickness="0" Cursor="Hand" FontWeight="Bold" FontSize="14">
                         <Button.Style>

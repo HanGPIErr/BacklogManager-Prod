@@ -3,6 +3,7 @@ using System.Windows;
 using BacklogManager.ViewModels;
 using System.Linq;
 using System.Windows.Input;
+using BacklogManager.Services;
 
 namespace BacklogManager.Views
 {
@@ -11,6 +12,78 @@ namespace BacklogManager.Views
         public SuiviCRAView()
         {
             InitializeComponent();
+            InitializeLocalizedTexts();
+        }
+
+        private void InitializeLocalizedTexts()
+        {
+            var loc = LocalizationService.Instance;
+
+            // Header
+            TxtTitle.Text = loc.GetString("SuiviCRA_Title");
+            TxtSubtitle.Text = loc.GetString("SuiviCRA_Subtitle");
+            TxtTeam.Text = loc.GetString("SuiviCRA_Team");
+            TxtMembers.Text = loc.GetString("SuiviCRA_Members");
+
+            // Mode buttons
+            BtnModeMonth.Content = loc.GetString("SuiviCRA_ModeMonth");
+            BtnModeList.Content = loc.GetString("SuiviCRA_ModeList");
+            BtnModeTimelineProgramme.Content = loc.GetString("SuiviCRA_ModeTimelineProgramme");
+            BtnModeTimelineProjet.Content = loc.GetString("SuiviCRA_ModeTimelineProjet");
+            BtnToday.Content = loc.GetString("SuiviCRA_BtnToday");
+
+            // Programme and Projet labels
+            TxtProgramme.Text = loc.GetString("SuiviCRA_Programme");
+            TxtProjet.Text = loc.GetString("SuiviCRA_Projet");
+
+            // Programme section
+            TxtStart.Text = loc.GetString("SuiviCRA_Start");
+            TxtTarget.Text = loc.GetString("SuiviCRA_Target");
+            TxtGreen.Text = loc.GetString("SuiviCRA_Green");
+            TxtAmber.Text = loc.GetString("SuiviCRA_Amber");
+            TxtRed.Text = loc.GetString("SuiviCRA_Red");
+
+            // Statistics cards
+            TxtProjects.Text = loc.GetString("SuiviCRA_Projects");
+            TxtTotalTasks.Text = loc.GetString("SuiviCRA_TotalTasks");
+            TxtProgress.Text = loc.GetString("SuiviCRA_Progress");
+            TxtEstimatedBudget.Text = loc.GetString("SuiviCRA_EstimatedBudget");
+            TxtRealTime.Text = loc.GetString("SuiviCRA_RealTime");
+
+            // Global progress
+            TxtGlobalProgress.Text = loc.GetString("SuiviCRA_GlobalProgress");
+            TxtTasksCompleted.Text = loc.GetString("SuiviCRA_TasksCompleted");
+
+            // Teams section
+            TxtTeamsProgramme.Text = loc.GetString("SuiviCRA_TeamsProgramme");
+            RunTeamsCount.Text = loc.GetString("SuiviCRA_TeamsCount");
+
+            // Project Timeline
+            TxtDatesToCome.Text = loc.GetString("SuiviCRA_DatesToCome");
+            TxtExtensionDetected.Text = loc.GetString("SuiviCRA_ExtensionDetected");
+            BtnValidateExtension.Content = loc.GetString("SuiviCRA_ValidateExtension");
+            TxtStart2.Text = loc.GetString("SuiviCRA_Start2");
+            TxtObjective.Text = loc.GetString("SuiviCRA_Objective");
+            TxtNoTask.Text = loc.GetString("SuiviCRA_NoTask");
+            TxtSelectProjectWithTasks.Text = loc.GetString("SuiviCRA_SelectProjectWithTasks");
+
+            // Calendar day headers
+            TxtMon.Text = loc.GetString("SuiviCRA_Mon");
+            TxtTue.Text = loc.GetString("SuiviCRA_Tue");
+            TxtWed.Text = loc.GetString("SuiviCRA_Wed");
+            TxtThu.Text = loc.GetString("SuiviCRA_Thu");
+            TxtFri.Text = loc.GetString("SuiviCRA_Fri");
+            TxtSat.Text = loc.GetString("SuiviCRA_Sat");
+            TxtSun.Text = loc.GetString("SuiviCRA_Sun");
+
+            // Statistics panel
+            TxtStatistics.Text = loc.GetString("SuiviCRA_Statistics");
+            TxtDayDetail.Text = loc.GetString("SuiviCRA_DayDetail");
+            TxtNoCRA.Text = loc.GetString("SuiviCRA_NoCRA");
+
+            // Tooltips for AI buttons
+            BtnAnalyzeProgrammeIA.ToolTip = loc.GetString("SuiviCRA_AnalyzeIATooltipProgramme");
+            BtnAnalyzeProjetIA.ToolTip = loc.GetString("SuiviCRA_AnalyzeIATooltipProjet");
         }
 
         private void TimelineScroll_ScrollChanged(object sender, ScrollChangedEventArgs e)
@@ -34,12 +107,13 @@ namespace BacklogManager.Views
 
         private void BtnAnalyserProjetIA_Click(object sender, RoutedEventArgs e)
         {
+            var loc = LocalizationService.Instance;
             var viewModel = DataContext as SuiviCRAViewModel;
             if (viewModel == null || viewModel.ProjetSelectionne == null)
             {
                 MessageBox.Show(
-                    "Veuillez sélectionner un projet avant de lancer l'analyse IA.",
-                    "Aucun projet sélectionné",
+                    loc.GetString("SuiviCRA_NoProjectSelected"),
+                    loc.GetString("SuiviCRA_NoProjectSelectedTitle"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Warning);
                 return;
@@ -48,8 +122,8 @@ namespace BacklogManager.Views
             if (!viewModel.TachesProjetTimeline.Any())
             {
                 MessageBox.Show(
-                    "Ce projet ne contient aucune tâche à analyser.",
-                    "Aucune tâche",
+                    loc.GetString("SuiviCRA_NoTaskToAnalyze"),
+                    loc.GetString("SuiviCRA_NoTaskTitle"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);
                 return;
@@ -69,12 +143,13 @@ namespace BacklogManager.Views
 
         private void BtnAnalyserProgrammeIA_Click(object sender, RoutedEventArgs e)
         {
+            var loc = LocalizationService.Instance;
             var viewModel = DataContext as SuiviCRAViewModel;
             if (viewModel == null || viewModel.ProgrammeSelectionne == null)
             {
                 MessageBox.Show(
-                    "Veuillez sélectionner un programme avant de lancer l'analyse IA.",
-                    "Aucun programme sélectionné",
+                    loc.GetString("SuiviCRA_NoProgrammeSelected"),
+                    loc.GetString("SuiviCRA_NoProgrammeSelectedTitle"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Warning);
                 return;
@@ -83,8 +158,8 @@ namespace BacklogManager.Views
             if (!viewModel.ProjetsTimelineProgramme.Any())
             {
                 MessageBox.Show(
-                    "Ce programme ne contient aucun projet à analyser.",
-                    "Aucun projet",
+                    loc.GetString("SuiviCRA_NoProgrammeProject"),
+                    loc.GetString("SuiviCRA_NoProgrammeProjectTitle"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);
                 return;

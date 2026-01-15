@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -7,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using BacklogManager.Domain;
 using BacklogManager.Services;
+using BacklogManager.Shared;
 using Microsoft.Win32;
 
 namespace BacklogManager.Views.Pages
@@ -30,7 +32,48 @@ namespace BacklogManager.Views.Pages
             InitializeComponent();
             _database = database;
             _auditLogService = auditLogService;
+            InitialiserTextes();
+            LocalizationService.Instance.PropertyChanged += (s, e) => InitialiserTextes();
             LoadData();
+        }
+
+        private void InitialiserTextes()
+        {
+            // Titre et sous-titre
+            TxtTitle.Text = " " + LocalizationService.Instance.GetString("AuditLog_Title");
+            TxtSubtitle.Text = LocalizationService.Instance.GetString("AuditLog_Subtitle");
+            
+            // Filtres
+            TxtFiltersTitle.Text = LocalizationService.Instance.GetString("AuditLog_FiltersTitle");
+            TxtUserFilter.Text = LocalizationService.Instance.GetString("AuditLog_UserFilter");
+            TxtStartDateFilter.Text = LocalizationService.Instance.GetString("AuditLog_StartDateFilter");
+            TxtEndDateFilter.Text = LocalizationService.Instance.GetString("AuditLog_EndDateFilter");
+            TxtActionFilter.Text = LocalizationService.Instance.GetString("AuditLog_ActionFilter");
+            CmbAllActions.Content = LocalizationService.Instance.GetString("AuditLog_AllActions");
+            
+            // Colonnes du DataGrid
+            ColDateTime.Header = LocalizationService.Instance.GetString("AuditLog_ColumnDateTime");
+            ColUser.Header = LocalizationService.Instance.GetString("AuditLog_ColumnUser");
+            ColAction.Header = LocalizationService.Instance.GetString("AuditLog_ColumnAction");
+            ColEntityType.Header = LocalizationService.Instance.GetString("AuditLog_ColumnEntityType");
+            ColID.Header = LocalizationService.Instance.GetString("AuditLog_ColumnID");
+            ColDetails.Header = LocalizationService.Instance.GetString("AuditLog_ColumnDetails");
+            
+            // Boutons de pagination
+            BtnPremierePage.Content = LocalizationService.Instance.GetString("AuditLog_BtnFirst");
+            BtnPagePrecedente.Content = LocalizationService.Instance.GetString("AuditLog_BtnPrevious");
+            BtnPageSuivante.Content = LocalizationService.Instance.GetString("AuditLog_BtnNext");
+            BtnDernierePage.Content = LocalizationService.Instance.GetString("AuditLog_BtnLast");
+            
+            // Boutons d'action
+            BtnExporterCSV.Content = LocalizationService.Instance.GetString("AuditLog_BtnExportCSV");
+            BtnActualiser.Content = LocalizationService.Instance.GetString("AuditLog_BtnRefresh");
+            
+            // Mettre à jour la pagination si déjà initialisé
+            if (_isInitialized)
+            {
+                UpdatePagination();
+            }
         }
 
         private void LoadData()
@@ -44,8 +87,8 @@ namespace BacklogManager.Views.Pages
                 _filteredLogs = new List<AuditLog>(_allLogs);
                 
                 // Peupler les filtres
-                var utilisateurs = _allLogs.Select(l => new { l.UserId, l.Username }).Distinct().ToList();
-                utilisateurs.Insert(0, new { UserId = 0, Username = "Tous" });
+                var utilisateurs = _allLogs.Select(l => new { l.UserId, Username = l.Username }).Distinct().ToList();
+                utilisateurs.Insert(0, new { UserId = 0, Username = LocalizationService.Instance.GetString("AuditLog_AllUsers") });
                 CmbUtilisateur.ItemsSource = utilisateurs;
                 CmbUtilisateur.SelectedIndex = 0;
 
@@ -57,8 +100,8 @@ namespace BacklogManager.Views.Pages
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erreur lors du chargement des logs d'audit :\n{ex.Message}",
-                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"{LocalizationService.Instance.GetString("AuditLog_ErrorLoading")}\n{ex.Message}",
+                    LocalizationService.Instance.GetString("AuditLog_ErrorTitle"), MessageBoxButton.OK, MessageBoxImage.Error);
                     
                 _allLogs = new List<AuditLog>();
                 _filteredLogs = new List<AuditLog>();
@@ -121,7 +164,8 @@ namespace BacklogManager.Views.Pages
                 if (CmbAction != null && CmbAction.SelectedItem != null)
                 {
                     var selectedAction = (CmbAction.SelectedItem as ComboBoxItem)?.Content?.ToString();
-                    if (!string.IsNullOrEmpty(selectedAction) && selectedAction != "Toutes")
+                    var allActionsText = LocalizationService.Instance.GetString("AuditLog_AllActions");
+                    if (!string.IsNullOrEmpty(selectedAction) && selectedAction != allActionsText)
                     {
                         _filteredLogs = _filteredLogs.Where(l => l.Action == selectedAction).ToList();
                     }
@@ -133,8 +177,8 @@ namespace BacklogManager.Views.Pages
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erreur lors de l'application des filtres :\n{ex.Message}",
-                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"{LocalizationService.Instance.GetString("AuditLog_ErrorFilters")}\n{ex.Message}",
+                    LocalizationService.Instance.GetString("AuditLog_ErrorTitle"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -144,15 +188,15 @@ namespace BacklogManager.Views.Pages
             {
                 var saveDialog = new SaveFileDialog
                 {
-                    Filter = "Fichiers CSV (*.csv)|*.csv",
+                    Filter = LocalizationService.Instance.GetString("AuditLog_ExportFilter"),
                     FileName = $"AuditLog_{DateTime.Now:yyyyMMdd_HHmmss}.csv",
-                    Title = "Exporter le journal d'audit"
+                    Title = LocalizationService.Instance.GetString("AuditLog_ExportTitle")
                 };
 
                 if (saveDialog.ShowDialog() == true)
                 {
                     var csv = new StringBuilder();
-                    csv.AppendLine("Date;Utilisateur;Action;Type d'Entité;ID Entité;Ancienne Valeur;Nouvelle Valeur;Détails");
+                    csv.AppendLine(LocalizationService.Instance.GetString("AuditLog_CSVHeader"));
 
                     foreach (var log in _filteredLogs)
                     {
@@ -160,14 +204,14 @@ namespace BacklogManager.Views.Pages
                     }
 
                     File.WriteAllText(saveDialog.FileName, csv.ToString(), Encoding.UTF8);
-                    MessageBox.Show($"Export réussi !\n{_filteredLogs.Count} enregistrements exportés.", 
-                        "Export CSV", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show(string.Format(LocalizationService.Instance.GetString("AuditLog_ExportSuccess"), _filteredLogs.Count), 
+                        LocalizationService.Instance.GetString("AuditLog_ExportSuccessTitle"), MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erreur lors de l'export CSV :\n{ex.Message}",
-                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"{LocalizationService.Instance.GetString("AuditLog_ErrorExport")}\n{ex.Message}",
+                    LocalizationService.Instance.GetString("AuditLog_ErrorTitle"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -186,7 +230,7 @@ namespace BacklogManager.Views.Pages
                     _currentPage = 1;
                     _pagedLogs = new List<AuditLog>();
                     DgAuditLogs.ItemsSource = _pagedLogs;
-                    TxtPagination.Text = "Page 1 / 1 (0 entrées)";
+                    TxtPagination.Text = LocalizationService.Instance.GetString("AuditLog_PaginationEmpty");
                     BtnPremierePage.IsEnabled = false;
                     BtnPagePrecedente.IsEnabled = false;
                     BtnPageSuivante.IsEnabled = false;
@@ -216,7 +260,8 @@ namespace BacklogManager.Views.Pages
                 // Mettre à jour le texte de pagination
                 int startIndex = (_currentPage - 1) * ITEMS_PER_PAGE + 1;
                 int endIndex = Math.Min(_currentPage * ITEMS_PER_PAGE, _filteredLogs.Count);
-                TxtPagination.Text = $"Page {_currentPage} / {_totalPages} ({startIndex}-{endIndex} sur {_filteredLogs.Count} entrées)";
+                TxtPagination.Text = string.Format(LocalizationService.Instance.GetString("AuditLog_PaginationFormat"), 
+                    _currentPage, _totalPages, startIndex, endIndex, _filteredLogs.Count);
 
                 // Activer/désactiver les boutons
                 BtnPremierePage.IsEnabled = _currentPage > 1;
@@ -240,8 +285,8 @@ namespace BacklogManager.Views.Pages
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erreur lors de la mise à jour de la pagination :\n{ex.Message}",
-                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"{LocalizationService.Instance.GetString("AuditLog_ErrorPagination")}\n{ex.Message}",
+                    LocalizationService.Instance.GetString("AuditLog_ErrorTitle"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

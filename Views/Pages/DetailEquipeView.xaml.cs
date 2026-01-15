@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -9,13 +10,44 @@ using BacklogManager.Services;
 
 namespace BacklogManager.Views.Pages
 {
-    public partial class DetailEquipeView : UserControl
+    public partial class DetailEquipeView : UserControl, INotifyPropertyChanged
     {
         private readonly IDatabase _database;
         private readonly int _equipeId;
         private readonly Action _retourCallback;
         private readonly AuthenticationService _authService;
         private Equipe _equipe;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged(string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        // Propriétés pour les textes traduits
+        public string BackText => LocalizationService.Instance["TeamDetail_Back"];
+        public string PlanningVMText => LocalizationService.Instance["TeamDetail_PlanningVM"];
+        public string ContactText => LocalizationService.Instance["TeamDetail_Contact"];
+        public string MembersText => LocalizationService.Instance["TeamDetail_Members"];
+        public string ActiveProjectsText => LocalizationService.Instance["TeamDetail_ActiveProjects"];
+        public string FunctionalScopeText => LocalizationService.Instance["TeamDetail_FunctionalScope"];
+        public string TeamMembersText => LocalizationService.Instance["TeamDetail_TeamMembers"];
+        public string MemberHeaderText => LocalizationService.Instance["TeamDetail_Member"];
+        public string RoleHeaderText => LocalizationService.Instance["TeamDetail_Role"];
+        public string NoMembersText => LocalizationService.Instance["TeamDetail_NoMembers"];
+        public string AssociatedProjectsText => LocalizationService.Instance["TeamDetail_AssociatedProjects"];
+        public string NoProjectsText => LocalizationService.Instance["TeamDetail_NoProjects"];
+        public string ViewText => LocalizationService.Instance["TeamDetail_View"];
+        public string PersonsText => LocalizationService.Instance["TeamDetail_Persons"];
+        public string ProjectsText => LocalizationService.Instance["TeamDetail_Projects"];
+        public string GeneralInfoText => LocalizationService.Instance["TeamDetail_GeneralInfo"];
+        public string ManagerText => LocalizationService.Instance["TeamDetail_Manager"];
+        public string StatusText => LocalizationService.Instance["TeamDetail_Status"];
+        public string NotDefinedText => LocalizationService.Instance["TeamDetail_NotDefined"];
+        public string NoDescriptionText => LocalizationService.Instance["TeamDetail_NoDescription"];
+        public string NotAssignedText => LocalizationService.Instance["TeamDetail_NotAssigned"];
+        public string ActiveText => LocalizationService.Instance["TeamDetail_Active"];
+        public string InactiveText => LocalizationService.Instance["TeamDetail_Inactive"];
 
         public DetailEquipeView(int equipeId, IDatabase database, Action retourCallback, AuthenticationService authService)
         {
@@ -25,12 +57,87 @@ namespace BacklogManager.Views.Pages
             _retourCallback = retourCallback;
             _authService = authService;
             
+            DataContext = this;
             ChargerDetailsEquipe();
+            InitialiserTextes();
+            
+            // S'abonner aux changements de langue
+            LocalizationService.Instance.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == "Item[]")
+                {
+                    InitialiserTextes();
+                }
+            };
+        }
+
+        private void InitialiserTextes()
+        {
+            OnPropertyChanged(nameof(BackText));
+            OnPropertyChanged(nameof(PlanningVMText));
+            OnPropertyChanged(nameof(ContactText));
+            OnPropertyChanged(nameof(MembersText));
+            OnPropertyChanged(nameof(ActiveProjectsText));
+            OnPropertyChanged(nameof(FunctionalScopeText));
+            OnPropertyChanged(nameof(TeamMembersText));
+            OnPropertyChanged(nameof(MemberHeaderText));
+            OnPropertyChanged(nameof(RoleHeaderText));
+            OnPropertyChanged(nameof(NoMembersText));
+            OnPropertyChanged(nameof(AssociatedProjectsText));
+            OnPropertyChanged(nameof(NoProjectsText));
+            OnPropertyChanged(nameof(ViewText));
+            OnPropertyChanged(nameof(PersonsText));
+            OnPropertyChanged(nameof(ProjectsText));
+            OnPropertyChanged(nameof(GeneralInfoText));
+            OnPropertyChanged(nameof(ManagerText));
+            OnPropertyChanged(nameof(StatusText));
+            OnPropertyChanged(nameof(NotDefinedText));
+            OnPropertyChanged(nameof(NoDescriptionText));
+            OnPropertyChanged(nameof(NotAssignedText));
+            OnPropertyChanged(nameof(ActiveText));
+            OnPropertyChanged(nameof(InactiveText));
         }
 
         private void BtnRetour_Click(object sender, RoutedEventArgs e)
         {
             _retourCallback?.Invoke();
+        }
+
+        private string TraduireRole(string roleNom)
+        {
+            if (string.IsNullOrEmpty(roleNom))
+                return LocalizationService.Instance["TeamDetail_NotDefined"];
+
+            // Mapper les rôles français vers les clés de traduction
+            var roleKey = roleNom switch
+            {
+                "Administrateur" => "Role_Administrateur",
+                "Chef de projet" => "Role_ChefDeProjet",
+                "Business Analyst" => "Role_BusinessAnalyst",
+                "Développeur" => "Role_Developpeur",
+                "Manager" => "Role_Manager",
+                _ => null
+            };
+
+            return roleKey != null ? LocalizationService.Instance[roleKey] : roleNom;
+        }
+
+        private string TraduirePerimetre(string perimetre)
+        {
+            if (string.IsNullOrEmpty(perimetre))
+                return LocalizationService.Instance["TeamDetail_NotDefined"];
+
+            // Mapper les périmètres fonctionnels courants vers les clés de traduction
+            var perimetreNormalized = perimetre.Trim().ToLowerInvariant();
+            
+            if (perimetreNormalized.Contains("solutions rapides") && perimetreNormalized.Contains("développement tactique"))
+                return LocalizationService.Instance["Scope_TacticalSolutions"];
+            
+            if (perimetreNormalized.Contains("solutions tactiques") && perimetreNormalized.Contains("livraison rapide"))
+                return LocalizationService.Instance["Scope_RapidDelivery"];
+
+            // Si pas de correspondance, retourner le texte original
+            return perimetre;
         }
 
         private void ChargerDetailsEquipe()
@@ -50,14 +157,15 @@ namespace BacklogManager.Views.Pages
                 _equipe = equipe;
 
                 // Informations générales
+                var loc = LocalizationService.Instance;
                 TxtNomEquipe.Text = equipe.Nom;
-                TxtCodeEquipe.Text = string.Format("Code: {0}", equipe.Code);
+                TxtCodeEquipe.Text = string.Format(loc["TeamDetail_Code"], equipe.Code);
                 TxtDescriptionEquipe.Text = !string.IsNullOrWhiteSpace(equipe.Description) ? 
-                    equipe.Description : "Aucune description";
+                    equipe.Description : loc["TeamDetail_NoDescription"];
                 TxtPerimetre.Text = !string.IsNullOrWhiteSpace(equipe.PerimetreFonctionnel) ? 
-                    equipe.PerimetreFonctionnel : "Non défini";
+                    TraduirePerimetre(equipe.PerimetreFonctionnel) : loc["TeamDetail_NotDefined"];
                 TxtContact.Text = !string.IsNullOrWhiteSpace(equipe.Contact) ? 
-                    equipe.Contact : "Non défini";
+                    equipe.Contact : loc["TeamDetail_NotDefined"];
 
                 // Afficher le bouton Planning VM uniquement pour Tactical Solutions
                 if (equipe.Code == "TACTICAL_SOLUTIONS")
@@ -71,11 +179,11 @@ namespace BacklogManager.Views.Pages
                     var utilisateurs = _database.GetUtilisateurs();
                     var manager = utilisateurs.FirstOrDefault(u => u.Id == equipe.ManagerId.Value);
                     TxtManager.Text = manager != null ? 
-                        string.Format("{0} {1}", manager.Prenom, manager.Nom) : "Non assigné";
+                        string.Format("{0} {1}", manager.Prenom, manager.Nom) : loc["TeamDetail_NotAssigned"];
                 }
                 else
                 {
-                    TxtManager.Text = "Non assigné";
+                    TxtManager.Text = loc["TeamDetail_NotAssigned"];
                 }
 
                 // Membres de l'équipe
@@ -87,13 +195,14 @@ namespace BacklogManager.Views.Pages
                     var roles = _database.GetRoles();
                     var membresViewModel = membres.Select(m => {
                         var role = roles.FirstOrDefault(r => r.Id == m.RoleId);
+                        var roleNom = role != null ? role.Nom : null;
                         return new MembreViewModel
                         {
                             Nom = m.Nom,
                             Prenom = m.Prenom,
-                            Role = role != null ? role.Nom : "Non défini",
+                            Role = TraduireRole(roleNom),
                             Email = m.Email,
-                            Statut = m.Actif ? "Actif" : "Inactif"
+                            Statut = m.Actif ? loc["TeamDetail_Active"] : loc["TeamDetail_Inactive"]
                         };
                     }).ToList();
                     
@@ -130,8 +239,8 @@ namespace BacklogManager.Views.Pages
                         Nom = p.Nom,
                         Description = !string.IsNullOrWhiteSpace(p.Description) ? 
                             (p.Description.Length > 100 ? p.Description.Substring(0, 100) + "..." : p.Description) : 
-                            "Aucune description",
-                        Statut = p.Actif ? "Actif" : "Inactif"
+                            loc["TeamDetail_NoDescription"],
+                        Statut = p.Actif ? loc["TeamDetail_Active"] : loc["TeamDetail_Inactive"]
                     }).ToList();
                     
                     ListeProjets.ItemsSource = projetsViewModel;

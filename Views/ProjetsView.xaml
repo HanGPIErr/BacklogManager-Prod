@@ -1,6 +1,7 @@
 <UserControl x:Class="BacklogManager.Views.ProjetsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:services="clr-namespace:BacklogManager.Services"
              Background="White">
     <Grid Margin="15">
         <Grid.ColumnDefinitions>
@@ -20,23 +21,38 @@
                 <!-- Header -->
                 <StackPanel Grid.Row="0" Margin="0,0,0,15">
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                        <TextBlock Text="📊 PROJETS" FontSize="18" FontWeight="Bold" Foreground="#1A1919"/>
+                        <TextBlock FontSize="18" FontWeight="Bold" Foreground="#1A1919">
+                            <Run Text="📊 "/>
+                            <Run Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Projects_Title], Mode=OneWay}"/>
+                        </TextBlock>
                         <TextBlock Text="{Binding ProjetsFiltres.Count}" FontSize="16" Foreground="#00915A" 
                                    Margin="10,0,0,0" VerticalAlignment="Center"/>
                     </StackPanel>
                     <!-- Légende -->
                     <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
                         <Border Background="#9E9E9E" CornerRadius="2" Padding="4,2" Margin="0,0,8,0">
-                            <TextBlock Text="📋 À faire" FontSize="9" Foreground="White" FontWeight="Bold"/>
+                            <TextBlock FontSize="9" Foreground="White" FontWeight="Bold">
+                                <Run Text="📋 "/>
+                                <Run Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Projects_Todo], Mode=OneWay}"/>
+                            </TextBlock>
                         </Border>
                         <Border Background="#2196F3" CornerRadius="2" Padding="4,2" Margin="0,0,8,0">
-                            <TextBlock Text="⚡ En cours" FontSize="9" Foreground="White" FontWeight="Bold"/>
+                            <TextBlock FontSize="9" Foreground="White" FontWeight="Bold">
+                                <Run Text="⚡ "/>
+                                <Run Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Projects_InProgress], Mode=OneWay}"/>
+                            </TextBlock>
                         </Border>
                         <Border Background="#FF9800" CornerRadius="2" Padding="4,2" Margin="0,0,8,0">
-                            <TextBlock Text="🔍 En test" FontSize="9" Foreground="White" FontWeight="Bold"/>
+                            <TextBlock FontSize="9" Foreground="White" FontWeight="Bold">
+                                <Run Text="🔍 "/>
+                                <Run Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Projects_InTest], Mode=OneWay}"/>
+                            </TextBlock>
                         </Border>
                         <Border Background="#4CAF50" CornerRadius="2" Padding="4,2">
-                            <TextBlock Text="✓ Terminé" FontSize="9" Foreground="White" FontWeight="Bold"/>
+                            <TextBlock FontSize="9" Foreground="White" FontWeight="Bold">
+                                <Run Text="✓ "/>
+                                <Run Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Projects_Completed], Mode=OneWay}"/>
+                            </TextBlock>
                         </Border>
                     </StackPanel>
 
@@ -59,8 +75,10 @@
                             </Style>
                         </TextBox.Style>
                     </TextBox>
-                    <TextBlock Text="🔍 Rechercher un projet..." Margin="10,-28,0,0" IsHitTestVisible="False" 
+                    <TextBlock Margin="10,-28,0,0" IsHitTestVisible="False" 
                                Foreground="#999" FontSize="13">
+                        <Run Text="🔍 "/>
+                        <Run Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Projects_SearchPlaceholder], Mode=OneWay}"/>
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -75,11 +93,15 @@
 
                     <!-- Filtres -->
                     <StackPanel Margin="0,10,0,0">
-                        <CheckBox Content="Projets actifs uniquement" IsChecked="{Binding FilterActifsOnly}" 
+                        <CheckBox IsChecked="{Binding FilterActifsOnly}" 
+                                  Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Projects_ActiveOnly], Mode=OneWay}"
                                   FontSize="12" Foreground="#333" Margin="0,0,0,8"/>
                         
                         <!-- Filtre Priorité -->
-                        <TextBlock Text="⚡ Priorité:" FontSize="11" Foreground="#666" FontWeight="SemiBold" Margin="0,5,0,4"/>
+                        <TextBlock FontSize="11" Foreground="#666" FontWeight="SemiBold" Margin="0,5,0,4">
+                            <Run Text="⚡ "/>
+                            <Run Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Projects_Priority], Mode=OneWay}"/>
+                        </TextBlock>
                         <Grid Margin="0,0,0,8">
                             <ComboBox x:Name="CbPriorite" ItemsSource="{Binding PrioritesDisponibles}" 
                                       SelectedItem="{Binding PrioriteSelectionnee}" 
@@ -87,7 +109,10 @@
                         </Grid>
                         
                         <!-- Filtre Statut RAG -->
-                        <TextBlock Text="🚦 Statut RAG:" FontSize="11" Foreground="#666" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                        <TextBlock FontSize="11" Foreground="#666" FontWeight="SemiBold" Margin="0,0,0,4">
+                            <Run Text="🚦 "/>
+                            <Run Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Projects_StatusRAG], Mode=OneWay}"/>
+                        </TextBlock>
                         <Grid Margin="0,0,0,8">
                             <ComboBox x:Name="CbStatutRAG" ItemsSource="{Binding StatutsRAGDisponibles}" 
                                       SelectedItem="{Binding StatutRAGSelectionne}" 
@@ -95,20 +120,25 @@
                         </Grid>
                         
                         <!-- Filtre Équipe -->
-                        <TextBlock Text="🏢 Équipe:" FontSize="11" Foreground="#666" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                        <TextBlock FontSize="11" Foreground="#666" FontWeight="SemiBold" Margin="0,0,0,4">
+                            <Run Text="🏢 "/>
+                            <Run Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Projects_Team], Mode=OneWay}"/>
+                        </TextBlock>
                         <Grid Margin="0,0,0,8">
                             <ComboBox x:Name="CbEquipe" ItemsSource="{Binding EquipesDisponibles}" 
                                       SelectedItem="{Binding EquipeSelectionnee}" 
                                       FontSize="12" Padding="8,6" BorderBrush="#CCCCCC" BorderThickness="1"/>
                         </Grid>
                         
-                        <TextBlock Text="Trier par:" FontSize="11" Foreground="#666" Margin="0,0,0,5"/>
+                        <TextBlock FontSize="11" Foreground="#666" Margin="0,0,0,5"
+                                   Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Projects_SortBy], Mode=OneWay}"/>
                         <Grid>
                             <ComboBox x:Name="CbTri" ItemsSource="{Binding OptionsTriDisponibles}" 
                                       SelectedItem="{Binding TriSelection}" 
                                       FontSize="12" Padding="8,6" BorderBrush="#CCCCCC" BorderThickness="1"/>
-                            <TextBlock Text="-- Sélectionner un tri --" FontSize="12" Foreground="#999" 
-                                       Padding="10,7" IsHitTestVisible="False">
+                            <TextBlock FontSize="12" Foreground="#999" 
+                                       Padding="10,7" IsHitTestVisible="False"
+                                       Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Projects_SelectSort], Mode=OneWay}">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Visibility" Value="Collapsed"/>
@@ -125,37 +155,14 @@
                 </StackPanel>
 
                 <!-- Actions -->
-                <StackPanel Grid.Row="1" Margin="0,0,0,15">
-                    <Button Content="➕ Nouveau Projet" Command="{Binding AjouterProjetCommand}"
-                            Visibility="{Binding PeutCreerProjetsVisibility}"
-                            Padding="10,8" Background="#00915A" Foreground="White" BorderThickness="0"
-                            FontSize="13" FontWeight="SemiBold" Cursor="Hand" Margin="0,0,0,8"
-                            HorizontalAlignment="Stretch">
-                        <Button.Style>
-                            <Style TargetType="Button">
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="Button">
-                                            <Border Background="{TemplateBinding Background}" CornerRadius="4" 
-                                                    Padding="{TemplateBinding Padding}">
-                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                            </Border>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                                <Style.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="#007A4D"/>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
-
-                    <StackPanel Orientation="Horizontal">
-                        <Button Content="🔄 Rafraîchir" Command="{Binding RefreshCommand}"
+                <StackPanel Grid.Row="1" Margin="0,0,0,15" Orientation="Horizontal">
+                        <Button Command="{Binding RefreshCommand}"
                                 Padding="8,6" Background="#E0E0E0" Foreground="#333" BorderThickness="0"
                                 FontSize="12" Cursor="Hand" Margin="0,0,5,0">
+                            <TextBlock>
+                                <Run Text="🔄 "/>
+                                <Run Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Projects_Refresh], Mode=OneWay}"/>
+                            </TextBlock>
                             <Button.Style>
                                 <Style TargetType="Button">
                                     <Setter Property="Template">
@@ -177,9 +184,13 @@
                             </Button.Style>
                         </Button>
 
-                        <Button Content="✖ Réinitialiser" Command="{Binding ClearFiltersCommand}"
+                        <Button Command="{Binding ClearFiltersCommand}"
                                 Padding="8,6" Background="#E0E0E0" Foreground="#333" BorderThickness="0"
                                 FontSize="12" Cursor="Hand">
+                            <TextBlock>
+                                <Run Text="✖ "/>
+                                <Run Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Projects_Reset], Mode=OneWay}"/>
+                            </TextBlock>
                             <Button.Style>
                                 <Style TargetType="Button">
                                     <Setter Property="Template">
@@ -201,7 +212,6 @@
                             </Button.Style>
                         </Button>
                     </StackPanel>
-                </StackPanel>
 
                 <!-- Liste des Projets -->
                 <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
@@ -241,7 +251,7 @@
                                         <StackPanel Grid.Row="0" Grid.Column="1" Grid.RowSpan="3" Orientation="Horizontal" 
                                                     VerticalAlignment="Top" Margin="10,0,0,0"
                                                     Visibility="{Binding DataContext.PeutCreerProjetsVisibility, RelativeSource={RelativeSource AncestorType=UserControl}}">
-                                            <Button Content="✏️" ToolTip="Modifier le projet" 
+                                            <Button Content="✏️" ToolTip="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Projects_ModifyProject], Mode=OneWay}" 
                                                     Click="BtnModifierProjet_Click" Tag="{Binding Projet}"
                                                     Width="28" Height="28" Background="#E3F2FD" Foreground="#1976D2"
                                                     BorderThickness="0" FontSize="12" Cursor="Hand" Margin="0,0,4,0">
@@ -266,7 +276,7 @@
                                                 </Button.Style>
                                             </Button>
                                             
-                                            <Button Content="ℹ Détails" ToolTip="Voir les détails du projet" 
+                                            <Button Content="ℹ Détails" ToolTip="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Projects_ViewDetails], Mode=OneWay}" 
                                                     Click="BtnDetailsProjet_Click" Tag="{Binding Projet}"
                                                     Height="28" Background="#E3F2FD" Foreground="#1976D2"
                                                     BorderThickness="0" FontSize="11" Cursor="Hand" Padding="8,4" Margin="0,0,5,0">
@@ -291,7 +301,7 @@
                                                 </Button.Style>
                                             </Button>
                                             
-                                            <Button Content="🗑️" ToolTip="Supprimer le projet" 
+                                            <Button Content="🗑️" ToolTip="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Projects_DeleteProject], Mode=OneWay}" 
                                                     Click="BtnSupprimerProjet_Click" Tag="{Binding Projet}"
                                                     Width="28" Height="28" Background="#FFEBEE" Foreground="#C62828"
                                                     BorderThickness="0" FontSize="12" Cursor="Hand">
@@ -326,7 +336,8 @@
                                             <TextBlock Text="•" FontSize="11" Foreground="#999" Margin="0,0,8,0"/>
                                             <TextBlock FontSize="11" Foreground="#666" Margin="0,0,8,0">
                                                 <Run Text="{Binding TotalTaches, Mode=OneWay}"/>
-                                                <Run Text="tâches" FontWeight="SemiBold"/>
+                                                <Run Text=" "/>
+                                                <Run Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Projects_Tasks], Mode=OneWay}" FontWeight="SemiBold"/>
                                             </TextBlock>
                                             
                                             <!-- Progression % -->
@@ -394,10 +405,22 @@
                     <TextBlock FontSize="16" FontWeight="Bold" Foreground="#1A1919" VerticalAlignment="Center">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
-                                <Setter Property="Text" Value="📝 TÂCHES"/>
+                                <Setter Property="Text">
+                                    <Setter.Value>
+                                        <MultiBinding StringFormat="📝 {0}">
+                                            <Binding Source="{x:Static services:LocalizationService.Instance}" Path="[Projects_TasksTitle]" Mode="OneWay"/>
+                                        </MultiBinding>
+                                    </Setter.Value>
+                                </Setter>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding SelectedProjet}" Value="{x:Null}">
-                                        <Setter Property="Text" Value="📝 Sélectionnez un projet"/>
+                                        <Setter Property="Text">
+                                            <Setter.Value>
+                                                <MultiBinding StringFormat="📝 {0}">
+                                                    <Binding Source="{x:Static services:LocalizationService.Instance}" Path="[Projects_SelectProject]" Mode="OneWay"/>
+                                                </MultiBinding>
+                                            </Setter.Value>
+                                        </Setter>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -407,10 +430,16 @@
                                Foreground="#00915A" Margin="10,0,0,0" FontWeight="SemiBold" VerticalAlignment="Center"/>
                     
                     <!-- Bouton tri -->
-                    <Button Content="🔄 Inverser tri" Click="BtnInverserTri_Click"
+                    <Button Click="BtnInverserTri_Click"
                             Background="#F5F5F5" Foreground="#666" FontSize="11" FontWeight="SemiBold"
                             Padding="10,5" Margin="15,0,0,0" BorderThickness="1" BorderBrush="#E0E0E0"
                             Cursor="Hand" VerticalAlignment="Center">
+                        <Button.Content>
+                            <TextBlock>
+                                <Run Text="🔄 "/>
+                                <Run Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Projects_ReverseSort], Mode=OneWay}"/>
+                            </TextBlock>
+                        </Button.Content>
                         <Button.Style>
                             <Style TargetType="Button">
                                 <Setter Property="Template">
@@ -529,10 +558,16 @@
                                                 </Border>
                                                 
                                                 <!-- Bouton Détails -->
-                                                <Button Content="ℹ Détails" ToolTip="Voir les détails de la tâche" 
+                                                <Button ToolTip="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Projects_Details], Mode=OneWay}" 
                                                         Click="BtnDetailsTache_Click" Tag="{Binding Tache}"
                                                         Height="24" Background="#E3F2FD" Foreground="#1976D2"
                                                         BorderThickness="0" FontSize="10" Cursor="Hand" Padding="6,2">
+                                                    <Button.Content>
+                                                        <TextBlock>
+                                                            <Run Text="ℹ "/>
+                                                            <Run Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Projects_Details], Mode=OneWay}"/>
+                                                        </TextBlock>
+                                                    </Button.Content>
                                                     <Button.Style>
                                                         <Style TargetType="Button">
                                                             <Setter Property="Template">
@@ -603,7 +638,7 @@
 
                                         <!-- Boutons Actions -->
                                         <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                                            <Button Content="✏️" ToolTip="Modifier" 
+                                            <Button Content="✏️" ToolTip="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Projects_Modify], Mode=OneWay}" 
                                                     Padding="8,6" Margin="0,0,5,0" Background="#2196F3" Foreground="White" 
                                                     BorderThickness="0" FontSize="12" Cursor="Hand"
                                                     Tag="{Binding}"
@@ -630,7 +665,7 @@
                                                 </Button.Style>
                                             </Button>
 
-                                            <Button Content="🗑️" ToolTip="Supprimer" 
+                                            <Button Content="🗑️" ToolTip="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Projects_Delete], Mode=OneWay}" 
                                                     Padding="8,6" Background="#D32F2F" Foreground="White" 
                                                     BorderThickness="0" FontSize="12" Cursor="Hand"
                                                     Tag="{Binding}"

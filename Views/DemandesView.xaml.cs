@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Media;
 using BacklogManager.Domain;
@@ -25,48 +26,131 @@ namespace BacklogManager.Views
             _authService = authService;
             _permissionService = permissionService;
             
-            InitialiserFiltres();
-            ChargerDemandes();
-            
+            // Configurer les événements AVANT InitialiserFiltres
+            CmbFiltreStatut.SelectionChanged += (s, e) => AppliquerFiltres();
+            CmbFiltreCriticite.SelectionChanged += (s, e) => AppliquerFiltres();
+            CmbFiltreEquipe.SelectionChanged += (s, e) => AppliquerFiltres();
+            DpDateDebut.SelectedDateChanged += (s, e) => AppliquerFiltres();
+            DpDateFin.SelectedDateChanged += (s, e) => AppliquerFiltres();
+            BtnEffacerFiltres.Click += (s, e) => EffacerFiltres();
             BtnNouvelleDemande.Click += BtnNouvelleDemande_Click;
             BtnAnalyseEmail.Click += BtnAnalyseEmail_Click;
             BtnRefresh.Click += (s, e) => ChargerDemandes();
-            CmbFiltreStatut.SelectionChanged += (s, e) => AppliquerFiltres();
-            CmbFiltreCriticite.SelectionChanged += (s, e) => AppliquerFiltres();
+            
+            InitialiserTextes();
+            InitialiserFiltres();
+            ChargerDemandes();
+            
+            // S'abonner aux changements de langue
+            LocalizationService.Instance.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == "CurrentCulture")
+                {
+                    InitialiserTextes();
+                    InitialiserFiltres();
+                    ChargerDemandes();
+                }
+            };
             
             // Vérifier permissions
             VerifierPermissions();
         }
+        
+        private void InitialiserTextes()
+        {
+            // Header
+            TxtTitre.Text = LocalizationService.Instance["Requests_Title"];
+            TxtSousTitre.Text = LocalizationService.Instance["Requests_Subtitle"];
+            
+            // Boutons header
+            BtnAnalyseEmail.Content = LocalizationService.Instance["Requests_CreateFromEmail"];
+            BtnNouvelleDemande.Content = LocalizationService.Instance["Requests_NewRequest"];
+            BtnOngletActives.Content = LocalizationService.Instance["Requests_ActiveTab"];
+            BtnOngletArchives.Content = LocalizationService.Instance["Requests_ArchivesTab"];
+            
+            // Labels filtres
+            TxtLabelStatut.Text = LocalizationService.Instance["Requests_FilterStatus"];
+            TxtLabelCriticite.Text = LocalizationService.Instance["Requests_FilterCriticality"];
+            TxtLabelEquipe.Text = LocalizationService.Instance["Requests_FilterTeam"];
+            TxtLabelDateDebut.Text = LocalizationService.Instance["Requests_FilterDateFrom"];
+            TxtLabelDateFin.Text = LocalizationService.Instance["Requests_FilterDateTo"];
+            
+            // Boutons filtres
+            BtnRefresh.Content = LocalizationService.Instance["Requests_Refresh"];
+            BtnEffacerFiltres.Content = LocalizationService.Instance["Requests_Reset"];
+            
+            // Watermarks des DatePickers
+            SetDatePickerWatermark(DpDateDebut, LocalizationService.Instance["Requests_SelectDate"]);
+            SetDatePickerWatermark(DpDateFin, LocalizationService.Instance["Requests_SelectDate"]);
+        }
+        
+        private void SetDatePickerWatermark(DatePicker datePicker, string watermark)
+        {
+            datePicker.Loaded += (s, e) =>
+            {
+                var textBox = FindVisualChild<DatePickerTextBox>(datePicker);
+                if (textBox != null)
+                {
+                    var watermarkProperty = textBox.GetType().GetProperty("Watermark", 
+                        System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public);
+                    if (watermarkProperty != null)
+                    {
+                        watermarkProperty.SetValue(textBox, watermark);
+                    }
+                }
+            };
+        }
+        
+        private T FindVisualChild<T>(DependencyObject parent) where T : DependencyObject
+        {
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                if (child is T typedChild)
+                {
+                    return typedChild;
+                }
+                
+                var result = FindVisualChild<T>(child);
+                if (result != null)
+                {
+                    return result;
+                }
+            }
+            return null;
+        }
 
         private void InitialiserFiltres()
         {
+            // Sauvegarder les sélections actuelles
+            int selectedStatutIndex = CmbFiltreStatut?.SelectedIndex ?? 0;
+            int selectedCriticiteIndex = CmbFiltreCriticite?.SelectedIndex ?? 0;
+            int selectedEquipeIndex = CmbFiltreEquipe?.SelectedIndex ?? 0;
+            
             // Filtre statut - Utiliser les valeurs formatées
-            var statutItems = new List<string> { "Tous" };
+            var statutItems = new List<string> { LocalizationService.Instance["Requests_FilterAll"] };
             foreach (StatutDemande statut in Enum.GetValues(typeof(StatutDemande)))
             {
                 statutItems.Add(FormatStatut(statut));
             }
             CmbFiltreStatut.ItemsSource = statutItems;
-            CmbFiltreStatut.SelectedIndex = 0;
+            CmbFiltreStatut.SelectedIndex = Math.Min(selectedStatutIndex, statutItems.Count - 1);
             
             // Filtre criticité
-            var criticiteItems = new List<string> { "Toutes" };
-            criticiteItems.AddRange(Enum.GetNames(typeof(Criticite)));
+            var criticiteItems = new List<string> { LocalizationService.Instance["Requests_FilterAllCriticality"] };
+            foreach (Criticite criticite in Enum.GetValues(typeof(Criticite)))
+            {
+                criticiteItems.Add(TraduireCriticite(criticite));
+            }
             CmbFiltreCriticite.ItemsSource = criticiteItems;
-            CmbFiltreCriticite.SelectedIndex = 0;
+            CmbFiltreCriticite.SelectedIndex = Math.Min(selectedCriticiteIndex, criticiteItems.Count - 1);
             
             // Filtre équipe
             var equipes = _database.GetAllEquipes().Where(e => e.Actif).OrderBy(e => e.Nom).ToList();
-            var equipesAvecTous = new List<Equipe> { new Equipe { Id = 0, Nom = "Toutes les équipes" } };
+            var equipesAvecTous = new List<Equipe> { new Equipe { Id = 0, Nom = LocalizationService.Instance["Requests_FilterAllTeams"] } };
             equipesAvecTous.AddRange(equipes);
             CmbFiltreEquipe.ItemsSource = equipesAvecTous;
-            CmbFiltreEquipe.SelectedIndex = 0;
-            CmbFiltreEquipe.SelectionChanged += (s, e) => AppliquerFiltres();
-            
-            // Configurer les DatePickers
-            DpDateDebut.SelectedDateChanged += (s, e) => AppliquerFiltres();
-            DpDateFin.SelectedDateChanged += (s, e) => AppliquerFiltres();
-            BtnEffacerFiltres.Click += (s, e) => EffacerFiltres();
+            CmbFiltreEquipe.SelectedIndex = Math.Min(selectedEquipeIndex, equipesAvecTous.Count - 1);
         }
         
         private void EffacerFiltres()
@@ -166,7 +250,7 @@ namespace BacklogManager.Views
                     Description = d.Description,
                     Type = d.Type.ToString(),
                     Statut = FormatStatut(d.Statut),
-                    Criticite = d.Criticite.ToString(),
+                    Criticite = TraduireCriticite(d.Criticite),
                     Demandeur = ObtenirNomUtilisateur(d.DemandeurId, utilisateurs),
                     BusinessAnalyst = ObtenirNomUtilisateur(d.BusinessAnalystId, utilisateurs),
                     Managers = ObtenirManagersEquipes(d.EquipesAssigneesIds, equipes, utilisateurs),
@@ -244,9 +328,9 @@ namespace BacklogManager.Views
 
         private string ObtenirNomUtilisateur(int? userId, List<Utilisateur> utilisateurs)
         {
-            if (!userId.HasValue) return "Non assigné";
+            if (!userId.HasValue) return LocalizationService.Instance["Requests_NotAssigned"];
             var user = utilisateurs.FirstOrDefault(u => u.Id == userId.Value);
-            return user != null ? string.Format("{0} {1}", user.Prenom, user.Nom) : "Non assigné";
+            return user != null ? string.Format("{0} {1}", user.Prenom, user.Nom) : LocalizationService.Instance["Requests_NotAssigned"];
         }
 
         private string FormatStatut(StatutDemande statut)
@@ -254,21 +338,21 @@ namespace BacklogManager.Views
             switch (statut)
             {
                 case StatutDemande.EnAttenteSpecification:
-                    return "En attente spécification";
+                    return LocalizationService.Instance["Requests_StatusPendingSpec"];
                 case StatutDemande.EnAttenteChiffrage:
-                    return "En attente chiffrage";
+                    return LocalizationService.Instance["Requests_StatusPendingEstimate"];
                 case StatutDemande.EnAttenteValidationManager:
-                    return "En attente validation manager";
+                    return LocalizationService.Instance["Requests_StatusPendingValidation"];
                 case StatutDemande.Acceptee:
-                    return "Acceptée";
+                    return LocalizationService.Instance["Requests_StatusAccepted"];
                 case StatutDemande.PlanifieeEnUS:
-                    return "Planifiée en US";
+                    return LocalizationService.Instance["Requests_StatusPlannedUS"];
                 case StatutDemande.EnCours:
-                    return "En cours";
+                    return LocalizationService.Instance["Requests_StatusInProgress"];
                 case StatutDemande.Livree:
-                    return "Livrée";
+                    return LocalizationService.Instance["Requests_StatusDelivered"];
                 case StatutDemande.Refusee:
-                    return "Refusée";
+                    return LocalizationService.Instance["Requests_StatusRejected"];
                 default:
                     return statut.ToString();
             }
@@ -277,7 +361,7 @@ namespace BacklogManager.Views
         private string ObtenirManagersEquipes(List<int> equipesIds, List<Equipe> equipes, List<Utilisateur> utilisateurs)
         {
             if (equipesIds == null || equipesIds.Count == 0)
-                return "Non assigné";
+                return LocalizationService.Instance["Requests_NotAssigned"];
 
             var managers = new List<string>();
             foreach (var equipeId in equipesIds)
@@ -286,20 +370,35 @@ namespace BacklogManager.Views
                 if (equipe != null && equipe.ManagerId.HasValue)
                 {
                     var managerNom = ObtenirNomUtilisateur(equipe.ManagerId.Value, utilisateurs);
-                    if (!string.IsNullOrEmpty(managerNom) && managerNom != "Non assigné" && !managers.Contains(managerNom))
+                    if (!string.IsNullOrEmpty(managerNom) && managerNom != LocalizationService.Instance["Requests_NotAssigned"] && !managers.Contains(managerNom))
                     {
                         managers.Add(managerNom);
                     }
                 }
             }
 
-            return managers.Count > 0 ? string.Join(", ", managers) : "Non assigné";
+            return managers.Count > 0 ? string.Join(", ", managers) : LocalizationService.Instance["Requests_NotAssigned"];
+        }
+
+        private string TraduireCriticite(Criticite criticite)
+        {
+            switch (criticite)
+            {
+                case Criticite.Haute:
+                    return LocalizationService.Instance["Requests_CriticalityHigh"];
+                case Criticite.Moyenne:
+                    return LocalizationService.Instance["Requests_CriticalityMedium"];
+                case Criticite.Basse:
+                    return LocalizationService.Instance["Requests_CriticalityLow"];
+                default:
+                    return criticite.ToString();
+            }
         }
 
         private string ObtenirNomsEquipes(List<int> equipesIds, List<Equipe> equipes)
         {
             if (equipesIds == null || equipesIds.Count == 0)
-                return "Aucune équipe";
+                return LocalizationService.Instance["Requests_NoTeam"];
 
             var nomsEquipes = new List<string>();
             foreach (var equipeId in equipesIds)
@@ -311,13 +410,13 @@ namespace BacklogManager.Views
                 }
             }
 
-            return nomsEquipes.Count > 0 ? string.Join(", ", nomsEquipes) : "Aucune équipe";
+            return nomsEquipes.Count > 0 ? string.Join(", ", nomsEquipes) : LocalizationService.Instance["Requests_NoTeam"];
         }
 
         private string ObtenirMembresEquipes(List<int> equipesIds, List<Equipe> equipes, List<Utilisateur> utilisateurs)
         {
             if (equipesIds == null || equipesIds.Count == 0)
-                return "Aucun membre";
+                return LocalizationService.Instance["Requests_NoMembers"];
 
             var membresIds = new HashSet<int>();
             foreach (var equipeId in equipesIds)
@@ -336,7 +435,7 @@ namespace BacklogManager.Views
                 .OrderBy(n => n)
                 .ToList();
 
-            return nomsMembres.Count > 0 ? string.Join(", ", nomsMembres) : "Aucun membre";
+            return nomsMembres.Count > 0 ? string.Join(", ", nomsMembres) : LocalizationService.Instance["Requests_NoMembers"];
         }
 
         private string ObtenirMembresAssignes(Demande demande, List<Utilisateur> utilisateurs)
@@ -384,13 +483,31 @@ namespace BacklogManager.Views
             }
         }
 
+        private bool _isAnalyseEmailInProgress = false;
+
         private void BtnAnalyseEmail_Click(object sender, RoutedEventArgs e)
         {
+            System.Diagnostics.Debug.WriteLine($"BtnAnalyseEmail_Click called - _isAnalyseEmailInProgress: {_isAnalyseEmailInProgress}");
+            
+            if (_isAnalyseEmailInProgress) 
+            {
+                System.Diagnostics.Debug.WriteLine("Analysis already in progress, returning");
+                return;
+            }
+            
             try
             {
+                _isAnalyseEmailInProgress = true;
+                System.Diagnostics.Debug.WriteLine("Creating AnalyseEmailDemandeWindow");
+                
                 var window = new AnalyseEmailDemandeWindow(_database, _authService);
                 window.Owner = Window.GetWindow(this);
-                if (window.ShowDialog() == true)
+                
+                System.Diagnostics.Debug.WriteLine("About to call ShowDialog");
+                var result = window.ShowDialog();
+                System.Diagnostics.Debug.WriteLine($"ShowDialog returned: {result}");
+                
+                if (result == true)
                 {
                     ChargerDemandes();
                     
@@ -411,11 +528,17 @@ namespace BacklogManager.Views
             }
             catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"Error in BtnAnalyseEmail_Click: {ex.Message}");
                 MessageBox.Show(
                     $"Erreur lors de l'analyse de l'email :\n\n{ex.Message}",
                     "Erreur",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
+            }
+            finally
+            {
+                System.Diagnostics.Debug.WriteLine("Setting _isAnalyseEmailInProgress to false");
+                _isAnalyseEmailInProgress = false;
             }
         }
 
@@ -544,8 +667,8 @@ namespace BacklogManager.Views
                 // Vérifier les permissions
                 if (!_permissionService.IsAdmin && !_permissionService.IsChefDeProjet)
                 {
-                    MessageBox.Show("Vous n'avez pas les permissions pour supprimer des demandes.",
-                        "Accès refusé", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show(LocalizationService.Instance.GetString("Requests_DeletePermissionDenied"),
+                        LocalizationService.Instance.GetString("Common_AccessDenied"), MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -555,9 +678,9 @@ namespace BacklogManager.Views
 
                 // Confirmation
                 var result = MessageBox.Show(
-                    string.Format("Êtes-vous sûr de vouloir supprimer cette demande ?\n\nTitre : {0}\nStatut : {1}\n\nCette action est irréversible.",
+                    string.Format(LocalizationService.Instance.GetString("Requests_DeleteConfirmation"),
                         demande.Titre, demande.Statut),
-                    "Confirmation de suppression",
+                    LocalizationService.Instance.GetString("Common_DeleteConfirmation"),
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Warning,
                     MessageBoxResult.No);
@@ -565,15 +688,15 @@ namespace BacklogManager.Views
                 if (result == MessageBoxResult.Yes)
                 {
                     _database.DeleteDemande(demandeId);
-                    MessageBox.Show("Demande supprimée avec succès.", "Suppression", 
+                    MessageBox.Show(LocalizationService.Instance.GetString("Requests_DeleteSuccess"), LocalizationService.Instance.GetString("Common_Deletion"), 
                         MessageBoxButton.OK, MessageBoxImage.Information);
                     ChargerDemandes();
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show(string.Format("Erreur lors de la suppression de la demande : {0}", ex.Message),
-                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(string.Format(LocalizationService.Instance.GetString("Requests_DeleteError"), ex.Message),
+                    LocalizationService.Instance.GetString("Common_Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -621,7 +744,7 @@ namespace BacklogManager.Views
                 
                 var window = new EditProjetWindow(backlogService, nouveauProjet);
                 window.Owner = Window.GetWindow(this);
-                window.Title = string.Format("Créer un projet pour la demande : {0}", demande.Titre);
+                window.Title = string.Format(LocalizationService.Instance["Requests_CreateProjectFor"], demande.Titre);
 
                 if (window.ShowDialog() == true)
                 {
@@ -785,8 +908,8 @@ namespace BacklogManager.Views
                 // Vérifier les permissions
                 if (!_permissionService.IsAdmin)
                 {
-                    MessageBox.Show("Seuls les administrateurs peuvent archiver des demandes.",
-                        "Accès refusé", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show(LocalizationService.Instance.GetString("Requests_ArchivePermissionDenied"),
+                        LocalizationService.Instance.GetString("Common_AccessDenied"), MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -794,18 +917,18 @@ namespace BacklogManager.Views
                 var demande = _database.GetDemandes().FirstOrDefault(d => d.Id == demandeId);
                 if (demande == null)
                 {
-                    MessageBox.Show("Demande introuvable.", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(LocalizationService.Instance.GetString("Requests_RequestNotFound"), LocalizationService.Instance.GetString("Common_Error"), MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
                 
-                string action = demande.EstArchivee ? "désarchiver" : "archiver";
-                string actionPasse = demande.EstArchivee ? "désarchivée" : "archivée";
+                string action = demande.EstArchivee ? LocalizationService.Instance.GetString("Requests_Unarchive") : LocalizationService.Instance.GetString("Requests_Archive");
+                string actionPasse = demande.EstArchivee ? LocalizationService.Instance.GetString("Requests_Unarchived") : LocalizationService.Instance.GetString("Requests_Archived");
                 
                 // Confirmation
                 var result = MessageBox.Show(
-                    string.Format("Êtes-vous sûr de vouloir {0} cette demande ?\n\nTitre : {1}\nStatut : {2}",
+                    string.Format(LocalizationService.Instance.GetString("Requests_ArchiveConfirmation"),
                         action, demande.Titre, FormatStatut(demande.Statut)),
-                    "Confirmation",
+                    LocalizationService.Instance.GetString("Common_Confirmation"),
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Question,
                     MessageBoxResult.No);
@@ -817,8 +940,8 @@ namespace BacklogManager.Views
                     demande.EstArchivee = nouvelEtatArchive;
                     _database.AddOrUpdateDemande(demande);
                     
-                    MessageBox.Show(string.Format("Demande {0} avec succès.", actionPasse), 
-                        "Succès", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show(string.Format(LocalizationService.Instance.GetString("Requests_ArchiveSuccess"), actionPasse), 
+                        LocalizationService.Instance.GetString("Common_Success"), MessageBoxButton.OK, MessageBoxImage.Information);
                     
                     // Recharger et basculer automatiquement vers l'onglet approprié
                     ChargerDemandes();
@@ -837,8 +960,8 @@ namespace BacklogManager.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show(string.Format("Erreur lors de l'archivage de la demande : {0}", ex.Message),
-                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(string.Format(LocalizationService.Instance.GetString("Requests_ArchiveError"), ex.Message),
+                    LocalizationService.Instance.GetString("Common_Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

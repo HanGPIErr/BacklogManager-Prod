@@ -2,6 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:BacklogManager.Domain"
+        xmlns:services="clr-namespace:BacklogManager.Services"
         Title="Détails du Projet" Height="750" Width="1200"
         WindowStartupLocation="CenterScreen" Background="#F5F5F5">
     <Grid Margin="20">
@@ -60,7 +61,11 @@
                 <!-- Phase du projet -->
                 <Border Grid.Row="2" Background="#F3E5F5" CornerRadius="6" Padding="12" Margin="0,12,0,0" HorizontalAlignment="Left">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="🔄 Phase : " FontSize="13" FontWeight="Bold" Foreground="#7B1FA2" VerticalAlignment="Center"/>
+                        <TextBlock FontSize="13" FontWeight="Bold" Foreground="#7B1FA2" VerticalAlignment="Center">
+                            <Run Text="🔄 "/>
+                            <Run Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[ProjectDetails_Phase], Mode=OneWay}"/>
+                            <Run Text=" "/>
+                        </TextBlock>
                         <TextBlock x:Name="TxtPhase" FontSize="13" FontWeight="SemiBold" Foreground="#9C27B0" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Border>
@@ -77,7 +82,10 @@
                     <!-- Total tâches -->
                     <Border Grid.Column="0" Background="#E3F2FD" CornerRadius="6" Padding="15,12" Margin="0,0,10,0">
                         <StackPanel>
-                            <TextBlock Text="📋 Total Tâches" FontSize="11" Foreground="#1565C0" FontWeight="SemiBold"/>
+                            <TextBlock FontSize="11" Foreground="#1565C0" FontWeight="SemiBold">
+                                <Run Text="📋 "/>
+                                <Run Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[ProjectDetails_TotalTasks], Mode=OneWay}"/>
+                            </TextBlock>
                             <TextBlock x:Name="TxtTotalTaches" FontSize="26" FontWeight="Bold" 
                                        Foreground="#2196F3" Margin="0,5,0,0"/>
                         </StackPanel>
@@ -86,7 +94,10 @@
                     <!-- Progression -->
                     <Border Grid.Column="1" Background="#E8F5E9" CornerRadius="6" Padding="15,12" Margin="0,0,10,0">
                         <StackPanel>
-                            <TextBlock Text="✅ Progression" FontSize="11" Foreground="#2E7D32" FontWeight="SemiBold"/>
+                            <TextBlock FontSize="11" Foreground="#2E7D32" FontWeight="SemiBold">
+                                <Run Text="✅ "/>
+                                <Run Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[ProjectDetails_Progress], Mode=OneWay}"/>
+                            </TextBlock>
                             <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
                                 <TextBlock x:Name="TxtProgression" FontSize="26" FontWeight="Bold" 
                                            Foreground="#00915A"/>
@@ -99,7 +110,10 @@
                     <!-- Charge totale -->
                     <Border Grid.Column="2" Background="#FFF3E0" CornerRadius="6" Padding="15,12" Margin="0,0,10,0">
                         <StackPanel>
-                            <TextBlock Text="⏱️ Charge Estimée" FontSize="11" Foreground="#E65100" FontWeight="SemiBold"/>
+                            <TextBlock FontSize="11" Foreground="#E65100" FontWeight="SemiBold">
+                                <Run Text="⏱️ "/>
+                                <Run Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[ProjectDetails_EstimatedWorkload], Mode=OneWay}"/>
+                            </TextBlock>
                             <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
                                 <TextBlock x:Name="TxtChargeEstimee" FontSize="26" FontWeight="Bold" 
                                            Foreground="#FF9800"/>
@@ -112,7 +126,10 @@
                     <!-- Charge réelle -->
                     <Border Grid.Column="3" Background="#F3E5F5" CornerRadius="6" Padding="15,12">
                         <StackPanel>
-                            <TextBlock Text="⚡ Temps Passé" FontSize="11" Foreground="#6A1B9A" FontWeight="SemiBold"/>
+                            <TextBlock FontSize="11" Foreground="#6A1B9A" FontWeight="SemiBold">
+                                <Run Text="⚡ "/>
+                                <Run Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[ProjectDetails_TimeSpent], Mode=OneWay}"/>
+                            </TextBlock>
                             <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
                                 <TextBlock x:Name="TxtTempsReel" FontSize="26" FontWeight="Bold" 
                                            Foreground="#9C27B0"/>
@@ -126,7 +143,10 @@
                 <!-- Équipes Assignées -->
                 <Border Grid.Row="4" Background="#F1F8E9" CornerRadius="6" Padding="12" Margin="0,15,0,0" x:Name="BorderEquipes">
                     <StackPanel>
-                        <TextBlock Text="🏢 Équipes Assignées" FontSize="12" Foreground="#558B2F" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                        <TextBlock FontSize="12" Foreground="#558B2F" FontWeight="SemiBold" Margin="0,0,0,8">
+                            <Run Text="🏢 "/>
+                            <Run Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[ProjectDetails_AssignedTeams], Mode=OneWay}"/>
+                        </TextBlock>
                         <ItemsControl x:Name="ListeEquipes">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
@@ -141,7 +161,7 @@
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
-                        <TextBlock x:Name="TxtAucuneEquipe" Text="Aucune équipe assignée" 
+                        <TextBlock x:Name="TxtAucuneEquipe" Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[ProjectDetails_NoTeam], Mode=OneWay}" 
                                    FontSize="11" Foreground="#999" FontStyle="Italic" 
                                    Visibility="Collapsed"/>
                     </StackPanel>
@@ -155,7 +175,7 @@
                 <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.1" Color="#00915A"/>
             </Border.Effect>
             <StackPanel>
-                <TextBlock Text="Avancement Global" FontSize="14" FontWeight="SemiBold" 
+                <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[ProjectDetails_GlobalProgress], Mode=OneWay}" FontSize="14" FontWeight="SemiBold" 
                            Foreground="#1A1919" Margin="0,0,0,8"/>
                 <Grid>
                     <ProgressBar x:Name="ProgressBarGlobal" Height="30" Foreground="#00915A" 
@@ -174,34 +194,46 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                        <TextBlock Text="À faire" FontSize="11" Foreground="#1565C0"/>
+                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Projects_Todo], Mode=OneWay}" FontSize="11" Foreground="#1565C0"/>
                         <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
                             <TextBlock x:Name="TxtCountAfaire" FontSize="18" FontWeight="Bold" Foreground="#2196F3"/>
-                            <TextBlock Text=" tâches" FontSize="11" Foreground="#555" VerticalAlignment="Bottom" Margin="3,0,0,2"/>
+                            <TextBlock FontSize="11" Foreground="#555" VerticalAlignment="Bottom" Margin="3,0,0,2">
+                                <Run Text=" "/>
+                                <Run Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Projects_Tasks], Mode=OneWay}"/>
+                            </TextBlock>
                         </StackPanel>
                     </StackPanel>
 
                     <StackPanel Grid.Column="1" Margin="0,0,10,0">
-                        <TextBlock Text="En cours" FontSize="11" Foreground="#E65100"/>
+                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Projects_InProgress], Mode=OneWay}" FontSize="11" Foreground="#E65100"/>
                         <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
                             <TextBlock x:Name="TxtCountEnCours" FontSize="18" FontWeight="Bold" Foreground="#FF9800"/>
-                            <TextBlock Text=" tâches" FontSize="11" Foreground="#555" VerticalAlignment="Bottom" Margin="3,0,0,2"/>
+                            <TextBlock FontSize="11" Foreground="#555" VerticalAlignment="Bottom" Margin="3,0,0,2">
+                                <Run Text=" "/>
+                                <Run Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Projects_Tasks], Mode=OneWay}"/>
+                            </TextBlock>
                         </StackPanel>
                     </StackPanel>
 
                     <StackPanel Grid.Column="2" Margin="0,0,10,0">
-                        <TextBlock Text="En test" FontSize="11" Foreground="#6A1B9A"/>
+                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Projects_InTest], Mode=OneWay}" FontSize="11" Foreground="#6A1B9A"/>
                         <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
                             <TextBlock x:Name="TxtCountEnTest" FontSize="18" FontWeight="Bold" Foreground="#9C27B0"/>
-                            <TextBlock Text=" tâches" FontSize="11" Foreground="#555" VerticalAlignment="Bottom" Margin="3,0,0,2"/>
+                            <TextBlock FontSize="11" Foreground="#555" VerticalAlignment="Bottom" Margin="3,0,0,2">
+                                <Run Text=" "/>
+                                <Run Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Projects_Tasks], Mode=OneWay}"/>
+                            </TextBlock>
                         </StackPanel>
                     </StackPanel>
 
                     <StackPanel Grid.Column="3">
-                        <TextBlock Text="Terminé" FontSize="11" Foreground="#2E7D32"/>
+                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Projects_Completed], Mode=OneWay}" FontSize="11" Foreground="#2E7D32"/>
                         <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
                             <TextBlock x:Name="TxtCountTermine" FontSize="18" FontWeight="Bold" Foreground="#00915A"/>
-                            <TextBlock Text=" tâches" FontSize="11" Foreground="#555" VerticalAlignment="Bottom" Margin="3,0,0,2"/>
+                            <TextBlock FontSize="11" Foreground="#555" VerticalAlignment="Bottom" Margin="3,0,0,2">
+                                <Run Text=" "/>
+                                <Run Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Projects_Tasks], Mode=OneWay}"/>
+                            </TextBlock>
                         </StackPanel>
                     </StackPanel>
                 </Grid>
@@ -226,8 +258,11 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     
-                    <TextBlock Grid.Column="0" Text="📋 Tâches du Projet" FontSize="16" 
-                               FontWeight="Bold" Foreground="#1A1919"/>
+                    <TextBlock Grid.Column="0" FontSize="16" 
+                               FontWeight="Bold" Foreground="#1A1919">
+                        <Run Text="📋 "/>
+                        <Run Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[ProjectDetails_TasksOfProject], Mode=OneWay}"/>
+                    </TextBlock>
                     
                     <StackPanel Grid.Column="1" Orientation="Horizontal">
                         <TextBox x:Name="TxtRecherche" Width="200" Padding="8,5" 
@@ -240,7 +275,7 @@
                                                 <Border Background="White" BorderBrush="#CCC" BorderThickness="1" 
                                                         CornerRadius="4" Padding="8,5">
                                                     <Grid>
-                                                        <TextBlock Text="🔍 Rechercher..." Foreground="#999" 
+                                                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[ProjectDetails_SearchPlaceholder], Mode=OneWay}" Foreground="#999" 
                                                                    IsHitTestVisible="False" VerticalAlignment="Center">
                                                             <TextBlock.Style>
                                                                 <Style TargetType="TextBlock">
@@ -263,17 +298,15 @@
                             </TextBox.Resources>
                         </TextBox>
                         
-                        <ComboBox x:Name="CmbFiltreStatut" Width="120" Padding="8,5" Margin="0,0,10,0">
-                            <ComboBoxItem Content="Tous" IsSelected="True"/>
-                            <ComboBoxItem Content="À faire"/>
-                            <ComboBoxItem Content="En cours"/>
-                            <ComboBoxItem Content="En test"/>
-                            <ComboBoxItem Content="Terminé"/>
-                        </ComboBox>
+                        <ComboBox x:Name="CmbFiltreStatut" Width="120" Padding="8,5" Margin="0,0,10,0"/>
                         
-                        <CheckBox x:Name="ChkAfficherArchivees" Content="📦 Afficher archivées" 
-                                  IsChecked="True" VerticalAlignment="Center" 
-                                  FontWeight="SemiBold" Foreground="#1A1919"/>
+                        <CheckBox x:Name="ChkAfficherArchivees" VerticalAlignment="Center" 
+                                  IsChecked="True" FontWeight="SemiBold" Foreground="#1A1919">
+                            <TextBlock>
+                                <Run Text="📦 "/>
+                                <Run Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[ProjectDetails_ShowArchived], Mode=OneWay}"/>
+                            </TextBlock>
+                        </CheckBox>
                     </StackPanel>
                 </Grid>
 
@@ -325,14 +358,14 @@
                                                 <TextBlock Text="⏱️" FontSize="11" Margin="0,0,4,0"/>
                                                 <TextBlock FontSize="12" Foreground="#555">
                                                     <Run Text="{Binding ChiffrageJours, StringFormat={}{0:F1}}"/>
-                                                    <Run Text="j estimé"/>
+                                                    <Run Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[ProjectDetails_DaysEstimated], Mode=OneWay}"/>
                                                 </TextBlock>
                                                 
                                                 <TextBlock Text=" • " FontSize="12" Foreground="#CCC" Margin="5,0"/>
                                                 
                                                 <TextBlock FontSize="12" Foreground="#9C27B0" FontWeight="SemiBold">
                                                     <Run Text="{Binding TempsReelJours, StringFormat={}{0:F1}}"/>
-                                                    <Run Text="j passé"/>
+                                                    <Run Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[ProjectDetails_DaysSpent], Mode=OneWay}"/>
                                                 </TextBlock>
                                             </StackPanel>
                                         </StackPanel>

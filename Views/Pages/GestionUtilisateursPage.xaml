@@ -51,7 +51,7 @@
                     </Style>
                 </DataGrid.CellStyle>
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Nom complet" Binding="{Binding Nom}" Width="2*">
+                    <DataGridTextColumn x:Name="ColFullName" Header="Nom complet" Binding="{Binding Nom}" Width="2*">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="Foreground" Value="#1A1919"/>
@@ -59,14 +59,14 @@
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="Username Windows" Binding="{Binding UsernameWindows}" Width="1.5*">
+                    <DataGridTextColumn x:Name="ColWindowsUsername" Header="Username Windows" Binding="{Binding UsernameWindows}" Width="1.5*">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="Foreground" Value="#1A1919"/>
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="Rôle" Binding="{Binding RoleNom}" Width="1.5*">
+                    <DataGridTextColumn x:Name="ColRole" Header="Rôle" Binding="{Binding RoleNom}" Width="1.5*">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="Foreground" Value="#1A1919"/>
@@ -74,7 +74,7 @@
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTemplateColumn Header="Statut" Width="1.2*">
+                    <DataGridTemplateColumn x:Name="ColStatus" Header="Statut" Width="1.2*">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Border Background="{Binding StatutCouleurBadge}" 
@@ -85,7 +85,7 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTemplateColumn Header="Actif" Width="0.8*">
+                    <DataGridTemplateColumn x:Name="ColActive" Header="Actif" Width="0.8*">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Border CornerRadius="12" Padding="10,4" HorizontalAlignment="Center">
@@ -99,18 +99,7 @@
                                             </Style.Triggers>
                                         </Style>
                                     </Border.Style>
-                                    <TextBlock FontSize="11" FontWeight="Bold" Foreground="White">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="Text" Value="Oui"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Actif}" Value="False">
-                                                        <Setter Property="Text" Value="Non"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
+                                    <TextBlock Text="{Binding ActifTexte}" FontSize="11" FontWeight="Bold" Foreground="White"/>
                                 </Border>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
@@ -148,7 +137,7 @@
                                             </Border.Effect>
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock Text="➕" FontSize="14" Margin="0,0,6,0"/>
-                                                <TextBlock Text="Nouvel utilisateur" FontSize="13" FontWeight="Bold"/>
+                                                <TextBlock Text="{Binding Path=NewUserText, RelativeSource={RelativeSource AncestorType=Page}}" FontSize="13" FontWeight="Bold"/>
                                             </StackPanel>
                                         </Border>
                                     </ControlTemplate>
@@ -168,7 +157,7 @@
                                         <Border Background="{TemplateBinding Background}" CornerRadius="8" Padding="{TemplateBinding Padding}">
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock Text="✏️" FontSize="14" Margin="0,0,6,0"/>
-                                                <TextBlock Text="Modifier" FontSize="13" FontWeight="Bold"/>
+                                                <TextBlock Text="{Binding Path=ModifyText, RelativeSource={RelativeSource AncestorType=Page}}" FontSize="13" FontWeight="Bold"/>
                                             </StackPanel>
                                         </Border>
                                     </ControlTemplate>
@@ -188,7 +177,7 @@
                                         <Border Background="{TemplateBinding Background}" CornerRadius="8" Padding="{TemplateBinding Padding}">
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock Text="🗑️" FontSize="14" Margin="0,0,6,0"/>
-                                                <TextBlock Text="Supprimer" FontSize="13" FontWeight="Bold"/>
+                                                <TextBlock Text="{Binding Path=DeleteText, RelativeSource={RelativeSource AncestorType=Page}}" FontSize="13" FontWeight="Bold"/>
                                             </StackPanel>
                                         </Border>
                                     </ControlTemplate>
@@ -209,7 +198,7 @@
                                                 BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock Text="🔄" FontSize="14" Margin="0,0,6,0"/>
-                                                <TextBlock Text="Actualiser" FontSize="13" FontWeight="Bold"/>
+                                                <TextBlock Text="{Binding Path=RefreshText, RelativeSource={RelativeSource AncestorType=Page}}" FontSize="13" FontWeight="Bold"/>
                                             </StackPanel>
                                         </Border>
                                     </ControlTemplate>
@@ -254,7 +243,7 @@
                             </Style>
                         </TextBox.Resources>
                     </TextBox>
-                    <TextBlock Text="Rechercher un utilisateur..." 
+                    <TextBlock x:Name="TxtSearchPlaceholder" Text="{Binding Path=SearchPlaceholderText, RelativeSource={RelativeSource AncestorType=Page}}" 
                                IsHitTestVisible="False"
                                Foreground="#9E9E9E"
                                FontSize="13"
@@ -290,21 +279,24 @@
 
                 <!-- Info pagination -->
                 <TextBlock Grid.Column="0" VerticalAlignment="Center" FontSize="13" Foreground="#666">
-                    <Run Text="Affichage de "/>
+                    <Run x:Name="TxtDisplayingFrom" Text="Affichage de "/>
                     <Run x:Name="TxtDebutPage" Text="1" FontWeight="Bold" Foreground="#1A1919"/>
-                    <Run Text=" à "/>
+                    <Run x:Name="TxtTo" Text=" à "/>
                     <Run x:Name="TxtFinPage" Text="25" FontWeight="Bold" Foreground="#1A1919"/>
-                    <Run Text=" sur "/>
+                    <Run x:Name="TxtOf" Text=" sur "/>
                     <Run x:Name="TxtTotalUtilisateurs" Text="0" FontWeight="Bold" Foreground="#1A1919"/>
-                    <Run Text=" utilisateur(s)"/>
+                    <Run x:Name="TxtTotalUsersLabel" Text=" utilisateur(s)"/>
                 </TextBlock>
 
                 <!-- Navigation pagination -->
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
                     <Button x:Name="BtnPagePrecedente" Click="BtnPagePrecedente_Click"
-                            Content="◀ Précédent" Padding="12,6" Margin="0,0,10,0"
+                            Padding="12,6" Margin="0,0,10,0"
                             Background="#F5F5F5" Foreground="#1A1919" BorderBrush="#E0E0E0" BorderThickness="1"
                             FontSize="12" FontWeight="SemiBold" Cursor="Hand">
+                        <Button.Content>
+                            <TextBlock x:Name="TxtPrevious" Text="◀ Précédent"/>
+                        </Button.Content>
                         <Button.Style>
                             <Style TargetType="Button">
                                 <Setter Property="Template">
@@ -332,16 +324,19 @@
                     </Button>
 
                     <TextBlock VerticalAlignment="Center" Margin="0,0,10,0" FontSize="12" Foreground="#666">
-                        <Run Text="Page "/>
+                        <Run x:Name="TxtPageLabel" Text="Page "/>
                         <Run x:Name="TxtNumeroPage" Text="1" FontWeight="Bold" Foreground="#1A1919"/>
                         <Run Text=" / "/>
                         <Run x:Name="TxtNombrePages" Text="1" FontWeight="Bold" Foreground="#1A1919"/>
                     </TextBlock>
 
                     <Button x:Name="BtnPageSuivante" Click="BtnPageSuivante_Click"
-                            Content="Suivant ▶" Padding="12,6"
+                            Padding="12,6"
                             Background="#1976D2" Foreground="White" BorderThickness="0"
                             FontSize="12" FontWeight="SemiBold" Cursor="Hand">
+                        <Button.Content>
+                            <TextBlock x:Name="TxtNext" Text="Suivant ▶"/>
+                        </Button.Content>
                         <Button.Style>
                             <Style TargetType="Button">
                                 <Setter Property="Template">

@@ -51,7 +51,29 @@ namespace BacklogManager.Views
 
             SelectUtilisateurCommand = new RelayCommand(param => SelectUtilisateur((UtilisateurConversation)param));
 
+            InitialiserTextes();
             LoadUtilisateurs();
+        }
+        
+        private void InitialiserTextes()
+        {
+            // Titre de la fenêtre
+            this.Title = LocalizationService.Instance.GetString("ChatHistory_Title");
+            
+            // Labels
+            TxtUsers.Text = LocalizationService.Instance.GetString("ChatHistory_Users");
+            TxtFullHistory.Text = LocalizationService.Instance.GetString("ChatHistory_FullHistory");
+            TxtSelectUser.Text = LocalizationService.Instance.GetString("ChatHistory_SelectUser");
+            
+            // S'abonner aux changements de langue
+            LocalizationService.Instance.PropertyChanged += (s, e) =>
+            {
+                this.Title = LocalizationService.Instance.GetString("ChatHistory_Title");
+                TxtUsers.Text = LocalizationService.Instance.GetString("ChatHistory_Users");
+                TxtFullHistory.Text = LocalizationService.Instance.GetString("ChatHistory_FullHistory");
+                TxtSelectUser.Text = LocalizationService.Instance.GetString("ChatHistory_SelectUser");
+                OnPropertyChanged(nameof(NbUtilisateurs));
+            };
         }
 
         private void LoadUtilisateurs()
@@ -136,9 +158,13 @@ namespace BacklogManager.Views
         public ChatConversation DerniereConversation { get; set; }
         public List<ChatConversation> ToutesLesConversations { get; set; }
 
-        public string DateDernierMessage => DerniereConversation.DateDernierMessage.ToString("dd/MM/yyyy HH:mm");
-        public string NbMessages => $"{DerniereConversation.NombreMessages} message(s)";
-        public string NbConversations => NombreConversations > 1 ? $"{NombreConversations} conversation(s)" : "1 conversation";
+        public string DateDernierMessage => string.Format(LocalizationService.Instance.GetString("ChatHistory_LastMessage"), 
+            DerniereConversation.DateDernierMessage.ToString("dd/MM/yyyy HH:mm"));
+        public string NbMessages => string.Format(LocalizationService.Instance.GetString("ChatHistory_MessageCount"), 
+            DerniereConversation.NombreMessages);
+        public string NbConversations => NombreConversations > 1 
+            ? string.Format(LocalizationService.Instance.GetString("ChatHistory_ConversationCount"), NombreConversations)
+            : LocalizationService.Instance.GetString("ChatHistory_OneConversation");
     }
 
     public class ChatMessageViewModel

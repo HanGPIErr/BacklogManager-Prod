@@ -125,9 +125,34 @@ namespace BacklogManager.Views
             set { _estAdmin = value; OnPropertyChanged(); OnPropertyChanged(nameof(MetriqueLabel)); OnPropertyChanged(nameof(MetriqueValeur)); OnPropertyChanged(nameof(MetriqueSuffixe)); }
         }
 
-        public string MetriqueLabel => EstAdmin ? "CRA à valider" : "Respect deadline";
+        public string MetriqueLabel => EstAdmin ? LocalizationService.Instance["Dashboard_CRAToValidate"] : "Respect deadline";
         public string MetriqueValeur => EstAdmin ? NbCRAsAValider.ToString() : TauxProductivite.ToString();
         public string MetriqueSuffixe => EstAdmin ? "" : "%";
+
+        // Propriétés pour les textes traduits
+        public string HelloText => $"👋 {LocalizationService.Instance["Dashboard_Hello"]}, ";
+        public string GuideText => $"📖 {LocalizationService.Instance["Dashboard_Guide"]}";
+        public string CompletedText => LocalizationService.Instance["Dashboard_Completed"];
+        public string InProgressText => LocalizationService.Instance["Dashboard_InProgress"];
+        public string UrgentText => LocalizationService.Instance["Dashboard_Urgent"];
+        public string ProjectsText => LocalizationService.Instance["Dashboard_Projects"];
+        public string TeamsText => LocalizationService.Instance["Dashboard_Teams"];
+        public string ResourcesText => LocalizationService.Instance["Dashboard_Resources"];
+        public string LoadPerTeamText => LocalizationService.Instance["Dashboard_LoadPerTeam"];
+        public string AllTeamsText => LocalizationService.Instance["Dashboard_AllTeams"];
+        public string ClickForDetailsText => LocalizationService.Instance["Dashboard_ClickForDetails"];
+        public string ResourceDistributionText => LocalizationService.Instance["Dashboard_ResourceDistribution"];
+        public string ActiveMembersText => LocalizationService.Instance["Dashboard_ActiveMembers"];
+        public string ProjectsOverviewText => LocalizationService.Instance["Dashboard_ProjectsOverview"];
+        public string TasksText => LocalizationService.Instance["Dashboard_Tasks"];
+        public string MyUrgentTasksText => LocalizationService.Instance["Dashboard_MyUrgentTasks"];
+        public string ViewAllArrowText => LocalizationService.Instance["Dashboard_ViewAllArrow"];
+        public string PerTeamText => LocalizationService.Instance["Dashboard_PerTeam"];
+        public string RecentActivityText => LocalizationService.Instance["Dashboard_RecentActivity"];
+        public string QuickActionsText => LocalizationService.Instance["Dashboard_QuickActions"];
+        public string NewTaskText => LocalizationService.Instance["Dashboard_NewTask"];
+        public string ViewKanbanText => LocalizationService.Instance["Dashboard_ViewKanban"];
+        public string TimelineProjectText => LocalizationService.Instance["Dashboard_TimelineProject"];
 
         private ObservableCollection<ActiviteViewModel> _activitesRecentes;
         public ObservableCollection<ActiviteViewModel> ActivitesRecentes
@@ -164,6 +189,51 @@ namespace BacklogManager.Views
             DataContext = this;
 
             ChargerDonnees();
+            InitialiserTextes();
+            
+            // S'abonner aux changements de langue
+            LocalizationService.Instance.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == "Item[]")
+                {
+                    InitialiserTextes();
+                }
+            };
+        }
+
+        private void InitialiserTextes()
+        {
+            var loc = LocalizationService.Instance;
+            
+            // Mettre à jour la date dans la langue appropriée
+            var culture = loc.CurrentCulture;
+            DateAujourdhui = DateTime.Now.ToString("dd MMMM yyyy", culture);
+            
+            // Notifier que tous les textes traduits ont changé
+            OnPropertyChanged(nameof(HelloText));
+            OnPropertyChanged(nameof(GuideText));
+            OnPropertyChanged(nameof(CompletedText));
+            OnPropertyChanged(nameof(InProgressText));
+            OnPropertyChanged(nameof(UrgentText));
+            OnPropertyChanged(nameof(ProjectsText));
+            OnPropertyChanged(nameof(TeamsText));
+            OnPropertyChanged(nameof(ResourcesText));
+            OnPropertyChanged(nameof(LoadPerTeamText));
+            OnPropertyChanged(nameof(AllTeamsText));
+            OnPropertyChanged(nameof(ClickForDetailsText));
+            OnPropertyChanged(nameof(MetriqueLabel));
+            OnPropertyChanged(nameof(ResourceDistributionText));
+            OnPropertyChanged(nameof(ActiveMembersText));
+            OnPropertyChanged(nameof(ProjectsOverviewText));
+            OnPropertyChanged(nameof(TasksText));
+            OnPropertyChanged(nameof(MyUrgentTasksText));
+            OnPropertyChanged(nameof(ViewAllArrowText));
+            OnPropertyChanged(nameof(PerTeamText));
+            OnPropertyChanged(nameof(RecentActivityText));
+            OnPropertyChanged(nameof(QuickActionsText));
+            OnPropertyChanged(nameof(NewTaskText));
+            OnPropertyChanged(nameof(ViewKanbanText));
+            OnPropertyChanged(nameof(TimelineProjectText));
         }
 
         private void ChargerDonnees()
@@ -172,8 +242,9 @@ namespace BacklogManager.Views
             var user = _authService.CurrentUser;
             NomUtilisateur = user != null ? $"{user.Prenom} {user.Nom}" : "Utilisateur";
 
-            // Date
-            DateAujourdhui = DateTime.Now.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("fr-FR"));
+            // Date avec localisation
+            var culture = LocalizationService.Instance.CurrentCulture;
+            DateAujourdhui = DateTime.Now.ToString("dd MMMM yyyy", culture);
 
             // Tâches urgentes (priorité URGENTE + échéance proche)
             var toutes = _backlogService.GetAllBacklogItems();
@@ -318,6 +389,7 @@ namespace BacklogManager.Views
         {
             var activites = new List<ActiviteViewModel>();
             var maintenant = DateTime.Now;
+            var loc = LocalizationService.Instance;
             
             try
             {
@@ -338,9 +410,9 @@ namespace BacklogManager.Views
                     
                     string action = log.Action switch
                     {
-                        "CREATE" => "✅ Créé",
-                        "UPDATE" => "📝 Modifié",
-                        "DELETE" => "🗑️ Supprimé",
+                        "CREATE" => loc["Activity_Created"],
+                        "UPDATE" => loc["Activity_Modified"],
+                        "DELETE" => loc["Activity_Deleted"],
                         _ => log.Action
                     };
                     
@@ -352,7 +424,7 @@ namespace BacklogManager.Views
                     {
                         backlogItemId = log.EntityId;
                         
-                        // Tâche : afficher le titre si disponible
+                        // Tâche : reconstruire le texte traduit dynamiquement
                         if (log.EntityId.HasValue)
                         {
                             var tache = _backlogService.GetBacklogItemById(log.EntityId.Value);
@@ -360,33 +432,38 @@ namespace BacklogManager.Views
                             {
                                 estArchive = tache.EstArchive;
                                 var titre = tache.Titre.Length > 45 ? tache.Titre.Substring(0, 42) + "..." : tache.Titre;
-                                details = titre;
-                            }
-                            else if (!string.IsNullOrEmpty(log.Details))
-                            {
-                                details = log.Details.Length > 45 ? log.Details.Substring(0, 42) + "..." : log.Details;
+                                // Reconstruire le texte traduit selon l'action
+                                if (log.Action == "UPDATE")
+                                {
+                                    details = string.Format(loc["Audit_TaskModification"], log.EntityId);
+                                }
+                                else if (log.Action == "CREATE")
+                                {
+                                    details = string.Format(loc["Audit_TaskCreation"], log.EntityId);
+                                }
+                                else
+                                {
+                                    details = titre;
+                                }
                             }
                             else
                             {
-                                details = $"Tâche #{log.EntityId}";
+                                // Si la tâche n'existe plus, utiliser le texte traduit générique
+                                details = string.Format(loc["Activity_TaskNumber"], log.EntityId);
                             }
-                        }
-                        else if (!string.IsNullOrEmpty(log.Details))
-                        {
-                            details = log.Details.Length > 45 ? log.Details.Substring(0, 42) + "..." : log.Details;
                         }
                         else
                         {
-                            details = "Tâche";
+                            details = loc["Activity_Task"];
                         }
                     }
                     else if (log.EntityType == "Projet")
                     {
-                        details = !string.IsNullOrEmpty(log.Details) ? log.Details : "Projet";
+                        details = !string.IsNullOrEmpty(log.Details) ? log.Details : loc["Activity_Project"];
                     }
                     else if (log.EntityType == "CRA")
                     {
-                        details = "Temps saisi";
+                        details = loc["Activity_TimeLogged"];
                     }
                     
                     activites.Add(new ActiviteViewModel
@@ -436,8 +513,8 @@ namespace BacklogManager.Views
                             var tache = tachesDico[conges.First().BacklogItemId];
                             activites.Add(new ActiviteViewModel
                             {
-                                Action = "🏖️ Congé",
-                                Details = $"{totalJours:F1}j - {tache.Titre}",
+                                Action = loc["Activity_Leave"],
+                                Details = $"{totalJours:F1}{loc["Activity_Days"]} - {tache.Titre}",
                                 Temps = tempsEcoule,
                                 BacklogItemId = tache.Id,
                                 EstArchive = tache.EstArchive
@@ -451,8 +528,8 @@ namespace BacklogManager.Views
                             var tache = tachesDico[absences.First().BacklogItemId];
                             activites.Add(new ActiviteViewModel
                             {
-                                Action = "⏸️ Absence",
-                                Details = $"{totalJours:F1}j - {tache.Titre}",
+                                Action = loc["Activity_Absence"],
+                                Details = $"{totalJours:F1}{loc["Activity_Days"]} - {tache.Titre}",
                                 Temps = tempsEcoule,
                                 BacklogItemId = tache.Id,
                                 EstArchive = tache.EstArchive
@@ -466,8 +543,8 @@ namespace BacklogManager.Views
                             var tache = tachesDico[support.First().BacklogItemId];
                             activites.Add(new ActiviteViewModel
                             {
-                                Action = "🤝 Support",
-                                Details = $"{totalJours:F1}j - {tache.Titre}",
+                                Action = loc["Activity_Support"],
+                                Details = $"{totalJours:F1}{loc["Activity_Days"]} - {tache.Titre}",
                                 Temps = tempsEcoule,
                                 BacklogItemId = tache.Id,
                                 EstArchive = tache.EstArchive
@@ -479,10 +556,11 @@ namespace BacklogManager.Views
                         {
                             var totalJours = travail.Sum(c => c.HeuresTravaillees) / 8.0;
                             var nbTaches = travail.Select(c => c.BacklogItemId).Distinct().Count();
+                            var tasksWord = nbTaches > 1 ? loc["Activity_TasksPlural"] : loc["Activity_Tasks"];
                             activites.Add(new ActiviteViewModel
                             {
-                                Action = "💼 Travail",
-                                Details = $"{totalJours:F1}j sur {nbTaches} tâche{(nbTaches > 1 ? "s" : "")}",
+                                Action = loc["Activity_Work"],
+                                Details = $"{totalJours:F1}{loc["Activity_Days"]} {loc["Activity_On"]} {nbTaches} {tasksWord}",
                                 Temps = tempsEcoule
                             });
                         }
@@ -494,8 +572,8 @@ namespace BacklogManager.Views
                             var titre = tache.Titre.Length > 35 ? tache.Titre.Substring(0, 32) + "..." : tache.Titre;
                             activites.Add(new ActiviteViewModel
                             {
-                                Action = "⏱️ Temps saisi",
-                                Details = $"{jours:F1}j - {titre}",
+                                Action = loc["Activity_TimeLogged"],
+                                Details = $"{jours:F1}{loc["Activity_Days"]} - {titre}",
                                 Temps = tempsEcoule,
                                 BacklogItemId = tache.Id,
                                 EstArchive = tache.EstArchive
@@ -514,9 +592,9 @@ namespace BacklogManager.Views
                 {
                     ActivitesRecentes.Add(new ActiviteViewModel
                     {
-                        Action = "ℹ️ Aucune activité récente",
-                        Details = "Commencez à travailler sur des tâches",
-                        Temps = "Maintenant"
+                        Action = LocalizationService.Instance["Activity_NoActivity"],
+                        Details = LocalizationService.Instance["Activity_StartWorking"],
+                        Temps = LocalizationService.Instance["Activity_Now"]
                     });
                 }
             }
@@ -527,9 +605,9 @@ namespace BacklogManager.Views
                 {
                     new ActiviteViewModel
                     {
-                        Action = "⚠️ Erreur",
-                        Details = "Impossible de charger les activités",
-                        Temps = "Maintenant"
+                        Action = LocalizationService.Instance["Activity_Error"],
+                        Details = LocalizationService.Instance["Activity_LoadError"],
+                        Temps = LocalizationService.Instance["Activity_Now"]
                     }
                 };
             }
@@ -538,17 +616,18 @@ namespace BacklogManager.Views
         private string GetTempsEcoule(DateTime dateAction, DateTime maintenant)
         {
             var diff = maintenant - dateAction;
+            var loc = LocalizationService.Instance;
             
             if (diff.TotalMinutes < 1)
-                return "À l'instant";
+                return loc["Activity_JustNow"];
             if (diff.TotalMinutes < 60)
-                return $"Il y a {(int)diff.TotalMinutes} min";
+                return string.Format(loc["Activity_MinutesAgo"], (int)diff.TotalMinutes);
             if (diff.TotalHours < 24)
-                return $"Il y a {(int)diff.TotalHours}h";
+                return string.Format(loc["Activity_HoursAgo"], (int)diff.TotalHours);
             if (diff.TotalDays < 2)
-                return "Hier";
+                return loc["Activity_Yesterday"];
             if (diff.TotalDays < 7)
-                return $"Il y a {(int)diff.TotalDays}j";
+                return string.Format(loc["Activity_DaysAgo"], (int)diff.TotalDays);
             
             return dateAction.ToString("dd/MM");
         }
@@ -711,7 +790,7 @@ namespace BacklogManager.Views
             if (_permissionService.IsAdmin)
             {
                 // Admin voit toutes les équipes
-                TxtTitreEquipe.Text = "TOUTES LES ÉQUIPES";
+                TxtTitreEquipe.Text = LocalizationService.Instance["Dashboard_AllTeams"];
                 
                 var equipesViewModel = equipes.Where(e => e.Actif).Select(eq =>
                 {
@@ -754,7 +833,7 @@ namespace BacklogManager.Views
             else
             {
                 // Utilisateur standard voit sa propre équipe
-                TxtTitreEquipe.Text = "MON ÉQUIPE";
+                TxtTitreEquipe.Text = LocalizationService.Instance["Dashboard_MyTeam"];
                 
                 if (user.EquipeId.HasValue)
                 {

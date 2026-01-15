@@ -19,6 +19,7 @@ namespace BacklogManager.Views.Pages
         public string RoleNom { get; set; }
         public string Statut => Utilisateur.Statut;
         public bool Actif => Utilisateur.Actif;
+        public string ActifTexte => Actif ? LocalizationService.Instance.GetString("Users_Yes") : LocalizationService.Instance.GetString("Users_No");
         
         public string StatutCouleurBadge
         {
@@ -41,7 +42,7 @@ namespace BacklogManager.Views.Pages
         }
     }
 
-    public partial class GestionUtilisateursPage : Page
+    public partial class GestionUtilisateursPage : Page, System.ComponentModel.INotifyPropertyChanged
     {
         private readonly IDatabase _database;
         private readonly AuditLogService _auditLogService;
@@ -50,12 +51,80 @@ namespace BacklogManager.Views.Pages
         private int _pageActuelle = 1;
         private const int UTILISATEURS_PAR_PAGE = 25;
 
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+
+        // Propriétés pour les textes bindés
+        public string NewUserText => LocalizationService.Instance.GetString("Users_NewUser");
+        public string ModifyText => LocalizationService.Instance.GetString("Users_Modify");
+        public string DeleteText => LocalizationService.Instance.GetString("Users_Delete");
+        public string RefreshText => LocalizationService.Instance.GetString("Users_Refresh");
+        public string SearchPlaceholderText => LocalizationService.Instance.GetString("Users_SearchPlaceholder");
+
         public GestionUtilisateursPage(IDatabase database, AuditLogService auditLogService = null)
         {
             InitializeComponent();
             _database = database;
             _auditLogService = auditLogService;
+            
+            // Définir le DataContext pour les bindings
+            this.DataContext = this;
+            
+            // Initialiser les textes traduits
+            InitialiserTextes();
+            
             ChargerUtilisateurs();
+        }
+
+        private void InitialiserTextes()
+        {
+            // En-têtes de colonnes
+            ColFullName.Header = LocalizationService.Instance.GetString("Users_FullName");
+            ColWindowsUsername.Header = LocalizationService.Instance.GetString("Users_WindowsUsername");
+            ColRole.Header = LocalizationService.Instance.GetString("Users_Role");
+            ColStatus.Header = LocalizationService.Instance.GetString("Users_Status");
+            ColActive.Header = LocalizationService.Instance.GetString("Users_Active");
+
+            // Placeholder de recherche
+            TxtSearchPlaceholder.Text = LocalizationService.Instance.GetString("Users_SearchPlaceholder");
+
+            // Textes de pagination
+            TxtDisplayingFrom.Text = LocalizationService.Instance.GetString("Users_DisplayingFrom") + " ";
+            TxtTo.Text = " " + LocalizationService.Instance.GetString("Users_To") + " ";
+            TxtOf.Text = " " + LocalizationService.Instance.GetString("Users_Of") + " ";
+            TxtTotalUsersLabel.Text = " " + LocalizationService.Instance.GetString("Users_TotalUsers");
+            TxtPageLabel.Text = LocalizationService.Instance.GetString("Users_Page") + " ";
+            TxtPrevious.Text = LocalizationService.Instance.GetString("Users_Previous");
+            TxtNext.Text = LocalizationService.Instance.GetString("Users_Next");
+
+            // S'abonner aux changements de langue
+            LocalizationService.Instance.PropertyChanged += (s, e) =>
+            {
+                ColFullName.Header = LocalizationService.Instance.GetString("Users_FullName");
+                ColWindowsUsername.Header = LocalizationService.Instance.GetString("Users_WindowsUsername");
+                ColRole.Header = LocalizationService.Instance.GetString("Users_Role");
+                ColStatus.Header = LocalizationService.Instance.GetString("Users_Status");
+                ColActive.Header = LocalizationService.Instance.GetString("Users_Active");
+                TxtSearchPlaceholder.Text = LocalizationService.Instance.GetString("Users_SearchPlaceholder");
+                TxtDisplayingFrom.Text = LocalizationService.Instance.GetString("Users_DisplayingFrom") + " ";
+                TxtTo.Text = " " + LocalizationService.Instance.GetString("Users_To") + " ";
+                TxtOf.Text = " " + LocalizationService.Instance.GetString("Users_Of") + " ";
+                TxtTotalUsersLabel.Text = " " + LocalizationService.Instance.GetString("Users_TotalUsers");
+                TxtPageLabel.Text = LocalizationService.Instance.GetString("Users_Page") + " ";
+                TxtPrevious.Text = LocalizationService.Instance.GetString("Users_Previous");
+                TxtNext.Text = LocalizationService.Instance.GetString("Users_Next");
+                
+                // Notifier les changements pour les propriétés bindées
+                OnPropertyChanged(nameof(NewUserText));
+                OnPropertyChanged(nameof(ModifyText));
+                OnPropertyChanged(nameof(DeleteText));
+                OnPropertyChanged(nameof(RefreshText));
+                OnPropertyChanged(nameof(SearchPlaceholderText));
+            };
+        }
+
+        private void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
         }
 
         private void ChargerUtilisateurs()

@@ -71,6 +71,7 @@ namespace BacklogManager
             // Charger après l'initialisation complète
             Loaded += (s, e) =>
             {
+                InitialiserTextes();
                 ChargerInfoProjets();
                 AfficherUtilisateurConnecte();
                 VerifierPermissions();
@@ -80,6 +81,49 @@ namespace BacklogManager
                 // Afficher le Dashboard par défaut
                 BtnDashboard_Click(null, null);
             };
+            
+            // S'abonner aux changements de langue
+            LocalizationService.Instance.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == "Item[]")
+                {
+                    InitialiserTextes();
+                }
+            };
+        }
+
+        private void InitialiserTextes()
+        {
+            var loc = LocalizationService.Instance;
+            
+            // Menu sections
+            TxtHeaderVues.Text = loc["Menu_Section_Views"];
+            TxtHeaderTimeAndCRA.Text = loc["Menu_Section_TimeAndCRA"];
+            AdminSectionTitle.Text = loc["Menu_Section_Administration"];
+            TxtHeaderActions.Text = loc["Menu_Section_Actions"];
+            TxtHeaderAdmin.Text = loc["Menu_Section_Administration"];
+            TxtHeaderProjects.Text = $"📁 {loc["Menu_Projects"]}";
+            
+            // Menu buttons
+            BtnDashboard.Content = $"🏠 {loc["Menu_Dashboard"]}";
+            BtnBacklog.Content = $"📋 {loc["Menu_Backlog"]}";
+            BtnKanban.Content = $"🎯 {loc["Menu_Kanban"]}";
+            BtnSaisirCRA.Content = $"⏱️ {loc["Menu_CRA"]}";
+            BtnTimeline.Content = $"📊 {loc["Menu_CRATracking"]}";
+            BtnDemandes.Content = $"📝 {loc["Menu_Demands"]}";
+            BtnNotifications.Content = $"🔔 {loc["Menu_Notifications"]}";
+            BtnAdmin.Content = $"⚙️ {loc["Menu_Administration"]}";
+            BtnStatistiques.Content = $"📊 {loc["Menu_Statistics"]}";
+            BtnParametres.Content = $"⚙️ {loc["Menu_Settings"]}";
+            
+            // Bouton changer utilisateur
+            BtnChangerUtilisateurMenu.Content = $"🔄 {loc["Menu_ChangeUser"]}";
+            
+            // Tooltip
+            BtnGererProjetsTooltip.ToolTip = loc["Menu_ManageProjects"];
+            
+            // Mettre à jour le nombre de projets
+            ChargerInfoProjets();
         }
 
         private void InitialiserNotifications()
@@ -156,7 +200,7 @@ namespace BacklogManager
             try
             {
                 var projets = _backlogService.GetAllProjets();
-                TxtNbProjets.Text = string.Format("{0} projet(s) actif(s)", projets.Count);
+                TxtNbProjets.Text = string.Format(LocalizationService.Instance["Menu_ActiveProjects"], projets.Count);
             }
             catch
             {

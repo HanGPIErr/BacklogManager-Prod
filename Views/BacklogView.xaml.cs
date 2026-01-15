@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using BacklogManager.Domain;
 using BacklogManager.ViewModels;
+using BacklogManager.Services;
 
 namespace BacklogManager.Views
 {
@@ -15,7 +16,24 @@ namespace BacklogManager.Views
         public BacklogView()
         {
             InitializeComponent();
+            InitialiserTextes();
             Loaded += BacklogView_Loaded;
+        }
+
+        private void InitialiserTextes()
+        {
+            // Initialiser les textes des onglets
+            BtnVueProgrammes.Content = "🎯 " + LocalizationService.Instance.GetString("Backlog_Programs");
+            BtnVueProjets.Content = "📁 " + LocalizationService.Instance.GetString("Backlog_Projects");
+            BtnVueArchives.Content = "📦 " + LocalizationService.Instance.GetString("Backlog_Archives");
+
+            // S'abonner aux changements de langue
+            LocalizationService.Instance.PropertyChanged += (s, e) =>
+            {
+                BtnVueProgrammes.Content = "🎯 " + LocalizationService.Instance.GetString("Backlog_Programs");
+                BtnVueProjets.Content = "📁 " + LocalizationService.Instance.GetString("Backlog_Projects");
+                BtnVueArchives.Content = "📦 " + LocalizationService.Instance.GetString("Backlog_Archives");
+            };
         }
 
         private void BacklogView_Loaded(object sender, RoutedEventArgs e)
@@ -57,7 +75,6 @@ namespace BacklogManager.Views
             BtnVueProjets.FontWeight = FontWeights.Normal;
 
             // Cacher tous les boutons d'action
-            BtnNouveauProjet.Visibility = Visibility.Collapsed;
             BtnNouvelleTache.Visibility = Visibility.Collapsed;
             BtnTacheSpeciale.Visibility = Visibility.Collapsed;
 
@@ -464,9 +481,10 @@ namespace BacklogManager.Views
                 leftPanel.Children.Add(indicateursPanel);
 
                 // Label des projets
+                var pluriel = projetsAssocies.Count > 1 ? "s" : "";
                 var projetsLabel = new TextBlock
                 {
-                    Text = $"📁 {projetsAssocies.Count} projet{(projetsAssocies.Count > 1 ? "s" : "")} :",
+                    Text = $"📁 {string.Format(LocalizationService.Instance.GetString("Programs_ProjectsCount"), projetsAssocies.Count, pluriel)}",
                     FontSize = 14,
                     FontWeight = FontWeights.SemiBold,
                     Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00915A")),
@@ -688,8 +706,7 @@ namespace BacklogManager.Views
             BtnVueProgrammes.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#6D6D6D"));
             BtnVueProgrammes.FontWeight = FontWeights.Normal;
 
-            // Afficher le bouton Nouveau Projet, cacher les boutons de tâches
-            BtnNouveauProjet.Visibility = Visibility.Visible;
+            // Cacher les boutons de tâches
             BtnNouvelleTache.Visibility = Visibility.Collapsed;
             BtnTacheSpeciale.Visibility = Visibility.Collapsed;
 
@@ -760,7 +777,6 @@ namespace BacklogManager.Views
             BtnVueProjets.FontWeight = FontWeights.Normal;
 
             // Cacher tous les boutons d'action
-            BtnNouveauProjet.Visibility = Visibility.Collapsed;
             BtnNouvelleTache.Visibility = Visibility.Collapsed;
             BtnTacheSpeciale.Visibility = Visibility.Collapsed;
 

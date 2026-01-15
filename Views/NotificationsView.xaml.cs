@@ -25,8 +25,45 @@ namespace BacklogManager.Views
             _emailService = app?.EmailService;
             _database = app?.Database;
             
+            InitialiserTextes();
+            
             // Charger après que tous les contrôles soient initialisés
             Loaded += (s, e) => ChargerNotifications();
+        }
+
+        private void InitialiserTextes()
+        {
+            var loc = LocalizationService.Instance;
+
+            // Titre et compteur
+            TxtTitle.Text = loc.GetString("Notifications_Title");
+            MettreAJourCompteur(); // Cela utilisera la traduction
+
+            // Boutons d'action
+            BtnMarquerToutesLues.Content = loc.GetString("Notifications_MarkAllRead");
+            BtnSupprimerLues.Content = loc.GetString("Notifications_DeleteRead");
+
+            // Filtres
+            TxtFilter.Text = loc.GetString("Notifications_Filter");
+            RadioTous.Content = loc.GetString("Notifications_All");
+            RadioNonLues.Content = loc.GetString("Notifications_UnreadOnly");
+            ChkUrgent.Content = loc.GetString("Notifications_Urgent");
+            ChkAttention.Content = loc.GetString("Notifications_Attention");
+            ChkInfo.Content = loc.GetString("Notifications_Info");
+            ChkSuccess.Content = loc.GetString("Notifications_Success");
+
+            // Message vide
+            TxtNoNotifications.Text = loc.GetString("Notifications_NoNotifications");
+            TxtUpToDate.Text = loc.GetString("Notifications_UpToDate");
+
+            // Écouter les changements de langue
+            loc.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == "Item[]")
+                {
+                    InitialiserTextes();
+                }
+            };
         }
 
         private void ChargerNotifications()
@@ -84,7 +121,7 @@ namespace BacklogManager.Views
             if (_notificationService == null) return;
             
             int count = _notificationService.GetCountNotificationsNonLues();
-            TxtCountNotifications.Text = $"{count} notification(s) non lue(s)";
+            TxtCountNotifications.Text = string.Format(LocalizationService.Instance.GetString("Notifications_UnreadCount"), count);
         }
 
         private void Filtre_Changed(object sender, RoutedEventArgs e)
@@ -109,8 +146,9 @@ namespace BacklogManager.Views
                 // Si associée à une tâche, ouvrir les détails (optionnel)
                 if (notification.Tache != null)
                 {
-                    MessageBox.Show($"Tâche: {notification.Tache.Titre}\n\nStatut: {notification.Tache.Statut}\nPriorité: {notification.Tache.Priorite}",
-                        "Détails de la tâche", MessageBoxButton.OK, MessageBoxImage.Information);
+                    var loc = LocalizationService.Instance;
+                    MessageBox.Show($"{loc.GetString("Notifications_Task")}: {notification.Tache.Titre}\n\n{loc.GetString("Notifications_Status")}: {notification.Tache.Statut}\n{loc.GetString("Notifications_Priority")}: {notification.Tache.Priorite}",
+                        loc.GetString("Notifications_TaskDetails"), MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
         }
@@ -139,8 +177,8 @@ namespace BacklogManager.Views
         {
             if (_notificationService == null) return;
             
-            var result = MessageBox.Show("Voulez-vous vraiment supprimer toutes les notifications lues ?",
-                "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            var result = MessageBox.Show(LocalizationService.Instance.GetString("Notifications_ConfirmDeleteRead"),
+                LocalizationService.Instance.GetString("Common_Confirmation"), MessageBoxButton.YesNo, MessageBoxImage.Question);
             
             if (result == MessageBoxResult.Yes)
             {
@@ -159,12 +197,10 @@ namespace BacklogManager.Views
                 // Vérifier si l'email peut être envoyé
                 if (!_emailService.PeutEnvoyerEmail(notification))
                 {
+                    var loc = LocalizationService.Instance;
                     MessageBox.Show(
-                        "Impossible d'envoyer l'email :\n\n" +
-                        "• Aucun développeur n'est assigné à cette tâche, ou\n" +
-                        "• L'adresse email du développeur est manquante.\n\n" +
-                        "Veuillez assigner un développeur avec une adresse email valide.",
-                        "Email non disponible",
+                        loc.GetString("Notifications_CannotSendEmail"),
+                        loc.GetString("Notifications_EmailUnavailable"),
                         MessageBoxButton.OK,
                         MessageBoxImage.Information);
                     return;
@@ -189,22 +225,22 @@ namespace BacklogManager.Views
             var button = sender as Button;
             if (button?.Tag is Notification notification && notification.DemandeEchangeVMId.HasValue)
             {
-                var result = MessageBox.Show("Voulez-vous vraiment annuler cette demande d'échange ?",
-                    "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                var result = MessageBox.Show(LocalizationService.Instance.GetString("Notifications_ConfirmCancelRequest"),
+                    LocalizationService.Instance.GetString("Common_Confirmation"), MessageBoxButton.YesNo, MessageBoxImage.Question);
                 
                 if (result == MessageBoxResult.Yes)
                 {
                     try
                     {
                         _database.AnnulerDemandeEchangeVM(notification.DemandeEchangeVMId.Value);
-                        MessageBox.Show("La demande d'échange a été annulée avec succès.",
-                            "Annulation réussie", MessageBoxButton.OK, MessageBoxImage.Information);
+                        MessageBox.Show(LocalizationService.Instance.GetString("Notifications_CancelSuccess"),
+                            LocalizationService.Instance.GetString("Notifications_CancelSuccessTitle"), MessageBoxButton.OK, MessageBoxImage.Information);
                         ChargerNotifications();
                     }
                     catch (System.Exception ex)
                     {
-                        MessageBox.Show($"Erreur lors de l'annulation : {ex.Message}",
-                            "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show($"{LocalizationService.Instance.GetString("Notifications_CancelError")}: {ex.Message}",
+                            LocalizationService.Instance.GetString("Common_Error"), MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 }
             }

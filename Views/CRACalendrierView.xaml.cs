@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using BacklogManager.ViewModels;
+using BacklogManager.Services;
 
 namespace BacklogManager.Views
 {
@@ -16,6 +17,75 @@ namespace BacklogManager.Views
         public CRACalendrierView()
         {
             InitializeComponent();
+            InitializeLocalizedTexts();
+            
+            // Gérer le placeholder du ComboBox de tâches
+            CmbTask.SelectionChanged += CmbTask_SelectionChanged;
+            UpdateTaskPlaceholder();
+        }
+
+        private void CmbTask_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            UpdateTaskPlaceholder();
+        }
+
+        private void UpdateTaskPlaceholder()
+        {
+            TxtTaskPlaceholder.Visibility = CmbTask.SelectedItem == null ? 
+                System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+        }
+
+        private void InitializeLocalizedTexts()
+        {
+            var loc = LocalizationService.Instance;
+
+            // Titre et en-tête
+            TxtTitle.Text = loc.GetString("CRA_Title");
+            TxtCompany.Text = loc.GetString("CRA_Company");
+            BtnToday.Content = loc.GetString("CRA_BtnToday");
+
+            // Boutons de validation
+            BtnValidatePending.Content = loc.GetString("CRA_BtnValidatePending");
+            BtnValidatePending.ToolTip = loc.GetString("CRA_BtnValidatePendingTooltip");
+            BtnValidateAll.Content = loc.GetString("CRA_BtnValidateAll");
+            BtnValidateAll.ToolTip = loc.GetString("CRA_BtnValidateAllTooltip");
+            BtnCancelValidation.Content = loc.GetString("CRA_BtnCancelValidation");
+            BtnCancelValidation.ToolTip = loc.GetString("CRA_BtnCancelValidationTooltip");
+
+            // Filtres
+            TxtTeam.Text = loc.GetString("CRA_Team");
+            TxtMembers.Text = loc.GetString("CRA_Members");
+            ChkAllTasks.Content = loc.GetString("CRA_AllTasks");
+
+            // Jours de la semaine
+            TxtMonday.Text = loc.GetString("CRA_Monday");
+            TxtTuesday.Text = loc.GetString("CRA_Tuesday");
+            TxtWednesday.Text = loc.GetString("CRA_Wednesday");
+            TxtThursday.Text = loc.GetString("CRA_Thursday");
+            TxtFriday.Text = loc.GetString("CRA_Friday");
+            TxtSaturday.Text = loc.GetString("CRA_Saturday");
+            TxtSunday.Text = loc.GetString("CRA_Sunday");
+
+            // Formulaire de saisie
+            TxtSelectedDay.Text = loc.GetString("CRA_SelectedDay");
+            TxtEnterCRA.Text = loc.GetString("CRA_EnterCRA");
+            TxtTask.Text = loc.GetString("CRA_Task");
+            TxtTimeInDays.Text = loc.GetString("CRA_TimeInDays");
+            ChkEnterOnPeriod.Content = loc.GetString("CRA_EnterOnPeriod");
+            TxtEndDate.Text = loc.GetString("CRA_EndDate");
+            TxtComment.Text = loc.GetString("CRA_Comment");
+            BtnSave.Content = loc.GetString("CRA_BtnSave");
+
+            // Liste CRA
+            TxtListTitle.Text = loc.GetString("CRA_ListTitle");
+
+            // Textes allocation auto
+            TxtAutoAllocationTitle.Text = loc.GetString("CRA_AutoAllocationTitle");
+            BtnAutoAllocation.Content = loc.GetString("CRA_BtnAutoAllocation");
+            TxtManualEntry.Text = loc.GetString("CRA_ManualEntry");
+            
+            // Placeholder ComboBox tâche
+            TxtTaskPlaceholder.Text = loc.GetString("CRA_TaskPlaceholder");
         }
 
         private void CRA_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)

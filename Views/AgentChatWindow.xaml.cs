@@ -69,6 +69,13 @@ namespace BacklogManager.Views
             DataContext = this;
             Messages = new ObservableCollection<ChatMessage>();
             
+            // Initialiser les textes localisés
+            TxtAgentTitle.Text = LocalizationService.Instance.GetString("AIChat_AgentTitle");
+            TxtAgentSubtitle.Text = LocalizationService.Instance.GetString("AIChat_AgentSubtitle");
+            BtnRetour.Content = LocalizationService.Instance.GetString("AIChat_BtnReturn");
+            TxtSendHint.Text = LocalizationService.Instance.GetString("AIChat_SendHint");
+            BtnClearHistory.Content = LocalizationService.Instance.GetString("AIChat_BtnClearHistory");
+            
             _chatHistoryService = chatHistoryService;
             _currentUser = currentUser;
             
@@ -127,8 +134,8 @@ namespace BacklogManager.Views
                     Messages.Add(new ChatMessage
                     {
                         IsUser = false,
-                        Auteur = "🤖 Agent BacklogManager",
-                        Message = "Bonjour ! Je suis votre assistante virtuelle pour gérer votre backlog. Je suis là pour vous aider, vous conseiller et répondre à toutes vos questions sur la gestion de projet, les tâches, les CRA et bien plus encore. N'hésitez pas à me poser vos questions ! 😊",
+                        Auteur = "🤖 " + LocalizationService.Instance.GetString("AIChat_AgentTitle"),
+                        Message = LocalizationService.Instance.GetString("AIChat_WelcomeMessageFull"),
                         Horodatage = DateTime.Now.ToString("HH:mm")
                     });
                 }
@@ -164,8 +171,8 @@ namespace BacklogManager.Views
                 Messages.Add(new ChatMessage
                 {
                     IsUser = false,
-                    Auteur = "Agent Project & Change",
-                    Message = "Bonjour ! Je suis votre assistante virtuelle pour gérer votre backlog. Je suis là pour vous aider, vous conseiller et répondre à toutes vos questions sur la gestion de projet, les tâches, les CRA et bien plus encore. N'hésitez pas à me poser vos questions ! 😊",
+                    Auteur = LocalizationService.Instance.GetString("AIChat_AgentTitle"),
+                    Message = LocalizationService.Instance.GetString("AIChat_WelcomeMessageFull"),
                     Horodatage = DateTime.Now.ToString("HH:mm")
                 });
                 

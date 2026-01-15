@@ -1,5 +1,10 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Media;
 using BacklogManager.Domain;
 using BacklogManager.Services;
 
@@ -18,9 +23,145 @@ namespace BacklogManager.Views
             _projet = projet ?? new Projet { Actif = true };
             _isNewProjet = projet == null;
 
+            InitialiserTextes();
             InitialiserComboBoxes();
             RemplirFormulaire();
-            TxtTitre.Text = _isNewProjet ? "Nouveau Projet" : "Modifier Projet";
+            
+            LocalizationService.Instance.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(LocalizationService.CurrentCulture))
+                {
+                    InitialiserTextes();
+                    InitialiserComboBoxes(); // Refresh combo items
+                }
+            };
+        }
+        
+        private void InitialiserTextes()
+        {
+            Title = _isNewProjet ? LocalizationService.Instance["Projects_NewProject"] : LocalizationService.Instance["Projects_EditProject"];
+            TxtTitre.Text = _isNewProjet ? LocalizationService.Instance["Projects_NewProject"] : LocalizationService.Instance["Projects_EditProject"];
+            
+            // Direct access using x:Name
+            TxtProjectNameLabel.Text = "📝 " + LocalizationService.Instance["Projects_ProjectName"] + " *";
+            TxtDescriptionLabel.Text = "📄 " + LocalizationService.Instance["Common_Description"];
+            TxtDescriptionHint.Text = LocalizationService.Instance["Projects_DescriptionHint"];
+            TxtStartDateLabel.Text = "📅 " + LocalizationService.Instance["Projects_StartDate"];
+            TxtEndDateLabel.Text = "🏁 " + LocalizationService.Instance["Projects_EndDate"];
+            TxtPhaseLabel.Text = "🔄 " + LocalizationService.Instance["Projects_ProjectPhase"] + " *";
+            TxtPhaseHint.Text = LocalizationService.Instance["Projects_SelectPhase"];
+            TxtProgramClassificationLabel.Text = LocalizationService.Instance["Requests_ProgramClassification"];
+            TxtAssociatedProgramLabel.Text = LocalizationService.Instance["Requests_AssociatedProgram"];
+            TxtPriorityLabel.Text = LocalizationService.Instance["Requests_PriorityLabel"] + " *";
+            TxtProjectTypeLabel.Text = LocalizationService.Instance["Requests_ProjectType"];
+            TxtCategoryLabel.Text = LocalizationService.Instance["Requests_Category"];
+            TxtProjectLeadLabel.Text = LocalizationService.Instance["Requests_ProjectLead"];
+            TxtDriversAmbitionLabel.Text = LocalizationService.Instance["Requests_DriversAmbition"];
+            TxtDriversLabel.Text = LocalizationService.Instance["Requests_Drivers"];
+            TxtDriversHint.Text = LocalizationService.Instance["Requests_SelectDrivers"];
+            TxtAmbitionLabel.Text = LocalizationService.Instance["Requests_Ambition"];
+            TxtBeneficiariesLabel.Text = LocalizationService.Instance["Requests_Beneficiaries"];
+            TxtBeneficiariesHint.Text = LocalizationService.Instance["Requests_WhoBenefits"];
+            TxtExpectedGainsLabel.Text = LocalizationService.Instance["Requests_ExpectedGains"];
+            TxtTimeGainsLabel.Text = LocalizationService.Instance["Requests_TimeGains"] + " *";
+            TxtTimeGainsHint.Text = LocalizationService.Instance["Requests_TimeGainsExample"];
+            TxtFinancialGainsLabel.Text = LocalizationService.Instance["Requests_FinancialGains"];
+            TxtFinancialGainsHint.Text = LocalizationService.Instance["Requests_FinancialGainsExample"];
+            TxtAssignedTeamsLabel.Text = LocalizationService.Instance["Requests_AssignedTeams"];
+            TxtProjectTeamsLabel.Text = LocalizationService.Instance["Projects_ProjectTeams"];
+            TxtProjectTeamsHint.Text = LocalizationService.Instance["Requests_SelectTeams"];
+            TxtArchiveHint.Text = LocalizationService.Instance["Projects_UncheckToArchive"];
+            
+            // Set DatePicker watermarks
+            SetDatePickerWatermark(DpDateDebut, LocalizationService.Instance["Projects_SelectDate"]);
+            SetDatePickerWatermark(DpDateFinPrevue, LocalizationService.Instance["Projects_SelectDate"]);
+            
+            // Update CheckBox content for drivers
+            ChkDriverAutomation.Content = LocalizationService.Instance["Projects_DriverAutomation"];
+            ChkDriverEfficiency.Content = LocalizationService.Instance["Projects_DriverEfficiency"];
+            ChkDriverOptimization.Content = LocalizationService.Instance["Projects_DriverOptimization"];
+            ChkDriverStandardization.Content = LocalizationService.Instance["Projects_DriverStandardization"];
+            ChkDriverAucun.Content = LocalizationService.Instance["Projects_DriverNone"];
+            
+            // Update CheckBox content for beneficiaries
+            ChkBenefSGI.Content = LocalizationService.Instance["Projects_BenefSGI"];
+            ChkBenefTFSC.Content = LocalizationService.Instance["Projects_BenefTFSC"];
+            ChkBenefTransversal.Content = LocalizationService.Instance["Projects_BenefTransversal"];
+            
+            // Update active project checkbox
+            ChkActif.Content = LocalizationService.Instance["Projects_ActiveProject"];
+            ChkEstImplemente.Content = LocalizationService.Instance["Projects_AlreadyImplemented"];
+            
+            // Update buttons using direct access
+            BtnSaveProject.Content = LocalizationService.Instance["Projects_SaveProject"];
+            BtnCancelProject.Content = LocalizationService.Instance["Projects_Cancel"];
+            
+            // Fallback: Update buttons using visual tree search
+            foreach (var child in FindVisualChildren<Button>(this))
+            {
+                var content = child.Content?.ToString();
+                if (!string.IsNullOrEmpty(content))
+                {
+                    if (content == "💾 Enregistrer" || content.Contains("Enregistrer"))
+                        child.Content = LocalizationService.Instance["Projects_SaveProject"];
+                    else if (content == "❌ Annuler" || content.Contains("Annuler"))
+                        child.Content = LocalizationService.Instance["Projects_Cancel"];
+                }
+            }
+        }
+        
+        private void SetDatePickerWatermark(DatePicker datePicker, string watermark)
+        {
+            datePicker.Loaded += (s, e) =>
+            {
+                var textBox = FindVisualChild<DatePickerTextBox>(datePicker);
+                if (textBox != null)
+                {
+                    var watermarkProperty = textBox.GetType().GetProperty("Watermark", 
+                        System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public);
+                    if (watermarkProperty != null)
+                    {
+                        watermarkProperty.SetValue(textBox, watermark);
+                    }
+                }
+            };
+        }
+        
+        private T FindVisualChild<T>(DependencyObject parent) where T : DependencyObject
+        {
+            if (parent == null) return null;
+
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                if (child is T result)
+                    return result;
+
+                var childResult = FindVisualChild<T>(child);
+                if (childResult != null)
+                    return childResult;
+            }
+            return null;
+        }
+        
+        private IEnumerable<T> FindVisualChildren<T>(DependencyObject depObj) where T : DependencyObject
+        {
+            if (depObj != null)
+            {
+                for (int i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++)
+                {
+                    DependencyObject child = VisualTreeHelper.GetChild(depObj, i);
+                    if (child != null && child is T)
+                    {
+                        yield return (T)child;
+                    }
+
+                    foreach (T childOfChild in FindVisualChildren<T>(child))
+                    {
+                        yield return childOfChild;
+                    }
+                }
+            }
         }
         
         private void InitialiserComboBoxes()
@@ -30,7 +171,7 @@ namespace BacklogManager.Views
             // PHASE 2: Programmes
             var programmes = database.GetAllProgrammes().FindAll(p => p.Actif);
             var programmesCombo = new System.Collections.Generic.List<object>();
-            programmesCombo.Add(new { Id = 0, Display = "-- Aucun programme --" });
+            programmesCombo.Add(new { Id = 0, Display = "-- " + LocalizationService.Instance["Projects_NoProgram"] + " --" });
             foreach (var p in programmes)
             {
                 programmesCombo.Add(new { Id = p.Id, Display = string.Format("{0} - {1}", p.Code, p.Nom) });
@@ -41,12 +182,22 @@ namespace BacklogManager.Views
             CmbProgramme.SelectedIndex = 0;
             
             // Phase du projet
-            var phases = new[] { "Framing / Design", "Implementation / Change Management", "UAT", "Go Live" };
+            var phases = new[] { 
+                LocalizationService.Instance["Projects_PhaseFraming"],
+                LocalizationService.Instance["Projects_PhaseImplementation"], 
+                LocalizationService.Instance["Projects_PhaseUAT"], 
+                LocalizationService.Instance["Projects_PhaseGoLive"]
+            };
             CmbPhase.ItemsSource = phases;
-            CmbPhase.SelectedIndex = 0; // "Framing / Design" par défaut
+            CmbPhase.SelectedIndex = 0;
             
             // PHASE 2: Priorité
-            var priorites = new[] { "Top High", "High", "Medium", "Low" };
+            var priorites = new[] { 
+                LocalizationService.Instance["Projects_PriorityTopHigh"],
+                LocalizationService.Instance["Projects_PriorityHigh"], 
+                LocalizationService.Instance["Projects_PriorityMedium"], 
+                LocalizationService.Instance["Projects_PriorityLow"]
+            };
             CmbPriorite.ItemsSource = priorites;
             CmbPriorite.SelectedIndex = 2; // Medium par défaut
             

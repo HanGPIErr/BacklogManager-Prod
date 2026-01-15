@@ -82,7 +82,7 @@ namespace BacklogManager.ViewModels
         public string AlertLevel
         {
             get { return _alertLevel; }
-            set { _alertLevel = value; OnPropertyChanged(); }
+            set { _alertLevel = value; OnPropertyChanged(); OnPropertyChanged(nameof(AlertLevelDisplay)); }
         }
 
         public int DaysSinceCreation
@@ -124,10 +124,26 @@ namespace BacklogManager.ViewModels
                 return "#4CAF50";
             }
         }
+        
+        public string AlertLevelDisplay
+        {
+            get
+            {
+                var loc = Services.LocalizationService.Instance;
+                if (AlertLevel == "URGENT") return loc.GetString("Kanban_StatusUrgent");
+                if (AlertLevel == "ATTENTION") return loc.GetString("Kanban_StatusAttention");
+                return loc.GetString("Kanban_StatusOK");
+            }
+        }
 
         public string DevDisplayName
         {
-            get { return string.IsNullOrEmpty(AssignedDevName) ? "Non assigné" : AssignedDevName; }
+            get 
+            { 
+                return string.IsNullOrEmpty(AssignedDevName) 
+                    ? Services.LocalizationService.Instance.GetString("Kanban_NotAssigned")
+                    : AssignedDevName; 
+            }
         }
 
         public int DaysInStatus
@@ -143,16 +159,24 @@ namespace BacklogManager.ViewModels
         {
             get
             {
-                if (Item == null || !Item.ChiffrageHeures.HasValue) return "Non estimé";
+                if (Item == null || !Item.ChiffrageHeures.HasValue) 
+                    return Services.LocalizationService.Instance.GetString("Kanban_NotEstimated");
+                
+                var loc = Services.LocalizationService.Instance;
                 double joursRestants = ChargeRestante / 7.0;
+                string remainingOn = loc.GetString("Kanban_RemainingOn");
+                string halfDay = loc.GetString("Kanban_HalfDay");
+                string lessThanHalfDay = loc.GetString("Kanban_LessThanHalfDay");
+                string completed = loc.GetString("Kanban_Completed");
+                
                 if (joursRestants >= 1)
-                    return string.Format("{0:F1}j restant sur {1:F1}j", joursRestants, ChargePrevu);
+                    return string.Format("{0:F1}j {1} {2:F1}j", joursRestants, remainingOn, ChargePrevu);
                 else if (joursRestants >= 0.5)
-                    return string.Format("½j restant sur {0:F1}j", ChargePrevu);
+                    return string.Format("{0} {1} {2:F1}j", halfDay, remainingOn, ChargePrevu);
                 else if (joursRestants > 0)
-                    return string.Format("< ½j restant sur {0:F1}j", ChargePrevu);
+                    return string.Format("{0} {1} {2:F1}j", lessThanHalfDay, remainingOn, ChargePrevu);
                 else
-                    return string.Format("Terminé ({0:F1}j)", ChargeReelle);
+                    return string.Format("{0} ({1:F1}j)", completed, ChargeReelle);
             }
         }
 
@@ -304,6 +328,16 @@ namespace BacklogManager.ViewModels
 
         public bool PeutSupprimerTaches => _permissionService.PeutSupprimerTaches;
         public bool EstAdministrateur => _permissionService.EstAdministrateur;
+
+        // Textes localisés pour les DataTemplates
+        public string SearchPlaceholder => Services.LocalizationService.Instance.GetString("Kanban_SearchPlaceholder");
+        public string DaysRemaining => Services.LocalizationService.Instance.GetString("Kanban_DaysRemaining");
+        public string Remaining => Services.LocalizationService.Instance.GetString("Kanban_Remaining");
+        public string BtnPutOnHold => Services.LocalizationService.Instance.GetString("Kanban_BtnPutOnHold");
+        public string BtnReactivate => Services.LocalizationService.Instance.GetString("Kanban_BtnReactivate");
+        public string BtnActivate => Services.LocalizationService.Instance.GetString("Kanban_BtnActivate");
+        public string BtnArchive => Services.LocalizationService.Instance.GetString("Kanban_BtnArchive");
+        public string DoneLabel => Services.LocalizationService.Instance.GetString("Kanban_DoneLabel");
 
         public int? SelectedEquipeId
         {

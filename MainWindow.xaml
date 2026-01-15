@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:views="clr-namespace:BacklogManager.Views"
         xmlns:vm="clr-namespace:BacklogManager.ViewModels"
+        xmlns:services="clr-namespace:BacklogManager.Services"
         Title="BNP Paribas - Backlog Manager" Height="850" Width="1300"
         WindowStartupLocation="CenterScreen"
         Background="#F5F5F5"
@@ -88,6 +89,7 @@
                         <TextBlock x:Name="TxtRoleUtilisateur" Text="📊 Développeur" 
                                    Foreground="#999999" FontSize="10" Margin="0,2,0,0"/>
                         <Button Content="🔄 Changer d'utilisateur" Margin="0,8,0,0" 
+                                x:Name="BtnChangerUtilisateurMenu"
                                 Padding="8,4" FontSize="10" 
                                 Background="#00915A" Foreground="White" 
                                 BorderThickness="0" Cursor="Hand"
@@ -96,49 +98,48 @@
                 </Border>
 
                 <!-- SECTION : VUES -->
-                <TextBlock Text="VUES" FontSize="10" FontWeight="Bold" 
+                <TextBlock x:Name="TxtHeaderVues" FontSize="10" FontWeight="Bold" 
                            Foreground="#666666" Margin="20,25,0,8" Opacity="0.7"/>
 
-                <Button Content="🏠 Dashboard" x:Name="BtnDashboard"
+                <Button x:Name="BtnDashboard"
                         Style="{StaticResource MenuButtonStyle}" Margin="0,0,0,0"
                         Click="BtnDashboard_Click"/>
 
-                <Button x:Name="BtnBacklog" Content="📋 Backlog"
+                <Button x:Name="BtnBacklog"
                         Style="{StaticResource MenuButtonStyle}" Margin="0,4,0,0"
                         Click="BtnBacklog_Click"/>
                 
-                <Button x:Name="BtnKanban" Content="🎯 Kanban"
+                <Button x:Name="BtnKanban"
                         Style="{StaticResource MenuButtonStyle}" Margin="0,4,0,0"
                         Click="BtnKanban_Click"/>
 
                 <!-- SECTION : TEMPS & CRA -->
-                <TextBlock Text="TEMPS &amp; CRA" FontSize="10" FontWeight="Bold" 
+                <TextBlock x:Name="TxtHeaderTimeAndCRA" FontSize="10" FontWeight="Bold" 
                            Foreground="#666666" Margin="20,20,0,8" Opacity="0.7"/>
 
-                <Button x:Name="BtnSaisirCRA" Content="⏱️ Saisir CRA" 
+                <Button x:Name="BtnSaisirCRA" 
                         Style="{StaticResource MenuButtonStyle}" Margin="0,0,0,0"
                         Click="BtnSaisirCRA_Click"/>
 
                 <!-- SECTION : ADMIN -->
-                <TextBlock Text="ADMINISTRATION" FontSize="10" FontWeight="Bold" 
-                           Foreground="#666666" Margin="20,20,0,8" Opacity="0.7"
-                           x:Name="AdminSectionTitle"/>
+                <TextBlock x:Name="AdminSectionTitle" FontSize="10" FontWeight="Bold" 
+                           Foreground="#666666" Margin="20,20,0,8" Opacity="0.7"/>
 
-                <Button x:Name="BtnTimeline" Content="📊 Suivi CRA"
+                <Button x:Name="BtnTimeline"
                         Style="{StaticResource MenuButtonStyle}" Margin="0,0,0,0"
                         Click="BtnTimeline_Click"/>
 
                 <!-- SECTION : ACTIONS -->
-                <TextBlock Text="ACTIONS" FontSize="10" FontWeight="Bold" 
+                <TextBlock x:Name="TxtHeaderActions" FontSize="10" FontWeight="Bold" 
                            Foreground="#666666" Margin="20,20,0,8" Opacity="0.7"/>
 
-                <Button x:Name="BtnDemandes" Content="📝 Demandes" 
+                <Button x:Name="BtnDemandes" 
                         Style="{StaticResource MenuButtonStyle}" Margin="0,0,0,0"
                         Click="BtnDemandes_Click"/>
 
                 <!-- Notifications avec badge -->
                 <Grid Margin="0,4,0,0">
-                    <Button x:Name="BtnNotifications" Content="🔔 Notifications" 
+                    <Button x:Name="BtnNotifications" 
                             Style="{StaticResource MenuButtonStyle}"
                             Click="BtnNotifications_Click"/>
                     <Border x:Name="BadgeNotifications" Background="#D32F2F" CornerRadius="10" 
@@ -150,18 +151,18 @@
                 </Grid>
 
                 <!-- SECTION : ADMINISTRATION -->
-                <TextBlock x:Name="TxtHeaderAdmin" Text="ADMINISTRATION" FontSize="10" FontWeight="Bold" 
+                <TextBlock x:Name="TxtHeaderAdmin" FontSize="10" FontWeight="Bold" 
                            Foreground="#666666" Margin="20,20,0,8" Opacity="0.7"/>
 
-                <Button x:Name="BtnAdmin" Content="⚙️ Administration" 
+                <Button x:Name="BtnAdmin" 
                         Style="{StaticResource MenuButtonStyle}" Margin="0,0,0,0"
                         Click="BtnAdmin_Click"/>
                 
-                <Button x:Name="BtnStatistiques" Content="📊 Statistiques" 
+                <Button x:Name="BtnStatistiques" 
                         Style="{StaticResource MenuButtonStyle}" Margin="0,4,0,0"
                         Click="BtnStatistiques_Click"/>
                 
-                <Button x:Name="BtnParametres" Content="⚙️ Paramètres" 
+                <Button x:Name="BtnParametres" 
                         Style="{StaticResource MenuButtonStyle}" Margin="0,4,0,0"
                         Click="BtnParametres_Click"/>
 
@@ -169,9 +170,9 @@
                 <Border Margin="15,40,15,0" Background="#2A2A2A" Padding="12" CornerRadius="4">
                     <StackPanel>
                         <Grid>
-                            <TextBlock Text="📁 PROJETS" FontSize="11" FontWeight="Bold" 
+                            <TextBlock x:Name="TxtHeaderProjects" FontSize="11" FontWeight="Bold" 
                                        Foreground="#00915A" Margin="0,0,0,8" VerticalAlignment="Center"/>
-                            <Button Content="⚙️" ToolTip="Gérer les projets"
+                            <Button Content="⚙️" x:Name="BtnGererProjetsTooltip"
                                     HorizontalAlignment="Right" VerticalAlignment="Center"
                                     Background="#00915A" Foreground="White" 
                                     BorderThickness="0" Padding="6" Cursor="Hand"

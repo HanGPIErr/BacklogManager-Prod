@@ -135,34 +135,6 @@
                         
                         <!-- Action Buttons - Responsive -->
                         <WrapPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
-                            <Button x:Name="BtnNouveauProjet" Content="➕ Nouveau Projet" 
-                                    Visibility="Collapsed"
-                                    Command="{Binding NewProjetCommand}"
-                                    Height="38" Margin="0,0,10,0" Background="#00915A" Foreground="White" BorderThickness="0"
-                                    FontSize="13" FontWeight="Bold" Cursor="Hand" Padding="16,0">
-                                <Button.Style>
-                                    <Style TargetType="Button">
-                                        <Setter Property="Template">
-                                            <Setter.Value>
-                                                <ControlTemplate TargetType="Button">
-                                                    <Border Background="{TemplateBinding Background}" CornerRadius="6" 
-                                                            Padding="{TemplateBinding Padding}">
-                                                        <Border.Effect>
-                                                            <DropShadowEffect BlurRadius="4" ShadowDepth="0" Opacity="0.2" Color="#00915A"/>
-                                                        </Border.Effect>
-                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                    </Border>
-                                                </ControlTemplate>
-                                            </Setter.Value>
-                                        </Setter>
-                                        <Style.Triggers>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter Property="Background" Value="#007843"/>
-                                            </Trigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Style>
-                            </Button>
                             
                             <Button x:Name="BtnTacheSpeciale" Content="➕ Congés/Support" 
                                     Visibility="{Binding PeutCreerTachesSpecialesVisibility}"

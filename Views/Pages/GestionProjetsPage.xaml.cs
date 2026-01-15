@@ -18,7 +18,29 @@ namespace BacklogManager.Views.Pages
             _database = database;
             _auditLogService = auditLogService;
             _backlogService = new BacklogService(_database, _auditLogService);
+            
+            // Initialiser les textes traduits
+            InitialiserTextes();
+            
             ChargerProjets();
+        }
+
+        private void InitialiserTextes()
+        {
+            // Textes de l'interface
+            TxtShow.Text = LocalizationService.Instance.GetString("Projects_Show");
+            CmbItemActifs.Content = "📂 " + LocalizationService.Instance.GetString("Projects_ActiveProjects");
+            CmbItemArchives.Content = "📦 " + LocalizationService.Instance.GetString("Projects_ArchivedProjects");
+            CmbItemTous.Content = "📁 " + LocalizationService.Instance.GetString("Projects_AllProjects");
+
+            // S'abonner aux changements de langue
+            LocalizationService.Instance.PropertyChanged += (s, e) =>
+            {
+                TxtShow.Text = LocalizationService.Instance.GetString("Projects_Show");
+                CmbItemActifs.Content = "📂 " + LocalizationService.Instance.GetString("Projects_ActiveProjects");
+                CmbItemArchives.Content = "📦 " + LocalizationService.Instance.GetString("Projects_ArchivedProjects");
+                CmbItemTous.Content = "📁 " + LocalizationService.Instance.GetString("Projects_AllProjects");
+            };
         }
 
         private void ChargerProjets()

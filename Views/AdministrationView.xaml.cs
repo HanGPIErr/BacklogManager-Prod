@@ -20,8 +20,55 @@ namespace BacklogManager.Views
             _auditLogService = auditLogService;
             _authService = authService;
 
+            // Initialiser les textes traduits
+            InitialiserTextes();
+
             // Charger les pages dans les frames
             ChargerPages();
+        }
+
+        private void InitialiserTextes()
+        {
+            // Header principal
+            TxtAdministrationTitle.Text = LocalizationService.Instance.GetString("Administration_Title");
+            TxtAdministrationDescription.Text = LocalizationService.Instance.GetString("Administration_Description");
+
+            // Onglets principaux
+            TxtUsersAndRolesTab.Text = LocalizationService.Instance.GetString("Administration_UsersAndRoles");
+            TxtProjectsAndTeamTab.Text = LocalizationService.Instance.GetString("Administration_ProjectsAndTeam");
+            TxtReportingTab.Text = LocalizationService.Instance.GetString("Administration_Reporting");
+            TxtChatHistoryTab.Text = LocalizationService.Instance.GetString("Administration_ChatHistory");
+            TxtAuditLogTab.Text = LocalizationService.Instance.GetString("Administration_AuditLog");
+
+            // Sous-onglets Utilisateurs & Rôles
+            TxtUsersSubTab.Text = LocalizationService.Instance.GetString("Administration_Users");
+            TxtRolesSubTab.Text = LocalizationService.Instance.GetString("Administration_Roles");
+
+            // Sous-onglets Projets & Équipe
+            TxtProgramsSubTab.Text = LocalizationService.Instance.GetString("Administration_Programs");
+            TxtProjectsSubTab.Text = LocalizationService.Instance.GetString("Administration_Projects");
+            TxtTeamsSubTab.Text = LocalizationService.Instance.GetString("Administration_Teams");
+
+            // Bouton Historique Chat
+            TxtOpenChatHistory.Text = LocalizationService.Instance.GetString("Administration_OpenChatHistory");
+
+            // S'abonner aux changements de langue
+            LocalizationService.Instance.PropertyChanged += (s, e) =>
+            {
+                TxtAdministrationTitle.Text = LocalizationService.Instance.GetString("Administration_Title");
+                TxtAdministrationDescription.Text = LocalizationService.Instance.GetString("Administration_Description");
+                TxtUsersAndRolesTab.Text = LocalizationService.Instance.GetString("Administration_UsersAndRoles");
+                TxtProjectsAndTeamTab.Text = LocalizationService.Instance.GetString("Administration_ProjectsAndTeam");
+                TxtReportingTab.Text = LocalizationService.Instance.GetString("Administration_Reporting");
+                TxtChatHistoryTab.Text = LocalizationService.Instance.GetString("Administration_ChatHistory");
+                TxtAuditLogTab.Text = LocalizationService.Instance.GetString("Administration_AuditLog");
+                TxtUsersSubTab.Text = LocalizationService.Instance.GetString("Administration_Users");
+                TxtRolesSubTab.Text = LocalizationService.Instance.GetString("Administration_Roles");
+                TxtProgramsSubTab.Text = LocalizationService.Instance.GetString("Administration_Programs");
+                TxtProjectsSubTab.Text = LocalizationService.Instance.GetString("Administration_Projects");
+                TxtTeamsSubTab.Text = LocalizationService.Instance.GetString("Administration_Teams");
+                TxtOpenChatHistory.Text = LocalizationService.Instance.GetString("Administration_OpenChatHistory");
+            };
         }
 
         private void ChargerPages()

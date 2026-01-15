@@ -27,7 +27,7 @@
                 </Grid.ColumnDefinitions>
                 
                 <!-- Bouton Retour -->
-                <Button Grid.Column="0" Content="← Retour" Padding="12,8" Margin="0,0,15,0"
+                <Button x:Name="BtnRetour" Grid.Column="0" Content="← Retour" Padding="12,8" Margin="0,0,15,0"
                         Background="#00915A" Foreground="White" FontSize="13" FontWeight="SemiBold"
                         BorderThickness="0" Cursor="Hand" Click="BtnRetour_Click">
                     <Button.Style>
@@ -55,8 +55,8 @@
                        Width="45" Height="45" Margin="0,0,15,0" VerticalAlignment="Center"/>
                 
                 <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                    <TextBlock Text="Agent Project &amp; Change" FontSize="16" FontWeight="SemiBold" Foreground="#252423"/>
-                    <TextBlock Text="Votre assistante virtuelle pour gérer votre backlog" FontSize="12" Foreground="#605E5C" Margin="0,2,0,0"/>
+                    <TextBlock x:Name="TxtAgentTitle" Text="Agent Project &amp; Change" FontSize="16" FontWeight="SemiBold" Foreground="#252423"/>
+                    <TextBlock x:Name="TxtAgentSubtitle" Text="Votre assistante virtuelle pour gérer votre backlog" FontSize="12" Foreground="#605E5C" Margin="0,2,0,0"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -162,7 +162,7 @@
                              TextWrapping="Wrap" AcceptsReturn="True" MaxHeight="100"
                              VerticalScrollBarVisibility="Auto"/>
                     
-                    <Button Grid.Column="1" Content="Envoyer ➤" Padding="20,12" Margin="10,0,0,0"
+                    <Button x:Name="BtnSend" Grid.Column="1" Content="Envoyer ▶" Padding="20,12" Margin="10,0,0,0"
                             Background="#00915A" Foreground="White" FontSize="14" FontWeight="SemiBold"
                             BorderThickness="0" Cursor="Hand"
                             IsEnabled="{Binding CanSendMessage}"
@@ -194,12 +194,12 @@
                 </Grid>
                 
                 <!-- Indication -->
-                <TextBlock Grid.Row="1" Text="Appuyez sur Entrée pour envoyer, Shift+Entrée pour un saut de ligne" 
+                <TextBlock x:Name="TxtSendHint" Grid.Row="1" Text="Appuyez sur Entrée pour envoyer, Shift+Entrée pour un saut de ligne" 
                            FontSize="11" Foreground="#8A8886" Margin="0,6,0,8"/>
                 
                 <!-- Boutons d'actions -->
                 <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
-                    <Button Content="➕ Nouvelle conversation" Padding="10,6" FontSize="11"
+                    <Button x:Name="BtnNewConversation" Content="➕ Nouvelle conversation" Padding="10,6" FontSize="11"
                             Background="Transparent" Foreground="#605E5C" BorderThickness="1" BorderBrush="#E1DFDD" Cursor="Hand"
                             Click="NewConversation_Click">
                         <Button.Style>
@@ -225,7 +225,7 @@
                         </Button.Style>
                     </Button>
                     
-                    <Button Content="🗑️ Effacer l'historique" Margin="10,0,0,0" Padding="10,6" FontSize="11"
+                    <Button x:Name="BtnClearHistory" Content="🗑️ Effacer l'historique" Margin="10,0,0,0" Padding="10,6" FontSize="11"
                             Background="Transparent" Foreground="#605E5C" BorderThickness="1" BorderBrush="#E1DFDD" Cursor="Hand"
                             Click="ClearHistory_Click">
                         <Button.Style>
@@ -251,7 +251,7 @@
                         </Button.Style>
                     </Button>
                     
-                    <Button Content="🔑 Modifier le token" Margin="10,0,0,0" Padding="10,6" FontSize="11"
+                    <Button x:Name="BtnModifyToken" Content="🔑 Modifier le token" Margin="10,0,0,0" Padding="10,6" FontSize="11"
                             Background="Transparent" Foreground="#605E5C" BorderThickness="1" BorderBrush="#E1DFDD" Cursor="Hand"
                             Click="ChangeToken_Click">
                         <Button.Style>

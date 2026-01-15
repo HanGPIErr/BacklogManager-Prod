@@ -29,9 +29,98 @@ namespace BacklogManager.Views
                 Directory.CreateDirectory(_backupFolder);
             }
 
+            InitialiserTextes();
+            LocalizationService.Instance.PropertyChanged += (s, e) => InitialiserTextes();
+            
             ChargerParametres();
             ChargerInformations();
             AppliquerPermissions();
+            ChargerLangueActuelle();
+        }
+
+        private void InitialiserTextes()
+        {
+            // Header
+            TxtTitle.Text = "⚙️ " + LocalizationService.Instance.GetString("Settings_Title");
+            TxtSubtitle.Text = LocalizationService.Instance.GetString("Settings_Subtitle");
+            
+            // Base de données
+            TxtDatabaseSection.Text = LocalizationService.Instance.GetString("Settings_DatabaseSection");
+            TxtDatabasePath.Text = LocalizationService.Instance.GetString("Settings_DatabasePath");
+            BtnChangerDB.Content = LocalizationService.Instance.GetString("Settings_BtnBrowse");
+            TxtRestartRequired.Text = LocalizationService.Instance.GetString("Settings_RestartRequired");
+            
+            // Export/Import
+            TxtExportImportSection.Text = LocalizationService.Instance.GetString("Settings_ExportImportSection");
+            TxtExportFull.Text = LocalizationService.Instance.GetString("Settings_ExportFull");
+            BtnExportSQLite.Content = LocalizationService.Instance.GetString("Settings_BtnExportSQLite");
+            BtnExportJSON.Content = LocalizationService.Instance.GetString("Settings_BtnExportJSON");
+            BtnExportComplet.Content = LocalizationService.Instance.GetString("Settings_BtnExportComplete");
+            TxtExportPartial.Text = LocalizationService.Instance.GetString("Settings_ExportPartial");
+            BtnExportCSV.Content = LocalizationService.Instance.GetString("Settings_BtnExportCSV");
+            TxtImportData.Text = LocalizationService.Instance.GetString("Settings_ImportData");
+            BtnImportSQLite.Content = LocalizationService.Instance.GetString("Settings_BtnImportSQLite");
+            BtnImportJSON.Content = LocalizationService.Instance.GetString("Settings_BtnImportJSON");
+            
+            // Apparence
+            TxtAppearanceSection.Text = LocalizationService.Instance.GetString("Settings_AppearanceSection");
+            TxtTheme.Text = LocalizationService.Instance.GetString("Settings_Theme");
+            CboThemeLight.Content = LocalizationService.Instance.GetString("Settings_ThemeLight");
+            CboThemeDark.Content = LocalizationService.Instance.GetString("Settings_ThemeDark");
+            TxtLanguage.Text = LocalizationService.Instance.GetString("Settings_Language");
+            TxtLanguageChangeLater.Text = LocalizationService.Instance.GetString("Settings_LanguageChangeLater");
+            
+            // Notifications
+            TxtNotificationsSection.Text = LocalizationService.Instance.GetString("Settings_NotificationsSection");
+            ChkNotifTachesAssignees.Content = LocalizationService.Instance.GetString("Settings_NotifAssignedTasks");
+            ChkNotifEcheances.Content = LocalizationService.Instance.GetString("Settings_NotifDeadlines");
+            ChkNotifCommentaires.Content = LocalizationService.Instance.GetString("Settings_NotifComments");
+            ChkNotifMentions.Content = LocalizationService.Instance.GetString("Settings_NotifMentions");
+            TxtNotifInfo.Text = LocalizationService.Instance.GetString("Settings_NotifInfo");
+            
+            // Maintenance
+            TxtMaintenanceSection.Text = LocalizationService.Instance.GetString("Settings_MaintenanceSection");
+            TxtCleanup.Text = LocalizationService.Instance.GetString("Settings_Cleanup");
+            BtnViderCache.Content = LocalizationService.Instance.GetString("Settings_BtnClearCache");
+            BtnOptimiserDB.Content = LocalizationService.Instance.GetString("Settings_BtnOptimizeDB");
+            BtnReinitialiser.Content = LocalizationService.Instance.GetString("Settings_BtnReset");
+            TxtResetWarning.Text = LocalizationService.Instance.GetString("Settings_ResetWarning");
+            
+            // Informations système
+            TxtInfoSection.Text = LocalizationService.Instance.GetString("Settings_InfoSection");
+            TxtLabelVersion.Text = LocalizationService.Instance.GetString("Settings_Version");
+            TxtLabelDatabase.Text = LocalizationService.Instance.GetString("Settings_Database");
+            TxtLabelTaskCount.Text = LocalizationService.Instance.GetString("Settings_TaskCount");
+            TxtLabelUserCount.Text = LocalizationService.Instance.GetString("Settings_UserCount");
+        }
+
+        private void ChargerLangueActuelle()
+        {
+            try
+            {
+                string currentLang = LocalizationService.Instance.CurrentLanguageCode;
+                
+                switch (currentLang)
+                {
+                    case "fr":
+                        CboLangue.SelectedIndex = 0;
+                        break;
+                    case "en":
+                        CboLangue.SelectedIndex = 1;
+                        break;
+                    case "es":
+                        CboLangue.SelectedIndex = 2;
+                        break;
+                    default:
+                        CboLangue.SelectedIndex = 0;
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                LoggingService.Instance?.LogError("Erreur lors du chargement de la langue actuelle", ex);
+                CboLangue.SelectedIndex = 0;
+            }
         }
 
         private void AppliquerPermissions()
@@ -776,22 +865,50 @@ namespace BacklogManager.Views
 
         private void CboLangue_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
-            if (CboLangue.SelectedIndex > 0)
+            if (CboLangue.SelectedItem == null)
+                return;
+
+            try
             {
-                string langue = CboLangue.SelectedIndex == 1 ? "anglais" : "espagnol";
+                var selectedItem = CboLangue.SelectedItem as ComboBoxItem;
+                if (selectedItem == null)
+                    return;
+
+                string newLanguageCode = selectedItem.Tag?.ToString();
+                if (string.IsNullOrEmpty(newLanguageCode))
+                    return;
+
+                string currentLang = LocalizationService.Instance.CurrentLanguageCode;
+                
+                // Si la langue sélectionnée est différente de la langue actuelle
+                if (newLanguageCode != currentLang)
+                {
+                    // Changer la langue
+                    LocalizationService.Instance.ChangeLanguage(newLanguageCode);
+
+                    // Demander à l'utilisateur s'il veut redémarrer l'application
+                    var result = MessageBox.Show(
+                        LocalizationService.Instance.GetString("Confirm_LanguageChange"),
+                        LocalizationService.Instance.GetString("Confirm_LanguageChangeTitle"),
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Question);
+
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        // Redémarrer l'application
+                        System.Diagnostics.Process.Start(Application.ResourceAssembly.Location);
+                        Application.Current.Shutdown();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LoggingService.Instance?.LogError("Erreur lors du changement de langue", ex);
                 MessageBox.Show(
-                    $"La traduction en {langue} sera disponible dans une prochaine version.\n\n" +
-                    "L'application BacklogManager est conçue pour être multilingue.\n" +
-                    "Les langues suivantes sont prévues:\n\n" +
-                    "• 🇬🇧 English - Interface complète en anglais\n" +
-                    "• 🇪🇸 Español - Interface complète en espagnol\n" +
-                    "• 🇩🇪 Deutsch - Allemand (selon demande)\n" +
-                    "• 🇮🇹 Italiano - Italien (selon demande)\n\n" +
-                    "Le changement de langue sera instantané sans redémarrage.",
-                    "Multilingue - Prochainement",
+                    $"Erreur lors du changement de langue: {ex.Message}",
+                    "Erreur",
                     MessageBoxButton.OK,
-                    MessageBoxImage.Information);
-                CboLangue.SelectedIndex = 0;
+                    MessageBoxImage.Error);
             }
         }
     }

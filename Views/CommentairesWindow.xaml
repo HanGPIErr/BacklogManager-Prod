@@ -14,7 +14,7 @@
         <!-- En-tête -->
         <Border Grid.Row="0" Background="#00A651" Padding="20">
             <StackPanel>
-                <TextBlock Text="COMMENTAIRES" FontSize="20" 
+                <TextBlock x:Name="TxtCommentsTitle" Text="COMMENTAIRES" FontSize="20" 
                           FontWeight="Bold" Foreground="White"/>
                 <TextBlock x:Name="TxtNbCommentaires" Text="0 commentaire(s)" 
                           FontSize="12" Foreground="White" Margin="0,5,0,0"/>
@@ -54,7 +54,7 @@
         <Border Grid.Row="2" Background="White" BorderBrush="#E0E0E0" BorderThickness="0,1,0,0" 
                Padding="20,15">
             <StackPanel>
-                <TextBlock Text="AJOUTER UN COMMENTAIRE" FontWeight="Bold" 
+                <TextBlock x:Name="TxtAddCommentTitle" Text="AJOUTER UN COMMENTAIRE" FontWeight="Bold" 
                           FontSize="12" Margin="0,0,0,8"/>
                 <TextBox x:Name="TxtNouveauCommentaire" Height="80" 
                         TextWrapping="Wrap" AcceptsReturn="True" 
@@ -66,7 +66,7 @@
         <Border Grid.Row="3" Background="White" BorderBrush="#E0E0E0" BorderThickness="0,1,0,0" 
                Padding="20,15">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="Fermer" Width="100" Height="35" Margin="0,0,10,0"
+                <Button x:Name="BtnFermer" Content="Fermer" Width="100" Height="35" Margin="0,0,10,0"
                        Background="#E0E0E0" Foreground="#333333" BorderThickness="0" 
                        FontSize="13" FontWeight="Bold" Cursor="Hand" Click="OnFermer"/>
                 <Button x:Name="BtnAjouter" Content="Ajouter" Width="100" Height="35" 

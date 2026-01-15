@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
 using BacklogManager.Domain;
 using BacklogManager.Services;
 
@@ -20,8 +22,49 @@ namespace BacklogManager.Views
             _database = database;
             _authService = authService;
             
+            InitialiserTextes();
             ChargerCommentaires();
             BtnAjouter.Click += BtnAjouter_Click;
+            
+            LocalizationService.Instance.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(LocalizationService.CurrentCulture))
+                {
+                    InitialiserTextes();
+                    ChargerCommentaires(); // Refresh pour les dates formatées
+                }
+            };
+        }
+
+        private void InitialiserTextes()
+        {
+            Title = LocalizationService.Instance["Comments_Title"];
+            
+            // Traductions directes via x:Name
+            TxtCommentsTitle.Text = LocalizationService.Instance["Comments_Title"];
+            TxtAddCommentTitle.Text = LocalizationService.Instance["Comments_AddComment"];
+            BtnFermer.Content = LocalizationService.Instance["Common_Close"];
+            BtnAjouter.Content = LocalizationService.Instance["Common_Add"];
+        }
+
+        private IEnumerable<T> FindVisualChildren<T>(DependencyObject depObj) where T : DependencyObject
+        {
+            if (depObj != null)
+            {
+                for (int i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++)
+                {
+                    DependencyObject child = VisualTreeHelper.GetChild(depObj, i);
+                    if (child != null && child is T)
+                    {
+                        yield return (T)child;
+                    }
+
+                    foreach (T childOfChild in FindVisualChildren<T>(child))
+                    {
+                        yield return childOfChild;
+                    }
+                }
+            }
         }
 
         private void OnFermer(object sender, RoutedEventArgs e)
@@ -48,26 +91,34 @@ namespace BacklogManager.Views
                 }).ToList();
 
                 ListeCommentaires.ItemsSource = commentairesVM;
-                TxtNbCommentaires.Text = string.Format("{0} commentaire(s)", commentaires.Count);
+                
+                // Update comment count with localized text
+                var countText = commentaires.Count == 0 
+                    ? LocalizationService.Instance["Comments_NoComments"]
+                    : commentaires.Count == 1 
+                        ? LocalizationService.Instance["Comments_OneComment"]
+                        : string.Format(LocalizationService.Instance["Comments_MultipleComments"], commentaires.Count);
+                        
+                TxtNbCommentaires.Text = countText;
             }
             catch (Exception ex)
             {
-                MessageBox.Show(string.Format("Erreur lors du chargement des commentaires : {0}", ex.Message), 
-                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(string.Format(LocalizationService.Instance["Comments_LoadError"], ex.Message), 
+                    LocalizationService.Instance["Common_Error"], MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private string ObtenirNomUtilisateur(int userId, List<Utilisateur> utilisateurs)
         {
             var user = utilisateurs.FirstOrDefault(u => u.Id == userId);
-            return user != null ? string.Format("{0} {1}", user.Prenom, user.Nom) : "Utilisateur inconnu";
+            return user != null ? string.Format("{0} {1}", user.Prenom, user.Nom) : LocalizationService.Instance["Comments_UnknownUser"];
         }
 
         private void BtnAjouter_Click(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrWhiteSpace(TxtNouveauCommentaire.Text))
             {
-                MessageBox.Show("Veuillez saisir un commentaire.", "Validation", 
+                MessageBox.Show(LocalizationService.Instance["Comments_EnterComment"], LocalizationService.Instance["Common_Validation"], 
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
@@ -77,7 +128,7 @@ namespace BacklogManager.Views
                 var utilisateur = _authService.CurrentUser;
                 if (utilisateur == null)
                 {
-                    MessageBox.Show("Utilisateur non connecté.", "Erreur", 
+                    MessageBox.Show(LocalizationService.Instance["Comments_UserNotLoggedIn"], LocalizationService.Instance["Common_Error"], 
                         MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
@@ -96,8 +147,8 @@ namespace BacklogManager.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show(string.Format("Erreur lors de l'ajout du commentaire : {0}", ex.Message), 
-                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(string.Format(LocalizationService.Instance["Comments_AddError"], ex.Message), 
+                    LocalizationService.Instance["Common_Error"], MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

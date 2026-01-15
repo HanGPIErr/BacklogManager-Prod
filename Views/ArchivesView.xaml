@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:services="clr-namespace:BacklogManager.Services"
              mc:Ignorable="d" 
              d:DesignHeight="800" d:DesignWidth="1200"
              Background="#F5F5F5">
@@ -26,23 +27,31 @@
                     <StackPanel Grid.Column="0" Orientation="Horizontal">
                         <TextBlock Text="📦" FontSize="32" VerticalAlignment="Center" Margin="0,0,12,0"/>
                         <StackPanel>
-                            <TextBlock Text="Archives" FontSize="28" FontWeight="Bold" Foreground="#00915A"/>
+                            <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Archives_Title], Mode=OneWay}" FontSize="28" FontWeight="Bold" Foreground="#00915A"/>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Tâches archivées et filtrables" FontSize="13" Foreground="#666" Margin="0,2,8,0"/>
+                                <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Archives_Subtitle], Mode=OneWay}" FontSize="13" Foreground="#666" Margin="0,2,8,0"/>
                                 <TextBlock FontSize="13" Foreground="#FF5722" Margin="0,2,0,0" FontWeight="Bold">
                                     <Run Text="("/>
                                     <Run Text="{Binding TachesArchivees.Count, Mode=OneWay}"/>
-                                    <Run Text=" trouvées)"/>
+                                    <Run Text=" "/>
+                                    <Run Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Archives_Found], Mode=OneWay}"/>
+                                    <Run Text=")"/>
                                 </TextBlock>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
 
-                    <Button Grid.Column="1" Content="🔄 Rafraîchir" 
+                    <Button Grid.Column="1" 
                             Command="{Binding RafraichirCommand}"
                             Background="#00915A" Foreground="White" BorderThickness="0"
                             FontSize="13" FontWeight="Bold" Padding="18,10" Cursor="Hand"
                             Height="38">
+                        <Button.Content>
+                            <TextBlock>
+                                <Run Text="🔄 "/>
+                                <Run Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Archives_Refresh], Mode=OneWay}"/>
+                            </TextBlock>
+                        </Button.Content>
                         <Button.Style>
                             <Style TargetType="Button">
                                 <Setter Property="Background" Value="#00915A"/>
@@ -101,7 +110,7 @@
                                                     <Setter.Value>
                                                         <VisualBrush Stretch="None" AlignmentX="Left">
                                                             <VisualBrush.Visual>
-                                                                <TextBlock Text="Rechercher..." Foreground="#999" FontSize="13"/>
+                                                                <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Archives_Search], Mode=OneWay}" Foreground="#999" FontSize="13"/>
                                                             </VisualBrush.Visual>
                                                         </VisualBrush>
                                                     </Setter.Value>
@@ -153,11 +162,17 @@
                     </ComboBox>
 
                     <!-- Réinitialiser filtres -->
-                    <Button Grid.Column="8" Content="✖ Reset" 
+                    <Button Grid.Column="8" 
                             Command="{Binding ResetFiltresCommand}"
                             Background="#FF5722" Foreground="White" BorderThickness="0"
                             FontSize="12" FontWeight="Bold" Padding="15,10" Cursor="Hand"
                             Height="38">
+                        <Button.Content>
+                            <TextBlock>
+                                <Run Text="✖ "/>
+                                <Run Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Projects_Reset], Mode=OneWay}"/>
+                            </TextBlock>
+                        </Button.Content>
                         <Button.Style>
                             <Style TargetType="Button">
                                 <Setter Property="Background" Value="#FF5722"/>
@@ -213,8 +228,10 @@
                                     <!-- Badge ARCHIVÉE -->
                                     <Border Grid.Column="0" Background="#FFB800" CornerRadius="4" Padding="8,4" 
                                             Margin="0,0,12,0" VerticalAlignment="Center">
-                                        <TextBlock Text="📦 ARCHIVÉE" FontSize="10" FontWeight="Bold" 
-                                                   Foreground="White"/>
+                                        <TextBlock FontSize="10" FontWeight="Bold" Foreground="White">
+                                            <Run Text="📦 "/>
+                                            <Run Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Archives_BadgeArchived], Mode=OneWay}"/>
+                                        </TextBlock>
                                     </Border>
 
                                     <!-- Titre -->
@@ -224,12 +241,18 @@
                                                Opacity="0.6"/>
 
                                     <!-- Bouton Désarchiver -->
-                                    <Button Grid.Column="2" Content="♻️ Désarchiver" 
+                                    <Button Grid.Column="2" 
                                             Command="{Binding DataContext.DesarchiverTacheCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                             CommandParameter="{Binding Item}"
                                             Background="#4CAF50" Foreground="White" BorderThickness="0"
                                             FontSize="12" FontWeight="Bold" Padding="12,6" Cursor="Hand"
                                             VerticalAlignment="Center">
+                                        <Button.Content>
+                                            <TextBlock>
+                                                <Run Text="♻️ "/>
+                                                <Run Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Archives_Unarchive], Mode=OneWay}"/>
+                                            </TextBlock>
+                                        </Button.Content>
                                         <Button.Style>
                                             <Style TargetType="Button">
                                                 <Setter Property="Background" Value="#4CAF50"/>
@@ -258,7 +281,8 @@
                                 <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,12,0,0" Opacity="0.5">
                                     <TextBlock Text="📅" FontSize="12" Margin="0,0,5,0"/>
                                     <TextBlock FontSize="12" Foreground="#666" Margin="0,0,20,0">
-                                        <Run Text="Archivé le"/>
+                                        <Run Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Archives_ArchivedOn], Mode=OneWay}"/>
+                                        <Run Text=" "/>
                                         <Run Text="{Binding Item.DateDerniereMaj, StringFormat='dd/MM/yyyy à HH:mm'}" FontWeight="Bold"/>
                                     </TextBlock>
 
@@ -273,7 +297,8 @@
                                     <TextBlock Text="⏱️" FontSize="12" Margin="0,0,5,0"/>
                                     <TextBlock FontSize="12" Foreground="#666">
                                         <Run Text="{Binding TempsReel, StringFormat='{}{0:F1}h'}"/>
-                                        <Run Text=" réalisées"/>
+                                        <Run Text=" "/>
+                                        <Run Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Archives_Realized], Mode=OneWay}"/>
                                     </TextBlock>
                                 </StackPanel>
 

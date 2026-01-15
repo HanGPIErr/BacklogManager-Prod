@@ -7,6 +7,7 @@ using System.Windows.Media;
 using BacklogManager.Domain;
 using BacklogManager.Services;
 using BacklogManager.Shared;
+using BacklogManager.Resources;
 
 namespace BacklogManager.ViewModels
 {
@@ -170,6 +171,9 @@ namespace BacklogManager.ViewModels
             AfficherDetailsDevCommand = new RelayCommand(param => AfficherDetailsDev(param as ChargeDevViewModel));
             AfficherDetailsCRADevCommand = new RelayCommand(param => AfficherDetailsCRADev(param as CRADevViewModel));
             ExporterPDFCommand = new RelayCommand(param => ExporterEnPDF());
+
+            // S'abonner aux changements de langue
+            LocalizationService.Instance.PropertyChanged += (s, e) => ChargerStatistiques();
 
             ChargerStatistiques();
         }
@@ -431,25 +435,25 @@ namespace BacklogManager.ViewModels
             {
                 new StatutStatsViewModel
                 {
-                    Statut = "À faire",
+                    Statut = LocalizationService.Instance.GetString("Stats_StatusToDo"),
                     Nombre = taches.Count(t => t.Statut == Statut.Afaire),
                     Couleur = new SolidColorBrush(Color.FromRgb(255, 152, 0))
                 },
                 new StatutStatsViewModel
                 {
-                    Statut = "En cours",
+                    Statut = LocalizationService.Instance.GetString("Stats_StatusInProgress"),
                     Nombre = taches.Count(t => t.Statut == Statut.EnCours),
                     Couleur = new SolidColorBrush(Color.FromRgb(33, 150, 243))
                 },
                 new StatutStatsViewModel
                 {
-                    Statut = "En test",
+                    Statut = LocalizationService.Instance.GetString("Stats_StatusInTest"),
                     Nombre = taches.Count(t => t.Statut == Statut.Test),
                     Couleur = new SolidColorBrush(Color.FromRgb(156, 39, 176))
                 },
                 new StatutStatsViewModel
                 {
-                    Statut = "Terminé",
+                    Statut = LocalizationService.Instance.GetString("Stats_StatusCompleted"),
                     Nombre = taches.Count(t => t.Statut == Statut.Termine) + 
                              _backlogService.GetAllBacklogItemsIncludingArchived()
                                  .Count(t => t.EstArchive && t.TypeDemande != TypeDemande.Conges && t.TypeDemande != TypeDemande.NonTravaille),
@@ -701,7 +705,7 @@ namespace BacklogManager.ViewModels
                 {
                     var nbMembres = utilisateurs.Count(u => u.EquipeId == equipe.Id && u.Id != equipe.ManagerId);
                     var manager = equipe.ManagerId.HasValue ? utilisateurs.FirstOrDefault(u => u.Id == equipe.ManagerId.Value) : null;
-                    var nomManager = manager != null ? $"{manager.Prenom} {manager.Nom}" : "Non assigné";
+                    var nomManager = manager != null ? $"{manager.Prenom} {manager.Nom}" : LocalizationService.Instance.GetString("Stats_NotAssigned");
                     var nbProjets = 0;
                     double heuresReelles = 0;
                     
@@ -1021,6 +1025,13 @@ namespace BacklogManager.ViewModels
         public double LargeurAfaire => Total > 0 ? (AFaire * 400.0 / Total) : 0;
         public double LargeurEnCours => Total > 0 ? (EnCours * 400.0 / Total) : 0;
         public double LargeurTerminees => Total > 0 ? (Terminees * 400.0 / Total) : 0;
+        
+        // Labels traduits
+        public string LabelTotal => LocalizationService.Instance.GetString("Stats_Total");
+        public string LabelTasks => LocalizationService.Instance.GetString("Stats_Tasks");
+        public string LabelToDo => LocalizationService.Instance.GetString("Stats_ToDo");
+        public string LabelInProgress => LocalizationService.Instance.GetString("Stats_InProgress");
+        public string LabelCompleted => LocalizationService.Instance.GetString("Stats_Completed");
     }
 
     public class CRADevViewModel
@@ -1044,6 +1055,11 @@ namespace BacklogManager.ViewModels
                 return 0;
             }
         }
+        
+        // Labels traduits
+        public string LabelThisMonth => "📅 " + LocalizationService.Instance.GetString("Stats_ThisMonth");
+        public string LabelTotal => "📊 " + LocalizationService.Instance.GetString("Stats_Total");
+        public string LabelDays => LocalizationService.Instance.GetString("Stats_Days");
     }
 
     public class CompletionProjetViewModel
@@ -1067,6 +1083,13 @@ namespace BacklogManager.ViewModels
             }
         }
         public string LabelCompletion => $"{TachesTerminees}/{TotalTaches}";
+        
+        // Labels traduits
+        public string LabelTotal => "📋 " + LocalizationService.Instance.GetString("Stats_Total");
+        public string LabelTasks => LocalizationService.Instance.GetString("Stats_Tasks");
+        public string LabelCompleted => "✅ " + LocalizationService.Instance.GetString("Stats_Completed") + " :";
+        public string LabelPlusArchived => "(+ " + LocalizationService.Instance.GetString("Stats_Archived") + ")";
+        public string LabelCRA => "⏰ CRA :";
     }
 
     // ViewModels pour les statistiques d'équipes
@@ -1079,6 +1102,14 @@ namespace BacklogManager.ViewModels
         private double _heuresReelles;
         private double _heuresDisponibles;
         private double _chargeEquipe;
+        
+        public string LabelManager => LocalizationService.Instance.GetString("Stats_Manager");
+        public string LabelMembers => LocalizationService.Instance.GetString("Stats_Members");
+        public string LabelActive => LocalizationService.Instance.GetString("Stats_Active");
+        public string LabelRelativeSize => LocalizationService.Instance.GetString("Stats_RelativeSize");
+        public string LabelProjects => LocalizationService.Instance.GetString("Stats_Projects");
+        public string LabelLoad => LocalizationService.Instance.GetString("Stats_Load");
+        public string LabelViewMembers => LocalizationService.Instance.GetString("Stats_ViewMembers");
         
         public int EquipeId { get; set; }
         
@@ -1190,6 +1221,11 @@ namespace BacklogManager.ViewModels
         private double _chargeMoyenneEquipe;
         private double _heuresReelles;
         private double _heuresDisponibles;
+        
+        public string LabelProjects => LocalizationService.Instance.GetString("Stats_Projects");
+        public string LabelMembers => LocalizationService.Instance.GetString("Stats_Members");
+        public string LabelAverageLoad => LocalizationService.Instance.GetString("Stats_AverageLoad");
+        public string LabelTotalTeam => LocalizationService.Instance.GetString("Stats_TotalTeam");
         
         public string NomEquipe
         {
@@ -1326,23 +1362,23 @@ namespace BacklogManager.ViewModels
                 // D\u00e9terminer le niveau de charge
                 if (ChargeParMembre < 0.5)
                 {
-                    NiveauCharge = "Faible";
-                    IndicateurCapacite = "\u2705 Capacit\u00e9 disponible";
+                    NiveauCharge = LocalizationService.Instance.GetString("Stats_LoadLevelLow");
+                    IndicateurCapacite = "\u2705 " + LocalizationService.Instance.GetString("Stats_CapacityAvailable");
                 }
                 else if (ChargeParMembre < 1.0)
                 {
-                    NiveauCharge = "Normale";
-                    IndicateurCapacite = "\u26a0\ufe0f Charge \u00e9quilibr\u00e9e";
+                    NiveauCharge = LocalizationService.Instance.GetString("Stats_LoadLevelNormal");
+                    IndicateurCapacite = "\u26a0\ufe0f " + LocalizationService.Instance.GetString("Stats_BalancedLoad");
                 }
                 else if (ChargeParMembre < 1.5)
                 {
-                    NiveauCharge = "\u00c9lev\u00e9e";
-                    IndicateurCapacite = "\u26a0\ufe0f Forte charge";
+                    NiveauCharge = LocalizationService.Instance.GetString("Stats_LoadLevelHigh");
+                    IndicateurCapacite = "\u26a0\ufe0f " + LocalizationService.Instance.GetString("Stats_HeavyLoad");
                 }
                 else
                 {
-                    NiveauCharge = "Tr\u00e8s \u00e9lev\u00e9e";
-                    IndicateurCapacite = "\ud83d\udd34 Surcharge";
+                    NiveauCharge = LocalizationService.Instance.GetString("Stats_LoadLevelVeryHigh");
+                    IndicateurCapacite = "\ud83d\udd34 " + LocalizationService.Instance.GetString("Stats_Overload");
                 }
             }
             else
@@ -1351,7 +1387,7 @@ namespace BacklogManager.ViewModels
                 ChargeTotaleEquipe = 0;
                 ChargeMoyenneEquipe = 0;
                 NiveauCharge = "N/A";
-                IndicateurCapacite = "\u26a0\ufe0f Aucun membre";
+                IndicateurCapacite = "\u26a0\ufe0f " + LocalizationService.Instance.GetString("Stats_NoMembers");
             }
         }
         

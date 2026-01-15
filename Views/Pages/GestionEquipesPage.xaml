@@ -1,6 +1,7 @@
 <Page x:Class="BacklogManager.Views.Pages.GestionEquipesPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:local="clr-namespace:BacklogManager.Services"
       Background="Transparent">
     <Grid>
         <Grid.RowDefinitions>
@@ -10,7 +11,7 @@
 
         <!-- Actions -->
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,20">
-            <Button x:Name="BtnNouvelleEquipe" Content="➕ Nouvelle équipe" Click="BtnNouvelleEquipe_Click"
+            <Button x:Name="BtnNouvelleEquipe" Click="BtnNouvelleEquipe_Click"
                     Background="#00915A" Foreground="White" Padding="18,10" 
                     BorderThickness="0" Cursor="Hand" FontWeight="SemiBold" FontSize="14">
                 <Button.Style>
@@ -34,7 +35,7 @@
                 </Button.Style>
             </Button>
             
-            <Button Content="🔄 Actualiser" Click="BtnActualiser_Click" Margin="10,0,0,0"
+            <Button x:Name="BtnActualiserEquipes" Click="BtnActualiser_Click" Margin="10,0,0,0"
                     Background="#6C757D" Foreground="White" Padding="18,10" 
                     BorderThickness="0" Cursor="Hand" FontWeight="SemiBold" FontSize="14">
                 <Button.Style>
@@ -165,7 +166,7 @@
                                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                             </Border>
                                             <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
-                                                <TextBlock Text="Manager" FontSize="10" 
+                                                <TextBlock Text="{Binding Source={x:Static local:LocalizationService.Instance}, Path=[Teams_Manager], Mode=OneWay}" FontSize="10" 
                                                            Foreground="#999999" FontWeight="SemiBold"/>
                                                 <TextBlock Text="{Binding ManagerNom}" FontSize="13" 
                                                            Foreground="#333333" FontWeight="Medium" 
@@ -197,7 +198,7 @@
                                             </Border>
                                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,6,0,0">
                                                 <TextBlock Text="👥" FontSize="12" Margin="0,0,4,0" VerticalAlignment="Center"/>
-                                                <TextBlock Text="Membres" FontSize="11" Foreground="#666666" 
+                                                <TextBlock Text="{Binding Source={x:Static local:LocalizationService.Instance}, Path=[Teams_Members], Mode=OneWay}" FontSize="11" Foreground="#666666" 
                                                            FontWeight="Medium" VerticalAlignment="Center"/>
                                             </StackPanel>
                                         </StackPanel>
@@ -218,7 +219,7 @@
                                             </Border>
                                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,6,0,0">
                                                 <TextBlock Text="📊" FontSize="12" Margin="0,0,4,0" VerticalAlignment="Center"/>
-                                                <TextBlock Text="Projets" FontSize="11" Foreground="#666666" 
+                                                <TextBlock Text="{Binding Source={x:Static local:LocalizationService.Instance}, Path=[Teams_Projects], Mode=OneWay}" FontSize="11" Foreground="#666666" 
                                                            FontWeight="Medium" VerticalAlignment="Center"/>
                                             </StackPanel>
                                         </StackPanel>

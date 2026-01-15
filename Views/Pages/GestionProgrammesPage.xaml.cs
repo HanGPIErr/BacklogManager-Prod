@@ -19,7 +19,28 @@ namespace BacklogManager.Views.Pages
             InitializeComponent();
             _database = database;
             _programmeService = new ProgrammeService(_database);
+            
+            // Initialiser les textes traduits
+            InitialiserTextes();
+            
             ChargerProgrammes();
+        }
+
+        private void InitialiserTextes()
+        {
+            // Textes des boutons
+            BtnNouveauProgramme.Content = "➕ " + LocalizationService.Instance.GetString("Programs_NewProgram");
+            BtnActualiser.Content = "🔄 " + LocalizationService.Instance.GetString("Programs_Refresh");
+
+            // S'abonner aux changements de langue
+            LocalizationService.Instance.PropertyChanged += (s, e) =>
+            {
+                BtnNouveauProgramme.Content = "➕ " + LocalizationService.Instance.GetString("Programs_NewProgram");
+                BtnActualiser.Content = "🔄 " + LocalizationService.Instance.GetString("Programs_Refresh");
+                
+                // Recharger les programmes pour mettre à jour les textes traduits
+                ChargerProgrammes();
+            };
         }
 
         private void ChargerProgrammes()
@@ -36,21 +57,21 @@ namespace BacklogManager.Views.Pages
                 {
                     Id = p.Id,
                     Nom = p.Nom,
-                    Code = !string.IsNullOrWhiteSpace(p.Code) ? p.Code : "N/A",
-                    Description = !string.IsNullOrWhiteSpace(p.Description) ? p.Description : "Aucune description",
+                    Code = !string.IsNullOrWhiteSpace(p.Code) ? p.Code : LocalizationService.Instance.GetString("Programs_NotAvailable"),
+                    Description = !string.IsNullOrWhiteSpace(p.Description) ? p.Description : LocalizationService.Instance.GetString("Programs_NoDescription"),
                     ResponsableNom = p.ResponsableId.HasValue 
                         ? utilisateurs.FirstOrDefault(u => u.Id == p.ResponsableId.Value)?.Prenom + " " + utilisateurs.FirstOrDefault(u => u.Id == p.ResponsableId.Value)?.Nom
-                        : "Aucun responsable",
+                        : LocalizationService.Instance.GetString("Programs_NoResponsible"),
                     NombreProjets = _programmeService.GetNombreProjetsActifs(p.Id),
-                    StatutGlobal = !string.IsNullOrWhiteSpace(p.StatutGlobal) ? p.StatutGlobal : "N/A"
+                    StatutGlobal = !string.IsNullOrWhiteSpace(p.StatutGlobal) ? p.StatutGlobal : LocalizationService.Instance.GetString("Programs_NotAvailable")
                 }).ToList();
 
                 LstProgrammes.ItemsSource = programmesViewModel;
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erreur lors du chargement des programmes: {ex.Message}", 
-                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(string.Format(LocalizationService.Instance.GetString("Programs_ErrorLoading"), ex.Message), 
+                    LocalizationService.Instance.GetString("Common_Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -67,8 +88,8 @@ namespace BacklogManager.Views.Pages
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erreur lors de l'ouverture de la fenêtre d'édition: {ex.Message}", 
-                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(string.Format(LocalizationService.Instance.GetString("Programs_ErrorOpeningEditor"), ex.Message), 
+                    LocalizationService.Instance.GetString("Common_Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -95,8 +116,8 @@ namespace BacklogManager.Views.Pages
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erreur lors de l'ouverture du programme: {ex.Message}", 
-                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(string.Format(LocalizationService.Instance.GetString("Programs_ErrorOpening"), ex.Message), 
+                    LocalizationService.Instance.GetString("Common_Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

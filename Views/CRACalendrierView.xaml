@@ -29,8 +29,8 @@
                 <DropShadowEffect BlurRadius="16" ShadowDepth="2" Opacity="0.2" Color="#00915A"/>
             </Border.Effect>
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="⏱️ SAISIE CRA" FontSize="22" FontWeight="Bold" Foreground="White"/>
-                <TextBlock Text="BNP Paribas" FontSize="16" Foreground="White" Opacity="0.9"
+                <TextBlock x:Name="TxtTitle" Text="⏱️ SAISIE CRA" FontSize="22" FontWeight="Bold" Foreground="White"/>
+                <TextBlock x:Name="TxtCompany" Text="BNP Paribas" FontSize="16" Foreground="White" Opacity="0.9"
                            VerticalAlignment="Center" Margin="15,0,0,0" FontWeight="Medium"/>
             </StackPanel>
         </Border>
@@ -125,7 +125,7 @@
                         </Button.Style>
                     </Button>
 
-                    <Button Content="📅 Aujourd'hui" Command="{Binding AujourdhuiCommand}"
+                    <Button x:Name="BtnToday" Content="📅 Aujourd'hui" Command="{Binding AujourdhuiCommand}"
                             Padding="12,8" Background="#E0E0E0" Foreground="#333" 
                             BorderThickness="0" FontSize="12" FontWeight="SemiBold" Cursor="Hand">
                         <Button.Style>
@@ -152,7 +152,7 @@
 
                 <!-- Filtre dev et checkbox -->
                 <WrapPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Content="✓ Valider CRA à valider" Padding="12,8" Margin="0,0,8,0"
+                    <Button x:Name="BtnValidatePending" Content="✓ Valider CRA à valider" Padding="12,8" Margin="0,0,8,0"
                             Background="#FF9800" Foreground="White" FontSize="12" FontWeight="SemiBold"
                             BorderThickness="0" Cursor="Hand" Click="BtnValiderCRAAValider_Click"
                             ToolTip="Valide uniquement les CRA en orange (avant aujourd'hui et non validés)"
@@ -178,7 +178,7 @@
                         </Button.Style>
                     </Button>
                     
-                    <Button Content="✓ Valider tous les CRA" Padding="12,8" Margin="0,0,8,0"
+                    <Button x:Name="BtnValidateAll" Content="✓ Valider tous les CRA" Padding="12,8" Margin="0,0,8,0"
                             Background="#00915A" Foreground="White" FontSize="12" FontWeight="SemiBold"
                             BorderThickness="0" Cursor="Hand" Click="BtnValiderTousCRA_Click"
                             ToolTip="Valide tous les CRA non validés du membre"
@@ -204,7 +204,7 @@
                         </Button.Style>
                     </Button>
                     
-                    <Button Content="✗ Annuler validation" Padding="12,8" Margin="0,0,15,0"
+                    <Button x:Name="BtnCancelValidation" Content="✗ Annuler validation" Padding="12,8" Margin="0,0,15,0"
                             Background="#E53935" Foreground="White" FontSize="12" FontWeight="SemiBold"
                             BorderThickness="0" Cursor="Hand" Click="BtnAnnulerValidation_Click"
                             ToolTip="Annule la validation d'un CRA validé"
@@ -230,21 +230,21 @@
                         </Button.Style>
                     </Button>
                     
-                    <TextBlock Text="🏢 Équipe:" FontSize="13" VerticalAlignment="Center" Margin="0,0,10,0"
+                    <TextBlock x:Name="TxtTeam" Text="🏢 Équipe:" FontSize="13" VerticalAlignment="Center" Margin="0,0,10,0"
                                Visibility="{Binding AfficherSelecteurDev, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                     <ComboBox ItemsSource="{Binding Equipes}" DisplayMemberPath="Nom"
                               SelectedItem="{Binding EquipeSelectionnee}"
                               Width="200" Padding="8,5" Margin="0,0,15,0"
                               Visibility="{Binding AfficherSelecteurDev, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                     
-                    <TextBlock Text="👤 Membres:" FontSize="13" VerticalAlignment="Center" Margin="0,0,10,0"
+                    <TextBlock x:Name="TxtMembers" Text="👤 Membres:" FontSize="13" VerticalAlignment="Center" Margin="0,0,10,0"
                                Visibility="{Binding AfficherSelecteurDev, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                     <ComboBox ItemsSource="{Binding Devs}" DisplayMemberPath="Nom"
                               SelectedItem="{Binding DevSelectionne}"
                               Width="180" Padding="8,5" Margin="0,0,15,0"
                               Visibility="{Binding AfficherSelecteurDev, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                     
-                    <CheckBox Content="Toutes les tâches" IsChecked="{Binding AfficherToutesLesTaches}"
+                    <CheckBox x:Name="ChkAllTasks" Content="Toutes les tâches" IsChecked="{Binding AfficherToutesLesTaches}"
                               VerticalAlignment="Center" FontSize="12" Foreground="#666"/>
                 </WrapPanel>
             </Grid>
@@ -286,19 +286,19 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="0" Text="LUN" HorizontalAlignment="Center" FontWeight="Bold" 
+                        <TextBlock x:Name="TxtMonday" Grid.Column="0" Text="LUN" HorizontalAlignment="Center" FontWeight="Bold" 
                                    Foreground="#00915A" FontSize="12"/>
-                        <TextBlock Grid.Column="1" Text="MAR" HorizontalAlignment="Center" FontWeight="Bold" 
+                        <TextBlock x:Name="TxtTuesday" Grid.Column="1" Text="MAR" HorizontalAlignment="Center" FontWeight="Bold" 
                                    Foreground="#00915A" FontSize="12"/>
-                        <TextBlock Grid.Column="2" Text="MER" HorizontalAlignment="Center" FontWeight="Bold" 
+                        <TextBlock x:Name="TxtWednesday" Grid.Column="2" Text="MER" HorizontalAlignment="Center" FontWeight="Bold" 
                                    Foreground="#00915A" FontSize="12"/>
-                        <TextBlock Grid.Column="3" Text="JEU" HorizontalAlignment="Center" FontWeight="Bold" 
+                        <TextBlock x:Name="TxtThursday" Grid.Column="3" Text="JEU" HorizontalAlignment="Center" FontWeight="Bold" 
                                    Foreground="#00915A" FontSize="12"/>
-                        <TextBlock Grid.Column="4" Text="VEN" HorizontalAlignment="Center" FontWeight="Bold" 
+                        <TextBlock x:Name="TxtFriday" Grid.Column="4" Text="VEN" HorizontalAlignment="Center" FontWeight="Bold" 
                                    Foreground="#00915A" FontSize="12"/>
-                        <TextBlock Grid.Column="5" Text="SAM" HorizontalAlignment="Center" FontWeight="Bold" 
+                        <TextBlock x:Name="TxtSaturday" Grid.Column="5" Text="SAM" HorizontalAlignment="Center" FontWeight="Bold" 
                                    Foreground="#999" FontSize="12"/>
-                        <TextBlock Grid.Column="6" Text="DIM" HorizontalAlignment="Center" FontWeight="Bold" 
+                        <TextBlock x:Name="TxtSunday" Grid.Column="6" Text="DIM" HorizontalAlignment="Center" FontWeight="Bold" 
                                    Foreground="#999" FontSize="12"/>
                     </Grid>
 
@@ -500,7 +500,7 @@
                             <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.15" Color="#00915A"/>
                         </Border.Effect>
                         <StackPanel>
-                            <TextBlock Text="📅 JOUR SÉLECTIONNÉ" FontSize="14" FontWeight="Bold" 
+                            <TextBlock x:Name="TxtSelectedDay" Text="📅 JOUR SÉLECTIONNÉ" FontSize="14" FontWeight="Bold" 
                                        Foreground="#00915A" Margin="0,0,0,10"/>
                             
                             <TextBlock Text="{Binding JourSelectionne.Date, StringFormat='dddd d MMMM yyyy'}" 
@@ -518,14 +518,20 @@
                             <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.15" Color="#00915A"/>
                         </Border.Effect>
                         <StackPanel>
-                            <TextBlock Text="✏️ SAISIR UN CRA" FontSize="14" FontWeight="Bold" 
+                            <TextBlock x:Name="TxtEnterCRA" Text="✏️ SAISIR UN CRA" FontSize="14" FontWeight="Bold" 
                                        Foreground="#00915A" Margin="0,0,0,10"/>
 
                             <!-- Tâche -->
-                            <TextBlock Text="Tâche" FontSize="12" Margin="0,0,0,5"/>
-                            <ComboBox ItemsSource="{Binding TachesDisponibles}" DisplayMemberPath="Titre"
-                                      SelectedItem="{Binding TacheSelectionnee}"
-                                      Padding="8,5" Margin="0,0,0,5"/>
+                            <TextBlock x:Name="TxtTask" Text="Tâche" FontSize="12" Margin="0,0,0,5"/>
+                            <Grid Margin="0,0,0,5">
+                                <ComboBox x:Name="CmbTask" ItemsSource="{Binding TachesDisponibles}" DisplayMemberPath="Titre"
+                                          SelectedItem="{Binding TacheSelectionnee}"
+                                          Padding="8,5"/>
+                                <TextBlock x:Name="TxtTaskPlaceholder" Text="-- Sélectionnez une tâche --" 
+                                           Foreground="#999" FontSize="12" Padding="10,6" 
+                                           IsHitTestVisible="False"
+                                           Visibility="Collapsed"/>
+                            </Grid>
 
                             <!-- Affichage temps restant + bouton allocation auto -->
                             <StackPanel Visibility="{Binding AfficherAllocationAuto, Converter={StaticResource BooleanToVisibilityConverter}}"
@@ -535,11 +541,11 @@
                                         <TextBlock Text="{Binding ProposeAutoAllocation}" 
                                                    FontSize="12" FontWeight="SemiBold" 
                                                    Foreground="#2E7D32"/>
-                                        <TextBlock Text="Le système va planifier intelligemment en sautant les jours occupés" 
+                                        <TextBlock x:Name="TxtAutoAllocationTitle" Text="Le système va planifier intelligemment en sautant les jours occupés" 
                                                    FontSize="10" Foreground="#666" Margin="0,2,0,0"/>
                                     </StackPanel>
                                 </Border>
-                                <Button Content="🤖 Allocation Automatique Intelligente" 
+                                <Button x:Name="BtnAutoAllocation" Content="🤖 Allocation Automatique Intelligente" 
                                         Command="{Binding AllocationAutomatiqueCommand}"
                                         Padding="10,6" Background="#4CAF50" Foreground="White" 
                                         BorderThickness="0" FontSize="12" FontWeight="SemiBold" Cursor="Hand">
@@ -568,25 +574,25 @@
                             <!-- OU saisie manuelle -->
                             <Border Background="#FFF3E0" CornerRadius="4" Padding="10,6" Margin="0,0,0,10"
                                     Visibility="{Binding AfficherAllocationAuto, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                <TextBlock Text="📝 OU saisie manuelle ci-dessous :" 
+                                <TextBlock x:Name="TxtManualEntry" Text="📝 OU saisie manuelle ci-dessous :" 
                                            FontSize="11" FontWeight="SemiBold" Foreground="#F57C00" 
                                            HorizontalAlignment="Center"/>
                             </Border>
 
                             <!-- Temps -->
-                            <TextBlock Text="Temps (en jours)" FontSize="12" Margin="0,0,0,5"/>
+                            <TextBlock x:Name="TxtTimeInDays" Text="Temps (en jours)" FontSize="12" Margin="0,0,0,5"/>
                             <TextBox Text="{Binding JoursASaisir, UpdateSourceTrigger=PropertyChanged}" 
                                      Padding="8,5" Margin="0,0,0,5"/>
                             
                             <!-- Saisie sur période (pour congés/non travaillé) -->
-                            <CheckBox Content="📅 Saisir sur une période (du... au...)" 
+                            <CheckBox x:Name="ChkEnterOnPeriod" Content="📅 Saisir sur une période (du... au...)" 
                                       IsChecked="{Binding SaisirSurPeriode}" 
                                       FontSize="12" Margin="0,5,0,5"
                                       Visibility="{Binding AfficherSaisiePeriode, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                             
                             <StackPanel Visibility="{Binding AfficherDateFin, Converter={StaticResource BooleanToVisibilityConverter}}"
                                         Margin="0,0,0,10">
-                                <TextBlock Text="📅 Date de fin de la période" FontSize="12" Margin="0,0,0,5"/>
+                                <TextBlock x:Name="TxtEndDate" Text="📅 Date de fin de la période" FontSize="12" Margin="0,0,0,5"/>
                                 <DatePicker SelectedDate="{Binding DateFinPeriode}" 
                                             Padding="8,5" Margin="0,0,0,5"/>
                                 <TextBlock Text="{Binding NombreJoursOuvresPeriode}" 
@@ -644,12 +650,12 @@
                             </WrapPanel>
 
                             <!-- Commentaire -->
-                            <TextBlock Text="Commentaire (optionnel)" FontSize="12" Margin="0,0,0,5"/>
+                            <TextBlock x:Name="TxtComment" Text="Commentaire (optionnel)" FontSize="12" Margin="0,0,0,5"/>
                             <TextBox Text="{Binding Commentaire}" TextWrapping="Wrap" AcceptsReturn="True"
                                      Height="60" Padding="8,5" Margin="0,0,0,10"/>
 
                             <!-- Bouton valider -->
-                            <Button Content="✓ Enregistrer" Command="{Binding SaisirCRACommand}"
+                            <Button x:Name="BtnSave" Content="✓ Enregistrer" Command="{Binding SaisirCRACommand}"
                                     Padding="12,8" Background="#00915A" Foreground="White" 
                                     BorderThickness="0" FontSize="13" FontWeight="Bold" Cursor="Hand">
                                 <Button.Style>
@@ -684,7 +690,7 @@
                             <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.15" Color="#00915A"/>
                         </Border.Effect>
                         <StackPanel>
-                            <TextBlock Text="📋 CRA SAISIS CE JOUR" FontSize="14" FontWeight="Bold" 
+                            <TextBlock x:Name="TxtListTitle" Text="📋 CRA SAISIS CE JOUR" FontSize="14" FontWeight="Bold" 
                                        Foreground="#00915A" Margin="0,0,0,10"/>
 
                             <ItemsControl ItemsSource="{Binding CRAsJourSelectionne}">

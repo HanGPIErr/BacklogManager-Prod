@@ -19,7 +19,28 @@ namespace BacklogManager.Views.Pages
             InitializeComponent();
             _database = database;
             _equipeService = new EquipeService(_database);
+            
+            // Initialiser les textes traduits
+            InitialiserTextes();
+            
             ChargerEquipes();
+        }
+
+        private void InitialiserTextes()
+        {
+            // Textes des boutons avec icônes
+            BtnNouvelleEquipe.Content = "➕ " + LocalizationService.Instance.GetString("Teams_NewTeam");
+            BtnActualiserEquipes.Content = "🔄 " + LocalizationService.Instance.GetString("Teams_Refresh");
+
+            // S'abonner aux changements de langue
+            LocalizationService.Instance.PropertyChanged += (s, e) =>
+            {
+                BtnNouvelleEquipe.Content = "➕ " + LocalizationService.Instance.GetString("Teams_NewTeam");
+                BtnActualiserEquipes.Content = "🔄 " + LocalizationService.Instance.GetString("Teams_Refresh");
+                
+                // Recharger les équipes pour mettre à jour "Aucun manager"
+                ChargerEquipes();
+            };
         }
 
         private void ChargerEquipes()
@@ -50,7 +71,7 @@ namespace BacklogManager.Views.Pages
                     Description = !string.IsNullOrWhiteSpace(e.Description) ? e.Description : "Aucune description",
                     ManagerNom = e.ManagerId.HasValue 
                         ? utilisateurs.FirstOrDefault(u => u.Id == e.ManagerId.Value)?.Prenom + " " + utilisateurs.FirstOrDefault(u => u.Id == e.ManagerId.Value)?.Nom
-                        : "Aucun manager",
+                        : LocalizationService.Instance.GetString("Teams_NoManager"),
                     NombreMembres = _equipeService.GetNombreMembres(e.Id),
                     NombreProjets = _equipeService.GetNombreProjetsActifs(e.Id)
                 }).ToList();

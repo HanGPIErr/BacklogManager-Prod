@@ -22,10 +22,46 @@ namespace BacklogManager.Views
             _isNewUser = utilisateur == null;
             _auditLogService = auditLogService;
 
+            InitialiserTextes();
             ChargerRoles();
             RemplirFormulaire();
 
-            Title = _isNewUser ? "Nouvel Utilisateur" : "Modifier Utilisateur";
+            Title = _isNewUser ? LocalizationService.Instance.GetString("UserEdit_NewUser") : LocalizationService.Instance.GetString("UserEdit_EditUser");
+        }
+
+        private void InitialiserTextes()
+        {
+            var loc = LocalizationService.Instance;
+
+            // Titre principal
+            TxtTitle.Text = loc.GetString("UserEdit_UserInformation");
+
+            // Labels des champs
+            TxtLabelLastName.Text = loc.GetString("UserEdit_LastName");
+            TxtLabelFirstName.Text = loc.GetString("UserEdit_FirstName");
+            TxtLabelEmail.Text = loc.GetString("UserEdit_Email");
+            TxtLabelUsername.Text = loc.GetString("UserEdit_Username");
+            TxtHintUsername.Text = loc.GetString("UserEdit_UsernameHint");
+            TxtLabelRole.Text = loc.GetString("UserEdit_Role");
+            TxtLabelTeam.Text = loc.GetString("UserEdit_Team");
+            TxtHintTeam.Text = loc.GetString("UserEdit_TeamHint");
+            TxtLabelStatus.Text = loc.GetString("UserEdit_Status");
+            TxtHintStatus.Text = loc.GetString("UserEdit_StatusHint");
+            ChkActif.Content = loc.GetString("UserEdit_ActiveUser");
+
+            // Boutons
+            BtnSave.Content = loc.GetString("UserEdit_Save");
+            BtnCancel.Content = loc.GetString("UserEdit_Cancel");
+
+            // Écouter les changements de langue
+            loc.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == "Item[]")
+                {
+                    InitialiserTextes();
+                    Title = _isNewUser ? loc.GetString("UserEdit_NewUser") : loc.GetString("UserEdit_EditUser");
+                }
+            };
         }
 
         private void ChargerRoles()
@@ -47,13 +83,13 @@ namespace BacklogManager.Views
                 // Charger les équipes
                 var equipes = _database.GetAllEquipes().Where(e => e.Actif).OrderBy(e => e.Nom).ToList();
                 // Ajouter une option "Aucune équipe" au début
-                equipes.Insert(0, new Equipe { Id = 0, Nom = "-- Aucune équipe --", Code = "" });
+                equipes.Insert(0, new Equipe { Id = 0, Nom = LocalizationService.Instance.GetString("UserEdit_NoTeam"), Code = "" });
                 CboEquipe.ItemsSource = equipes;
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erreur lors du chargement des rôles: {ex.Message}", 
-                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"{LocalizationService.Instance.GetString("UserEdit_ErrorLoadingRoles")}: {ex.Message}", 
+                    LocalizationService.Instance.GetString("Common_Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -202,7 +238,8 @@ namespace BacklogManager.Views
                         catch { }
                     }
 
-                    MessageBox.Show("Utilisateur créé avec succès.", "Succès", 
+                    MessageBox.Show(LocalizationService.Instance.GetString("UserEdit_SuccessCreated"), 
+                        LocalizationService.Instance.GetString("Common_Success"), 
                         MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 else
@@ -220,7 +257,8 @@ namespace BacklogManager.Views
                         catch { }
                     }
 
-                    MessageBox.Show("Utilisateur modifié avec succès.", "Succès", 
+                    MessageBox.Show(LocalizationService.Instance.GetString("UserEdit_SuccessUpdated"), 
+                        LocalizationService.Instance.GetString("Common_Success"), 
                         MessageBoxButton.OK, MessageBoxImage.Information);
                 }
 
@@ -229,8 +267,8 @@ namespace BacklogManager.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erreur lors de l'enregistrement: {ex.Message}\n\nDétails: {ex.StackTrace}", 
-                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"{LocalizationService.Instance.GetString("UserEdit_ErrorSaving")}: {ex.Message}\n\n{LocalizationService.Instance.GetString("Common_Details")}: {ex.StackTrace}", 
+                    LocalizationService.Instance.GetString("Common_Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

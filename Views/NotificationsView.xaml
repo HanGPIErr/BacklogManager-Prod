@@ -32,7 +32,7 @@
                     <StackPanel Orientation="Horizontal" Margin="0,0,20,10">
                         <TextBlock Text="🔔" FontSize="28" VerticalAlignment="Center" Margin="0,0,10,0"/>
                         <StackPanel>
-                            <TextBlock Text="CENTRE DE NOTIFICATIONS" FontSize="22" FontWeight="Bold" Foreground="White"/>
+                            <TextBlock x:Name="TxtTitle" Text="CENTRE DE NOTIFICATIONS" FontSize="22" FontWeight="Bold" Foreground="White"/>
                             <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
                                 <TextBlock Text="BNP Paribas" FontSize="14" Foreground="White" FontWeight="Medium" Opacity="0.9"/>
                                 <Rectangle Width="2" Height="16" Fill="White" Margin="10,0" Opacity="0.6"/>
@@ -114,7 +114,7 @@
                     <DropShadowEffect BlurRadius="16" ShadowDepth="0" Opacity="0.2" Color="#D0D0D0"/>
                 </Border.Effect>
                 <WrapPanel Orientation="Horizontal">
-                    <TextBlock Text="🔍 Filtrer:" FontWeight="Bold" FontSize="13" 
+                    <TextBlock x:Name="TxtFilter" Text="🔍 Filtrer:" FontWeight="Bold" FontSize="13" 
                                VerticalAlignment="Center" Margin="0,0,15,10" Foreground="#555"/>
                     
                     <RadioButton x:Name="RadioTous" Content="Toutes" IsChecked="True" 
@@ -187,9 +187,9 @@
 
                                 <!-- Contenu -->
                                 <StackPanel Grid.Column="1" Grid.Row="0">
-                                    <TextBlock Text="{Binding Titre}" FontWeight="Bold" FontSize="14" 
+                                    <TextBlock Text="{Binding TitreAffiche, Mode=OneWay}" FontWeight="Bold" FontSize="14" 
                                                Foreground="{Binding CouleurTexte}" TextWrapping="Wrap" Margin="0,0,0,5"/>
-                                    <TextBlock Text="{Binding Message}" FontSize="12" 
+                                    <TextBlock Text="{Binding MessageAffiche, Mode=OneWay}" FontSize="12" 
                                                Foreground="#333" TextWrapping="Wrap" Margin="0,0,0,5"/>
                                     <TextBlock FontSize="11" Foreground="#666" FontStyle="Italic">
                                         <Run Text="📅"/>
@@ -275,7 +275,7 @@
                                 <Border Grid.Column="2" Background="#00915A" CornerRadius="12" 
                                         Padding="8,4" VerticalAlignment="Top" Margin="10,0,0,0"
                                         Visibility="{Binding EstLue, Converter={StaticResource InverseBooleanToVisibilityConverter}}">
-                                    <TextBlock Text="NOUVEAU" FontSize="10" FontWeight="Bold" Foreground="White"/>
+                                    <TextBlock Text="{Binding BadgeNouveau, Mode=OneWay}" FontSize="10" FontWeight="Bold" Foreground="White"/>
                                 </Border>
 
                                 <!-- Bouton Supprimer -->
@@ -317,9 +317,9 @@
                            Width="120" Height="120" 
                            Stretch="Uniform"
                            Margin="0,0,0,20"/>
-                    <TextBlock Text="Aucune notification" FontSize="20" FontWeight="Bold" 
+                    <TextBlock x:Name="TxtNoNotifications" Text="Aucune notification" FontSize="20" FontWeight="Bold" 
                                Foreground="#666" HorizontalAlignment="Center" Margin="0,0,0,10"/>
-                    <TextBlock Text="Vous êtes à jour !" FontSize="14" Foreground="#999" 
+                    <TextBlock x:Name="TxtUpToDate" Text="Vous êtes à jour !" FontSize="14" Foreground="#999" 
                                HorizontalAlignment="Center"/>
                 </StackPanel>
             </Border>

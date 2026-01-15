@@ -69,6 +69,88 @@ namespace BacklogManager.Services
                 return "#333";
             }
         }
+
+        public string BadgeNouveau
+        {
+            get
+            {
+                return LocalizationService.Instance.GetString("Notifications_NewBadge");
+            }
+        }
+
+        // Propriétés pour affichage traduit dynamique
+        public string TitreAffiche
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(Titre)) return Titre;
+
+                // Extraire le nom de la tâche du titre (après ":" )
+                string nomTache = "";
+                if (Titre.Contains(":"))
+                {
+                    nomTache = Titre.Substring(Titre.IndexOf(":") + 1).Trim();
+                }
+
+                // Détecter le type de notification par le contenu ou l'emoji
+                if (Titre.Contains("⚠️") || Titre.Contains("Retard critique") || Titre.Contains("Critical delay") || Titre.Contains("Retraso crítico"))
+                {
+                    return string.Format(LocalizationService.Instance.GetString("Notification_CriticalDelay"), nomTache);
+                }
+                else if (Titre.Contains("📅") || Titre.Contains("Échéance proche") || Titre.Contains("Deadline approaching") || Titre.Contains("Plazo próximo"))
+                {
+                    return string.Format(LocalizationService.Instance.GetString("Notification_DeadlineNear"), nomTache);
+                }
+                else if (Titre.Contains("🚨") || Titre.Contains("urgente non assignée") || Titre.Contains("Urgent unassigned") || Titre.Contains("urgente sin asignar"))
+                {
+                    return string.Format(LocalizationService.Instance.GetString("Notification_UrgentUnassigned"), nomTache);
+                }
+                else if (Titre.Contains("✅") || Titre.Contains("terminée") || Titre.Contains("completed") || Titre.Contains("completada"))
+                {
+                    return string.Format(LocalizationService.Instance.GetString("Notification_TaskCompleted"), nomTache);
+                }
+
+                // Si aucune correspondance, retourner le titre original
+                return Titre;
+            }
+        }
+
+        public string MessageAffiche
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(Message)) return Message;
+
+                // Extraire les nombres du message (jours de retard, jours restants, dates)
+                var match = System.Text.RegularExpressions.Regex.Match(Message, @"(\d+)\s*jour");
+                int jours = match.Success ? int.Parse(match.Groups[1].Value) : 0;
+
+                var matchDate = System.Text.RegularExpressions.Regex.Match(Message, @"(\d{2}/\d{2}/\d{4})");
+                string date = matchDate.Success ? matchDate.Groups[1].Value : "";
+
+                // Détecter le type de message
+                if (Message.Contains("jour(s) de retard") || Message.Contains("day(s) late") || Message.Contains("día(s) de retraso"))
+                {
+                    return string.Format(LocalizationService.Instance.GetString("Notification_DelayMessage"), jours, date);
+                }
+                else if (Message.Contains("doit être terminée") || Message.Contains("must be completed") || Message.Contains("debe completarse") ||
+                         Message.Contains("jour(s) restant") || Message.Contains("day(s) remaining") || Message.Contains("día(s) restante"))
+                {
+                    return string.Format(LocalizationService.Instance.GetString("Notification_DeadlineMessage"), jours, date);
+                }
+                else if (Message.Contains("Aucun développeur") || Message.Contains("No developer") || Message.Contains("Ningún desarrollador"))
+                {
+                    return LocalizationService.Instance.GetString("Notification_UnassignedMessage");
+                }
+                else if (Message.Contains("a été marquée comme terminée") || Message.Contains("has been marked as completed") || Message.Contains("ha sido marcada como completada"))
+                {
+                    return LocalizationService.Instance.GetString("Notification_CompletedMessage");
+                }
+
+                // Si aucune correspondance, retourner le message original
+                return Message;
+            }
+        }
     }
 
     public class NotificationService
@@ -152,8 +234,8 @@ namespace BacklogManager.Services
                     {
                         AjouterNotification(new Notification
                         {
-                            Titre = $"⚠️ Retard critique: {tache.Titre}",
-                            Message = $"Cette tâche a {joursRetard} jour(s) de retard (Échéance: {tache.DateFinAttendue.Value:dd/MM/yyyy})",
+                            Titre = string.Format(LocalizationService.Instance.GetString("Notification_CriticalDelay"), tache.Titre),
+                            Message = string.Format(LocalizationService.Instance.GetString("Notification_DelayMessage"), joursRetard, tache.DateFinAttendue.Value.ToString("dd/MM/yyyy")),
                             Type = NotificationType.Urgent,
                             TacheId = tache.Id,
                             Tache = tache
@@ -172,8 +254,8 @@ namespace BacklogManager.Services
                         {
                             AjouterNotification(new Notification
                             {
-                                Titre = $"📅 Échéance proche: {tache.Titre}",
-                                Message = $"Cette tâche doit être terminée dans {joursRestants} jour(s) (Échéance: {tache.DateFinAttendue.Value:dd/MM/yyyy})",
+                                Titre = string.Format(LocalizationService.Instance.GetString("Notification_DeadlineNear"), tache.Titre),
+                                Message = string.Format(LocalizationService.Instance.GetString("Notification_DeadlineMessage"), joursRestants, tache.DateFinAttendue.Value.ToString("dd/MM/yyyy")),
                                 Type = NotificationType.Attention,
                                 TacheId = tache.Id,
                                 Tache = tache
@@ -185,12 +267,12 @@ namespace BacklogManager.Services
                 // INFO: Tâches urgentes non assignées
                 if (tache.Priorite == Priorite.Urgent && !tache.DevAssigneId.HasValue)
                 {
-                    if (!notificationsExistantes.Any(n => n.TacheId == tache.Id && n.Titre.Contains("non assignée")))
+                    if (!notificationsExistantes.Any(n => n.TacheId == tache.Id && n.Titre.Contains(LocalizationService.Instance.GetString("Notification_Unassigned"))))
                     {
                         AjouterNotification(new Notification
                         {
-                            Titre = $"🚨 Tâche urgente non assignée: {tache.Titre}",
-                            Message = "Cette tâche prioritaire n'a pas encore de développeur assigné",
+                            Titre = string.Format(LocalizationService.Instance.GetString("Notification_UrgentUnassigned"), tache.Titre),
+                            Message = LocalizationService.Instance.GetString("Notification_UnassignedMessage"),
                             Type = NotificationType.Info,
                             TacheId = tache.Id,
                             Tache = tache
@@ -214,8 +296,8 @@ namespace BacklogManager.Services
                 {
                     AjouterNotification(new Notification
                     {
-                        Titre = $"✅ Tâche terminée: {tache.Titre}",
-                        Message = $"Félicitations ! Cette tâche a été complétée",
+                        Titre = string.Format(LocalizationService.Instance.GetString("Notification_TaskCompleted"), tache.Titre),
+                        Message = LocalizationService.Instance.GetString("Notification_CompletedMessage"),
                         Type = NotificationType.Success,
                         TacheId = tache.Id,
                         Tache = tache

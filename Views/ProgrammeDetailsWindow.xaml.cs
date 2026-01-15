@@ -17,7 +17,22 @@ namespace BacklogManager.Views
             InitializeComponent();
             _programme = programme;
             _backlogService = backlogService;
+            InitialiserTextes();
             LoadData();
+        }
+
+        private void InitialiserTextes()
+        {
+            // Titre de la fenêtre et labels
+            Title = LocalizationService.Instance.GetString("ProgramDetails_Title");
+            
+            // S'abonner aux changements de langue
+            LocalizationService.Instance.PropertyChanged += (s, e) =>
+            {
+                Title = LocalizationService.Instance.GetString("ProgramDetails_Title");
+                // Recharger les données pour mettre à jour les textes traduits
+                LoadData();
+            };
         }
 
         private void LoadData()
@@ -34,11 +49,11 @@ namespace BacklogManager.Views
             if (_programme.ResponsableId.HasValue)
             {
                 var responsable = _backlogService.GetAllDevs().FirstOrDefault(d => d.Id == _programme.ResponsableId.Value);
-                TxtResponsable.Text = responsable != null ? $"👤 {responsable.Nom}" : "Non défini";
+                TxtResponsable.Text = responsable != null ? $"👤 {responsable.Nom}" : LocalizationService.Instance.GetString("ProgramDetails_NotDefined");
             }
             else
             {
-                TxtResponsable.Text = "Non défini";
+                TxtResponsable.Text = LocalizationService.Instance.GetString("ProgramDetails_NotDefined");
             }
 
             // Statut global
@@ -55,12 +70,12 @@ namespace BacklogManager.Views
             else
             {
                 BadgeStatutGlobal.Background = new SolidColorBrush(Colors.Gray);
-                TxtStatutGlobal.Text = "Non défini";
+                TxtStatutGlobal.Text = LocalizationService.Instance.GetString("ProgramDetails_NotDefined");
             }
 
             // Dates
-            TxtDateDebut.Text = _programme.DateDebut?.ToString("dd/MM/yyyy") ?? "Non définie";
-            TxtDateFinCible.Text = _programme.DateFinCible?.ToString("dd/MM/yyyy") ?? "Non définie";
+            TxtDateDebut.Text = _programme.DateDebut?.ToString("dd/MM/yyyy") ?? LocalizationService.Instance.GetString("ProgramDetails_NotDefinedFem");
+            TxtDateFinCible.Text = _programme.DateFinCible?.ToString("dd/MM/yyyy") ?? LocalizationService.Instance.GetString("ProgramDetails_NotDefinedFem");
 
             // Description
             if (!string.IsNullOrEmpty(_programme.Description))

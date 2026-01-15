@@ -19,12 +19,47 @@ namespace BacklogManager.Views
         {
             InitializeComponent();
             
+            // Initialiser les textes localisés
+            InitializeLocalizedTexts();
+            
             // Rafraîchir quand la vue devient visible
             this.Loaded += (s, e) =>
             {
                 var viewModel = DataContext as KanbanViewModel;
                 viewModel?.LoadItems();
             };
+        }
+        
+        private void InitializeLocalizedTexts()
+        {
+            var ls = Services.LocalizationService.Instance;
+            
+            // Header
+            TxtKanbanTitle.Text = ls.GetString("Kanban_Title");
+            TxtRealTimeView.Text = ls.GetString("Kanban_RealTimeView");
+            
+            // Admin Zone
+            TxtAdminZone.Text = ls.GetString("Kanban_AdminZone");
+            TxtRestrictedAccess.Text = ls.GetString("Kanban_RestrictedAccess");
+            TxtOnHold.Text = ls.GetString("Kanban_OnHold");
+            TxtToPrioritize.Text = ls.GetString("Kanban_ToPrioritize");
+            
+            // Filters
+            TxtFilters.Text = ls.GetString("Kanban_Filters");
+            TxtTeamFilter.Text = ls.GetString("Kanban_Team");
+            TxtMembersFilter.Text = ls.GetString("Kanban_Members");
+            TxtProjectFilter.Text = ls.GetString("Kanban_Project");
+            TxtSearchFilter.Text = ls.GetString("Kanban_Search");
+            
+            // Buttons
+            BtnRefresh.Content = ls.GetString("Kanban_BtnRefresh");
+            BtnClearFilters.Content = ls.GetString("Kanban_BtnClearFilters");
+            
+            // Columns
+            TxtToDo.Text = ls.GetString("Kanban_ToDo");
+            TxtInProgress.Text = ls.GetString("Kanban_InProgress");
+            TxtInTest.Text = ls.GetString("Kanban_InTest");
+            TxtDone.Text = ls.GetString("Kanban_Done");
         }
 
         private void KanbanCard_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)

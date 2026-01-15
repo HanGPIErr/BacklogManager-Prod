@@ -89,13 +89,49 @@ namespace BacklogManager.ViewModels
             TachesArchivees = new ObservableCollection<BacklogItemViewModel>();
             Projets = new ObservableCollection<Projet>();
             Devs = new ObservableCollection<Dev>();
-            Periodes = new List<string> { "Tout", "Cette semaine", "Ce mois", "Ce trimestre", "Cette année" };
+            Periodes = new List<string> 
+            { 
+                LocalizationService.Instance.GetString("Archives_All"),
+                LocalizationService.Instance.GetString("Archives_ThisWeek"),
+                LocalizationService.Instance.GetString("Archives_ThisMonth"),
+                LocalizationService.Instance.GetString("Archives_ThisQuarter"),
+                LocalizationService.Instance.GetString("Archives_ThisYear")
+            };
 
-            _periodeSelectionnee = "Tout";
+            _periodeSelectionnee = LocalizationService.Instance.GetString("Archives_All");
 
             DesarchiverTacheCommand = new RelayCommand(item => DesarchiverTache(item as BacklogItem), _ => EstAdministrateur);
             RafraichirCommand = new RelayCommand(_ => ChargerArchives());
             ResetFiltresCommand = new RelayCommand(_ => ResetFiltres());
+
+            // S'abonner aux changements de langue
+            LocalizationService.Instance.PropertyChanged += (s, e) =>
+            {
+                // Réinitialiser les périodes avec les nouvelles traductions
+                var periodeActuelle = _periodeSelectionnee;
+                var indexPeriode = Periodes.IndexOf(periodeActuelle);
+                
+                Periodes = new List<string>
+                {
+                    LocalizationService.Instance.GetString("Archives_All"),
+                    LocalizationService.Instance.GetString("Archives_ThisWeek"),
+                    LocalizationService.Instance.GetString("Archives_ThisMonth"),
+                    LocalizationService.Instance.GetString("Archives_ThisQuarter"),
+                    LocalizationService.Instance.GetString("Archives_ThisYear")
+                };
+                
+                // Restaurer la sélection par index
+                if (indexPeriode >= 0 && indexPeriode < Periodes.Count)
+                {
+                    _periodeSelectionnee = Periodes[indexPeriode];
+                    OnPropertyChanged(nameof(PeriodeSelectionnee));
+                }
+                
+                OnPropertyChanged(nameof(Periodes));
+                
+                // Recharger pour mettre à jour "Tous les projets" et "Tous les développeurs"
+                ChargerArchives();
+            };
 
             ChargerArchives();
         }
@@ -104,14 +140,14 @@ namespace BacklogManager.ViewModels
         {
             // Charger tous les projets et devs
             Projets.Clear();
-            Projets.Add(new Projet { Id = 0, Nom = "Tous les projets" });
+            Projets.Add(new Projet { Id = 0, Nom = LocalizationService.Instance.GetString("Archives_AllProjects") });
             foreach (var projet in _backlogService.GetAllProjets())
             {
                 Projets.Add(projet);
             }
 
             Devs.Clear();
-            Devs.Add(new Dev { Id = 0, Nom = "Tous les développeurs" });
+            Devs.Add(new Dev { Id = 0, Nom = LocalizationService.Instance.GetString("Archives_AllDevelopers") });
             foreach (var dev in _backlogService.GetAllDevs())
             {
                 Devs.Add(dev);
@@ -163,25 +199,27 @@ namespace BacklogManager.ViewModels
             if (!string.IsNullOrEmpty(_periodeSelectionnee))
             {
                 var maintenant = DateTime.Now;
-                switch (_periodeSelectionnee)
+                
+                if (_periodeSelectionnee == LocalizationService.Instance.GetString("Archives_ThisWeek"))
                 {
-                    case "Cette semaine":
-                        var debutSemaine = maintenant.AddDays(-(int)maintenant.DayOfWeek);
-                        items = items.Where(i => i.DateDerniereMaj >= debutSemaine);
-                        break;
-                    case "Ce mois":
-                        var debutMois = new DateTime(maintenant.Year, maintenant.Month, 1);
-                        items = items.Where(i => i.DateDerniereMaj >= debutMois);
-                        break;
-                    case "Ce trimestre":
-                        var trimestre = (maintenant.Month - 1) / 3;
-                        var debutTrimestre = new DateTime(maintenant.Year, trimestre * 3 + 1, 1);
-                        items = items.Where(i => i.DateDerniereMaj >= debutTrimestre);
-                        break;
-                    case "Cette année":
-                        var debutAnnee = new DateTime(maintenant.Year, 1, 1);
-                        items = items.Where(i => i.DateDerniereMaj >= debutAnnee);
-                        break;
+                    var debutSemaine = maintenant.AddDays(-(int)maintenant.DayOfWeek);
+                    items = items.Where(i => i.DateDerniereMaj >= debutSemaine);
+                }
+                else if (_periodeSelectionnee == LocalizationService.Instance.GetString("Archives_ThisMonth"))
+                {
+                    var debutMois = new DateTime(maintenant.Year, maintenant.Month, 1);
+                    items = items.Where(i => i.DateDerniereMaj >= debutMois);
+                }
+                else if (_periodeSelectionnee == LocalizationService.Instance.GetString("Archives_ThisQuarter"))
+                {
+                    var trimestre = (maintenant.Month - 1) / 3;
+                    var debutTrimestre = new DateTime(maintenant.Year, trimestre * 3 + 1, 1);
+                    items = items.Where(i => i.DateDerniereMaj >= debutTrimestre);
+                }
+                else if (_periodeSelectionnee == LocalizationService.Instance.GetString("Archives_ThisYear"))
+                {
+                    var debutAnnee = new DateTime(maintenant.Year, 1, 1);
+                    items = items.Where(i => i.DateDerniereMaj >= debutAnnee);
                 }
             }
 
@@ -219,7 +257,7 @@ namespace BacklogManager.ViewModels
             SearchText = "";
             ProjetSelectionneId = null;
             DevSelectionneId = null;
-            PeriodeSelectionnee = "Ce mois";
+            PeriodeSelectionnee = LocalizationService.Instance.GetString("Archives_ThisMonth");
         }
 
         private void DesarchiverTache(BacklogItem item)

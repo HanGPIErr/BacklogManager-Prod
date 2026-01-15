@@ -27,9 +27,9 @@
                 <StackPanel>
                     <TextBlock FontSize="28" FontWeight="Bold" Foreground="White">
                         <Run Text="⚙️ "/>
-                        <Run Text="ADMINISTRATION"/>
+                        <Run x:Name="TxtAdministrationTitle" Text="ADMINISTRATION"/>
                     </TextBlock>
-                    <TextBlock Text="Gestion des utilisateurs, rôles, projets et paramètres système" 
+                    <TextBlock x:Name="TxtAdministrationDescription" Text="Gestion des utilisateurs, rôles, projets et paramètres système" 
                                FontSize="14" Foreground="White" Opacity="0.9" Margin="0,5,0,0"/>
                 </StackPanel>
             </Border>
@@ -80,7 +80,7 @@
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="👥" FontSize="16" Margin="0,0,8,0"/>
-                            <TextBlock Text="Utilisateurs &amp; Rôles" FontSize="14"/>
+                            <TextBlock x:Name="TxtUsersAndRolesTab" Text="Utilisateurs &amp; Rôles" FontSize="14"/>
                         </StackPanel>
                     </TabItem.Header>
                     <Border CornerRadius="10" Padding="30" Margin="0,10,0,0">
@@ -123,7 +123,7 @@
                                         </Button.Style>
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="👥" Margin="0,0,6,0"/>
-                                            <TextBlock Text="Utilisateurs"/>
+                                            <TextBlock x:Name="TxtUsersSubTab" Text="Utilisateurs"/>
                                         </StackPanel>
                                     </Button>
                                     <Button x:Name="BtnSousOngletRoles" 
@@ -147,7 +147,7 @@
                                         </Button.Style>
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="🎭" Margin="0,0,6,0"/>
-                                            <TextBlock Text="Rôles"/>
+                                            <TextBlock x:Name="TxtRolesSubTab" Text="Rôles"/>
                                         </StackPanel>
                                     </Button>
                                 </StackPanel>
@@ -164,7 +164,7 @@
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="📊" FontSize="16" Margin="0,0,8,0"/>
-                            <TextBlock Text="Projets &amp; Équipe" FontSize="14"/>
+                            <TextBlock x:Name="TxtProjectsAndTeamTab" Text="Projets &amp; Équipe" FontSize="14"/>
                         </StackPanel>
                     </TabItem.Header>
                     <Border CornerRadius="10" Padding="30" Margin="0,10,0,0">
@@ -207,7 +207,7 @@
                                         </Button.Style>
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="📊" Margin="0,0,6,0"/>
-                                            <TextBlock Text="Programmes"/>
+                                            <TextBlock x:Name="TxtProgramsSubTab" Text="Programmes"/>
                                         </StackPanel>
                                     </Button>
                                     <Button x:Name="BtnSousOngletProjets" 
@@ -231,7 +231,7 @@
                                         </Button.Style>
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="📁" Margin="0,0,6,0"/>
-                                            <TextBlock Text="Projets"/>
+                                            <TextBlock x:Name="TxtProjectsSubTab" Text="Projets"/>
                                         </StackPanel>
                                     </Button>
                                     <Button x:Name="BtnSousOngletEquipes" 
@@ -255,7 +255,7 @@
                                         </Button.Style>
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="🏢" Margin="0,0,6,0"/>
-                                            <TextBlock Text="Équipes"/>
+                                            <TextBlock x:Name="TxtTeamsSubTab" Text="Équipes"/>
                                         </StackPanel>
                                     </Button>
                                 </StackPanel>
@@ -272,7 +272,7 @@
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="📈" FontSize="16" Margin="0,0,8,0"/>
-                            <TextBlock Text="Reporting" FontSize="14"/>
+                            <TextBlock x:Name="TxtReportingTab" Text="Reporting" FontSize="14"/>
                         </StackPanel>
                     </TabItem.Header>
                     <Border CornerRadius="10" Padding="0" Margin="0,10,0,0">
@@ -294,7 +294,7 @@
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="💬" FontSize="16" Margin="0,0,8,0"/>
-                            <TextBlock Text="Historique Chat IA" FontSize="14"/>
+                            <TextBlock x:Name="TxtChatHistoryTab" Text="Historique Chat IA" FontSize="14"/>
                         </StackPanel>
                     </TabItem.Header>
                     <Border CornerRadius="10" Padding="30" Margin="0,10,0,0">
@@ -335,7 +335,7 @@
                                 </Button.Style>
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="💬" FontSize="18" Margin="0,0,10,0"/>
-                                    <TextBlock Text="Ouvrir l'historique des conversations" FontSize="14"/>
+                                    <TextBlock x:Name="TxtOpenChatHistory" Text="Ouvrir l'historique des conversations" FontSize="14"/>
                                 </StackPanel>
                             </Button>
                         </Grid>
@@ -347,7 +347,7 @@
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="📋" FontSize="16" Margin="0,0,8,0"/>
-                            <TextBlock Text="Journal d'audit" FontSize="14"/>
+                            <TextBlock x:Name="TxtAuditLogTab" Text="Journal d'audit" FontSize="14"/>
                         </StackPanel>
                     </TabItem.Header>
                     <Border CornerRadius="10" Padding="30" Margin="0,10,0,0">
