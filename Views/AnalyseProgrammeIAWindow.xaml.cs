@@ -25,14 +25,29 @@ namespace BacklogManager.Views
             
             _programme = programme;
             
+            // Initialize localized texts
+            InitializeLocalizedTexts();
+            
             // Afficher le nom du programme
-            TxtNomProgramme.Text = $"Programme: {programme.Nom}";
+            TxtNomProgramme.Text = $"{LocalizationService.Instance.GetString("ProgramAIAnalysis_ProgramLabel")} {programme.Nom}";
             
             // Charger le token API
             _apiToken = Properties.Settings.Default.AgentChatToken;
             
             // Générer l'analyse en arrière-plan
             _ = GenererAnalyseAsync();
+        }
+        
+        private void InitializeLocalizedTexts()
+        {
+            var loc = LocalizationService.Instance;
+            
+            TxtTitle.Text = loc.GetString("ProgramAIAnalysis_Title");
+            TxtAgentName.Text = loc.GetString("ProgramAIAnalysis_AgentName");
+            TxtLoading.Text = loc.GetString("ProgramAIAnalysis_Loading");
+            TxtLoadingDetails.Text = loc.GetString("ProgramAIAnalysis_LoadingDetails");
+            BtnCopier.Content = loc.GetString("ProgramAIAnalysis_Copy");
+            BtnClose.Content = loc.GetString("ProgramAIAnalysis_Close");
         }
 
         private async Task GenererAnalyseAsync()
@@ -41,7 +56,7 @@ namespace BacklogManager.Views
             {
                 if (string.IsNullOrWhiteSpace(_apiToken))
                 {
-                    AfficherErreur("Token API non configuré. Configurez-le dans la section Chat.");
+                    AfficherErreur(LocalizationService.Instance.GetString("ProgramAIAnalysis_TokenNotConfigured"));
                     return;
                 }
 
@@ -130,7 +145,7 @@ Utilise des sections claires avec des titres en MAJUSCULES suivis de deux-points
             }
             catch (Exception ex)
             {
-                AfficherErreur($"Erreur lors de l'analyse: {ex.Message}");
+                AfficherErreur(string.Format(LocalizationService.Instance.GetString("ProgramAIAnalysis_AnalysisError"), ex.Message));
             }
         }
 
@@ -195,7 +210,8 @@ Utilise des sections claires avec des titres en MAJUSCULES suivis de deux-points
             try
             {
                 Clipboard.SetText(TxtAnalyse.Text);
-                MessageBox.Show("Analyse copiée dans le presse-papier!", "Copie réussie", 
+                MessageBox.Show(LocalizationService.Instance.GetString("ProgramAIAnalysis_CopiedToClipboard"), 
+                    LocalizationService.Instance.GetString("Common_Success"), 
                     MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)

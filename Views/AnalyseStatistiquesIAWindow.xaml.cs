@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using BacklogManager.ViewModels;
+using BacklogManager.Services;
 
 namespace BacklogManager.Views
 {
@@ -30,36 +31,20 @@ namespace BacklogManager.Views
 
         private void InitialiserTextes()
         {
-            var loc = Services.LocalizationService.Instance;
+            var loc = LocalizationService.Instance;
 
             // Titres de header
-            TxtAgentTitle.Text = loc.GetString("AIAnalysis_AgentTitle");
-            TxtAgentSubtitle.Text = loc.GetString("AIAnalysis_AgentSubtitle");
+            TxtAgentTitle.Text = loc["StatsAIAnalysis_AgentName"];
+            TxtAgentSubtitle.Text = loc["StatsAIAnalysis_StatsAndTrends"];
 
             // Titres des sections
-            TxtTitlePeriode.Text = loc.GetString("AIAnalysis_TitlePeriod");
-            TxtTitlePerformanceScore.Text = loc.GetString("AIAnalysis_TitlePerformanceScore");
-            TxtTitleOverview.Text = loc.GetString("AIAnalysis_TitleOverview");
-            TxtTitleDevPerformance.Text = loc.GetString("AIAnalysis_TitleDevPerformance");
-            TxtTitleTrends.Text = loc.GetString("AIAnalysis_TitleTrends");
-            TxtTitleRecommendations.Text = loc.GetString("AIAnalysis_TitleRecommendations");
-            TxtTitlePriorityActions.Text = loc.GetString("AIAnalysis_TitlePriorityActions");
-
-            // Textes de chargement
-            TxtLoadingAnalyzing.Text = loc.GetString("AIAnalysis_LoadingAnalyzing");
-            TxtLoadingWait.Text = loc.GetString("AIAnalysis_LoadingWait");
-
-            // Titre de la fenêtre
-            this.Title = loc.GetString("AIAnalysis_WindowTitle");
-
-            // Écouter les changements de langue
-            loc.PropertyChanged += (s, e) =>
-            {
-                if (e.PropertyName == "Item[]")
-                {
-                    InitialiserTextes();
-                }
-            };
+            TxtTitlePeriode.Text = loc["StatsAIAnalysis_AnalyzedPeriod"];
+            TxtTitlePerformanceScore.Text = loc["StatsAIAnalysis_PerformanceScore"];
+            TxtTitleOverview.Text = loc["StatsAIAnalysis_Overview"];
+            TxtTitleDevPerformance.Text = loc["StatsAIAnalysis_DevPerformance"];
+            TxtTitleTrends.Text = loc["StatsAIAnalysis_TrendsAndPatterns"];
+            TxtTitleRecommendations.Text = loc["StatsAIAnalysis_Recommendations"];
+            TxtTitlePriorityActions.Text = loc["StatsAIAnalysis_PriorityActions"];
         }
 
         private async Task AnalyserStatistiques()

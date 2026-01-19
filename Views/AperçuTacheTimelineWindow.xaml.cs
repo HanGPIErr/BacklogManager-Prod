@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Media;
 using BacklogManager.ViewModels;
 using BacklogManager.Domain;
+using BacklogManager.Services;
 
 namespace BacklogManager.Views
 {
@@ -14,11 +15,41 @@ namespace BacklogManager.Views
         {
             InitializeComponent();
             _tache = tache;
+            InitializeLocalizedTexts();
             ChargerDetails(tache);
+        }
+
+        private void InitializeLocalizedTexts()
+        {
+            var loc = LocalizationService.Instance;
+            
+            // Window title
+            Title = loc.GetString("TaskPreview_WindowTitle");
+            
+            // Header
+            TxtDetailsTitle.Text = loc.GetString("TaskPreview_DetailsTitle");
+            
+            // Labels
+            TxtDescriptionLabel.Text = loc.GetString("TaskPreview_Description");
+            TxtAssignedDevLabel.Text = loc.GetString("TaskPreview_AssignedDev");
+            TxtPriorityLabel.Text = loc.GetString("TaskPreview_Priority");
+            TxtTypeLabel.Text = loc.GetString("TaskPreview_Type");
+            TxtCreationDateLabel.Text = loc.GetString("TaskPreview_CreationDate");
+            TxtDueDateLabel.Text = loc.GetString("TaskPreview_DueDate");
+            TxtComplexityLabel.Text = loc.GetString("TaskPreview_Complexity");
+            TxtEstimateLabel.Text = loc.GetString("TaskPreview_Estimate");
+            TxtRealTimeLabel.Text = loc.GetString("TaskPreview_RealTime");
+            TxtProgressLabel.Text = loc.GetString("TaskPreview_Progress");
+            
+            // Buttons
+            BtnAnalyserIA.Content = loc.GetString("TaskPreview_AnalyzeIA");
+            BtnFermer.Content = loc.GetString("TaskPreview_Close");
         }
 
         private void ChargerDetails(TacheTimelineViewModel tache)
         {
+            var loc = LocalizationService.Instance;
+            
             // Titre
             TxtTitre.Text = tache.Titre;
 
@@ -29,12 +60,12 @@ namespace BacklogManager.Views
             // Description
             TxtDescription.Text = !string.IsNullOrWhiteSpace(tache.BacklogItem?.Description)
                 ? tache.BacklogItem.Description
-                : "Aucune description";
+                : loc.GetString("Common_NoDescription") ?? "Aucune description";
 
             // Développeur
             TxtDevAssigne.Text = !string.IsNullOrWhiteSpace(tache.DevAssigneNom)
                 ? tache.DevAssigneNom
-                : "Non assigné";
+                : loc.GetString("Stats_NotAssigned") ?? "Non assigné";
 
             // Priorité
             if (tache.BacklogItem != null)
@@ -93,16 +124,17 @@ namespace BacklogManager.Views
 
         private string FormatStatut(Statut statut)
         {
+            var loc = LocalizationService.Instance;
             switch (statut)
             {
                 case Statut.Afaire:
-                    return "À FAIRE";
+                    return loc.GetString("Stats_StatusToDo")?.ToUpper() ?? "À FAIRE";
                 case Statut.EnCours:
-                    return "EN COURS";
+                    return loc.GetString("Stats_StatusInProgress")?.ToUpper() ?? "EN COURS";
                 case Statut.Test:
-                    return "EN TEST";
+                    return loc.GetString("Stats_StatusInTest")?.ToUpper() ?? "EN TEST";
                 case Statut.Termine:
-                    return "TERMINÉ";
+                    return loc.GetString("Stats_StatusCompleted")?.ToUpper() ?? "TERMINÉ";
                 default:
                     return statut.ToString().ToUpper();
             }

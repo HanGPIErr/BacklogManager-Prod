@@ -2,7 +2,8 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:converters="clr-namespace:BacklogManager.Converters"
-        Title="Analyse IA du Projet" 
+        xmlns:services="clr-namespace:BacklogManager.Services"
+        Title="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[ProjectAIAnalysis_WindowTitle]}" 
         Height="700" Width="800"
         WindowStartupLocation="CenterScreen"
         Background="#F5F5F5"
@@ -40,10 +41,10 @@
                 
                 <!-- Titre -->
                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                    <TextBlock Text="🤖 Analyse IA du Projet" 
+                    <TextBlock x:Name="TxtTitle"
                               FontSize="20" FontWeight="Bold" 
                               Foreground="White"/>
-                    <TextBlock Text="Agent Project &amp; Change" 
+                    <TextBlock x:Name="TxtAgentName"
                               FontSize="13" 
                               Foreground="#E0E0E0" 
                               Margin="0,3,0,0"/>
@@ -60,7 +61,7 @@
                        Padding="15,10" VerticalAlignment="Center"
                        Visibility="Collapsed">
                     <StackPanel>
-                        <TextBlock Text="Score" FontSize="11" 
+                        <TextBlock x:Name="TxtScoreLabel" FontSize="11" 
                                   Foreground="#666" 
                                   HorizontalAlignment="Center"/>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
@@ -86,11 +87,11 @@
                     <StackPanel HorizontalAlignment="Center">
                         <TextBlock Text="⏳" FontSize="32" 
                                   HorizontalAlignment="Center" Margin="0,0,0,15"/>
-                        <TextBlock Text="L'IA analyse votre projet..." 
+                        <TextBlock x:Name="TxtLoading"
                                   FontSize="16" Foreground="#666" 
                                   HorizontalAlignment="Center"
                                   FontStyle="Italic"/>
-                        <TextBlock Text="Vérification des deadlines, analyse des tâches, calcul des retards..." 
+                        <TextBlock x:Name="TxtLoadingDetails"
                                   FontSize="13" Foreground="#999" 
                                   HorizontalAlignment="Center"
                                   Margin="0,5,0,0"/>
@@ -104,7 +105,7 @@
                            Padding="20" Margin="0,0,0,15"
                            BorderBrush="#E0E0E0" BorderThickness="1">
                         <StackPanel>
-                            <TextBlock Text="📊 Vue d'ensemble" 
+                            <TextBlock x:Name="TxtOverview"
                                       FontSize="16" FontWeight="Bold" 
                                       Foreground="#333" Margin="0,0,0,15"/>
                             <RichTextBox x:Name="TxtVueEnsemble" 
@@ -121,7 +122,7 @@
                            Padding="20" Margin="0,0,0,15"
                            BorderBrush="#E0E0E0" BorderThickness="1">
                         <StackPanel>
-                            <TextBlock Text="⏰ Analyse des Deadlines" 
+                            <TextBlock x:Name="TxtDeadlineAnalysis"
                                       FontSize="16" FontWeight="Bold" 
                                       Foreground="#333" Margin="0,0,0,15"/>
                             <RichTextBox x:Name="TxtDeadlines" 
@@ -138,7 +139,7 @@
                            Padding="20" Margin="0,0,0,15"
                            BorderBrush="#E0E0E0" BorderThickness="1">
                         <StackPanel>
-                            <TextBlock Text="💡 Recommandations" 
+                            <TextBlock x:Name="TxtRecommendations"
                                       FontSize="16" FontWeight="Bold" 
                                       Foreground="#333" Margin="0,0,0,15"/>
                             <RichTextBox x:Name="TxtRecommandations" 
@@ -154,7 +155,7 @@
                     <Border Background="#FFF3E0" CornerRadius="8" 
                            Padding="20" BorderBrush="#FFB74D" BorderThickness="1">
                         <StackPanel>
-                            <TextBlock Text="🎯 Actions Proposées" 
+                            <TextBlock x:Name="TxtProposedActions"
                                       FontSize="16" FontWeight="Bold" 
                                       Foreground="#E65100" Margin="0,0,0,15"/>
                             <RichTextBox x:Name="TxtActions" 
@@ -170,7 +171,7 @@
         </ScrollViewer>
 
         <!-- Bouton Fermer -->
-        <Button Grid.Row="2" Content="Fermer" 
+        <Button Grid.Row="2" x:Name="BtnClose"
                 Width="150" Height="40"
                 Background="#667eea" Foreground="White"
                 FontWeight="SemiBold" FontSize="14"

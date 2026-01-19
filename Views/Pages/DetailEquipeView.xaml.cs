@@ -160,8 +160,14 @@ namespace BacklogManager.Views.Pages
                 var loc = LocalizationService.Instance;
                 TxtNomEquipe.Text = equipe.Nom;
                 TxtCodeEquipe.Text = string.Format(loc["TeamDetail_Code"], equipe.Code);
-                TxtDescriptionEquipe.Text = !string.IsNullOrWhiteSpace(equipe.Description) ? 
-                    equipe.Description : loc["TeamDetail_NoDescription"];
+                
+                // Utiliser la traduction basée sur le code de l'équipe
+                string descriptionKey = $"Team_Description_{equipe.Code}";
+                string translatedDescription = loc[descriptionKey];
+                TxtDescriptionEquipe.Text = !translatedDescription.StartsWith("[") ? 
+                    translatedDescription : 
+                    (!string.IsNullOrWhiteSpace(equipe.Description) ? equipe.Description : loc["TeamDetail_NoDescription"]);
+                
                 TxtPerimetre.Text = !string.IsNullOrWhiteSpace(equipe.PerimetreFonctionnel) ? 
                     TraduirePerimetre(equipe.PerimetreFonctionnel) : loc["TeamDetail_NotDefined"];
                 TxtContact.Text = !string.IsNullOrWhiteSpace(equipe.Contact) ? 

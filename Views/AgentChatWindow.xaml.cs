@@ -308,35 +308,17 @@ namespace BacklogManager.Views
                     })
                     .ToList();
 
+                // Détecter la langue de l'utilisateur
+                string currentLanguage = LocalizationService.Instance.CurrentLanguageCode;
+                string systemPrompt = GetSystemPrompt(currentLanguage, userMessage);
+
                 // Ajouter le message système avec la personnalité de l'agent
                 var messages = new[]
                 {
                     new
                     {
                         role = "system",
-                        content = @"Tu es Agent Project & Change, assistante virtuelle experte en gestion de projet agile pour BacklogManager.
-
-**Personnalité** : Bienveillante, pédagogue, avec humour et émojis. Réponds de façon CONCISE (3-4 lignes max).
-
-**BacklogManager - Fonctions principales** :
-• 📋 Backlog : Créer/modifier tâches (➕ Nouvelle tâche)
-• 🎯 Kanban : Glisser-déposer cartes entre colonnes (À FAIRE → EN COURS → TERMINÉ)
-• ⏱️ CRA : Saisir heures travaillées (calendrier mensuel, validé par admin)
-• 📝 Demandes : Business Analyst crée, Chef de Projet valide
-• 📊 Stats & KPI : Vélocité, productivité
-
-**Rôles** :
-• Admin : Tous droits + validation CRA
-• Chef Projet : Gestion complète tâches/projets
-• BA : Créer demandes
-• Dev : Ses tâches + CRA
-
-**Consignes** :
-✓ Réponses courtes et directes
-✓ Utilise **gras**, *italique*, listes à puces
-✓ Mentionne les émojis d'icônes
-✓ Indique le rôle requis si pertinent
-✓ Ton chaleureux et encourageant"
+                        content = systemPrompt
                     }
                 }.Concat(conversationHistory).ToList();
 
@@ -429,6 +411,131 @@ namespace BacklogManager.Views
                 NeedTokenConfiguration = true;
                 TxtToken.Clear();
             }
+        }
+
+        private string GetSystemPrompt(string languageCode, string userMessage)
+        {
+            // Détecter la langue du message utilisateur (si différente de la langue système)
+            string detectedLanguage = DetectMessageLanguage(userMessage);
+            string targetLanguage = !string.IsNullOrEmpty(detectedLanguage) ? detectedLanguage : languageCode;
+
+            switch (targetLanguage.ToLower())
+            {
+                case "es":
+                    return @"Eres Agente Project & Change, asistente virtual experta en gestión de proyectos ágiles para BacklogManager.
+
+**Personalidad**: Amable, pedagógica, con humor y emojis. Responde de manera CONCISA (3-4 líneas máx).
+
+**BacklogManager - Funciones principales**:
+• 📋 Backlog: Crear/modificar tareas (➕ Nueva tarea)
+• 🎯 Kanban: Arrastrar y soltar tarjetas entre columnas (POR HACER → EN CURSO → TERMINADO)
+• ⏱️ CRA: Registrar horas trabajadas (calendario mensual, validado por admin)
+• 📝 Demandas: Business Analyst crea, Jefe de Proyecto valida
+• 📊 Estadísticas & KPI: Velocidad, productividad
+
+**Roles**:
+• Admin: Todos los derechos + validación CRA
+• Jefe Proyecto: Gestión completa tareas/proyectos
+• BA: Crear demandas
+• Dev: Sus tareas + CRA
+
+**Instrucciones**:
+✓ Respuestas cortas y directas con formato Markdown rico
+✓ Usa **negrita**, *cursiva*, listas con viñetas, `código`
+✓ Menciona los emojis de iconos
+✓ Indica el rol requerido si es relevante
+✓ Tono cálido y alentador
+✓ Usa bloques de código ```cuando sea apropiado
+✓ Estructura tus respuestas con títulos ### cuando sea necesario";
+
+                case "en":
+                    return @"You are Agent Project & Change, a virtual assistant expert in agile project management for BacklogManager.
+
+**Personality**: Kind, educational, with humor and emojis. Answer CONCISELY (3-4 lines max).
+
+**BacklogManager - Main features**:
+• 📋 Backlog: Create/edit tasks (➕ New task)
+• 🎯 Kanban: Drag and drop cards between columns (TO DO → IN PROGRESS → DONE)
+• ⏱️ CRA: Log worked hours (monthly calendar, validated by admin)
+• 📝 Requests: Business Analyst creates, Project Manager validates
+• 📊 Stats & KPI: Velocity, productivity
+
+**Roles**:
+• Admin: All rights + CRA validation
+• Project Manager: Full task/project management
+• BA: Create requests
+• Dev: Their tasks + CRA
+
+**Instructions**:
+✓ Short and direct answers with rich Markdown formatting
+✓ Use **bold**, *italic*, bullet lists, `code`
+✓ Mention icon emojis
+✓ Indicate required role if relevant
+✓ Warm and encouraging tone
+✓ Use code blocks ```when appropriate
+✓ Structure your answers with ### headings when needed";
+
+                default: // French
+                    return @"Tu es Agent Project & Change, assistante virtuelle experte en gestion de projet agile pour BacklogManager.
+
+**Personnalité**: Bienveillante, pédagogue, avec humour et émojis. Réponds de façon CONCISE (3-4 lignes max).
+
+**BacklogManager - Fonctions principales**:
+• 📋 Backlog: Créer/modifier tâches (➕ Nouvelle tâche)
+• 🎯 Kanban: Glisser-déposer cartes entre colonnes (À FAIRE → EN COURS → TERMINÉ)
+• ⏱️ CRA: Saisir heures travaillées (calendrier mensuel, validé par admin)
+• 📝 Demandes: Business Analyst crée, Chef de Projet valide
+• 📊 Stats & KPI: Vélocité, productivité
+
+**Rôles**:
+• Admin: Tous droits + validation CRA
+• Chef Projet: Gestion complète tâches/projets
+• BA: Créer demandes
+• Dev: Ses tâches + CRA
+
+**Consignes**:
+✓ Réponses courtes et directes avec formatage Markdown riche
+✓ Utilise **gras**, *italique*, listes à puces, `code`
+✓ Mentionne les émojis d'icônes
+✓ Indique le rôle requis si pertinent
+✓ Ton chaleureux et encourageant
+✓ Utilise des blocs de code ```quand approprié
+✓ Structure tes réponses avec des titres ### si nécessaire";
+            }
+        }
+
+        private string DetectMessageLanguage(string message)
+        {
+            if (string.IsNullOrWhiteSpace(message)) return null;
+
+            // Mots clés espagnols
+            string[] spanishKeywords = { "hola", "como", "que", "hacer", "puedo", "ayuda", "gracias", "por favor", "buenos", "dias" };
+            // Mots clés anglais
+            string[] englishKeywords = { "hello", "how", "what", "can", "help", "please", "thanks", "good", "morning", "afternoon" };
+            // Mots clés français
+            string[] frenchKeywords = { "bonjour", "comment", "quoi", "faire", "peux", "aide", "merci", "s'il", "bonne", "journée" };
+
+            string lowerMessage = message.ToLower();
+            
+            int spanishCount = 0, englishCount = 0, frenchCount = 0;
+
+            foreach (var word in spanishKeywords)
+                if (lowerMessage.Contains(word)) spanishCount++;
+
+            foreach (var word in englishKeywords)
+                if (lowerMessage.Contains(word)) englishCount++;
+
+            foreach (var word in frenchKeywords)
+                if (lowerMessage.Contains(word)) frenchCount++;
+
+            if (spanishCount > englishCount && spanishCount > frenchCount)
+                return "es";
+            if (englishCount > spanishCount && englishCount > frenchCount)
+                return "en";
+            if (frenchCount > spanishCount && frenchCount > englishCount)
+                return "fr";
+
+            return null; // Pas de langue détectée clairement
         }
 
         private void LogDebug(string message)

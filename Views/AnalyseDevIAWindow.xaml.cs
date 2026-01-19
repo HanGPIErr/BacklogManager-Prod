@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using BacklogManager.Domain;
+using BacklogManager.Services;
 
 namespace BacklogManager.Views
 {
@@ -22,11 +23,24 @@ namespace BacklogManager.Views
             _statsData = statsData;
             _periodeDescription = periodeDescription;
             
+            InitializeLocalizedTexts();
+            
             Dev dev = statsData.dev;
-            TxtDevNom.Text = $"Analyse de {dev.Nom}";
+            TxtDevNom.Text = $"{LocalizationService.Instance["DevAIAnalysis_DevAnalysis"]} {dev.Nom}";
             TxtPeriode.Text = periodeDescription;
             
             Loaded += async (s, e) => await AnalyserDeveloppeur();
+        }
+
+        private void InitializeLocalizedTexts()
+        {
+            TxtAgentName.Text = LocalizationService.Instance["DevAIAnalysis_AgentName"];
+            TxtAnalyzedPeriod.Text = LocalizationService.Instance["DevAIAnalysis_AnalyzedPeriod"];
+            TxtPerformanceScore.Text = LocalizationService.Instance["DevAIAnalysis_PerformanceScore"];
+            TxtGeneralOverview.Text = LocalizationService.Instance["DevAIAnalysis_GeneralOverview"];
+            TxtStrengths.Text = LocalizationService.Instance["DevAIAnalysis_Strengths"];
+            TxtImprovementAreas.Text = LocalizationService.Instance["DevAIAnalysis_ImprovementAreas"];
+            TxtRecommendations.Text = LocalizationService.Instance["DevAIAnalysis_Recommendations"];
         }
 
         private async Task AnalyserDeveloppeur()

@@ -9,6 +9,7 @@ using System.Windows;
 using System.Windows.Documents;
 using BacklogManager.Domain;
 using BacklogManager.Converters;
+using BacklogManager.Services;
 
 namespace BacklogManager.Views
 {
@@ -28,14 +29,33 @@ namespace BacklogManager.Views
             _projet = projet;
             _taches = taches;
             
+            // Initialize localized texts
+            InitializeLocalizedTexts();
+            
             // Afficher le nom du projet
-            TxtNomProjet.Text = $"Projet: {projet.Nom}";
+            TxtNomProjet.Text = $"{LocalizationService.Instance.GetString("ProjectAIAnalysis_ProjectLabel")} {projet.Nom}";
             
             // Charger le token API
             _apiToken = Properties.Settings.Default.AgentChatToken;
             
             // Générer l'analyse en arrière-plan
             _ = GenererAnalyseAsync();
+        }
+        
+        private void InitializeLocalizedTexts()
+        {
+            var loc = LocalizationService.Instance;
+            
+            TxtTitle.Text = loc.GetString("ProjectAIAnalysis_Title");
+            TxtAgentName.Text = loc.GetString("ProjectAIAnalysis_AgentName");
+            TxtScoreLabel.Text = loc.GetString("ProjectAIAnalysis_ScoreLabel");
+            TxtLoading.Text = loc.GetString("ProjectAIAnalysis_Loading");
+            TxtLoadingDetails.Text = loc.GetString("ProjectAIAnalysis_LoadingDetails");
+            TxtOverview.Text = loc.GetString("ProjectAIAnalysis_Overview");
+            TxtDeadlineAnalysis.Text = loc.GetString("ProjectAIAnalysis_DeadlineAnalysis");
+            TxtRecommendations.Text = loc.GetString("ProjectAIAnalysis_Recommendations");
+            TxtProposedActions.Text = loc.GetString("ProjectAIAnalysis_ProposedActions");
+            BtnClose.Content = loc.GetString("ProjectAIAnalysis_Close");
         }
 
         private async Task GenererAnalyseAsync()
@@ -44,7 +64,7 @@ namespace BacklogManager.Views
             {
                 if (string.IsNullOrWhiteSpace(_apiToken))
                 {
-                    AfficherErreur("Token API non configuré. Configurez-le dans la section Chat.");
+                    AfficherErreur(LocalizationService.Instance.GetString("ProjectAIAnalysis_TokenNotConfigured"));
                     return;
                 }
 
@@ -149,7 +169,7 @@ Sois constructif, précis et propose des solutions concrètes.";
             }
             catch (Exception ex)
             {
-                AfficherErreur($"Erreur lors de l'analyse: {ex.Message}");
+                AfficherErreur(string.Format(LocalizationService.Instance.GetString("ProjectAIAnalysis_AnalysisError"), ex.Message));
             }
         }
 

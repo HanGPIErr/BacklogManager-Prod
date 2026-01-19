@@ -153,6 +153,10 @@ namespace BacklogManager.Views
         public string NewTaskText => LocalizationService.Instance["Dashboard_NewTask"];
         public string ViewKanbanText => LocalizationService.Instance["Dashboard_ViewKanban"];
         public string TimelineProjectText => LocalizationService.Instance["Dashboard_TimelineProject"];
+        public string ToDoLabel => LocalizationService.Instance["Dashboard_ToDo"];
+        public string InProgressLabel => LocalizationService.Instance["Dashboard_InProgress"];
+        public string CompletedLabel => LocalizationService.Instance["Dashboard_Completed"];
+        public string DelayedLabel => LocalizationService.Instance["Dashboard_Delayed"];
 
         private ObservableCollection<ActiviteViewModel> _activitesRecentes;
         public ObservableCollection<ActiviteViewModel> ActivitesRecentes
@@ -218,6 +222,10 @@ namespace BacklogManager.Views
             OnPropertyChanged(nameof(ProjectsText));
             OnPropertyChanged(nameof(TeamsText));
             OnPropertyChanged(nameof(ResourcesText));
+            OnPropertyChanged(nameof(ToDoLabel));
+            OnPropertyChanged(nameof(InProgressLabel));
+            OnPropertyChanged(nameof(CompletedLabel));
+            OnPropertyChanged(nameof(DelayedLabel));
             OnPropertyChanged(nameof(LoadPerTeamText));
             OnPropertyChanged(nameof(AllTeamsText));
             OnPropertyChanged(nameof(ClickForDetailsText));

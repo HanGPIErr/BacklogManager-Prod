@@ -16,68 +16,189 @@ namespace BacklogManager.Converters
             
             var text = value.ToString();
             var flowDocument = new FlowDocument();
-            var paragraph = new Paragraph { LineHeight = 20 };
+            var paragraph = new Paragraph { LineHeight = 20, Margin = new Thickness(0) };
 
             // Parser le texte ligne par ligne
-            var lines = text.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+            var lines = text.Split(new[] { '\n', '\r' }, StringSplitOptions.None);
             
-            foreach (var line in lines)
+            bool inCodeBlock = false;
+            var codeBlockContent = new System.Text.StringBuilder();
+            
+            for (int i = 0; i < lines.Length; i++)
             {
+                var line = lines[i];
                 var trimmedLine = line.Trim();
+                
+                // Détecter les blocs de code ```
+                if (trimmedLine.StartsWith("```"))
+                {
+                    if (!inCodeBlock)
+                    {
+                        // Début du bloc de code
+                        inCodeBlock = true;
+                        codeBlockContent.Clear();
+                        
+                        // Ajouter le paragraphe actuel avant le bloc de code
+                        if (paragraph.Inlines.Count > 0)
+                        {
+                            flowDocument.Blocks.Add(paragraph);
+                            paragraph = new Paragraph { LineHeight = 20, Margin = new Thickness(0) };
+                        }
+                    }
+                    else
+                    {
+                        // Fin du bloc de code
+                        inCodeBlock = false;
+                        
+                        // Créer le paragraphe de code
+                        var codePara = new Paragraph(new Run(codeBlockContent.ToString().TrimEnd()))
+                        {
+                            FontFamily = new FontFamily("Consolas"),
+                            FontSize = 12,
+                            Background = new SolidColorBrush(Color.FromArgb(40, 0, 0, 0)),
+                            Foreground = new SolidColorBrush(Color.FromRgb(220, 220, 220)),
+                            Padding = new Thickness(12, 8, 12, 8),
+                            Margin = new Thickness(0, 8, 0, 8),
+                            BorderBrush = new SolidColorBrush(Color.FromArgb(80, 255, 255, 255)),
+                            BorderThickness = new Thickness(1)
+                        };
+                        flowDocument.Blocks.Add(codePara);
+                        codeBlockContent.Clear();
+                    }
+                    continue;
+                }
+                
+                // Si on est dans un bloc de code, accumuler le contenu
+                if (inCodeBlock)
+                {
+                    codeBlockContent.AppendLine(line);
+                    continue;
+                }
                 
                 // Ignorer les lignes vides
                 if (string.IsNullOrWhiteSpace(trimmedLine))
                 {
-                    paragraph.Inlines.Add(new LineBreak());
+                    if (paragraph.Inlines.Count > 0)
+                    {
+                        flowDocument.Blocks.Add(paragraph);
+                        paragraph = new Paragraph { LineHeight = 20, Margin = new Thickness(0) };
+                    }
                     continue;
                 }
                 
                 // Liste à puces
                 if (trimmedLine.StartsWith("• ") || trimmedLine.StartsWith("- ") || trimmedLine.StartsWith("* "))
                 {
+                    if (paragraph.Inlines.Count > 0)
+                    {
+                        flowDocument.Blocks.Add(paragraph);
+                        paragraph = new Paragraph { LineHeight = 20, Margin = new Thickness(0) };
+                    }
+                    
                     var listText = trimmedLine.Substring(2);
                     var listPara = new Paragraph(ParseInlineFormatting(listText))
                     {
                         Margin = new Thickness(20, 2, 0, 2),
-                        TextIndent = -15
+                        TextIndent = -15,
+                        LineHeight = 20
                     };
                     flowDocument.Blocks.Add(listPara);
                 }
                 // Liste numérotée (ex: "1. ", "2. ")
                 else if (Regex.IsMatch(trimmedLine, @"^\d+\.\s"))
                 {
-                    var match = Regex.Match(trimmedLine, @"^\d+\.\s(.+)");
+                    if (paragraph.Inlines.Count > 0)
+                    {
+                        flowDocument.Blocks.Add(paragraph);
+                        paragraph = new Paragraph { LineHeight = 20, Margin = new Thickness(0) };
+                    }
+                    
+                    var match = Regex.Match(trimmedLine, @"^(\d+)\.\s(.+)");
                     if (match.Success)
                     {
-                        var listText = match.Groups[1].Value;
-                        var listPara = new Paragraph(ParseInlineFormatting(listText))
+                        var number = match.Groups[1].Value;
+                        var listText = match.Groups[2].Value;
+                        var listPara = new Paragraph
                         {
                             Margin = new Thickness(20, 2, 0, 2),
-                            TextIndent = -15
+                            LineHeight = 20
                         };
+                        listPara.Inlines.Add(new Run($"{number}. ") { FontWeight = FontWeights.SemiBold });
+                        listPara.Inlines.Add(ParseInlineFormatting(listText));
                         flowDocument.Blocks.Add(listPara);
                     }
                 }
-                // Titre (commence par #)
+                // Titre ### (h3)
+                else if (trimmedLine.StartsWith("### "))
+                {
+                    if (paragraph.Inlines.Count > 0)
+                    {
+                        flowDocument.Blocks.Add(paragraph);
+                        paragraph = new Paragraph { LineHeight = 20, Margin = new Thickness(0) };
+                    }
+                    
+                    var titleText = trimmedLine.Substring(4);
+                    var titlePara = new Paragraph(new Run(titleText))
+                    {
+                        FontWeight = FontWeights.SemiBold,
+                        FontSize = 14,
+                        Margin = new Thickness(0, 12, 0, 6),
+                        Foreground = new SolidColorBrush(Color.FromRgb(52, 73, 94))
+                    };
+                    flowDocument.Blocks.Add(titlePara);
+                }
+                // Titre ## (h2)
+                else if (trimmedLine.StartsWith("## "))
+                {
+                    if (paragraph.Inlines.Count > 0)
+                    {
+                        flowDocument.Blocks.Add(paragraph);
+                        paragraph = new Paragraph { LineHeight = 20, Margin = new Thickness(0) };
+                    }
+                    
+                    var titleText = trimmedLine.Substring(3);
+                    var titlePara = new Paragraph(new Run(titleText))
+                    {
+                        FontWeight = FontWeights.Bold,
+                        FontSize = 15,
+                        Margin = new Thickness(0, 12, 0, 6),
+                        Foreground = new SolidColorBrush(Color.FromRgb(52, 73, 94))
+                    };
+                    flowDocument.Blocks.Add(titlePara);
+                }
+                // Titre # (h1)
                 else if (trimmedLine.StartsWith("# "))
                 {
+                    if (paragraph.Inlines.Count > 0)
+                    {
+                        flowDocument.Blocks.Add(paragraph);
+                        paragraph = new Paragraph { LineHeight = 20, Margin = new Thickness(0) };
+                    }
+                    
                     var titleText = trimmedLine.Substring(2);
                     var titlePara = new Paragraph(new Run(titleText))
                     {
                         FontWeight = FontWeights.Bold,
                         FontSize = 16,
-                        Margin = new Thickness(0, 8, 0, 4)
+                        Margin = new Thickness(0, 12, 0, 8),
+                        Foreground = new SolidColorBrush(Color.FromRgb(52, 73, 94))
                     };
                     flowDocument.Blocks.Add(titlePara);
                 }
                 // Séparateur horizontal
                 else if (trimmedLine == "---" || trimmedLine == "***" || trimmedLine == "___")
                 {
+                    if (paragraph.Inlines.Count > 0)
+                    {
+                        flowDocument.Blocks.Add(paragraph);
+                        paragraph = new Paragraph { LineHeight = 20, Margin = new Thickness(0) };
+                    }
+                    
                     var separator = new Paragraph
                     {
-                        BorderBrush = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
+                        BorderBrush = new SolidColorBrush(Color.FromRgb(220, 220, 220)),
                         BorderThickness = new Thickness(0, 0, 0, 1),
-                        Margin = new Thickness(0, 10, 0, 10),
+                        Margin = new Thickness(0, 8, 0, 8),
                         Padding = new Thickness(0)
                     };
                     flowDocument.Blocks.Add(separator);
@@ -86,7 +207,10 @@ namespace BacklogManager.Converters
                 else
                 {
                     paragraph.Inlines.Add(ParseInlineFormatting(trimmedLine));
-                    paragraph.Inlines.Add(new LineBreak());
+                    if (i < lines.Length - 1)
+                    {
+                        paragraph.Inlines.Add(new LineBreak());
+                    }
                 }
             }
             
@@ -162,7 +286,9 @@ namespace BacklogManager.Converters
                         break;
                     case "code":
                         formattedRun.FontFamily = new FontFamily("Consolas");
+                        formattedRun.FontSize = 13;
                         formattedRun.Background = new SolidColorBrush(Color.FromRgb(240, 240, 240));
+                        formattedRun.Foreground = new SolidColorBrush(Color.FromRgb(212, 73, 80));
                         break;
                 }
                 

@@ -295,6 +295,9 @@
   <data name="Dashboard_Completed" xml:space="preserve">
     <value>Terminées</value>
   </data>
+  <data name="Dashboard_Delayed" xml:space="preserve">
+    <value>En retard</value>
+  </data>
   <data name="Dashboard_ViewAll" xml:space="preserve">
     <value>Voir tout</value>
   </data>
@@ -2713,6 +2716,12 @@ L'application va redémarrer.</value>
   <data name="Stats_PeriodAll" xml:space="preserve">
     <value>🌐 Tout afficher</value>
   </data>
+  <data name="Timeline_Year" xml:space="preserve">
+    <value>ANNÉE</value>
+  </data>
+  <data name="Timeline_Days" xml:space="preserve">
+    <value>jour(s)</value>
+  </data>
   <data name="Stats_From" xml:space="preserve">
     <value>Du :</value>
   </data>
@@ -2867,6 +2876,220 @@ Note : Rendez-vous dans la section 💬 Chat avec l'IA pour configurer votre tok
   <data name="AIAnalysis_TokenConfig_Message" xml:space="preserve">
     <value>Allez dans la section '💬 Chat avec l'IA' du menu principal pour configurer votre token API.</value>
   </data>
+  
+  <!-- Project AI Analysis Window -->
+  <data name="ProjectAIAnalysis_WindowTitle" xml:space="preserve">
+    <value>Analyse IA du Projet</value>
+  </data>
+  <data name="ProjectAIAnalysis_Title" xml:space="preserve">
+    <value>🤖 Analyse IA du Projet</value>
+  </data>
+  <data name="ProjectAIAnalysis_AgentName" xml:space="preserve">
+    <value>Agent Project &amp; Change</value>
+  </data>
+  <data name="ProjectAIAnalysis_ProjectLabel" xml:space="preserve">
+    <value>Projet:</value>
+  </data>
+  <data name="ProjectAIAnalysis_ScoreLabel" xml:space="preserve">
+    <value>Score</value>
+  </data>
+  <data name="ProjectAIAnalysis_Loading" xml:space="preserve">
+    <value>L'IA analyse votre projet...</value>
+  </data>
+  <data name="ProjectAIAnalysis_LoadingDetails" xml:space="preserve">
+    <value>Vérification des deadlines, analyse des tâches, calcul des retards...</value>
+  </data>
+  <data name="ProjectAIAnalysis_Overview" xml:space="preserve">
+    <value>📊 Vue d'ensemble</value>
+  </data>
+  <data name="ProjectAIAnalysis_DeadlineAnalysis" xml:space="preserve">
+    <value>⏰ Analyse des Deadlines</value>
+  </data>
+  <data name="ProjectAIAnalysis_Recommendations" xml:space="preserve">
+    <value>💡 Recommandations</value>
+  </data>
+  <data name="ProjectAIAnalysis_ProposedActions" xml:space="preserve">
+    <value>🎯 Actions Proposées</value>
+  </data>
+  <data name="ProjectAIAnalysis_Close" xml:space="preserve">
+    <value>Fermer</value>
+  </data>
+  <data name="ProjectAIAnalysis_TokenNotConfigured" xml:space="preserve">
+    <value>Token API non configuré. Configurez-le dans la section Chat.</value>
+  </data>
+  <data name="ProjectAIAnalysis_AnalysisError" xml:space="preserve">
+    <value>Erreur lors de l'analyse: {0}</value>
+  </data>
+  
+  <!-- Program AI Analysis Window -->
+  <data name="ProgramAIAnalysis_WindowTitle" xml:space="preserve">
+    <value>Analyse IA du Programme</value>
+  </data>
+  <data name="ProgramAIAnalysis_Title" xml:space="preserve">
+    <value>🤖 Analyse IA du Programme</value>
+  </data>
+  <data name="ProgramAIAnalysis_AgentName" xml:space="preserve">
+    <value>Agent Program Management</value>
+  </data>
+  <data name="ProgramAIAnalysis_ProgramLabel" xml:space="preserve">
+    <value>Programme:</value>
+  </data>
+  <data name="ProgramAIAnalysis_Loading" xml:space="preserve">
+    <value>L'IA analyse votre programme...</value>
+  </data>
+  <data name="ProgramAIAnalysis_LoadingDetails" xml:space="preserve">
+    <value>Analyse des projets, vérification des interdépendances, calcul des risques...</value>
+  </data>
+  <data name="ProgramAIAnalysis_Copy" xml:space="preserve">
+    <value>📋 Copier</value>
+  </data>
+  <data name="ProgramAIAnalysis_Close" xml:space="preserve">
+    <value>Fermer</value>
+  </data>
+  <data name="ProgramAIAnalysis_TokenNotConfigured" xml:space="preserve">
+    <value>Token API non configuré. Configurez-le dans la section Chat.</value>
+  </data>
+  <data name="ProgramAIAnalysis_AnalysisError" xml:space="preserve">
+    <value>Erreur lors de l'analyse: {0}</value>
+  </data>
+  <data name="ProgramAIAnalysis_CopiedToClipboard" xml:space="preserve">
+    <value>Analyse copiée dans le presse-papiers !</value>
+  </data>
+  
+  <!-- Dev AI Analysis Window -->
+  <data name="DevAIAnalysis_WindowTitle" xml:space="preserve">
+    <value>Analyse IA - Développeur</value>
+  </data>
+  <data name="DevAIAnalysis_AgentName" xml:space="preserve">
+    <value>Agent Project &amp; Change</value>
+  </data>
+  <data name="DevAIAnalysis_DevAnalysis" xml:space="preserve">
+    <value>Analyse du développeur</value>
+  </data>
+  <data name="DevAIAnalysis_AnalyzedPeriod" xml:space="preserve">
+    <value>📅 Période Analysée</value>
+  </data>
+  <data name="DevAIAnalysis_PerformanceScore" xml:space="preserve">
+    <value>Score de Performance</value>
+  </data>
+  <data name="DevAIAnalysis_GeneralOverview" xml:space="preserve">
+    <value>📊 Bilan Général</value>
+  </data>
+  <data name="DevAIAnalysis_Strengths" xml:space="preserve">
+    <value>💪 Points Forts</value>
+  </data>
+  <data name="DevAIAnalysis_ImprovementAreas" xml:space="preserve">
+    <value>🎯 Axes d'Amélioration</value>
+  </data>
+  <data name="DevAIAnalysis_Recommendations" xml:space="preserve">
+    <value>💡 Recommandations</value>
+  </data>
+  <data name="DevAIAnalysis_Close" xml:space="preserve">
+    <value>Fermer</value>
+  </data>
+  
+  <!-- Task AI Analysis Window -->
+  <data name="TaskAIAnalysis_WindowTitle" xml:space="preserve">
+    <value>🤖 Analyse IA de la tâche</value>
+  </data>
+  <data name="TaskAIAnalysis_AnalysisInProgress" xml:space="preserve">
+    <value>Analyse en cours...</value>
+  </data>
+  <data name="TaskAIAnalysis_AnalyzingTask" xml:space="preserve">
+    <value>L'IA analyse la tâche et génère des recommandations...</value>
+  </data>
+  <data name="TaskAIAnalysis_AIAnalysis" xml:space="preserve">
+    <value>🤖 ANALYSE IA</value>
+  </data>
+  <data name="TaskAIAnalysis_GeneralOverview" xml:space="preserve">
+    <value>📊 BILAN GÉNÉRAL</value>
+  </data>
+  <data name="TaskAIAnalysis_DetailedAnalysis" xml:space="preserve">
+    <value>🔍 ANALYSE DÉTAILLÉE</value>
+  </data>
+  <data name="TaskAIAnalysis_AttentionPoints" xml:space="preserve">
+    <value>⚠️ POINTS D'ATTENTION</value>
+  </data>
+  <data name="TaskAIAnalysis_Recommendations" xml:space="preserve">
+    <value>💡 RECOMMANDATIONS</value>
+  </data>
+  <data name="TaskAIAnalysis_PriorityActions" xml:space="preserve">
+    <value>🎯 ACTIONS PRIORITAIRES</value>
+  </data>
+  <data name="TaskAIAnalysis_Close" xml:space="preserve">
+    <value>Fermer</value>
+  </data>
+  
+  <!-- Statistics AI Analysis Window -->
+  <data name="StatsAIAnalysis_WindowTitle" xml:space="preserve">
+    <value>Analyse IA - Statistiques</value>
+  </data>
+  <data name="StatsAIAnalysis_AgentName" xml:space="preserve">
+    <value>Agent Project &amp; Change</value>
+  </data>
+  <data name="StatsAIAnalysis_StatsAndTrends" xml:space="preserve">
+    <value>Analyse des statistiques et tendances</value>
+  </data>
+  <data name="StatsAIAnalysis_AnalyzedPeriod" xml:space="preserve">
+    <value>📅 Période Analysée</value>
+  </data>
+  <data name="StatsAIAnalysis_PerformanceScore" xml:space="preserve">
+    <value>Score de Performance</value>
+  </data>
+  <data name="StatsAIAnalysis_Overview" xml:space="preserve">
+    <value>📊 Vue d'Ensemble</value>
+  </data>
+  <data name="StatsAIAnalysis_DevPerformance" xml:space="preserve">
+    <value>👥 Performance par Développeur</value>
+  </data>
+  <data name="StatsAIAnalysis_TrendsAndPatterns" xml:space="preserve">
+    <value>📈 Tendances et Patterns</value>
+  </data>
+  <data name="StatsAIAnalysis_Recommendations" xml:space="preserve">
+    <value>💡 Recommandations</value>
+  </data>
+  <data name="StatsAIAnalysis_PriorityActions" xml:space="preserve">
+    <value>🎯 Actions Prioritaires</value>
+  </data>
+  <data name="StatsAIAnalysis_Close" xml:space="preserve">
+    <value>Fermer</value>
+  </data>
+  
+  <!-- Email Request Analysis Window -->
+  <data name="EmailAnalysis_WindowTitle" xml:space="preserve">
+    <value>📧 Analyse IA - Demande par Email</value>
+  </data>
+  <data name="EmailAnalysis_Header" xml:space="preserve">
+    <value>📧 Analyse IA - Demande par Email</value>
+  </data>
+  <data name="EmailAnalysis_Subtitle" xml:space="preserve">
+    <value>Transformez vos emails en demandes structurées automatiquement</value>
+  </data>
+  <data name="EmailAnalysis_EmailContent" xml:space="preserve">
+    <value>Contenu de l'email</value>
+  </data>
+  <data name="EmailAnalysis_PasteInstructions" xml:space="preserve">
+    <value>Collez ici le contenu de votre email (corps du message, objet, etc.)</value>
+  </data>
+  <data name="EmailAnalysis_AnalyzeButton" xml:space="preserve">
+    <value>🤖 Analyser avec l'IA</value>
+  </data>
+  <data name="EmailAnalysis_Results" xml:space="preserve">
+    <value>Résultats de l'Analyse</value>
+  </data>
+  <data name="EmailAnalysis_CreateRequest" xml:space="preserve">
+    <value>➕ Créer la Demande</value>
+  </data>
+  <data name="EmailAnalysis_CopyToClipboard" xml:space="preserve">
+    <value>📋 Copier</value>
+  </data>
+  <data name="EmailAnalysis_ReanalyzeWithToken" xml:space="preserve">
+    <value>🔄 Réanalyser (avec Token)</value>
+  </data>
+  <data name="EmailAnalysis_Close" xml:space="preserve">
+    <value>Fermer</value>
+  </data>
+  
   <data name="UserEdit_NewUser" xml:space="preserve">
     <value>Nouvel Utilisateur</value>
   </data>
@@ -3731,7 +3954,21 @@ Posez vos questions en langage naturel !</value>
     <value>Bonjour ! Je suis votre assistante virtuelle pour gérer votre backlog. Comment puis-je vous aider aujourd'hui ? 😊</value>
   </data>
   <data name="AIChat_WelcomeMessageFull" xml:space="preserve">
-    <value>Bonjour ! Je suis votre assistante virtuelle pour gérer votre backlog. Je suis là pour vous aider, vous conseiller et répondre à toutes vos questions sur la gestion de projet, les tâches, les CRA et bien plus encore. N'hésitez pas à me poser vos questions ! 😊</value>
+    <value>### 👋 Bonjour ! Je suis **Agent Project &amp; Change**
+
+Votre assistante virtuelle spécialisée en gestion de projet agile.
+
+**Je peux vous aider avec :**
+
+• 📋 **Backlog** : Créer et gérer vos tâches
+• 🎯 **Kanban** : Organiser votre flux de travail
+• ⏱️ **CRA** : Saisir et valider vos heures
+• 📊 **Statistiques** : Analyser vos performances
+• 💡 **Conseils** : Optimiser votre gestion de projet
+
+---
+
+💬 **Posez-moi vos questions**, je suis là pour vous guider ! 😊</value>
   </data>
   <data name="AIChat_BtnReturn" xml:space="preserve">
     <value>← Retour</value>
@@ -3764,6 +4001,35 @@ L'historique actuel sera conservé dans la base de données.</value>
   </data>
   <data name="AIChat_ModifyTokenTitle" xml:space="preserve">
     <value>Modifier le token</value>
+  </data>
+  
+  <!-- Descriptions des équipes -->
+  <data name="Team_Description_TRANSFO_IMPLEM" xml:space="preserve">
+    <value>Équipe de transformation et d'implémentation des projets stratégiques</value>
+  </data>
+  <data name="Team_Description_IT_ASSETS" xml:space="preserve">
+    <value>Gestion des actifs IT et infrastructure</value>
+  </data>
+  <data name="Team_Description_PCC" xml:space="preserve">
+    <value>Équipe en charge des processus, contrôles et conformité</value>
+  </data>
+  <data name="Team_Description_CHANGE_BAU" xml:space="preserve">
+    <value>Gestion du changement et support BAU</value>
+  </data>
+  <data name="Team_Description_WATCHTOWER" xml:space="preserve">
+    <value>Surveillance et monitoring des risques</value>
+  </data>
+  <data name="Team_Description_TCS_IM" xml:space="preserve">
+    <value>Gestion des tiers et intégration de services</value>
+  </data>
+  <data name="Team_Description_L1_SUPPORT" xml:space="preserve">
+    <value>Support de premier niveau</value>
+  </data>
+  <data name="Team_Description_DATA_OFFICE" xml:space="preserve">
+    <value>Gestion et gouvernance des données</value>
+  </data>
+  <data name="Team_Description_TACTICAL_SOLUTIONS" xml:space="preserve">
+    <value>Solutions tactiques et livraison rapide</value>
   </data>
   
   <!-- Kanban -->
@@ -4172,5 +4438,62 @@ L'historique actuel sera conservé dans la base de données.</value>
   </data>
   <data name="SuiviCRA_AllMembers" xml:space="preserve">
     <value>Tous les membres</value>
+  </data>
+  <data name="SuiviCRA_TasksCompleted" xml:space="preserve">
+    <value>tâches terminées</value>
+  </data>
+  <data name="SuiviCRA_Tasks" xml:space="preserve">
+    <value>tâches</value>
+  </data>
+  <data name="SuiviCRA_Task" xml:space="preserve">
+    <value>tâche</value>
+  </data>
+  <data name="SuiviCRA_AnalyzeWithIA" xml:space="preserve">
+    <value>Analyser avec IA</value>
+  </data>
+  <data name="SuiviCRA_ViewInDashboard" xml:space="preserve">
+    <value>Voir dans Dashboard</value>
+  </data>
+  <data name="TaskPreview_WindowTitle" xml:space="preserve">
+    <value>📋 Aperçu de la tâche</value>
+  </data>
+  <data name="TaskPreview_DetailsTitle" xml:space="preserve">
+    <value>📋 DÉTAILS DE LA TÂCHE</value>
+  </data>
+  <data name="TaskPreview_Description" xml:space="preserve">
+    <value>DESCRIPTION</value>
+  </data>
+  <data name="TaskPreview_AssignedDev" xml:space="preserve">
+    <value>👤 DÉVELOPPEUR ASSIGNÉ</value>
+  </data>
+  <data name="TaskPreview_Priority" xml:space="preserve">
+    <value>⚡ PRIORITÉ</value>
+  </data>
+  <data name="TaskPreview_Type" xml:space="preserve">
+    <value>🎨 TYPE</value>
+  </data>
+  <data name="TaskPreview_CreationDate" xml:space="preserve">
+    <value>📅 DATE CRÉATION</value>
+  </data>
+  <data name="TaskPreview_DueDate" xml:space="preserve">
+    <value>🎯 DATE FIN ATTENDUE</value>
+  </data>
+  <data name="TaskPreview_Complexity" xml:space="preserve">
+    <value>🔢 COMPLEXITÉ</value>
+  </data>
+  <data name="TaskPreview_Estimate" xml:space="preserve">
+    <value>⏱️ CHIFFRAGE</value>
+  </data>
+  <data name="TaskPreview_RealTime" xml:space="preserve">
+    <value>✅ TEMPS RÉEL</value>
+  </data>
+  <data name="TaskPreview_Progress" xml:space="preserve">
+    <value>📊 PROGRESSION</value>
+  </data>
+  <data name="TaskPreview_AnalyzeIA" xml:space="preserve">
+    <value>🤖 Analyser avec IA</value>
+  </data>
+  <data name="TaskPreview_Close" xml:space="preserve">
+    <value>✓ Fermer</value>
   </data>
 </root>

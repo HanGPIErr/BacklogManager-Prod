@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:shared="clr-namespace:BacklogManager.Shared"
              xmlns:services="clr-namespace:BacklogManager.Services"
+             xmlns:resx="clr-namespace:BacklogManager.Resources"
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="800"
              Background="#F0F2F5"
@@ -896,7 +897,7 @@
                                             </Grid.RowDefinitions>
                                             
                                             <StackPanel Grid.Column="0" Grid.Row="0" Margin="0,0,5,8">
-                                                <TextBlock Text="À faire" FontSize="9" Foreground="#999" 
+                                                <TextBlock Text="{Binding DataContext.ToDoLabel, RelativeSource={RelativeSource AncestorType=UserControl}}" FontSize="9" Foreground="#999" 
                                                            Margin="0,0,0,2"/>
                                                 <TextBlock FontSize="16" FontWeight="Bold" Foreground="#9E9E9E">
                                                     <Run Text="{Binding NbTachesAfaire}"/>
@@ -904,7 +905,7 @@
                                             </StackPanel>
                                             
                                             <StackPanel Grid.Column="1" Grid.Row="0" Margin="5,0,0,8">
-                                                <TextBlock Text="En cours" FontSize="9" Foreground="#999" 
+                                                <TextBlock Text="{Binding DataContext.InProgressLabel, RelativeSource={RelativeSource AncestorType=UserControl}}" FontSize="9" Foreground="#999" 
                                                            Margin="0,0,0,2"/>
                                                 <TextBlock FontSize="16" FontWeight="Bold" Foreground="#2196F3">
                                                     <Run Text="{Binding NbTachesEnCours}"/>
@@ -912,7 +913,7 @@
                                             </StackPanel>
                                             
                                             <StackPanel Grid.Column="0" Grid.Row="1" Margin="0,0,5,0">
-                                                <TextBlock Text="Terminées" FontSize="9" Foreground="#999" 
+                                                <TextBlock Text="{Binding DataContext.CompletedLabel, RelativeSource={RelativeSource AncestorType=UserControl}}" FontSize="9" Foreground="#999" 
                                                            Margin="0,0,0,2"/>
                                                 <TextBlock FontSize="16" FontWeight="Bold" Foreground="#4CAF50">
                                                     <Run Text="{Binding NbTachesTerminees}"/>
@@ -920,7 +921,7 @@
                                             </StackPanel>
                                             
                                             <StackPanel Grid.Column="1" Grid.Row="1" Margin="5,0,0,0">
-                                                <TextBlock Text="En retard" FontSize="9" Foreground="#999" 
+                                                <TextBlock Text="{Binding DataContext.DelayedLabel, RelativeSource={RelativeSource AncestorType=UserControl}}" FontSize="9" Foreground="#999" 
                                                            Margin="0,0,0,2"/>
                                                 <TextBlock FontSize="16" FontWeight="Bold" Foreground="#FF5722">
                                                     <Run Text="{Binding NbTachesEnRetard}"/>

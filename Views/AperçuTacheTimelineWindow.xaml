@@ -38,7 +38,7 @@
                         </Grid.ColumnDefinitions>
                         
                         <StackPanel Grid.Column="0">
-                            <TextBlock Text="📋 DÉTAILS DE LA TÂCHE" FontSize="16" 
+                            <TextBlock x:Name="TxtDetailsTitle" Text="📋 DÉTAILS DE LA TÂCHE" FontSize="16" 
                                        FontWeight="Bold" Foreground="White" Margin="0,0,0,8"/>
                             <TextBlock x:Name="TxtTitre" FontSize="20" FontWeight="Bold" 
                                        Foreground="White" TextWrapping="Wrap"/>
@@ -55,7 +55,7 @@
                 <!-- Description -->
                 <Border Background="#F9FAFB" CornerRadius="8" Padding="15" Margin="0,0,0,15">
                     <StackPanel>
-                        <TextBlock Text="DESCRIPTION" Style="{StaticResource InfoLabel}"/>
+                        <TextBlock x:Name="TxtDescriptionLabel" Text="DESCRIPTION" Style="{StaticResource InfoLabel}"/>
                         <TextBlock x:Name="TxtDescription" Style="{StaticResource InfoValue}"
                                    Foreground="#555" TextWrapping="Wrap"/>
                     </StackPanel>
@@ -72,7 +72,7 @@
                     <StackPanel Grid.Column="0" Margin="0,0,10,0">
                         <Border Background="#E3F2FD" CornerRadius="8" Padding="15" Margin="0,0,0,10">
                             <StackPanel>
-                                <TextBlock Text="👤 DÉVELOPPEUR ASSIGNÉ" Style="{StaticResource InfoLabel}"/>
+                                <TextBlock x:Name="TxtAssignedDevLabel" Text="👤 DÉVELOPPEUR ASSIGNÉ" Style="{StaticResource InfoLabel}"/>
                                 <TextBlock x:Name="TxtDevAssigne" Style="{StaticResource InfoValue}"
                                            Foreground="#1976D2"/>
                             </StackPanel>
@@ -80,7 +80,7 @@
                         
                         <Border Background="#FFF3E0" CornerRadius="8" Padding="15" Margin="0,0,0,10">
                             <StackPanel>
-                                <TextBlock Text="⚡ PRIORITÉ" Style="{StaticResource InfoLabel}"/>
+                                <TextBlock x:Name="TxtPriorityLabel" Text="⚡ PRIORITÉ" Style="{StaticResource InfoLabel}"/>
                                 <TextBlock x:Name="TxtPriorite" Style="{StaticResource InfoValue}"
                                            Foreground="#F57C00"/>
                             </StackPanel>
@@ -88,7 +88,7 @@
                         
                         <Border Background="#F3E5F5" CornerRadius="8" Padding="15">
                             <StackPanel>
-                                <TextBlock Text="🎨 TYPE" Style="{StaticResource InfoLabel}"/>
+                                <TextBlock x:Name="TxtTypeLabel" Text="🎨 TYPE" Style="{StaticResource InfoLabel}"/>
                                 <TextBlock x:Name="TxtType" Style="{StaticResource InfoValue}"
                                            Foreground="#7B1FA2"/>
                             </StackPanel>
@@ -99,7 +99,7 @@
                     <StackPanel Grid.Column="1" Margin="10,0,0,0">
                         <Border Background="#E8F5E9" CornerRadius="8" Padding="15" Margin="0,0,0,10">
                             <StackPanel>
-                                <TextBlock Text="📅 DATE CRÉATION" Style="{StaticResource InfoLabel}"/>
+                                <TextBlock x:Name="TxtCreationDateLabel" Text="📅 DATE CRÉATION" Style="{StaticResource InfoLabel}"/>
                                 <TextBlock x:Name="TxtDateCreation" Style="{StaticResource InfoValue}"
                                            Foreground="#388E3C"/>
                             </StackPanel>
@@ -107,7 +107,7 @@
                         
                         <Border Background="#FFEBEE" CornerRadius="8" Padding="15" Margin="0,0,0,10">
                             <StackPanel>
-                                <TextBlock Text="🎯 DATE FIN ATTENDUE" Style="{StaticResource InfoLabel}"/>
+                                <TextBlock x:Name="TxtDueDateLabel" Text="🎯 DATE FIN ATTENDUE" Style="{StaticResource InfoLabel}"/>
                                 <TextBlock x:Name="TxtDateFin" Style="{StaticResource InfoValue}"
                                            Foreground="#D32F2F"/>
                             </StackPanel>
@@ -115,7 +115,7 @@
                         
                         <Border Background="#E1F5FE" CornerRadius="8" Padding="15">
                             <StackPanel>
-                                <TextBlock Text="🔢 COMPLEXITÉ" Style="{StaticResource InfoLabel}"/>
+                                <TextBlock x:Name="TxtComplexityLabel" Text="🔢 COMPLEXITÉ" Style="{StaticResource InfoLabel}"/>
                                 <TextBlock x:Name="TxtComplexite" Style="{StaticResource InfoValue}"
                                            Foreground="#0277BD"/>
                             </StackPanel>
@@ -134,19 +134,19 @@
                         </Grid.ColumnDefinitions>
                         
                         <StackPanel Grid.Column="0">
-                            <TextBlock Text="⏱️ CHIFFRAGE" Style="{StaticResource InfoLabel}"/>
+                            <TextBlock x:Name="TxtEstimateLabel" Text="⏱️ CHIFFRAGE" Style="{StaticResource InfoLabel}"/>
                             <TextBlock x:Name="TxtChiffrage" FontSize="18" FontWeight="Bold" 
                                        Foreground="#F57F17"/>
                         </StackPanel>
                         
                         <StackPanel Grid.Column="1">
-                            <TextBlock Text="✅ TEMPS RÉEL" Style="{StaticResource InfoLabel}"/>
+                            <TextBlock x:Name="TxtRealTimeLabel" Text="✅ TEMPS RÉEL" Style="{StaticResource InfoLabel}"/>
                             <TextBlock x:Name="TxtTempsReel" FontSize="18" FontWeight="Bold" 
                                        Foreground="#00897B"/>
                         </StackPanel>
                         
                         <StackPanel Grid.Column="2">
-                            <TextBlock Text="📊 PROGRESSION" Style="{StaticResource InfoLabel}"/>
+                            <TextBlock x:Name="TxtProgressLabel" Text="📊 PROGRESSION" Style="{StaticResource InfoLabel}"/>
                             <TextBlock x:Name="TxtProgression" FontSize="18" FontWeight="Bold" 
                                        Foreground="#00915A"/>
                         </StackPanel>
@@ -166,7 +166,7 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     
-                    <Button Grid.Column="0" Content="🤖 Analyser avec IA" Click="BtnAnalyserIA_Click"
+                    <Button x:Name="BtnAnalyserIA" Grid.Column="0" Content="🤖 Analyser avec IA" Click="BtnAnalyserIA_Click"
                             Height="45" Background="#667eea" Foreground="White" Margin="0,0,5,0"
                             FontSize="14" FontWeight="Bold" BorderThickness="0"
                             Cursor="Hand">
@@ -192,7 +192,7 @@
                         </Button.Style>
                     </Button>
                     
-                    <Button Grid.Column="1" Content="✓ Fermer" Click="BtnFermer_Click"
+                    <Button x:Name="BtnFermer" Grid.Column="1" Content="✓ Fermer" Click="BtnFermer_Click"
                             Height="45" Background="#00915A" Foreground="White" Margin="5,0,0,0"
                             FontSize="14" FontWeight="Bold" BorderThickness="0"
                             Cursor="Hand">

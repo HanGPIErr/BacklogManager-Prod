@@ -417,7 +417,7 @@ namespace BacklogManager.ViewModels
             // Pour admin uniquement
             if (_permissionService.EstAdministrateur)
             {
-                Equipes.Add(new Equipe { Id = 0, Nom = "-- Toutes les équipes --" });
+                Equipes.Add(new Equipe { Id = 0, Nom = LocalizationService.Instance.GetString("SuiviCRA_AllTeams") });
 
                 var equipes = _backlogService.GetAllEquipes();
                 foreach (var equipe in equipes.OrderBy(e => e.Nom))

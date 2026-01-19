@@ -195,16 +195,28 @@
                                                 <RowDefinition Height="Auto"/>
                                             </Grid.RowDefinitions>
                                             
-                                            <Border Grid.Row="0" CornerRadius="4" Padding="12,8" MaxWidth="650" HorizontalAlignment="Left"
+                                            <Border Grid.Row="0" CornerRadius="12" Padding="16,12" MaxWidth="650" HorizontalAlignment="Left"
                                                     x:Name="MessageBubble">
+                                                <Border.Effect>
+                                                    <DropShadowEffect Color="#E1DFDD" Direction="270" ShadowDepth="1" BlurRadius="4" Opacity="0.3"/>
+                                                </Border.Effect>
                                                 <Border.Style>
                                                     <Style TargetType="Border">
                                                         <Style.Triggers>
                                                             <DataTrigger Binding="{Binding IsUser}" Value="True">
-                                                                <Setter Property="Background" Value="#E3F2FD"/>
+                                                                <Setter Property="Background">
+                                                                    <Setter.Value>
+                                                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                                            <GradientStop Color="#6264A7" Offset="0"/>
+                                                                            <GradientStop Color="#7B7FC4" Offset="1"/>
+                                                                        </LinearGradientBrush>
+                                                                    </Setter.Value>
+                                                                </Setter>
                                                             </DataTrigger>
                                                             <DataTrigger Binding="{Binding IsUser}" Value="False">
-                                                                <Setter Property="Background" Value="#F3F2F1"/>
+                                                                <Setter Property="Background" Value="White"/>
+                                                                <Setter Property="BorderBrush" Value="#E1DFDD"/>
+                                                                <Setter Property="BorderThickness" Value="1"/>
                                                             </DataTrigger>
                                                         </Style.Triggers>
                                                         <Setter Property="Tag" Value="{Binding}"/>
@@ -221,9 +233,22 @@
                                                                  Background="Transparent" FontSize="14"
                                                                  Document="{Binding Message, Converter={StaticResource MarkdownConverter}}"
                                                                  Padding="0" Margin="0">
+                                                        <RichTextBox.Style>
+                                                            <Style TargetType="RichTextBox">
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsUser}" Value="True">
+                                                                        <Setter Property="Foreground" Value="White"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding IsUser}" Value="False">
+                                                                        <Setter Property="Foreground" Value="#252423"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </RichTextBox.Style>
                                                         <RichTextBox.Resources>
                                                             <Style TargetType="{x:Type Paragraph}">
-                                                                <Setter Property="Margin" Value="0"/>
+                                                                <Setter Property="Margin" Value="0,0,0,8"/>
+                                                                <Setter Property="LineHeight" Value="20"/>
                                                             </Style>
                                                         </RichTextBox.Resources>
                                                     </RichTextBox>

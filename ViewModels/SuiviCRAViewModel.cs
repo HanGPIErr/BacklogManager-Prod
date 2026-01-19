@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
@@ -217,8 +218,14 @@ namespace BacklogManager.ViewModels
         public bool AfficherRed => NbProjetsRed > 0;
 
         // Dates du programme
-        public string DateDebutProgramme => ProgrammeSelectionne?.DateDebut?.ToString("dd/MM/yyyy") ?? "Non définie";
-        public string DateFinCibleProgramme => ProgrammeSelectionne?.DateFinCible?.ToString("dd/MM/yyyy") ?? "Non définie";
+        public string DateDebutProgramme => ProgrammeSelectionne?.DateDebut?.ToString("dd/MM/yyyy") ?? LocalizationService.Instance.GetString("ProgramDetails_NotDefinedFem");
+        public string DateFinCibleProgramme => ProgrammeSelectionne?.DateFinCible?.ToString("dd/MM/yyyy") ?? LocalizationService.Instance.GetString("ProgramDetails_NotDefinedFem");
+        
+        // Placeholder text for programme selection
+        public string SelectProgrammePlaceholder => LocalizationService.Instance.GetString("SuiviCRA_SelectProgramme");
+        
+        // Programme name with fallback
+        public string ProgrammeNomOuPlaceholder => ProgrammeSelectionne?.Nom ?? SelectProgrammePlaceholder;
         
         // Statut global du programme
         public string StatutGlobalProgramme => ProgrammeSelectionne?.StatutGlobal ?? "";
@@ -326,7 +333,7 @@ namespace BacklogManager.ViewModels
             }
         }
 
-        public string MoisAnneeAffichage => MoisCourant.ToString("MMMM yyyy").ToUpper();
+        public string MoisAnneeAffichage => MoisCourant.ToString("MMMM yyyy", CultureInfo.CurrentUICulture).ToUpper(CultureInfo.CurrentUICulture);
 
         public string PeriodeAffichage
         {
@@ -334,7 +341,7 @@ namespace BacklogManager.ViewModels
             {
                 if (ModeAffichage == "liste")
                 {
-                    return $"ANNÉE {AnneeCourante}";
+                    return $"{LocalizationService.Instance["Timeline_Year"]} {AnneeCourante}";
                 }
                 return MoisAnneeAffichage;
             }
@@ -399,6 +406,11 @@ namespace BacklogManager.ViewModels
             {
                 _programmeSelectionne = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(ProgrammeNomOuPlaceholder));
+                OnPropertyChanged(nameof(DateDebutProgramme));
+                OnPropertyChanged(nameof(DateFinCibleProgramme));
+                OnPropertyChanged(nameof(StatutGlobalProgramme));
+                OnPropertyChanged(nameof(AfficherStatutGlobal));
                 if (EstModeTimelineProgramme)
                 {
                     ChargerTimelineProgrammes();
@@ -500,6 +512,28 @@ namespace BacklogManager.ViewModels
 
             ChargerProjets();
             ChargerProgrammes();
+            
+            // S'abonner aux changements de langue
+            LocalizationService.Instance.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == "CurrentCulture" || e.PropertyName == "Item[]")
+                {
+                    OnPropertyChanged(nameof(LabelDaysSaved));
+                    OnPropertyChanged(nameof(LabelWork));
+                    OnPropertyChanged(nameof(LabelLeave));
+                    OnPropertyChanged(nameof(LabelNotWorked));
+                    OnPropertyChanged(nameof(SelectProgrammePlaceholder));
+                    OnPropertyChanged(nameof(ProgrammeNomOuPlaceholder));
+                    OnPropertyChanged(nameof(DateDebutProgramme));
+                    OnPropertyChanged(nameof(DateFinCibleProgramme));
+                    
+                    // Recharger la timeline pour traduire les noms des mois
+                    if (ProjetSelectionne != null && EstModeTimeline)
+                    {
+                        ChargerTachesTimeline();
+                    }
+                }
+            };
 
             PeriodePrecedenteCommand = new RelayCommand(_ => 
             {
@@ -929,7 +963,7 @@ namespace BacklogManager.ViewModels
                 {
                     Mois = mois,
                     Annee = AnneeCourante,
-                    NomMois = new DateTime(AnneeCourante, mois, 1).ToString("MMMM").ToUpper(),
+                    NomMois = new DateTime(AnneeCourante, mois, 1).ToString("MMMM", CultureInfo.CurrentUICulture).ToUpper(CultureInfo.CurrentUICulture),
                     TotalHeures = totalHeures,
                     NombreJoursSaisis = joursUniques
                 });
@@ -1041,7 +1075,7 @@ namespace BacklogManager.ViewModels
                 {
                     Mois = dateCourante.Month,
                     Annee = dateCourante.Year,
-                    NomMois = dateCourante.ToString("MMM").ToUpper()
+                    NomMois = dateCourante.ToString("MMM", CultureInfo.CurrentUICulture).ToUpper(CultureInfo.CurrentUICulture)
                 });
                 dateCourante = dateCourante.AddMonths(1);
             }
@@ -1056,7 +1090,7 @@ namespace BacklogManager.ViewModels
                     {
                         Mois = dateCourante.Month,
                         Annee = dateCourante.Year,
-                        NomMois = dateCourante.ToString("MMM").ToUpper()
+                        NomMois = dateCourante.ToString("MMM", CultureInfo.CurrentUICulture).ToUpper(CultureInfo.CurrentUICulture)
                     });
                     dateCourante = dateCourante.AddMonths(1);
                 }
@@ -1259,14 +1293,13 @@ namespace BacklogManager.ViewModels
             // Générer les mois de la timeline
             MoisTimeline.Clear();
             var dateCourante = new DateTime(dateMiniGlobale.Year, dateMiniGlobale.Month, 1);
-            var cultureInfo = new System.Globalization.CultureInfo("fr-FR");
             while (dateCourante <= dateMaxGlobale)
             {
                 MoisTimeline.Add(new MoisCRAViewModel
                 {
                     Mois = dateCourante.Month,
                     Annee = dateCourante.Year,
-                    NomMois = cultureInfo.DateTimeFormat.GetAbbreviatedMonthName(dateCourante.Month).ToUpper()
+                    NomMois = dateCourante.ToString("MMM", CultureInfo.CurrentUICulture).ToUpper(CultureInfo.CurrentUICulture)
                 });
                 dateCourante = dateCourante.AddMonths(1);
             }

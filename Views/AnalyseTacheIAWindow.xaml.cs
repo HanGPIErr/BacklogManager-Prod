@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
 using BacklogManager.Domain;
+using BacklogManager.Services;
 
 namespace BacklogManager.Views
 {
@@ -26,6 +27,8 @@ namespace BacklogManager.Views
             _tempsReelHeures = tempsReelHeures;
             _progressionPourcentage = progressionPourcentage;
             
+            InitializeLocalizedTexts();
+            
             // Charger le token API
             _apiToken = Properties.Settings.Default.AgentChatToken;
             
@@ -34,6 +37,19 @@ namespace BacklogManager.Views
             
             // Générer l'analyse en arrière-plan
             _ = GenererAnalyseAsync();
+        }
+
+        private void InitializeLocalizedTexts()
+        {
+            TxtAnalysisInProgress.Text = LocalizationService.Instance["TaskAIAnalysis_AnalysisInProgress"];
+            TxtAnalyzingTask.Text = LocalizationService.Instance["TaskAIAnalysis_AnalyzingTask"];
+            TxtAIAnalysis.Text = LocalizationService.Instance["TaskAIAnalysis_AIAnalysis"];
+            TxtGeneralOverview.Text = LocalizationService.Instance["TaskAIAnalysis_GeneralOverview"];
+            TxtDetailedAnalysis.Text = LocalizationService.Instance["TaskAIAnalysis_DetailedAnalysis"];
+            TxtAttentionPoints.Text = LocalizationService.Instance["TaskAIAnalysis_AttentionPoints"];
+            TxtRecommendationsTitle.Text = LocalizationService.Instance["TaskAIAnalysis_Recommendations"];
+            TxtPriorityActions.Text = LocalizationService.Instance["TaskAIAnalysis_PriorityActions"];
+            BtnClose.Content = LocalizationService.Instance["TaskAIAnalysis_Close"];
         }
 
         private async Task GenererAnalyseAsync()

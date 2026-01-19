@@ -60,6 +60,7 @@ namespace BacklogManager.Views
 
             // Project Timeline
             TxtDatesToCome.Text = loc.GetString("SuiviCRA_DatesToCome");
+            TxtTask.Text = " " + loc.GetString("SuiviCRA_Tasks"); // "tâches" / "tasks" / "tareas"
             TxtExtensionDetected.Text = loc.GetString("SuiviCRA_ExtensionDetected");
             BtnValidateExtension.Content = loc.GetString("SuiviCRA_ValidateExtension");
             TxtStart2.Text = loc.GetString("SuiviCRA_Start2");
@@ -84,6 +85,10 @@ namespace BacklogManager.Views
             // Tooltips for AI buttons
             BtnAnalyzeProgrammeIA.ToolTip = loc.GetString("SuiviCRA_AnalyzeIATooltipProgramme");
             BtnAnalyzeProjetIA.ToolTip = loc.GetString("SuiviCRA_AnalyzeIATooltipProjet");
+            
+            // Button content
+            BtnAnalyzeProgrammeIA.Content = "🤖 " + loc.GetString("SuiviCRA_AnalyzeWithIA");
+            BtnAnalyzeProjetIA.Content = "🤖 " + loc.GetString("SuiviCRA_AnalyzeWithIA");
         }
 
         private void TimelineScroll_ScrollChanged(object sender, ScrollChangedEventArgs e)

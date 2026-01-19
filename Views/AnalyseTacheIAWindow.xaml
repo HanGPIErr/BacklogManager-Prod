@@ -1,7 +1,8 @@
 <Window x:Class="BacklogManager.Views.AnalyseTacheIAWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="🤖 Analyse IA de la tâche" 
+        xmlns:services="clr-namespace:BacklogManager.Services"
+        Title="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[TaskAIAnalysis_WindowTitle], Mode=OneWay}" 
         Height="700" Width="900"
         Background="#F5F7FA"
         WindowStartupLocation="CenterOwner"
@@ -17,9 +18,9 @@
             <Border x:Name="PanelChargement" Background="White" CornerRadius="8">
                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                     <TextBlock Text="🤖" FontSize="64" HorizontalAlignment="Center" Margin="0,0,0,20"/>
-                    <TextBlock Text="Analyse en cours..." FontSize="20" FontWeight="Bold" 
+                    <TextBlock x:Name="TxtAnalysisInProgress" Text="Analyse en cours..." FontSize="20" FontWeight="Bold" 
                                Foreground="#00915A" HorizontalAlignment="Center"/>
-                    <TextBlock Text="L'IA analyse la tâche et génère des recommandations..." 
+                    <TextBlock x:Name="TxtAnalyzingTask" Text="L'IA analyse la tâche et génère des recommandations..." 
                                FontSize="14" Foreground="#666" HorizontalAlignment="Center" Margin="0,10,0,20"/>
                     <ProgressBar IsIndeterminate="True" Height="6" Width="300" 
                                  Foreground="#00915A" Background="#E0E0E0"/>
@@ -38,7 +39,7 @@
                             </Grid.ColumnDefinitions>
                             
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="🤖 ANALYSE IA" FontSize="16" FontWeight="Bold" 
+                                <TextBlock x:Name="TxtAIAnalysis" Text="🤖 ANALYSE IA" FontSize="16" FontWeight="Bold" 
                                            Foreground="White" Margin="0,0,0,5"/>
                                 <TextBlock x:Name="TxtTitreTache" FontSize="18" FontWeight="SemiBold" 
                                            Foreground="White" TextWrapping="Wrap"/>
@@ -60,7 +61,7 @@
                     <!-- Bilan général -->
                     <Border Background="#E8F5E9" CornerRadius="8" Padding="20" Margin="0,0,0,15">
                         <StackPanel>
-                            <TextBlock Text="📊 BILAN GÉNÉRAL" FontSize="14" FontWeight="Bold" 
+                            <TextBlock x:Name="TxtGeneralOverview" Text="📊 BILAN GÉNÉRAL" FontSize="14" FontWeight="Bold" 
                                        Foreground="#2E7D32" Margin="0,0,0,10"/>
                             <TextBlock x:Name="TxtBilan" TextWrapping="Wrap" FontSize="13" 
                                        Foreground="#333" LineHeight="22"/>
@@ -70,7 +71,7 @@
                     <!-- Analyse détaillée -->
                     <Border Background="#F5F5F5" CornerRadius="8" Padding="20" Margin="0,0,0,15">
                         <StackPanel>
-                            <TextBlock Text="🔍 ANALYSE DÉTAILLÉE" FontSize="14" FontWeight="Bold" 
+                            <TextBlock x:Name="TxtDetailedAnalysis" Text="🔍 ANALYSE DÉTAILLÉE" FontSize="14" FontWeight="Bold" 
                                        Foreground="#00915A" Margin="0,0,0,10"/>
                             <TextBlock x:Name="TxtAnalyse" TextWrapping="Wrap" FontSize="13" 
                                        Foreground="#333" LineHeight="22"/>
@@ -80,7 +81,7 @@
                     <!-- Points d'attention -->
                     <Border Background="#FFF3E0" CornerRadius="8" Padding="20" Margin="0,0,0,15">
                         <StackPanel>
-                            <TextBlock Text="⚠️ POINTS D'ATTENTION" FontSize="14" FontWeight="Bold" 
+                            <TextBlock x:Name="TxtAttentionPoints" Text="⚠️ POINTS D'ATTENTION" FontSize="14" FontWeight="Bold" 
                                        Foreground="#E65100" Margin="0,0,0,10"/>
                             <TextBlock x:Name="TxtPointsAttention" TextWrapping="Wrap" FontSize="13" 
                                        Foreground="#333" LineHeight="22"/>
@@ -90,7 +91,7 @@
                     <!-- Recommandations -->
                     <Border Background="#E3F2FD" CornerRadius="8" Padding="20" Margin="0,0,0,15">
                         <StackPanel>
-                            <TextBlock Text="💡 RECOMMANDATIONS" FontSize="14" FontWeight="Bold" 
+                            <TextBlock x:Name="TxtRecommendationsTitle" Text="💡 RECOMMANDATIONS" FontSize="14" FontWeight="Bold" 
                                        Foreground="#1565C0" Margin="0,0,0,10"/>
                             <TextBlock x:Name="TxtRecommandations" TextWrapping="Wrap" FontSize="13" 
                                        Foreground="#333" LineHeight="22"/>
@@ -100,7 +101,7 @@
                     <!-- Actions prioritaires -->
                     <Border Background="#F3E5F5" CornerRadius="8" Padding="20" Margin="0,0,0,20">
                         <StackPanel>
-                            <TextBlock Text="🎯 ACTIONS PRIORITAIRES" FontSize="14" FontWeight="Bold" 
+                            <TextBlock x:Name="TxtPriorityActions" Text="🎯 ACTIONS PRIORITAIRES" FontSize="14" FontWeight="Bold" 
                                        Foreground="#6A1B9A" Margin="0,0,0,10"/>
                             <TextBlock x:Name="TxtActions" TextWrapping="Wrap" FontSize="13" 
                                        Foreground="#333" LineHeight="22"/>
@@ -108,7 +109,7 @@
                     </Border>
 
                     <!-- Bouton Fermer -->
-                    <Button Content="✓ Fermer" Click="BtnFermer_Click"
+                    <Button x:Name="BtnClose" Content="✓ Fermer" Click="BtnFermer_Click"
                             Height="45" Background="#00915A" Foreground="White"
                             FontSize="14" FontWeight="Bold" BorderThickness="0"
                             Cursor="Hand">

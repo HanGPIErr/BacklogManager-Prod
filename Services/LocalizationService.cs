@@ -63,6 +63,12 @@ namespace BacklogManager.Services
                 if (_currentCulture != value)
                 {
                     _currentCulture = value;
+                    
+                    // IMPORTANT: Mettre à jour la culture du thread actuel
+                    // pour que DateTime.ToString() utilise la bonne langue
+                    CultureInfo.CurrentUICulture = value;
+                    CultureInfo.CurrentCulture = value;
+                    
                     OnPropertyChanged(nameof(CurrentCulture));
                     // Notifier tous les bindings de se rafraîchir
                     OnPropertyChanged("Item[]");

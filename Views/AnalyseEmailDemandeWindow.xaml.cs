@@ -30,14 +30,17 @@ namespace BacklogManager.Views
         protected void OnPropertyChanged(string propertyName) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-        public string TitleText => LocalizationService.Instance["EmailAnalysis_Title"];
+        public string TitleText => LocalizationService.Instance["EmailAnalysis_WindowTitle"];
         public string HeaderText => LocalizationService.Instance["EmailAnalysis_Header"];
         public string SubtitleText => LocalizationService.Instance["EmailAnalysis_Subtitle"];
         public string EmailContentText => LocalizationService.Instance["EmailAnalysis_EmailContent"];
         public string PasteInstructionsText => LocalizationService.Instance["EmailAnalysis_PasteInstructions"];
         public string AnalyzeButtonText => LocalizationService.Instance["EmailAnalysis_AnalyzeButton"];
-        public string CancelText => LocalizationService.Instance["EmailAnalysis_Cancel"];
+        public string ResultsText => LocalizationService.Instance["EmailAnalysis_Results"];
         public string CreateRequestText => LocalizationService.Instance["EmailAnalysis_CreateRequest"];
+        public string CopyToClipboardText => LocalizationService.Instance["EmailAnalysis_CopyToClipboard"];
+        public string ReanalyzeText => LocalizationService.Instance["EmailAnalysis_ReanalyzeWithToken"];
+        public string CloseText => LocalizationService.Instance["EmailAnalysis_Close"];
 
         public AnalyseEmailDemandeWindow(IDatabase database, AuthenticationService authService)
         {
@@ -56,11 +59,9 @@ namespace BacklogManager.Views
 
         private void InitialiserTextes()
         {
-            TxtManagersLabel.Text = LocalizationService.Instance.GetString("Requests_ManagersLabel");
-            TxtManagersResult.Text = LocalizationService.Instance.GetString("Requests_SelectTeamsForManagers");
-            
-            // Note: Pas d'abonnement aux changements de langue pour cette fenêtre modale
-            // car elle est temporaire et l'utilisateur ne change pas de langue pendant son utilisation
+            // All text is already bound via properties at the top of the class
+            // TitleText, HeaderText, SubtitleText, etc. are bound to LocalizationService
+            // So no additional initialization needed here
         }
 
         private void InitialiserComboBoxes()
