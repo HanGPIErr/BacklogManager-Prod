@@ -6,7 +6,9 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Documents;
 using BacklogManager.Domain;
+using BacklogManager.Converters;
 using BacklogManager.Services;
 
 namespace BacklogManager.Views
@@ -140,7 +142,9 @@ Utilise des sections claires avec des titres en MAJUSCULES suivis de deux-points
                     PanelResultat.Visibility = Visibility.Visible;
                     BtnCopier.Visibility = Visibility.Visible;
                     
-                    TxtAnalyse.Text = reponse;
+                    // Utiliser le convertisseur Markdown pour formatter le texte
+                    var converter = new MarkdownToFormattedTextConverter();
+                    TxtAnalyse.Document = converter.Convert(reponse, typeof(FlowDocument), null, null) as FlowDocument ?? new FlowDocument();
                 });
             }
             catch (Exception ex)
@@ -201,7 +205,10 @@ Utilise des sections claires avec des titres en MAJUSCULES suivis de deux-points
             {
                 PanelChargement.Visibility = Visibility.Collapsed;
                 PanelResultat.Visibility = Visibility.Visible;
-                TxtAnalyse.Text = $"❌ {message}";
+                
+                var errorDoc = new FlowDocument();
+                errorDoc.Blocks.Add(new Paragraph(new Run($"❌ {message}") { Foreground = System.Windows.Media.Brushes.Red }));
+                TxtAnalyse.Document = errorDoc;
             });
         }
 
@@ -209,7 +216,9 @@ Utilise des sections claires avec des titres en MAJUSCULES suivis de deux-points
         {
             try
             {
-                Clipboard.SetText(TxtAnalyse.Text);
+                // Extraire le texte du FlowDocument
+                var textRange = new TextRange(TxtAnalyse.Document.ContentStart, TxtAnalyse.Document.ContentEnd);
+                Clipboard.SetText(textRange.Text);
                 MessageBox.Show(LocalizationService.Instance.GetString("ProgramAIAnalysis_CopiedToClipboard"), 
                     LocalizationService.Instance.GetString("Common_Success"), 
                     MessageBoxButton.OK, MessageBoxImage.Information);

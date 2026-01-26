@@ -77,11 +77,19 @@
                        Padding="25" BorderBrush="#E0E0E0" BorderThickness="1"
                        Visibility="Collapsed">
                     <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="500">
-                        <TextBlock x:Name="TxtAnalyse" 
-                                  FontSize="13" 
-                                  LineHeight="22"
-                                  Foreground="#333"
-                                  TextWrapping="Wrap"/>
+                        <RichTextBox x:Name="TxtAnalyse" 
+                                    FontSize="13" 
+                                    Foreground="#333"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    IsReadOnly="True"
+                                    IsDocumentEnabled="True">
+                            <RichTextBox.Resources>
+                                <Style TargetType="Paragraph">
+                                    <Setter Property="Margin" Value="0,0,0,10"/>
+                                </Style>
+                            </RichTextBox.Resources>
+                        </RichTextBox>
                     </ScrollViewer>
                 </Border>
             </StackPanel>

@@ -550,6 +550,11 @@ Analyse maintenant cet email et réponds UNIQUEMENT avec le JSON (pas de texte a
                     throw new Exception("L'API a retourné une réponse vide.");
                 }
 
+                // Log pour debug
+                System.Diagnostics.Debug.WriteLine("=== RÉPONSE IA BRUTE ===");
+                System.Diagnostics.Debug.WriteLine(aiResponse);
+                System.Diagnostics.Debug.WriteLine("=== FIN RÉPONSE ===");
+
                 // Parser la réponse JSON de l'IA
                 return ParseAIResponse(aiResponse);
             }
@@ -571,13 +576,24 @@ Analyse maintenant cet email et réponds UNIQUEMENT avec le JSON (pas de texte a
                     aiResponse = aiResponse.Substring(0, aiResponse.Length - 3);
                 aiResponse = aiResponse.Trim();
 
-                // Si le JSON est incomplet, essayer de le compléter
-                if (!aiResponse.EndsWith("}"))
+                // Trouver le début et la fin du JSON valide
+                int startIndex = aiResponse.IndexOf('{');
+                int endIndex = aiResponse.LastIndexOf('}');
+                
+                if (startIndex >= 0 && endIndex > startIndex)
                 {
-                    aiResponse += "}";
+                    aiResponse = aiResponse.Substring(startIndex, endIndex - startIndex + 1);
+                }
+                else if (startIndex >= 0)
+                {
+                    // Si pas de }, ajouter la fermeture
+                    aiResponse = aiResponse.Substring(startIndex) + "}";
                 }
 
-                using (var doc = JsonDocument.Parse(aiResponse))
+                // Validation supplémentaire: s'assurer que le JSON est complet
+                aiResponse = aiResponse.Trim();
+
+                using (var doc = JsonDocument.Parse(aiResponse, new JsonDocumentOptions { AllowTrailingCommas = true }))
                 {
                     var root = doc.RootElement;
 
@@ -680,8 +696,21 @@ Analyse maintenant cet email et réponds UNIQUEMENT avec le JSON (pas de texte a
             }
             catch (Exception ex)
             {
+                // Log pour debug
+                System.Diagnostics.Debug.WriteLine("=== ERREUR PARSING JSON ===");
+                System.Diagnostics.Debug.WriteLine($"Exception: {ex.GetType().Name}");
+                System.Diagnostics.Debug.WriteLine($"Message: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"JSON tentative (200 premiers caractères): {aiResponse?.Substring(0, Math.Min(200, aiResponse?.Length ?? 0))}");
+                System.Diagnostics.Debug.WriteLine("=========================");
+                
                 // En cas d'erreur, retourner une demande vide avec tous les champs à compléter
-                MessageBox.Show($"L'IA n'a pas pu analyser complètement l'email.\nVeuillez remplir les champs manuellement.\n\nDétail: {ex.Message}", 
+                string errorDetail = ex.Message;
+                if (ex is JsonException jsonEx)
+                {
+                    errorDetail = $"{jsonEx.Message}\n\nPosition: Ligne {jsonEx.LineNumber}, Colonne {jsonEx.BytePositionInLine}\n\nExtrait JSON problématique disponible dans les logs de debug.";
+                }
+                
+                MessageBox.Show($"L'IA n'a pas pu analyser complètement l'email.\nVeuillez remplir les champs manuellement.\n\nDétail: {errorDetail}", 
                     "Analyse partielle", MessageBoxButton.OK, MessageBoxImage.Information);
                 
                 _champsIncertains.AddRange(new[] { "Titre", "Description", "Type", "Criticite", "ContexteMetier", 

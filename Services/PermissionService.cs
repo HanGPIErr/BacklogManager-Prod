@@ -116,6 +116,10 @@ namespace BacklogManager.Services
 
         // Permissions CRA
         public bool PeutValiderCRA => IsAdmin || IsChefDeProjet;
+
+        // Accès à l'utilisateur connecté
+        public Utilisateur UtilisateurConnecte => _currentUser;
+        public int? EquipeIdUtilisateur => _currentUser?.EquipeId;
     }
 }
 

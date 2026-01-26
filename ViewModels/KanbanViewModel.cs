@@ -328,6 +328,7 @@ namespace BacklogManager.ViewModels
 
         public bool PeutSupprimerTaches => _permissionService.PeutSupprimerTaches;
         public bool EstAdministrateur => _permissionService.EstAdministrateur;
+        public bool AfficherFiltreEquipe => _permissionService?.EstAdministrateur ?? false;
 
         // Textes localisés pour les DataTemplates
         public string SearchPlaceholder => Services.LocalizationService.Instance.GetString("Kanban_SearchPlaceholder");
@@ -461,24 +462,51 @@ namespace BacklogManager.ViewModels
             _refreshTimer.Start();
 
             LoadFilterLists(); // Charger les listes une seule fois
+            
+            // Si l'utilisateur n'est pas admin, filtrer automatiquement sur son équipe
+            if (!EstAdministrateur && _permissionService?.EquipeIdUtilisateur != null)
+            {
+                _selectedEquipeId = _permissionService.EquipeIdUtilisateur;
+                OnPropertyChanged(nameof(SelectedEquipeId));
+                LoadFilteredDevs();
+            }
+            
             LoadItems();
         }
 
         private void LoadFilterLists()
         {
-            // Charger les équipes
-            var equipes = _backlogService.GetAllEquipes();
-            Equipes.Clear();
-            Equipes.Add(new Equipe { Id = 0, Nom = "-- Toutes les équipes --" });
-            foreach (var equipe in equipes.OrderBy(e => e.Nom))
+            // Charger les équipes (uniquement pour les admins)
+            if (EstAdministrateur)
             {
-                Equipes.Add(equipe);
+                var equipes = _backlogService.GetAllEquipes();
+                Equipes.Clear();
+                Equipes.Add(new Equipe { Id = 0, Nom = "-- Toutes les équipes --" });
+                foreach (var equipe in equipes.OrderBy(e => e.Nom))
+                {
+                    Equipes.Add(equipe);
+                }
+            }
+            else
+            {
+                Equipes.Clear();
             }
 
             // Charger les devs (sera filtré par équipe)
             LoadFilteredDevs();
 
+            // Charger les projets (filtrés par équipe pour les non-admins)
             var projets = _backlogService.GetAllProjets().Where(p => p.Actif).ToList();
+
+            // Pour les non-admins, filtrer par équipe
+            if (!EstAdministrateur && _permissionService?.EquipeIdUtilisateur != null)
+            {
+                int equipeId = _permissionService.EquipeIdUtilisateur.Value;
+                projets = projets.Where(p => 
+                    p.EquipesAssigneesIds != null && 
+                    p.EquipesAssigneesIds.Contains(equipeId)
+                ).ToList();
+            }
 
             Projets.Clear();
             foreach (var projet in projets)
@@ -534,6 +562,22 @@ namespace BacklogManager.ViewModels
             var itemsAvecProjet = allItems.Count(i => i.ProjetId.HasValue);
             System.Diagnostics.Debug.WriteLine($"[KANBAN] Items avec DevAssigneId: {itemsAvecDev}/{allItems.Count}");
             System.Diagnostics.Debug.WriteLine($"[KANBAN] Items avec ProjetId: {itemsAvecProjet}/{allItems.Count}");
+
+            // Pour les non-admins, filtrer automatiquement par équipe
+            if (!EstAdministrateur && _permissionService?.EquipeIdUtilisateur != null)
+            {
+                var utilisateursEquipe = _backlogService.GetAllUtilisateurs()
+                    .Where(u => u.EquipeId == _permissionService.EquipeIdUtilisateur.Value)
+                    .Select(u => u.Id)
+                    .ToList();
+                
+                allItems = allItems.Where(i => 
+                    !i.DevAssigneId.HasValue || // Inclure les tâches non assignées
+                    utilisateursEquipe.Contains(i.DevAssigneId.Value) // Ou assignées à quelqu'un de l'équipe
+                ).ToList();
+                
+                System.Diagnostics.Debug.WriteLine($"[KANBAN] Items après filtre équipe (non-admin): {allItems.Count}");
+            }
 
             // Filter by dev if selected (ignore 0 = "Tous")
             // IMPORTANT: On inclut aussi les tâches SANS dev assigné pour permettre de les voir et de les assigner
@@ -699,8 +743,16 @@ namespace BacklogManager.ViewModels
 
         private void ClearFilters()
         {
-            SelectedDevId = 0;  // 0 = "Tous"
-            SelectedProjetId = 0;  // 0 = "Tous"
+            SelectedDevId = null;  // null = "Tous"
+            SelectedProjetId = null;  // null = "Tous"
+            
+            // Pour les admins, réinitialiser aussi le filtre équipe
+            if (EstAdministrateur)
+            {
+                SelectedEquipeId = null;  // null = "Toutes les équipes"
+            }
+            // Pour les non-admins, garder le filtre équipe sur leur équipe
+            
             LoadItems();
         }
 
