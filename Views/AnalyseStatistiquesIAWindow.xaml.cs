@@ -207,12 +207,31 @@ Patterns observés : surcharge équipes, sous-utilisation, dépassements d'estim
                     httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
                     httpClient.Timeout = TimeSpan.FromMinutes(2);
 
+                    var langCode = LocalizationService.Instance.CurrentLanguageCode;
+                    string langInstruction;
+                    switch (langCode)
+                    {
+                        case "fr":
+                            langInstruction = "français";
+                            break;
+                        case "es":
+                            langInstruction = "español";
+                            break;
+                        default:
+                            langInstruction = "English";
+                            break;
+                    }
+
+                    string systemContent = $"Tu es Agent Project & Change, expert en analyse de données projet. " +
+                                           $"Réponds en {langInstruction} et conserve EXACTEMENT les marqueurs entre crochets suivants : " +
+                                           "[SCORE], [VUE_ENSEMBLE], [PERFORMANCE_DEV], [TENDANCES], [RECOMMANDATIONS], [ACTIONS].";
+
                     var requestBody = new
                     {
                         model = "gpt-oss-120b",
                         messages = new[]
                         {
-                            new { role = "system", content = "Tu es Agent Project & Change, expert en analyse de données projet." },
+                            new { role = "system", content = systemContent },
                             new { role = "user", content = prompt }
                         },
                         temperature = 0.7,

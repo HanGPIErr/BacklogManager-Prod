@@ -252,12 +252,31 @@ Sois constructif, précis et propose des solutions concrètes basées sur les do
                 client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_apiToken}");
                 client.Timeout = TimeSpan.FromMinutes(2);
 
+                var langCode = LocalizationService.Instance.CurrentLanguageCode;
+                string langInstruction;
+                switch (langCode)
+                {
+                    case "fr":
+                        langInstruction = "français";
+                        break;
+                    case "es":
+                        langInstruction = "español";
+                        break;
+                    default:
+                        langInstruction = "English";
+                        break;
+                }
+
+                string systemContent = $"Tu es Agent Project & Change, expert en gestion de projet. " +
+                                       $"Réponds en {langInstruction} et conserve EXACTEMENT les marqueurs de sections suivants : " +
+                                       "[SCORE], [BILAN], [ANALYSE], [POINTS_ATTENTION], [RECOMMANDATIONS], [ACTIONS].";
+
                 var requestBody = new
                 {
                     model = MODEL,
                     messages = new[]
                     {
-                        new { role = "system", content = "Tu es Agent Project & Change, expert en gestion de projet." },
+                        new { role = "system", content = systemContent },
                         new { role = "user", content = prompt }
                     },
                     temperature = 0.7

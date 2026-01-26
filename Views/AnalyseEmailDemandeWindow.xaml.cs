@@ -428,6 +428,21 @@ namespace BacklogManager.Views
                 client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_apiToken}");
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
 
+                var langCode = LocalizationService.Instance.CurrentLanguageCode;
+                string langInstruction;
+                switch (langCode)
+                {
+                    case "fr":
+                        langInstruction = "français";
+                        break;
+                    case "es":
+                        langInstruction = "español";
+                        break;
+                    default:
+                        langInstruction = "English";
+                        break;
+                }
+
                 var systemPrompt = @"Tu es un assistant spécialisé dans l'analyse d'emails pour créer des demandes de projet IT dans un système de gestion de backlog.
 
 **Ton rôle** : Analyser l'email fourni et extraire les informations clés pour pré-remplir une demande complète.
@@ -500,6 +515,9 @@ Si tu n'es pas certain d'une information ou si elle n'est pas clairement mention
 - ChampsIncertains: tableau avec les noms des champs (""Categorie"", ""TypeProjet"", ""Drivers"", etc.)
 
 Analyse maintenant cet email et réponds UNIQUEMENT avec le JSON (pas de texte avant/après) :";
+
+                // Demander explicitement la langue de réponse tout en conservant la contrainte JSON
+                systemPrompt += $"\n\nRéponds en {langInstruction}. Réponds UNIQUEMENT avec le JSON demandé, sans texte additionnel.";
 
 
                 var messages = new[]

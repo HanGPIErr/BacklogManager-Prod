@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
+using BacklogManager.Services;
 
 namespace BacklogManager.Views
 {
@@ -164,12 +165,29 @@ Sois encourageant même en cas de retards, propose des solutions concrètes.";
             {
                 client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_apiToken}");
                 
+                var langCode = LocalizationService.Instance.CurrentLanguageCode;
+                string langInstruction;
+                switch (langCode)
+                {
+                    case "fr":
+                        langInstruction = "français";
+                        break;
+                    case "es":
+                        langInstruction = "español";
+                        break;
+                    default:
+                        langInstruction = "English";
+                        break;
+                }
+
+                string systemContent = $"Tu es l'assistant BacklogManager, expert en gestion de projet. Réponds en {langInstruction}.";
+
                 var requestBody = new
                 {
                     model = MODEL,
                     messages = new[]
                     {
-                        new { role = "system", content = "Tu es l'assistant BacklogManager, expert en gestion de projet." },
+                        new { role = "system", content = systemContent },
                         new { role = "user", content = prompt }
                     },
                     temperature = 0.7

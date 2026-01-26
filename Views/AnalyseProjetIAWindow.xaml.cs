@@ -301,12 +301,31 @@ Sois constructif, précis et propose des solutions concrètes.";
             {
                 client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_apiToken}");
                 
+                var langCode = LocalizationService.Instance.CurrentLanguageCode;
+                string langInstruction;
+                switch (langCode)
+                {
+                    case "fr":
+                        langInstruction = "français";
+                        break;
+                    case "es":
+                        langInstruction = "español";
+                        break;
+                    default:
+                        langInstruction = "English";
+                        break;
+                }
+
+                string systemContent = $"Tu es Agent Project & Change, expert en gestion de projet. " +
+                                       $"Réponds en {langInstruction} et conserve EXACTEMENT les marqueurs de sections suivants : " +
+                                       "[SCORE], [VUE_ENSEMBLE], [DEADLINES], [RECOMMANDATIONS], [ACTIONS].";
+
                 var requestBody = new
                 {
                     model = MODEL,
                     messages = new[]
                     {
-                        new { role = "system", content = "Tu es Agent Project & Change, expert en gestion de projet." },
+                        new { role = "system", content = systemContent },
                         new { role = "user", content = prompt }
                     },
                     temperature = 0.7

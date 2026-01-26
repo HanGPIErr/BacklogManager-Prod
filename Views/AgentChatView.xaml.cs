@@ -255,12 +255,22 @@ namespace BacklogManager.Views
                     })
                     .ToList();
 
-                var messages = new[]
+                var langCode = LocalizationService.Instance.CurrentLanguageCode;
+                string langInstruction;
+                switch (langCode)
                 {
-                    new
-                    {
-                        role = "system",
-                        content = @"Tu es Agent Project & Change, assistante virtuelle experte en gestion de projet agile pour BacklogManager.
+                    case "fr":
+                        langInstruction = "français";
+                        break;
+                    case "es":
+                        langInstruction = "español";
+                        break;
+                    default:
+                        langInstruction = "English";
+                        break;
+                }
+
+                string systemPrompt = @"Tu es Agent Project & Change, assistante virtuelle experte en gestion de projet agile pour BacklogManager.
 
 **Personnalité** : Bienveillante, pédagogue, avec humour et émojis. Réponds de façon CONCISE (3-4 lignes max).
 
@@ -282,7 +292,17 @@ namespace BacklogManager.Views
 ✓ Utilise **gras**, *italique*, listes à puces
 ✓ Mentionne les émojis d'icônes
 ✓ Indique le rôle requis si pertinent
-✓ Ton chaleureux et encourageant"
+✓ Ton chaleureux et encourageant";
+
+                // Demander explicitement la langue de sortie
+                systemPrompt += $"\n\nRéponds en {langInstruction}.";
+
+                var messages = new[]
+                {
+                    new
+                    {
+                        role = "system",
+                        content = systemPrompt
                     }
                 }.Concat(conversationHistory).ToList();
 

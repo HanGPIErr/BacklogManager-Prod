@@ -89,8 +89,8 @@ namespace BacklogManager.Views
         {
             // Header du projet
             TxtNomProjet.Text = _projet.Nom;
-            TxtDescription.Text = string.IsNullOrEmpty(_projet.Description) ? "Aucune description" : _projet.Description;
-            
+            TxtDescription.Text = string.IsNullOrEmpty(_projet.Description) ? LocalizationService.Instance["Common_NotSpecified"] : _projet.Description;
+
             // Afficher la phase du projet
             if (!string.IsNullOrEmpty(_projet.Phase))
             {
@@ -98,11 +98,27 @@ namespace BacklogManager.Views
             }
             else
             {
-                TxtPhase.Text = "Non définie";
+                TxtPhase.Text = LocalizationService.Instance["Common_NotDefined"];
             }
 
             // Charger et afficher les équipes assignées
             ChargerEquipes();
+
+            // Header: id, programme, priorité
+            TxtProjetId.Text = _projet.Id.ToString();
+            if (_projet.Programme != null)
+                TxtProgramme.Text = _projet.Programme.Nom;
+            else if (_projet.ProgrammeId.HasValue)
+            {
+                var prog = _backlogService.Database.GetAllProgrammes().FirstOrDefault(p => p.Id == _projet.ProgrammeId.Value);
+                TxtProgramme.Text = prog != null ? prog.Nom : LocalizationService.Instance["Common_NotDefined"];
+            }
+            else
+            {
+                TxtProgramme.Text = LocalizationService.Instance["Common_None"];
+            }
+
+            TxtPriorite.Text = !string.IsNullOrWhiteSpace(_projet.Priorite) ? LocalizeProjectPriority(_projet.Priorite) : LocalizationService.Instance["Common_NotDefined"];
 
             // Charger toutes les tâches du projet (y compris archivées) - utiliser GetAllBacklogItemsIncludingArchived
             var taches = _backlogService.GetAllBacklogItemsIncludingArchived()
@@ -120,8 +136,8 @@ namespace BacklogManager.Views
                 PrioriteColor = GetPrioriteColor(t.Priorite),
                 Statut = GetStatutDisplay(t.Statut),
                 DevNom = t.DevAssigneId.HasValue 
-                    ? utilisateurs.FirstOrDefault(u => u.Id == t.DevAssigneId.Value)?.Nom ?? "Non assigné"
-                    : "Non assigné",
+                    ? utilisateurs.FirstOrDefault(u => u.Id == t.DevAssigneId.Value)?.Nom ?? LocalizationService.Instance["Common_NotAssigned"]
+                    : LocalizationService.Instance["Common_NotAssigned"],
                 ChiffrageJours = t.ChiffrageHeures.HasValue ? t.ChiffrageHeures.Value / 7.0 : 0,
                 TempsReelHeures = t.TempsReelHeures ?? 0,
                 TempsReelJours = (t.TempsReelHeures ?? 0) / 8.0, // Conversion heures en jours
@@ -180,7 +196,8 @@ namespace BacklogManager.Views
 
             // Barre de progression
             ProgressBarGlobal.Value = progression;
-            TxtProgressionLabel.Text = $"{termine} / {total} tâches ({progression:F0}%)";
+            var progressFormat = LocalizationService.Instance.GetString("ProjectDetails_ProgressLabelFormat") ?? "{0} / {1} tâches ({2}%)";
+            TxtProgressionLabel.Text = string.Format(progressFormat, termine, total, progression.ToString("F0"));
 
             // Calcul du RAG automatique (EXACTEMENT la même logique que ProjetsViewModel)
             // Compter les tâches en retard (non terminées avec date dépassée, et non archivées)
@@ -269,8 +286,9 @@ namespace BacklogManager.Views
 
             // Filtre statut
             var statutItem = CmbFiltreStatut.SelectedItem as ComboBoxItem;
-            string statutFiltre = statutItem?.Content?.ToString() ?? "Tous";
-            if (statutFiltre != "Tous")
+            string statutFiltre = statutItem?.Content?.ToString() ?? LocalizationService.Instance.GetString("ProjectDetails_All");
+            var allLabel = LocalizationService.Instance.GetString("ProjectDetails_All") ?? "Tous";
+            if (statutFiltre != allLabel)
             {
                 filtered = filtered.Where(t => t.Statut == statutFiltre);
             }
@@ -293,10 +311,10 @@ namespace BacklogManager.Views
         {
             switch (statut)
             {
-                case Statut.Afaire: return "À faire";
-                case Statut.EnCours: return "En cours";
-                case Statut.Test: return "En test";
-                case Statut.Termine: return "Terminé";
+                case Statut.Afaire: return LocalizationService.Instance.GetString("Projects_Todo") ?? "À faire";
+                case Statut.EnCours: return LocalizationService.Instance.GetString("Projects_InProgress") ?? "En cours";
+                case Statut.Test: return LocalizationService.Instance.GetString("Projects_InTest") ?? "En test";
+                case Statut.Termine: return LocalizationService.Instance.GetString("Projects_Completed") ?? "Terminé";
                 default: return statut.ToString();
             }
         }
@@ -315,6 +333,32 @@ namespace BacklogManager.Views
                     return new SolidColorBrush(Color.FromRgb(76, 175, 80)); // Vert
                 default:
                     return new SolidColorBrush(Color.FromRgb(158, 158, 158)); // Gris
+            }
+        }
+
+        private string LocalizeProjectPriority(string priority)
+        {
+            if (string.IsNullOrWhiteSpace(priority)) return LocalizationService.Instance["Common_NotDefined"];
+
+            var p = priority.Trim().ToLowerInvariant();
+            switch (p)
+            {
+                case "top high":
+                case "top_high":
+                case "tophigh":
+                    return LocalizationService.Instance.GetString("Projects_PriorityTopHigh");
+                case "high":
+                case "haute":
+                    return LocalizationService.Instance.GetString("Projects_PriorityHigh");
+                case "medium":
+                case "moyenne":
+                    return LocalizationService.Instance.GetString("Projects_PriorityMedium");
+                case "low":
+                case "basse":
+                    return LocalizationService.Instance.GetString("Projects_PriorityLow");
+                default:
+                    // If no known mapping, return the raw value to avoid hiding data
+                    return priority;
             }
         }
 

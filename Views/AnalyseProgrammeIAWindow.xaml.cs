@@ -159,11 +159,29 @@ Utilise des sections claires avec des titres en MAJUSCULES suivis de deux-points
             {
                 httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_apiToken}");
 
+                var langCode = LocalizationService.Instance.CurrentLanguageCode;
+                string langInstruction;
+                switch (langCode)
+                {
+                    case "fr":
+                        langInstruction = "français";
+                        break;
+                    case "es":
+                        langInstruction = "español";
+                        break;
+                    default:
+                        langInstruction = "English";
+                        break;
+                }
+
+                string systemContent = $"Tu es Agent Program Management, expert en gestion de programmes multi-projets et gouvernance de portefeuille. Réponds en {langInstruction}.";
+
                 var requestBody = new
                 {
                     model = MODEL,
                     messages = new[]
                     {
+                        new { role = "system", content = systemContent },
                         new { role = "user", content = prompt }
                     },
                     temperature = 0.7,

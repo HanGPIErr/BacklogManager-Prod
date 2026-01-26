@@ -70,6 +70,24 @@
                     </StackPanel>
                 </Border>
 
+                <!-- Infos rapides (ID / Programme / Priorité) -->
+                <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,10,0,0">
+                    <TextBlock FontSize="12" FontWeight="SemiBold" Foreground="#555">
+                        <Run Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[ProjectDetails_IdLabel], Mode=OneWay}"/>
+                    </TextBlock>
+                    <TextBlock x:Name="TxtProjetId" FontSize="12" Margin="6,0,12,0" Foreground="#1A1919"/>
+
+                    <TextBlock FontSize="12" FontWeight="SemiBold" Foreground="#555">
+                        <Run Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[ProjectDetails_ProgrammeLabel], Mode=OneWay}"/>
+                    </TextBlock>
+                    <TextBlock x:Name="TxtProgramme" FontSize="12" Margin="6,0,12,0" Foreground="#1A1919"/>
+
+                    <TextBlock FontSize="12" FontWeight="SemiBold" Foreground="#555">
+                        <Run Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[ProjectDetails_PriorityLabel], Mode=OneWay}"/>
+                    </TextBlock>
+                    <TextBlock x:Name="TxtPriorite" FontSize="12" Margin="6,0,0,0" Foreground="#1A1919"/>
+                </StackPanel>
+
                 <!-- Métriques clés -->
                 <Grid Grid.Row="3" Margin="0,20,0,0">
                     <Grid.ColumnDefinitions>

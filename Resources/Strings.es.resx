@@ -3,6 +3,69 @@
   <resheader name="resmimetype">
     <value>text/microsoft-resx</value>
   </resheader>
+  <data name="DetailProjet_BtnBack" xml:space="preserve">
+    <value>Volver al equipo</value>
+  </data>
+  <data name="DetailProjet_Timeline" xml:space="preserve">
+    <value>Cronograma del proyecto</value>
+  </data>
+  <data name="DetailProjet_AnalyzeAI" xml:space="preserve">
+    <value>Análisis IA del proyecto</value>
+  </data>
+  <data name="ProjectDetails_ProjectPrefix" xml:space="preserve">
+    <value>Proyecto #</value>
+  </data>
+  <data name="ProjectDetails_PriorityLabel" xml:space="preserve">
+    <value>Prioridad:</value>
+  </data>
+  <data name="ProjectDetails_Avancement" xml:space="preserve">
+    <value>PROGRESO</value>
+  </data>
+  <data name="ProjectDetails_Tasks" xml:space="preserve">
+    <value>TAREAS</value>
+  </data>
+  <data name="ProjectDetails_Teams" xml:space="preserve">
+    <value>EQUIPOS</value>
+  </data>
+  <data name="ProjectDetails_TeamsAssignedSuffix" xml:space="preserve">
+    <value>equipo(s) asignado(s)</value>
+  </data>
+  <data name="ProjectDetails_Delivery" xml:space="preserve">
+    <value>ENTREGA</value>
+  </data>
+  <data name="ProjectDetails_TimelineAndDeadlines" xml:space="preserve">
+    <value>CRONOGRAMA &amp; FECHAS LÍMITE</value>
+  </data>
+  <data name="ProjectDetails_DateStart" xml:space="preserve">
+    <value>FECHA INICIO</value>
+  </data>
+  <data name="ProjectDetails_DateEnd" xml:space="preserve">
+    <value>FECHA FIN</value>
+  </data>
+  <data name="ProjectDetails_GainsTime" xml:space="preserve">
+    <value>⏱️ TIEMPO AHORRADO</value>
+  </data>
+  <data name="ProjectDetails_GainsFinancial" xml:space="preserve">
+    <value>💰 GANANCIAS FINANCIERAS</value>
+  </data>
+  <data name="ProjectDetails_ContributionsResources" xml:space="preserve">
+    <value>👥 CONTRIBUCIONES DE RECURSOS</value>
+  </data>
+  <data name="ProjectDetails_Members" xml:space="preserve">
+    <value>MIEMBROS</value>
+  </data>
+  <data name="ProjectDetails_TasksCompleted" xml:space="preserve">
+    <value>TAREAS COMPLETADAS</value>
+  </data>
+  <data name="ProjectDetails_CompletionRate" xml:space="preserve">
+    <value>TASA DE COMPLETACIÓN</value>
+  </data>
+  <data name="ProjectDetails_DaysEstimated" xml:space="preserve">
+    <value>DÍAS ESTIMADOS</value>
+  </data>
+  <data name="ProjectDetails_Contribution" xml:space="preserve">
+    <value>CONTRIBUCIÓN</value>
+  </data>
   <resheader name="version">
     <value>2.0</value>
   </resheader>
@@ -65,6 +128,18 @@
   <data name="Success" xml:space="preserve">
     <value>Éxito</value>
   </data>
+    <data name="ProjectDetails_IdLabel" xml:space="preserve">
+      <value>ID:</value>
+    </data>
+    <data name="ProjectDetails_ProgrammeLabel" xml:space="preserve">
+      <value>Programa:</value>
+    </data>
+    <data name="ProjectDetails_PriorityLabel" xml:space="preserve">
+      <value>Prioridad:</value>
+    </data>
+    <data name="ProjectDetails_ProgressLabelFormat" xml:space="preserve">
+      <value>{0} / {1} tareas ({2}%)</value>
+    </data>
   <data name="Warning" xml:space="preserve">
     <value>Advertencia</value>
   </data>
@@ -2716,6 +2791,9 @@ La aplicación se reiniciará.</value>
   <data name="Stats_PeriodAll" xml:space="preserve">
     <value>🌐 Mostrar todo</value>
   </data>
+  <data name="Stats_Period2Months" xml:space="preserve">
+    <value>📅 Últimos 2 meses</value>
+  </data>
   <data name="Timeline_Year" xml:space="preserve">
     <value>AÑO</value>
   </data>
@@ -4495,5 +4573,26 @@ El historial actual se conservará en la base de datos.</value>
   </data>
   <data name="TaskPreview_Close" xml:space="preserve">
     <value>✓ Cerrar</value>
+  </data>
+  <data name="Common_NotAssigned" xml:space="preserve">
+    <value>Sin asignar</value>
+  </data>
+  <data name="Common_NotSpecified" xml:space="preserve">
+    <value>No especificado</value>
+  </data>
+  <data name="Common_NotDefined" xml:space="preserve">
+    <value>No definido</value>
+  </data>
+  <data name="Projects_PriorityTopHigh" xml:space="preserve">
+    <value>Crítica</value>
+  </data>
+  <data name="Projects_PriorityHigh" xml:space="preserve">
+    <value>Alta</value>
+  </data>
+  <data name="Projects_PriorityMedium" xml:space="preserve">
+    <value>Media</value>
+  </data>
+  <data name="Projects_PriorityLow" xml:space="preserve">
+    <value>Baja</value>
   </data>
 </root>

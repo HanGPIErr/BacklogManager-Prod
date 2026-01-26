@@ -2,6 +2,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:BacklogManager.Views.Pages"
+             xmlns:services="clr-namespace:BacklogManager.Services"
              Background="#F5F7FA"
              HorizontalAlignment="Stretch"
              VerticalAlignment="Stretch">
@@ -145,10 +146,10 @@
                             <TextBlock x:Name="LblPeriode" Text="Période d'analyse *" FontSize="13" FontWeight="Bold" Foreground="#333" Margin="0,0,0,8"/>
                             <ComboBox x:Name="ComboPeriode" Height="40" FontSize="13" 
                                       SelectedIndex="3" SelectionChanged="ComboPeriode_SelectionChanged">
-                                <ComboBoxItem Content="Dernier mois"/>
-                                <ComboBoxItem Content="2 derniers mois"/>
-                                <ComboBoxItem Content="Période personnalisée"/>
-                                <ComboBoxItem Content="Vue globale"/>
+                                <ComboBoxItem Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Stats_PeriodCurrentMonth], Mode=OneWay}"/>
+                                <ComboBoxItem Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Stats_Period2Months], Mode=OneWay}"/>
+                                <ComboBoxItem Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Stats_PeriodCustom], Mode=OneWay}"/>
+                                <ComboBoxItem Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Stats_PeriodAll], Mode=OneWay}"/>
                             </ComboBox>
                         </StackPanel>
                     </Grid>
