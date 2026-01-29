@@ -562,21 +562,15 @@ Si tu n'es pas certain d'une information ou si elle n'est pas clairement mention
 }
 ```
 
-**Valeurs exactes attendues** :
-- Type: ""Dev"", ""Run"", ""Support""
-- Criticite: ""Basse"", ""Moyenne"", ""Haute"", ""Bloquante""
-- Priorite: ""Top High"", ""High"", ""Medium"", ""Low""
-- Categorie: ""BAU"", ""TRANSFO"", """"
-- TypeProjet: ""Data"", ""Digital"", ""Regulatory"", ""Run"", ""Transformation"", """"
-- LeadProjet: ""GTTO"", ""CCI"", ""Autre"", """"
-- Ambition: ""Automation Rate Increase"", ""Pricing Alignment"", ""Workload Gain"", ""Workload Reduction"", ""N/A"", """"
-- Drivers: tableau avec ""Automation"", ""Efficiency Gains"", ""Process Optimization"", ""Standardization"", ""Aucun""
-- Beneficiaires: tableau avec ""SGI"", ""TFSC"", ""Transversal""
-- Programme: ""E2E BG Program"", ""DWINGS"", ""TOM Europe"", ou vide
-- Equipes: tableau avec ""Change BAU"", ""Data Office / Data Management"", ""IT Assets Management"", ""L1 Support / First Line"", ""Process, Control & Compliance"", ""TCS / IM"", ""Tactical Solutions / Rapid Delivery"", ""Transformation & Implementation"", ""Watchtower / Risk Monitoring""
-- ChampsIncertains: tableau avec les noms des champs (""Categorie"", ""TypeProjet"", ""Drivers"", ""Equipes"", ""Programme"", etc.)
+**Exemples de valeurs** :
+- Type: Dev/Run/Support | Criticite: Basse/Moyenne/Haute/Bloquante | Priorite: Top High/High/Medium/Low
+- Categorie: BAU/TRANSFO | TypeProjet: Data/Digital/Regulatory/Run/Transformation
+- LeadProjet: GTTO/CCI/Autre | Ambition: Automation Rate Increase/Pricing Alignment/Workload Gain/Workload Reduction/N/A
+- Drivers: Automation, Efficiency Gains, Process Optimization, Standardization, Aucun
+- Beneficiaires: SGI, TFSC, Transversal | Programme: E2E BG Program, DWINGS, TOM Europe
+- Equipes: Change BAU, Data Office, IT Assets, L1 Support, Process Control, TCS, Tactical Solutions, Transformation, Watchtower
 
-Analyse maintenant cet email et réponds UNIQUEMENT avec le JSON (pas de texte avant/après) :";
+Analyse cet email et réponds UNIQUEMENT avec le JSON complet (pas de texte avant/après) :";
 
                 // Demander explicitement la langue de réponse tout en conservant la contrainte JSON
                 systemPrompt += $"\n\nRéponds en {langInstruction}. Réponds UNIQUEMENT avec le JSON demandé, sans texte additionnel.";
@@ -593,7 +587,7 @@ Analyse maintenant cet email et réponds UNIQUEMENT avec le JSON (pas de texte a
                     model = MODEL,
                     messages = messages,
                     temperature = 0.3, // Plus bas pour des résultats plus déterministes
-                    max_tokens = 1000
+                    max_tokens = 2000 // Augmenté pour gérer tous les champs
                 };
 
                 var jsonContent = JsonSerializer.Serialize(requestBody);
