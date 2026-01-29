@@ -61,5 +61,9 @@ namespace BacklogManager.Domain
         public string Categorie { get; set; } // "BAU", "TRANSFO"
         public bool EstImplemente { get; set; } // Implémentation oui/non
         public System.Collections.Generic.List<int> EquipesAssigneesIds { get; set; } = new System.Collections.Generic.List<int>(); // Équipes assignées à la demande
+        
+        // Champs temporaires pour l'analyse IA (non persistés en DB)
+        public string Programme { get; set; } // Nom/Code du programme (temporaire, converti en ProgrammeId)
+        public string Equipes { get; set; } // JSON array des noms d'équipes (temporaire, converti en EquipesAssigneesIds)
     }
 }

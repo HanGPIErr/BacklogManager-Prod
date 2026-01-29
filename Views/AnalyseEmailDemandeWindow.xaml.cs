@@ -370,6 +370,62 @@ namespace BacklogManager.Views
                         }
                         catch { }
                     }
+                    
+                    // Programme
+                    if (!string.IsNullOrEmpty(analysisResult.Programme))
+                    {
+                        try
+                        {
+                            // Chercher le programme par nom ou code
+                            var programmes = _database.GetAllProgrammes().Where(p => p.Actif).ToList();
+                            var programme = programmes.FirstOrDefault(p => 
+                                p.Nom.IndexOf(analysisResult.Programme, StringComparison.OrdinalIgnoreCase) >= 0 ||
+                                p.Code.IndexOf(analysisResult.Programme, StringComparison.OrdinalIgnoreCase) >= 0 ||
+                                analysisResult.Programme.IndexOf(p.Nom, StringComparison.OrdinalIgnoreCase) >= 0 ||
+                                analysisResult.Programme.IndexOf(p.Code, StringComparison.OrdinalIgnoreCase) >= 0
+                            );
+                            
+                            if (programme != null)
+                            {
+                                CmbProgrammeResult.SelectedValue = programme.Id;
+                            }
+                        }
+                        catch { }
+                    }
+                    
+                    // Equipes assignées
+                    if (!string.IsNullOrEmpty(analysisResult.Equipes))
+                    {
+                        try
+                        {
+                            var equipesNoms = System.Text.Json.JsonSerializer.Deserialize<List<string>>(analysisResult.Equipes);
+                            if (equipesNoms != null && equipesNoms.Count > 0)
+                            {
+                                var toutesEquipes = _database.GetAllEquipes().Where(e => e.Actif).ToList();
+                                
+                                foreach (System.Windows.Controls.CheckBox chk in PanelEquipesResult.Children)
+                                {
+                                    var equipeNom = chk.Content?.ToString();
+                                    if (!string.IsNullOrEmpty(equipeNom))
+                                    {
+                                        // Vérifier si le nom de l'équipe correspond à un des noms de la liste IA
+                                        var matched = equipesNoms.Any(nomIA => 
+                                            EquipeCorrespond(equipeNom, nomIA)
+                                        );
+                                        
+                                        if (matched)
+                                        {
+                                            chk.IsChecked = true;
+                                        }
+                                    }
+                                }
+                                
+                                // Forcer le rafraîchissement des BA/Dev
+                                FiltrerUtilisateursParEquipes();
+                            }
+                        }
+                        catch { }
+                    }
 
                     // Afficher les résultats
                     PanelResultats.Visibility = Visibility.Visible;
@@ -472,8 +528,10 @@ Si tu n'es pas certain d'une information ou si elle n'est pas clairement mention
 14. **GainsFinanciers** : Gains financiers UNIQUEMENT SI MENTIONNÉS (ex: '45000€/an') - sinon vide
 15. **Drivers** : Liste vide [] SI INCERTAIN
 16. **Beneficiaires** : Liste vide [] SI INCERTAIN
-17. **EstImplemente** : false par défaut
-18. **ChampsIncertains** : OBLIGATOIRE - Liste des noms de champs incertains ou non mentionnés
+17. **Programme** : Programme associé UNIQUEMENT SI MENTIONNÉ (ex: 'E2E BG Program', 'DWINGS', 'TOM Europe') - sinon vide
+18. **Equipes** : Liste des équipes concernées UNIQUEMENT SI MENTIONNÉES (ex: ['Change BAU', 'Data Office'], ['IT Assets Management'], etc.) - sinon liste vide []
+19. **EstImplemente** : false par défaut
+20. **ChampsIncertains** : OBLIGATOIRE - Liste des noms de champs incertains ou non mentionnés
 
 **IMPORTANT** : NE PAS estimer le chiffrage. Laisse ChiffrageEstimeJours à 0.
 
@@ -496,9 +554,11 @@ Si tu n'es pas certain d'une information ou si elle n'est pas clairement mention
   ""GainsFinanciers"": """",
   ""Drivers"": [],
   ""Beneficiaires"": [],
+  ""Programme"": """",
+  ""Equipes"": [],
   ""EstImplemente"": false,
   ""ChiffrageEstimeJours"": 0,
-  ""ChampsIncertains"": [""Categorie"", ""TypeProjet"", ""Beneficiaires"", ""GainsTemps""]
+  ""ChampsIncertains"": [""Categorie"", ""TypeProjet"", ""Beneficiaires"", ""GainsTemps"", ""Programme"", ""Equipes""]
 }
 ```
 
@@ -512,7 +572,9 @@ Si tu n'es pas certain d'une information ou si elle n'est pas clairement mention
 - Ambition: ""Automation Rate Increase"", ""Pricing Alignment"", ""Workload Gain"", ""Workload Reduction"", ""N/A"", """"
 - Drivers: tableau avec ""Automation"", ""Efficiency Gains"", ""Process Optimization"", ""Standardization"", ""Aucun""
 - Beneficiaires: tableau avec ""SGI"", ""TFSC"", ""Transversal""
-- ChampsIncertains: tableau avec les noms des champs (""Categorie"", ""TypeProjet"", ""Drivers"", etc.)
+- Programme: ""E2E BG Program"", ""DWINGS"", ""TOM Europe"", ou vide
+- Equipes: tableau avec ""Change BAU"", ""Data Office / Data Management"", ""IT Assets Management"", ""L1 Support / First Line"", ""Process, Control & Compliance"", ""TCS / IM"", ""Tactical Solutions / Rapid Delivery"", ""Transformation & Implementation"", ""Watchtower / Risk Monitoring""
+- ChampsIncertains: tableau avec les noms des champs (""Categorie"", ""TypeProjet"", ""Drivers"", ""Equipes"", ""Programme"", etc.)
 
 Analyse maintenant cet email et réponds UNIQUEMENT avec le JSON (pas de texte avant/après) :";
 
@@ -684,6 +746,42 @@ Analyse maintenant cet email et réponds UNIQUEMENT avec le JSON (pas de texte a
                                 catch { }
                             }
                             demande.Beneficiaires = benefList.Count > 0 ? System.Text.Json.JsonSerializer.Serialize(benefList) : null;
+                        }
+                    }
+                    catch { }
+                    
+                    // Programme - sécurisé
+                    try
+                    {
+                        var programmeStr = TryGetString(root, "Programme", "");
+                        if (!string.IsNullOrEmpty(programmeStr))
+                        {
+                            demande.Programme = programmeStr;
+                        }
+                    }
+                    catch { }
+                    
+                    // Equipes (array -> JSON string) - sécurisé
+                    try
+                    {
+                        if (root.TryGetProperty("Equipes", out var equipesElement) && equipesElement.ValueKind == JsonValueKind.Array)
+                        {
+                            var equipesList = new List<string>();
+                            foreach (var equipe in equipesElement.EnumerateArray())
+                            {
+                                try
+                                {
+                                    var equipeValue = equipe.GetString();
+                                    if (!string.IsNullOrEmpty(equipeValue))
+                                        equipesList.Add(equipeValue);
+                                }
+                                catch { }
+                            }
+                            // Stocker temporairement dans un champ custom pour traitement ultérieur
+                            if (equipesList.Count > 0)
+                            {
+                                demande.Equipes = System.Text.Json.JsonSerializer.Serialize(equipesList);
+                            }
                         }
                     }
                     catch { }
@@ -1069,6 +1167,77 @@ Analyse maintenant cet email et réponds UNIQUEMENT avec le JSON (pas de texte a
             
             // Gains Financiers
             TxtGainsFinanciersResult.Background = _champsIncertains.Contains("GainsFinanciers") ? couleurSurbrillance : couleurNormale;
+            
+            // Programme
+            CmbProgrammeResult.Background = _champsIncertains.Contains("Programme") ? couleurSurbrillance : couleurNormale;
+            
+            // Équipes - surligner le panel si incertain
+            if (_champsIncertains.Contains("Equipes"))
+            {
+                PanelEquipesResult.Background = couleurSurbrillance;
+            }
+            else
+            {
+                PanelEquipesResult.Background = System.Windows.Media.Brushes.Transparent;
+            }
+        }
+        
+        /// <summary>
+        /// Vérifie si un nom d'équipe de la base correspond à un nom suggéré par l'IA
+        /// Gère les variations, abréviations et correspondances partielles
+        /// </summary>
+        private bool EquipeCorrespond(string nomEquipeDB, string nomEquipeIA)
+        {
+            if (string.IsNullOrEmpty(nomEquipeDB) || string.IsNullOrEmpty(nomEquipeIA))
+                return false;
+            
+            // Normaliser les noms pour la comparaison
+            var dbNormalized = nomEquipeDB.ToLowerInvariant().Trim();
+            var iaNormalized = nomEquipeIA.ToLowerInvariant().Trim();
+            
+            // Correspondance exacte
+            if (dbNormalized == iaNormalized)
+                return true;
+            
+            // Correspondance partielle (l'un contient l'autre)
+            if (dbNormalized.Contains(iaNormalized) || iaNormalized.Contains(dbNormalized))
+                return true;
+            
+            // Dictionnaire de correspondances spéciales pour gérer les abréviations et variations
+            var correspondances = new Dictionary<string, string[]>
+            {
+                { "change bau", new[] { "change", "bau", "change bau" } },
+                { "data office / data management", new[] { "data office", "data management", "data" } },
+                { "it assets management", new[] { "it assets", "assets management", "assets" } },
+                { "l1 support / first line", new[] { "l1 support", "l1", "first line", "support" } },
+                { "process, control & compliance", new[] { "process", "control", "compliance", "process control" } },
+                { "tcs / im", new[] { "tcs", "im", "tcs im" } },
+                { "tactical solutions / rapid delivery", new[] { "tactical solutions", "tactical", "rapid delivery", "rapid" } },
+                { "transformation & implementation", new[] { "transformation", "implementation", "transfo" } },
+                { "watchtower / risk monitoring", new[] { "watchtower", "risk monitoring", "risk" } }
+            };
+            
+            // Chercher dans les correspondances
+            foreach (var kvp in correspondances)
+            {
+                if (dbNormalized.Contains(kvp.Key))
+                {
+                    foreach (var variation in kvp.Value)
+                    {
+                        if (iaNormalized.Contains(variation) || variation.Contains(iaNormalized))
+                            return true;
+                    }
+                }
+                
+                // Vérifier aussi dans l'autre sens
+                foreach (var variation in kvp.Value)
+                {
+                    if (dbNormalized.Contains(variation) && (iaNormalized.Contains(kvp.Key) || kvp.Key.Contains(iaNormalized)))
+                        return true;
+                }
+            }
+            
+            return false;
         }
     }
 }
