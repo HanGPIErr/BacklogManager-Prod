@@ -2366,6 +2366,33 @@ Cette action est irréversible.</value>
   <data name="Reporting_AllCompleted" xml:space="preserve">
     <value>✅ TOUT EST TERMINÉ</value>
   </data>
+  <data name="Reporting_PhasesAndMilestones" xml:space="preserve">
+    <value>📌 PHASES &amp; JALONS</value>
+  </data>
+  <data name="Reporting_Phase1" xml:space="preserve">
+    <value>Phase 1</value>
+  </data>
+  <data name="Reporting_Phase2" xml:space="preserve">
+    <value>Phase 2</value>
+  </data>
+  <data name="Reporting_Phase3" xml:space="preserve">
+    <value>Phase 3</value>
+  </data>
+  <data name="Reporting_Phase4" xml:space="preserve">
+    <value>Phase 4</value>
+  </data>
+  <data name="Reporting_ChangeManagement" xml:space="preserve">
+    <value>🔄 CHANGE MANAGEMENT</value>
+  </data>
+  <data name="Reporting_EvolvingScope" xml:space="preserve">
+    <value>📈 EVOLVING SCOPE</value>
+  </data>
+  <data name="Reporting_EvolvingScopeDesc" xml:space="preserve">
+    <value>items added over time</value>
+  </data>
+  <data name="Reporting_TimelineProjects" xml:space="preserve">
+    <value>📅 TIMELINE D'AVANCEMENT DES PROJETS</value>
+  </data>
   <data name="ChatHistory_Title" xml:space="preserve">
     <value>Historique des Conversations - Agent IA</value>
   </data>

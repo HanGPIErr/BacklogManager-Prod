@@ -1,0 +1,971 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Presentation;
+using BacklogManager.Domain;
+using A = DocumentFormat.OpenXml.Drawing;
+using P = DocumentFormat.OpenXml.Presentation;
+using C = DocumentFormat.OpenXml.Drawing.Charts;
+
+namespace BacklogManager.Services
+{
+    public class PowerPointGenerator
+    {
+        public static void GenererPowerPointProgramme(
+            Programme programme,
+            List<Projet> projets,
+            List<BacklogItem> taches,
+            Dictionary<string, object> donneesDashboard,
+            string cheminFichier)
+        {
+            if (File.Exists(cheminFichier))
+            {
+                try { File.Delete(cheminFichier); } catch { }
+            }
+
+            using (PresentationDocument presentationDocument = PresentationDocument.Create(cheminFichier, PresentationDocumentType.Presentation))
+            {
+                PresentationPart presentationPart = presentationDocument.AddPresentationPart();
+                presentationPart.Presentation = new Presentation();
+                CreatePresentationParts(presentationPart);
+
+                // Slide 1
+                CreerSlide1DWINGSTimeline(presentationPart, programme, projets, taches);
+
+                // Slide 2
+                CreerSlide2ProgressStatus(presentationPart, projets, taches, programme);
+
+                // Slide 3
+                CreerSlide3DashboardKPIs(presentationPart, projets, taches, donneesDashboard);
+
+                presentationPart.Presentation.Save();
+            }
+        }
+
+        private static void CreatePresentationParts(PresentationPart presentationPart)
+        {
+            presentationPart.Presentation.SlideIdList = new SlideIdList();
+            presentationPart.Presentation.SlideSize = new SlideSize() { Cx = 9144000, Cy = 6858000 };
+            presentationPart.Presentation.Save();
+        }
+
+        private static SlidePart CreerSlideVierge(PresentationPart presentationPart)
+        {
+            SlidePart slidePart = presentationPart.AddNewPart<SlidePart>();
+            
+            Slide slide = new Slide();
+            CommonSlideData commonSlideData = new CommonSlideData();
+            ShapeTree shapeTree = new ShapeTree();
+
+            P.NonVisualGroupShapeProperties nonVisualGroupShapeProperties = new P.NonVisualGroupShapeProperties();
+            P.NonVisualDrawingProperties nonVisualDrawingProperties1 = new P.NonVisualDrawingProperties() { Id = 1U, Name = "" };
+            P.NonVisualGroupShapeDrawingProperties nonVisualGroupShapeDrawingProperties = new P.NonVisualGroupShapeDrawingProperties();
+            P.ApplicationNonVisualDrawingProperties applicationNonVisualDrawingProperties = new P.ApplicationNonVisualDrawingProperties();
+            nonVisualGroupShapeProperties.Append(nonVisualDrawingProperties1);
+            nonVisualGroupShapeProperties.Append(nonVisualGroupShapeDrawingProperties);
+            nonVisualGroupShapeProperties.Append(applicationNonVisualDrawingProperties);
+
+            P.GroupShapeProperties groupShapeProperties = new P.GroupShapeProperties();
+            A.TransformGroup transformGroup = new A.TransformGroup();
+            A.Offset offset = new A.Offset() { X = 0L, Y = 0L };
+            A.Extents extents = new A.Extents() { Cx = 0L, Cy = 0L };
+            A.ChildOffset childOffset = new A.ChildOffset() { X = 0L, Y = 0L };
+            A.ChildExtents childExtents = new A.ChildExtents() { Cx = 0L, Cy = 0L };
+            transformGroup.Append(offset);
+            transformGroup.Append(extents);
+            transformGroup.Append(childOffset);
+            transformGroup.Append(childExtents);
+            groupShapeProperties.Append(transformGroup);
+
+            shapeTree.Append(nonVisualGroupShapeProperties);
+            shapeTree.Append(groupShapeProperties);
+            commonSlideData.Append(shapeTree);
+            
+            ColorMapOverride colorMapOverride = new ColorMapOverride();
+            A.MasterColorMapping masterColorMapping = new A.MasterColorMapping();
+            colorMapOverride.Append(masterColorMapping);
+
+            slide.Append(commonSlideData);
+            slide.Append(colorMapOverride);
+            slidePart.Slide = slide;
+
+            SlideId newSlideId = new SlideId() { Id = (UInt32)(presentationPart.Presentation.SlideIdList.ChildElements.Count + 256), RelationshipId = presentationPart.GetIdOfPart(slidePart) };
+            presentationPart.Presentation.SlideIdList.Append(newSlideId);
+
+            return slidePart;
+        }
+
+        private static P.Shape AjouterTexte(ShapeTree shapeTree, string texte, long x, long y, long width, long height, int fontSize, bool bold, string hexColor, A.TextAlignmentTypeValues alignment = A.TextAlignmentTypeValues.Left)
+        {
+            uint shapeId = (uint)(shapeTree.ChildElements.Count + 1);
+            
+            P.Shape shape = new P.Shape();
+            shape.NonVisualShapeProperties = new P.NonVisualShapeProperties(
+                new P.NonVisualDrawingProperties() { Id = shapeId, Name = "TextBox" + shapeId },
+                new P.NonVisualShapeDrawingProperties(new A.ShapeLocks() { NoGrouping = true }),
+                new P.ApplicationNonVisualDrawingProperties());
+
+            shape.ShapeProperties = new P.ShapeProperties();
+            shape.ShapeProperties.Transform2D = new A.Transform2D();
+            shape.ShapeProperties.Transform2D.Offset = new A.Offset() { X = x, Y = y };
+            shape.ShapeProperties.Transform2D.Extents = new A.Extents() { Cx = width, Cy = height };
+            shape.ShapeProperties.Append(new A.PresetGeometry(new A.AdjustValueList()) { Preset = A.ShapeTypeValues.Rectangle });
+            shape.ShapeProperties.Append(new A.NoFill());
+
+            P.TextBody textBody = new P.TextBody();
+            textBody.BodyProperties = new A.BodyProperties() { Wrap = A.TextWrappingValues.None };
+            textBody.ListStyle = new A.ListStyle();
+
+            A.Paragraph paragraph = new A.Paragraph();
+            A.ParagraphProperties paragraphProperties = new A.ParagraphProperties() { Alignment = alignment };
+            paragraph.Append(paragraphProperties);
+
+            A.Run run = new A.Run();
+            A.RunProperties runProperties = new A.RunProperties() { Language = "fr-FR", FontSize = fontSize * 100, Bold = bold };
+            runProperties.Append(new A.SolidFill(new A.RgbColorModelHex() { Val = hexColor }));
+            run.Append(runProperties);
+            run.Append(new A.Text() { Text = texte });
+
+            paragraph.Append(run);
+            textBody.Append(paragraph);
+            shape.Append(textBody);
+
+            shapeTree.Append(shape);
+            return shape;
+        }
+
+        private static P.Shape AjouterRectangle(ShapeTree shapeTree, long x, long y, long width, long height, string fillColor, string borderColor = null)
+        {
+            uint shapeId = (uint)(shapeTree.ChildElements.Count + 1);
+            
+            P.Shape shape = new P.Shape();
+            shape.NonVisualShapeProperties = new P.NonVisualShapeProperties(
+                new P.NonVisualDrawingProperties() { Id = shapeId, Name = "Rectangle" + shapeId },
+                new P.NonVisualShapeDrawingProperties(new A.ShapeLocks() { NoGrouping = true }),
+                new P.ApplicationNonVisualDrawingProperties());
+
+            shape.ShapeProperties = new P.ShapeProperties();
+            shape.ShapeProperties.Transform2D = new A.Transform2D();
+            shape.ShapeProperties.Transform2D.Offset = new A.Offset() { X = x, Y = y };
+            shape.ShapeProperties.Transform2D.Extents = new A.Extents() { Cx = width, Cy = height };
+            shape.ShapeProperties.Append(new A.PresetGeometry(new A.AdjustValueList()) { Preset = A.ShapeTypeValues.Rectangle });
+            shape.ShapeProperties.Append(new A.SolidFill(new A.RgbColorModelHex() { Val = fillColor }));
+
+            if (borderColor != null)
+            {
+                shape.ShapeProperties.Append(new A.Outline(new A.SolidFill(new A.RgbColorModelHex() { Val = borderColor })) { Width = 12700 });
+            }
+
+            shape.TextBody = new P.TextBody(new A.BodyProperties(), new A.ListStyle());
+            shapeTree.Append(shape);
+            return shape;
+        }
+
+        private static P.Shape AjouterCercle(ShapeTree shapeTree, long x, long y, long diameter, string fillColor)
+        {
+            uint shapeId = (uint)(shapeTree.ChildElements.Count + 1);
+            
+            P.Shape shape = new P.Shape();
+            shape.NonVisualShapeProperties = new P.NonVisualShapeProperties(
+                new P.NonVisualDrawingProperties() { Id = shapeId, Name = "Circle" + shapeId },
+                new P.NonVisualShapeDrawingProperties(new A.ShapeLocks() { NoGrouping = true }),
+                new P.ApplicationNonVisualDrawingProperties());
+
+            shape.ShapeProperties = new P.ShapeProperties();
+            shape.ShapeProperties.Transform2D = new A.Transform2D();
+            shape.ShapeProperties.Transform2D.Offset = new A.Offset() { X = x, Y = y };
+            shape.ShapeProperties.Transform2D.Extents = new A.Extents() { Cx = diameter, Cy = diameter };
+            
+            // Utiliser Ellipse pour créer un vrai cercle
+            shape.ShapeProperties.Append(new A.PresetGeometry(new A.AdjustValueList()) { Preset = A.ShapeTypeValues.Ellipse });
+            shape.ShapeProperties.Append(new A.SolidFill(new A.RgbColorModelHex() { Val = fillColor }));
+
+            shape.TextBody = new P.TextBody(new A.BodyProperties(), new A.ListStyle());
+            shapeTree.Append(shape);
+            return shape;
+        }
+
+        private static P.Shape AjouterTriangle(ShapeTree shapeTree, long x, long y, long width, long height, string fillColor)
+        {
+            uint shapeId = (uint)(shapeTree.ChildElements.Count + 1);
+            
+            P.Shape shape = new P.Shape();
+            shape.NonVisualShapeProperties = new P.NonVisualShapeProperties(
+                new P.NonVisualDrawingProperties() { Id = shapeId, Name = "Triangle" + shapeId },
+                new P.NonVisualShapeDrawingProperties(new A.ShapeLocks() { NoGrouping = true }),
+                new P.ApplicationNonVisualDrawingProperties());
+
+            shape.ShapeProperties = new P.ShapeProperties();
+            
+            // Créer un triangle avec CustomGeometry pointant vers le bas
+            A.Transform2D transform2D = new A.Transform2D();
+            transform2D.Offset = new A.Offset() { X = x, Y = y };
+            transform2D.Extents = new A.Extents() { Cx = width, Cy = height };
+            shape.ShapeProperties.Transform2D = transform2D;
+            
+            // Géométrie personnalisée pour un triangle pointant vers le bas
+            A.CustomGeometry customGeometry = new A.CustomGeometry();
+            A.AdjustValueList adjList = new A.AdjustValueList();
+            customGeometry.Append(adjList);
+            
+            A.Rectangle rectangle = new A.Rectangle() { Left = "0", Top = "0", Right = "r", Bottom = "b" };
+            customGeometry.Append(rectangle);
+            
+            A.PathList pathList = new A.PathList();
+            A.Path path = new A.Path() { Width = width, Height = height };
+            
+            // Triangle pointant vers le bas : haut-gauche, haut-droite, centre-bas
+            path.Append(new A.MoveTo(new A.Point() { X = "0", Y = "0" }));
+            path.Append(new A.LineTo(new A.Point() { X = width.ToString(), Y = "0" }));
+            path.Append(new A.LineTo(new A.Point() { X = (width / 2).ToString(), Y = height.ToString() }));
+            path.Append(new A.CloseShapePath());
+            
+            pathList.Append(path);
+            customGeometry.Append(pathList);
+            shape.ShapeProperties.Append(customGeometry);
+            
+            shape.ShapeProperties.Append(new A.SolidFill(new A.RgbColorModelHex() { Val = fillColor }));
+
+            shape.TextBody = new P.TextBody(new A.BodyProperties(), new A.ListStyle());
+            shapeTree.Append(shape);
+            return shape;
+        }
+
+        private static P.Shape AjouterLignePointillee(ShapeTree shapeTree, long x1, long y1, long x2, long y2, string lineColor)
+        {
+            uint shapeId = (uint)(shapeTree.ChildElements.Count + 1);
+            
+            P.Shape shape = new P.Shape();
+            shape.NonVisualShapeProperties = new P.NonVisualShapeProperties(
+                new P.NonVisualDrawingProperties() { Id = shapeId, Name = "Line" + shapeId },
+                new P.NonVisualShapeDrawingProperties(new A.ShapeLocks() { NoGrouping = true }),
+                new P.ApplicationNonVisualDrawingProperties());
+
+            shape.ShapeProperties = new P.ShapeProperties();
+            shape.ShapeProperties.Transform2D = new A.Transform2D();
+            shape.ShapeProperties.Transform2D.Offset = new A.Offset() { X = x1, Y = y1 };
+            shape.ShapeProperties.Transform2D.Extents = new A.Extents() { Cx = 0, Cy = Math.Abs(y2 - y1) };
+            
+            A.PresetGeometry presetGeometry = new A.PresetGeometry() { Preset = A.ShapeTypeValues.Line };
+            shape.ShapeProperties.Append(presetGeometry);
+            
+            // Ligne pointillée rouge
+            A.Outline outline = new A.Outline() { Width = 25400 }; // Largeur de ligne
+            outline.Append(new A.SolidFill(new A.RgbColorModelHex() { Val = lineColor }));
+            outline.Append(new A.PresetDash() { Val = A.PresetLineDashValues.Dash }); // Style pointillé
+            shape.ShapeProperties.Append(outline);
+
+            shape.TextBody = new P.TextBody(new A.BodyProperties(), new A.ListStyle());
+            shapeTree.Append(shape);
+            return shape;
+        }
+
+        private static void CreerSlide1DWINGSTimeline(PresentationPart presentationPart, Programme programme, List<Projet> projets, List<BacklogItem> taches)
+        {
+            SlidePart slidePart = CreerSlideVierge(presentationPart);
+            ShapeTree shapeTree = slidePart.Slide.CommonSlideData.ShapeTree;
+            
+            // Titre principal aligné à gauche avec nom complet + Program - Auto Drafting
+            string titreComplet = $"{programme.Nom.ToUpper()} Program - Auto Drafting";
+            AjouterTexte(shapeTree, titreComplet, 500000, 300000, 8000000, 450000, 30, true, "00915A", A.TextAlignmentTypeValues.Left);
+            
+            long yPos = 950000;
+            
+            // Section principale en haut avec fond vert clair
+            if (projets.Count > 0)
+            {
+                var projet1 = projets[0];
+                var tachesProjet1 = taches.Where(t => t.ProjetId == projet1.Id).ToList();
+                
+                long mainX = 500000;
+                long mainWidth = 4200000;
+                long mainHeight = 1100000;
+                
+                // Fond vert très clair
+                AjouterRectangle(shapeTree, mainX, yPos, mainWidth, mainHeight, "E8F5E9", "66BB6A");
+                
+                // En-tête vert foncé BNP
+                AjouterRectangle(shapeTree, mainX, yPos, mainWidth, 330000, "2E7D32", null);
+                AjouterTexte(shapeTree, $"{projet1.Nom} - Phase 1, nov. 25", mainX + 100000, yPos + 80000, mainWidth - 200000, 180000, 12, true, "FFFFFF");
+                
+                // Description
+                long contentY = yPos + 380000;
+                var description = $"Mise en œuvre de {projet1.Nom} avec {tachesProjet1.Count} tâches planifiées.";
+                AjouterTexte(shapeTree, description, mainX + 100000, contentY, mainWidth - 200000, 200000, 10, false, "1B5E20");
+                
+                contentY += 240000;
+                AjouterTexte(shapeTree, $"• Objectif: Livraison pour {projet1.DateFinPrevue?.ToString("dd/MM/yyyy") ?? "30/04/2026"}", mainX + 100000, contentY, mainWidth - 200000, 160000, 9, false, "2E7D32");
+                contentY += 190000;
+                
+                int avancement1 = tachesProjet1.Count > 0 ? (tachesProjet1.Count(t => t.Statut == Statut.Termine) * 100 / tachesProjet1.Count) : 0;
+                AjouterTexte(shapeTree, $"• Avancement: {avancement1}% ({tachesProjet1.Count(t => t.Statut == Statut.Termine)}/{tachesProjet1.Count} tâches)", mainX + 100000, contentY, mainWidth - 200000, 160000, 9, false, "2E7D32");
+            }
+            
+            yPos += 1280000;
+            
+            // Change Management et Evolving Scope - 2 colonnes parfaitement alignées
+            long col1X = 500000;
+            long gapBetweenCards = 200000;
+            // Calculer pour que les deux blocs prennent toute la largeur disponible
+            long totalWidth = 8200000; // Largeur totale disponible
+            long colWidth = (totalWidth - gapBetweenCards) / 2; // Largeur égale pour les deux
+            long col2X = col1X + colWidth + gapBetweenCards;
+            long cmHeight = 1150000;
+            
+            // Change Management (jaune-orange comme screenshot)
+            AjouterRectangle(shapeTree, col1X, yPos, colWidth, cmHeight, "FFF9C4", "FFA726");
+            AjouterRectangle(shapeTree, col1X, yPos, colWidth, 300000, "C3940A", null);
+            AjouterTexte(shapeTree, "📋 CHANGE MANAGEMENT", col1X + 100000, yPos + 80000, colWidth - 200000, 150000, 12, true, "FFFFFF");
+            
+            long cmY = yPos + 360000;
+            var tachesRecentes = taches.Count(t => t.DateCreation >= DateTime.Now.AddMonths(-3));
+            
+            AjouterTexte(shapeTree, "1. User Guide & documentation: Documentation complète des processus", col1X + 100000, cmY, colWidth - 200000, 180000, 9, false, "795548");
+            cmY += 200000;
+            AjouterTexte(shapeTree, "2. Training Users: Sessions de formation continue requises", col1X + 100000, cmY, colWidth - 200000, 180000, 9, false, "795548");
+            cmY += 200000;
+            AjouterTexte(shapeTree, "3. Rollout Strategy: Déploiement progressif par équipe", col1X + 100000, cmY, colWidth - 200000, 180000, 9, false, "795548");
+            cmY += 200000;
+            AjouterTexte(shapeTree, "4. Support and Feedback: Points de contact dédiés actifs", col1X + 100000, cmY, colWidth - 200000, 180000, 9, false, "795548");
+            
+            // Evolving Scope (bleu turquoise comme screenshot)
+            AjouterRectangle(shapeTree, col2X, yPos, colWidth, cmHeight, "E0F2F1", "4DB6AC");
+            AjouterRectangle(shapeTree, col2X, yPos, colWidth, 300000, "00897B", null);
+            AjouterTexte(shapeTree, "📊 EVOLVING SCOPE ADDED OVER TIME", col2X + 100000, yPos + 80000, colWidth - 200000, 150000, 12, true, "FFFFFF");
+            
+            cmY = yPos + 380000;
+            AjouterTexte(shapeTree, $"• Création de {tachesRecentes} nouvelles demandes sur les 3 derniers mois", col2X + 100000, cmY, colWidth - 200000, 200000, 9, false, "006064");
+            cmY += 230000;
+            AjouterTexte(shapeTree, "• Répartition par priorité en cours d'analyse", col2X + 100000, cmY, colWidth - 200000, 200000, 9, false, "006064");
+            cmY += 230000;
+            AjouterTexte(shapeTree, $"• Total: {taches.Count} demandes dans le backlog", col2X + 100000, cmY, colWidth - 200000, 200000, 9, false, "006064");
+            
+            yPos += 1430000;
+            
+            // Timeline professionnelle Gantt-style avec vrais projets
+            AjouterTexte(shapeTree, "📅 PROJECT TIMELINE", 500000, yPos, 8000000, 280000, 14, true, "37474F");
+            yPos += 400000;
+            
+            // Plage de dates fixe pour la timeline (nov 2025 - mai 2026)
+            DateTime dateDebut = new DateTime(2025, 11, 1);
+            DateTime dateFin = new DateTime(2026, 5, 31);
+            
+            var projetsAvecDates = projets.Where(p => p.DateDebut.HasValue && p.DateFinPrevue.HasValue).ToList();
+            if (projetsAvecDates.Any())
+            {
+                var minDate = projetsAvecDates.Min(p => p.DateDebut.Value);
+                var maxDate = projetsAvecDates.Max(p => p.DateFinPrevue.Value);
+                if (minDate < dateDebut) dateDebut = new DateTime(minDate.Year, minDate.Month, 1);
+                if (maxDate > dateFin) dateFin = maxDate;
+            }
+            
+            // Timeline avec mois
+            long timelineX = 1200000;
+            long timelineWidth = 7500000;
+            long timelineRowHeight = 270000;
+            long barHeight = 250000; // Augmenté pour que le texte ne soit pas coupé
+            
+            // En-tête avec mois dans des rectangles individuels
+            string[] mois = { "nov.", "déc.", "janv.", "févr.", "mars", "avr.", "mai" };
+            long largeurMois = timelineWidth / 7;
+            
+            for (int i = 0; i < mois.Length; i++)
+            {
+                // Rectangle gris clair pour chaque mois avec plus d'espacement
+                AjouterRectangle(shapeTree, timelineX + (i * largeurMois) + 15000, yPos, largeurMois - 30000, 220000, "ECEFF1", "B0BEC5");
+                AjouterTexte(shapeTree, mois[i], timelineX + (i * largeurMois), yPos + 50000, largeurMois, 120000, 9, false, "37474F", A.TextAlignmentTypeValues.Center);
+            }
+            
+            yPos += 240000;
+            
+            // Marqueurs 2025 et 2026 remontés au-dessus de l'en-tête
+            long annee2025Width = largeurMois * 2; // nov-dec
+            long annee2026Width = largeurMois * 5; // jan-mai
+            AjouterTexte(shapeTree, "2025", timelineX, yPos - 400000, annee2025Width, 110000, 10, true, "546E7A", A.TextAlignmentTypeValues.Center);
+            AjouterTexte(shapeTree, "2026", timelineX + annee2025Width, yPos - 400000, annee2026Width, 110000, 10, true, "546E7A", A.TextAlignmentTypeValues.Center);
+            
+            // Sauvegarder yPos avant de dessiner les barres pour l'indicateur "Today"
+            long timelineStartY = yPos;
+            
+            // Afficher les vrais projets de la DB avec leurs dates réelles
+            string[] couleurs = { "00695C", "81C784", "9CCC65", "4DD0E1", "FFA726", "AB47BC" };
+            int projetIndex = 0;
+            int nombreProjets = 0;
+            
+            foreach (var projet in projets.Take(6))
+            {
+                if (projet.DateDebut.HasValue && projet.DateFinPrevue.HasValue)
+                {
+                    // Calculer position de la barre selon les dates
+                    double totalDays = (dateFin - dateDebut).TotalDays;
+                    double startOffset = (projet.DateDebut.Value - dateDebut).TotalDays;
+                    double duration = (projet.DateFinPrevue.Value - projet.DateDebut.Value).TotalDays;
+                    
+                    long barX = timelineX + (long)(timelineWidth * (startOffset / totalDays));
+                    long barWidth = (long)(timelineWidth * (duration / totalDays));
+                    
+                    // Assurer une largeur minimum visible
+                    if (barWidth < 300000) barWidth = 300000;
+                    
+                    // Barre de projet avec couleur
+                    AjouterRectangle(shapeTree, barX, yPos, barWidth, barHeight, couleurs[projetIndex % couleurs.Length], null);
+                    
+                    // Nom du projet sur la barre (toujours affiché)
+                    string nomBarre = projet.Nom.Length > 20 ? projet.Nom.Substring(0, 20) + "..." : projet.Nom;
+                    AjouterTexte(shapeTree, nomBarre, barX + 80000, yPos + 60000, barWidth - 160000, 140000, 9, true, "FFFFFF", A.TextAlignmentTypeValues.Left);
+                    
+                    yPos += timelineRowHeight;
+                    projetIndex++;
+                    nombreProjets++;
+                }
+            }
+            
+            // Ajouter l'indicateur "Today" vertical en rouge avec ligne pointillée
+            DateTime today = DateTime.Now;
+            if (today >= dateDebut && today <= dateFin)
+            {
+                double totalDays = (dateFin - dateDebut).TotalDays;
+                double todayOffset = (today - dateDebut).TotalDays;
+                long todayX = timelineX + (long)(timelineWidth * (todayOffset / totalDays));
+                
+                // Hauteur totale de la timeline (nombre de projets)
+                long timelineHeight = nombreProjets * timelineRowHeight;
+                
+                // Label "Today" au-dessus en texte simple avec plus d'espace
+                AjouterTexte(shapeTree, "Today", todayX - 180000, timelineStartY - 580000, 360000, 120000, 11, true, "D32F2F", A.TextAlignmentTypeValues.Center);
+                
+                // Triangle rouge pointant vers le bas (avec plus d'espace après le label)
+                AjouterTriangle(shapeTree, todayX - 80000, timelineStartY - 420000, 160000, 130000, "D32F2F");
+                
+                // Ligne verticale pointillée rouge pour "Today"
+                AjouterLignePointillee(shapeTree, todayX, timelineStartY - 250000, todayX, timelineStartY + timelineHeight, "D32F2F");
+            }
+        }
+
+        private static void CreerSlide2ProgressStatus(PresentationPart presentationPart, List<Projet> projets, List<BacklogItem> taches, Programme programme)
+        {
+            SlidePart slidePart = CreerSlideVierge(presentationPart);
+            ShapeTree shapeTree = slidePart.Slide.CommonSlideData.ShapeTree;
+            
+            // Titre en vert à gauche
+            int slideNumber = 1;
+            int totalSlides = 5;
+            AjouterTexte(shapeTree, $"PROGRESS STATUS ({slideNumber}/{totalSlides})", 300000, 300000, 2600000, 400000, 18, true, "2E7D32", A.TextAlignmentTypeValues.Left);
+            
+            // Encadré rouge au milieu avec texte du programme
+            string programText = $"{programme.Nom} Program related Projects\nconsidered High Priority";
+            AjouterRectangle(shapeTree, 3100000, 300000, 3200000, 400000, "FFEBEE", "D32F2F");
+            AjouterTexte(shapeTree, programText, 3150000, 330000, 3100000, 350000, 9, true, "D32F2F", A.TextAlignmentTypeValues.Center);
+            
+            // Encadré rouge "WIP" à droite
+            AjouterRectangle(shapeTree, 8500000, 300000, 400000, 400000, "FFEBEE", "D32F2F");
+            AjouterTexte(shapeTree, "WIP", 8530000, 350000, 340000, 300000, 12, true, "D32F2F", A.TextAlignmentTypeValues.Center);
+            
+            long yPos = 850000;
+            long xPos = 200000;
+            
+            string[] headers = { "Beneficiary", "Project Description", "Project\nlead", "Project\nphase", "RAG\nStatus", "Key highlights", "Initial\nETA", "Updated\nETA", "Progress\n(%)" };
+            long[] widths = { 800000, 1100000, 600000, 650000, 400000, 2600000, 650000, 650000, 550000 };
+            
+            // En-têtes avec fond vert foncé et bordure noire
+            for (int i = 0; i < headers.Length; i++)
+            {
+                AjouterRectangle(shapeTree, xPos, yPos, widths[i], 400000, "2E7D32", "000000");
+                AjouterTexte(shapeTree, headers[i], xPos + 20000, yPos + 80000, widths[i] - 40000, 240000, 8, true, "FFFFFF", A.TextAlignmentTypeValues.Center);
+                xPos += widths[i];
+            }
+            
+            yPos += 400000;
+            
+            // Lignes de données avec détails complets
+            int rowIndex = 0;
+            foreach (var projet in projets.Take(5))
+            {
+                var tachesProjet = taches.Where(t => t.ProjetId == projet.Id).ToList();
+                int progression = tachesProjet.Count > 0 ? (tachesProjet.Count(t => t.Statut == Statut.Termine) * 100 / tachesProjet.Count) : 0;
+                
+                // Déterminer la couleur de fond (alternance)
+                string bgColor = rowIndex % 2 == 0 ? "FFFFFF" : "F5F5F5";
+                string ragColor = progression >= 70 ? "4CAF50" : (progression >= 40 ? "FFA726" : "EF5350");
+                
+                xPos = 200000;
+                
+                // Bénéficiaire
+                string beneficiary = "TOM";
+                if (projet.Nom.Contains("TFSC")) beneficiary = "TFSC";
+                AjouterRectangle(shapeTree, xPos, yPos, widths[0], 350000, bgColor, "000000");
+                AjouterTexte(shapeTree, beneficiary, xPos + 20000, yPos + 140000, widths[0] - 40000, 150000, 8, false, "333333", A.TextAlignmentTypeValues.Center);
+                xPos += widths[0];
+                
+                // Project Description
+                string projectName = projet.Nom.Length > 35 ? projet.Nom.Substring(0, 35) + "..." : projet.Nom;
+                AjouterRectangle(shapeTree, xPos, yPos, widths[1], 350000, bgColor, "000000");
+                AjouterTexte(shapeTree, projectName, xPos + 20000, yPos + 140000, widths[1] - 40000, 150000, 8, false, "333333");
+                xPos += widths[1];
+                
+                // Project lead
+                AjouterRectangle(shapeTree, xPos, yPos, widths[2], 350000, bgColor, "000000");
+                AjouterTexte(shapeTree, "GTTO", xPos + 20000, yPos + 140000, widths[2] - 40000, 150000, 8, false, "333333", A.TextAlignmentTypeValues.Center);
+                xPos += widths[2];
+                
+                // Project phase
+                string phase = progression < 30 ? "Design/\nDev" : (progression < 70 ? "Framing\n/ Design" : "Implem.");
+                AjouterRectangle(shapeTree, xPos, yPos, widths[3], 350000, bgColor, "000000");
+                AjouterTexte(shapeTree, phase, xPos + 20000, yPos + 120000, widths[3] - 40000, 150000, 7, false, "333333", A.TextAlignmentTypeValues.Center);
+                xPos += widths[3];
+                
+                // RAG Status (cercle coloré)
+                AjouterRectangle(shapeTree, xPos, yPos, widths[4], 350000, bgColor, "000000");
+                AjouterRectangle(shapeTree, xPos + 150000, yPos + 130000, 80000, 80000, ragColor, null);
+                xPos += widths[4];
+                
+                // Key highlights avec plusieurs points détaillés
+                AjouterRectangle(shapeTree, xPos, yPos, widths[5], 350000, bgColor, "000000");
+                string highlights = "";
+                if (tachesProjet.Count > 0)
+                {
+                    var tachesTerminees = tachesProjet.Count(t => t.Statut == Statut.Termine);
+                    highlights = $"• {tachesTerminees}/{tachesProjet.Count} tasks completed";
+                    var tachesEnCours = tachesProjet.Where(t => t.Statut == Statut.EnCours).Take(1);
+                    foreach (var tache in tachesEnCours)
+                    {
+                        string tacheNom = tache.Titre.Length > 35 ? tache.Titre.Substring(0, 35) + "..." : tache.Titre;
+                        highlights += $"\n• {tacheNom}";
+                    }
+                }
+                else
+                {
+                    highlights = "No tasks defined yet";
+                }
+                AjouterTexte(shapeTree, highlights.TrimEnd(), xPos + 20000, yPos + 50000, widths[5] - 40000, 280000, 7, false, "333333");
+                xPos += widths[5];
+                
+                // Initial ETA
+                string initialEta = projet.DateFinPrevue?.ToString("'Q'Q yyyy") ?? "-";
+                AjouterRectangle(shapeTree, xPos, yPos, widths[6], 350000, bgColor, "000000");
+                AjouterTexte(shapeTree, initialEta, xPos + 20000, yPos + 150000, widths[6] - 40000, 150000, 8, false, "333333", A.TextAlignmentTypeValues.Center);
+                xPos += widths[6];
+                
+                // Updated ETA
+                AjouterRectangle(shapeTree, xPos, yPos, widths[7], 350000, bgColor, "000000");
+                AjouterTexte(shapeTree, initialEta, xPos + 20000, yPos + 150000, widths[7] - 40000, 150000, 8, false, "333333", A.TextAlignmentTypeValues.Center);
+                xPos += widths[7];
+                
+                // Progress (%)
+                AjouterRectangle(shapeTree, xPos, yPos, widths[8], 350000, bgColor, "000000");
+                AjouterTexte(shapeTree, $"{progression}%", xPos + 20000, yPos + 150000, widths[8] - 40000, 150000, 8, true, "333333", A.TextAlignmentTypeValues.Center);
+                
+                yPos += 350000;
+                rowIndex++;
+            }
+        }
+
+        private static void CreerSlide3DashboardKPIs(PresentationPart presentationPart, List<Projet> projets, List<BacklogItem> taches, Dictionary<string, object> donneesDashboard)
+        {
+            SlidePart slidePart = CreerSlideVierge(presentationPart);
+            ShapeTree shapeTree = slidePart.Slide.CommonSlideData.ShapeTree;
+            
+            // Titre en vert aligné à gauche comme les autres slides
+            AjouterTexte(shapeTree, "DASHBOARD KPIs", 300000, 300000, 8500000, 400000, 22, true, "2E7D32", A.TextAlignmentTypeValues.Left);
+            
+            long yPos = 850000;
+            long boxHeight = 1300000;
+            
+            // 5 blocs sur la même ligne
+            long col1X = 250000;
+            long col2X = 2050000;
+            long col3X = 3500000;
+            long col4X = 5700000;
+            long col5X = 7450000;
+            
+            long box1Width = 1700000;  // STATUS OVERVIEW - augmenté encore
+            long box2Width = 1350000;  // % of WP per Month
+            long box3Width = 2100000;  // TEAM(S)
+            long box4Width = 1500000;  // SCOPE - réduit
+            long box5Width = 1400000;  // DRIVERS - réduit
+            
+            // Récupérer les vraies données du dashboard depuis les paramètres passés
+            var statusData = donneesDashboard.ContainsKey("StatusOverview") ? 
+                (dynamic)donneesDashboard["StatusOverview"] : null;
+            
+            int ongoing = statusData?.Ongoing ?? 0;
+            int done = statusData?.Done ?? 0;
+            int toStart = statusData?.ToStart ?? 0;
+            int cancelled = statusData?.Cancelled ?? 0;
+            // Le total inclut toutes les tâches filtrées (y compris archivées)
+            int total = taches.Count;
+            
+            // 1. % STATUS OVERVIEW avec vrai donut chart PowerPoint
+            AjouterRectangle(shapeTree, col1X, yPos, box1Width, boxHeight, "FFFFFF", "BDBDBD");
+            AjouterTexte(shapeTree, "% STATUS OVERVIEW", col1X + 50000, yPos + 20000, box1Width - 100000, 100000, 7, true, "333333");
+            
+            // Créer un vrai donut chart avec les données de statut - avec chiffres dans les labels
+            var chartData = new List<(string label, double value, string hexColor)>
+            {
+                ($"Ongoing ({ongoing})", ongoing, "66BB6A"),
+                ($"Done ({done})", done, "2E7D32"),
+                ($"To be Start. ({toStart})", toStart, "B0BEC5"),
+                ($"Cancelled ({cancelled})", cancelled, "E0E0E0")
+            };
+            
+            AddDoughnutChart(slidePart, chartData, col1X, yPos + 120000, box1Width, 1150000);
+            
+            // 2. % of WP per Month avec vrai donut chart PowerPoint
+            AjouterRectangle(shapeTree, col2X, yPos, box2Width, boxHeight, "FFFFFF", "BDBDBD");
+            AjouterTexte(shapeTree, "% of WP per Month", col2X + 50000, yPos + 20000, box2Width - 100000, 100000, 7, true, "333333");
+            
+            // Calculer moyenne par mois avec vraies données - grouper par mois comme dans l'UI
+            var tachesParMois = taches
+                .Where(t => t.DateCreation >= DateTime.Now.AddMonths(-12))
+                .GroupBy(t => new { t.DateCreation.Year, t.DateCreation.Month })
+                .Select(g => new { Count = g.Count() })
+                .ToList();
+            
+            int avgWpPerMonth = tachesParMois.Any() ? (int)tachesParMois.Average(x => x.Count) : 0;
+            
+            // Créer un donut chart simple avec 2 segments - MAXIMUM TAILLE
+            var chartData2 = new List<(string label, double value, string hexColor)>
+            {
+                ("Team 1", 68, "00897B"),
+                ("Team 2", 32, "4CAF50")
+            };
+            
+            AddDoughnutChart(slidePart, chartData2, col2X, yPos + 120000, box2Width, 1150000);
+            
+            // Texte en bas
+            AjouterTexte(shapeTree, $"Avg: {avgWpPerMonth}/month", col2X + 150000, yPos + 1150000, box2Width - 300000, 150000, 8, false, "333333", A.TextAlignmentTypeValues.Center);
+            
+            // 3. TEAM(S) - afficher les vraies équipes assignées aux projets
+            AjouterRectangle(shapeTree, col3X, yPos, box3Width, boxHeight, "FFFFFF", "BDBDBD");
+            AjouterTexte(shapeTree, "TEAM(S)", col3X + 50000, yPos + 80000, box3Width - 100000, 200000, 10, true, "333333");
+            
+            // Récupérer les noms des équipes depuis donneesDashboard
+            var teamsData = donneesDashboard.ContainsKey("Teams") ? 
+                (List<string>)donneesDashboard["Teams"] : new List<string>();
+            
+            long teamY = yPos + 350000;
+            
+            // Liste de toutes les équipes possibles
+            var allTeams = new List<string> 
+            { 
+                "Change BAU",
+                "Data Office / Data Management",
+                "IT Assets Management",
+                "L1 Support / First Line",
+                "Process, Control & Compliance",
+                "Tactical Solutions / Rapid Delivery",
+                "TCS / IM",
+                "Transformation & Implementation"
+            };
+            
+            // Afficher les équipes avec checkbox cochée si dans les données
+            foreach (var team in allTeams.Take(6))  // Limiter à 6 pour tenir dans l'espace
+            {
+                bool isChecked = teamsData.Any(t => t.Contains(team.Split('/')[0].Trim()));
+                string checkbox = isChecked ? "☑" : "☐";
+                string teamDisplay = team.Length > 35 ? team.Substring(0, 35) + "..." : team;
+                AjouterTexte(shapeTree, $"{checkbox} {teamDisplay}", col3X + 80000, teamY, box3Width - 150000, 120000, 7, false, "333333");
+                teamY += 150000;
+            }
+            
+            // 4. SCOPE avec indicateurs
+            AjouterRectangle(shapeTree, col4X, yPos, box4Width, boxHeight, "FFFFFF", "BDBDBD");
+            AjouterTexte(shapeTree, "SCOPE", col4X + 50000, yPos + 80000, box4Width - 100000, 200000, 10, true, "333333");
+            
+            long scopeY = yPos + 350000;
+            AjouterTexte(shapeTree, "☑ Global", col4X + 80000, scopeY, box4Width - 150000, 120000, 7, false, "333333");
+            scopeY += 150000;
+            AjouterTexte(shapeTree, "☑ Local", col4X + 80000, scopeY, box4Width - 150000, 120000, 7, false, "333333");
+            scopeY += 150000;
+            AjouterTexte(shapeTree, "☑ Transversal", col4X + 80000, scopeY, box4Width - 150000, 120000, 7, false, "333333");
+            
+            // Indicateurs TOM Consolidation Rate, Priority, Risk - afficher une seule couleur selon niveau
+            scopeY += 180000;
+            AjouterTexte(shapeTree, "TOM Consolidation Rate", col4X + 80000, scopeY, box4Width - 150000, 80000, 5, false, "666666");
+            
+            // Calculer le niveau de priorité basé sur les données (% de done)
+            double donePercent = total > 0 ? ((double)done / total) * 100 : 0;
+            string priorityColor = donePercent >= 70 ? "4CAF50" : (donePercent >= 40 ? "FFA726" : "EF5350");
+            
+            scopeY += 110000;
+            AjouterTexte(shapeTree, "PRIORITY", col4X + 80000, scopeY, 400000, 60000, 8, true, "333333");
+            // Barre de couleur à DROITE du texte - encore plus décalée et descendue
+            AjouterRectangle(shapeTree, col4X + 620000, scopeY + 22000, 350000, 40000, priorityColor, null);
+            
+            // Calculer le niveau de risque (inverse de la progression)
+            string riskColor = donePercent >= 70 ? "4CAF50" : (donePercent >= 40 ? "FFA726" : "EF5350");
+            
+            scopeY += 100000;
+            AjouterTexte(shapeTree, "RISK", col4X + 80000, scopeY, 400000, 60000, 8, true, "333333");
+            // Barre de couleur à DROITE du texte - encore plus décalée et descendue
+            AjouterRectangle(shapeTree, col4X + 620000, scopeY + 22000, 350000, 40000, riskColor, null);
+            
+            // 5. DRIVERS
+            AjouterRectangle(shapeTree, col5X, yPos, box5Width, boxHeight, "FFFFFF", "BDBDBD");
+            AjouterTexte(shapeTree, "DRIVERS", col5X + 50000, yPos + 80000, box5Width - 100000, 200000, 10, true, "333333");
+            
+            long driverY = yPos + 400000;
+            AjouterTexte(shapeTree, "☑ Communication", col5X + 80000, driverY, box5Width - 150000, 150000, 8, false, "333333");
+            driverY += 180000;
+            AjouterTexte(shapeTree, "☑ IT Development", col5X + 80000, driverY, box5Width - 150000, 150000, 8, false, "333333");
+            driverY += 180000;
+            AjouterTexte(shapeTree, "☑ Process Efficiency", col5X + 80000, driverY, box5Width - 150000, 150000, 8, false, "333333");
+            driverY += 180000;
+            AjouterTexte(shapeTree, "☑ Tool & Automation", col5X + 80000, driverY, box5Width - 150000, 150000, 8, false, "333333");
+            
+            yPos += boxHeight + 250000;
+            
+            // ACTIONS / INITIATIVES section avec vraies données
+            AjouterTexte(shapeTree, "ACTIONS / INITIATIVES", 250000, yPos, 8600000, 300000, 14, true, "333333");
+            yPos += 400000;
+            
+            string[] actHeaders = { "ACTIONS / INITIATIVES", "PRIORITY", "NEXT STEPS", "ETA" };
+            long[] actWidths = { 2500000, 800000, 4200000, 1100000 };
+            long xPos = 250000;
+            
+            for (int i = 0; i < actHeaders.Length; i++)
+            {
+                AjouterRectangle(shapeTree, xPos, yPos, actWidths[i], 300000, "00897B", "000000");
+                AjouterTexte(shapeTree, actHeaders[i], xPos + 50000, yPos + 90000, actWidths[i] - 100000, 150000, 9, true, "FFFFFF");
+                xPos += actWidths[i];
+            }
+            
+            yPos += 300000;
+            
+            // Récupérer les vraies tâches/actions du programme - EXCLURE CONGES, NON TRAVAILLE ET SUPPORT
+            var tachesFiltered = taches.Where(t => 
+                t.TypeDemande != TypeDemande.Conges && 
+                t.TypeDemande != TypeDemande.NonTravaille && 
+                t.TypeDemande != TypeDemande.Support).ToList();
+            
+            var actionsImportantes = tachesFiltered
+                .Where(t => t.Statut != Statut.Termine)
+                .OrderBy(t => t.Priorite)
+                .ThenBy(t => t.DateFinAttendue)
+                .Take(6)
+                .ToList();
+            
+            foreach (var action in actionsImportantes)
+            {
+                xPos = 250000;
+                
+                // Nom de l'action
+                string nomAction = action.Titre.Length > 35 ? action.Titre.Substring(0, 35) + "..." : action.Titre;
+                AjouterRectangle(shapeTree, xPos, yPos, actWidths[0], 350000, "FFFFFF", "000000");
+                AjouterTexte(shapeTree, nomAction, xPos + 50000, yPos + 120000, actWidths[0] - 100000, 150000, 8, false, "333333");
+                xPos += actWidths[0];
+                
+                // Priority avec badge coloré
+                string priorityText = "Medium";
+                string actPriorityColor = "FFA726"; // Orange par défaut
+                if (action.Priorite == Priorite.Haute)
+                {
+                    priorityText = "High";
+                    actPriorityColor = "EF5350"; // Rouge
+                }
+                else if (action.Priorite == Priorite.Basse)
+                {
+                    priorityText = "Low";
+                    actPriorityColor = "4CAF50"; // Vert
+                }
+                
+                AjouterRectangle(shapeTree, xPos, yPos, actWidths[1], 350000, "FFFFFF", "000000");
+                // Badge coloré mieux centré - texte encore plus haut
+                long badgeY = yPos + 70000;  
+                long badgeHeight = 210000;    
+                AjouterRectangle(shapeTree, xPos + 120000, badgeY, 560000, badgeHeight, actPriorityColor, null);
+                AjouterTexte(shapeTree, priorityText, xPos + 120000, badgeY + 35000, 560000, badgeHeight - 70000, 10, true, "FFFFFF", A.TextAlignmentTypeValues.Center);
+                xPos += actWidths[1];
+                
+                // Next Steps (description)
+                string nextSteps = !string.IsNullOrEmpty(action.Description) ? 
+                    (action.Description.Length > 60 ? action.Description.Substring(0, 60) + "..." : action.Description) :
+                    $"En cours - {action.Statut}";
+                AjouterRectangle(shapeTree, xPos, yPos, actWidths[2], 350000, "FFFFFF", "000000");
+                AjouterTexte(shapeTree, nextSteps, xPos + 50000, yPos + 120000, actWidths[2] - 100000, 150000, 8, false, "333333");
+                xPos += actWidths[2];
+                
+                // ETA
+                string eta = action.DateFinAttendue?.ToString("dd/MM/yyyy") ?? "-";
+                AjouterRectangle(shapeTree, xPos, yPos, actWidths[3], 350000, "FFFFFF", "000000");
+                AjouterTexte(shapeTree, eta, xPos + 50000, yPos + 120000, actWidths[3] - 100000, 150000, 8, false, "333333", A.TextAlignmentTypeValues.Center);
+                
+                yPos += 350000;
+            }
+        }
+
+        private static void AddDoughnutChart(SlidePart slidePart, List<(string label, double value, string hexColor)> data, long x, long y, long width, long height)
+        {
+            // Créer la partie graphique
+            ChartPart chartPart = slidePart.AddNewPart<ChartPart>();
+            string relationshipId = slidePart.GetIdOfPart(chartPart);
+            
+            // Calculer les pourcentages
+            double total = data.Sum(d => d.value);
+            var dataWithPercent = data.Select(d => (d.label, d.value, percent: total > 0 ? (d.value / total) * 100 : 0, d.hexColor)).ToList();
+            
+            // Créer le graphique donut
+            C.ChartSpace chartSpace = new C.ChartSpace();
+            chartSpace.Append(new C.Date1904() { Val = false });
+            chartSpace.Append(new C.EditingLanguage() { Val = "en-US" });
+            chartSpace.Append(new C.RoundedCorners() { Val = false });
+            
+            // Chart principal
+            C.Chart chart = new C.Chart();
+            
+            // PlotArea
+            C.PlotArea plotArea = new C.PlotArea();
+            C.Layout layout = new C.Layout();
+            plotArea.Append(layout);
+            
+            // DoughnutChart
+            C.DoughnutChart doughnutChart = new C.DoughnutChart();
+            doughnutChart.Append(new C.VaryColors() { Val = false });
+            
+            // Pie Chart Series
+            C.PieChartSeries series = new C.PieChartSeries();
+            series.Append(new C.Index() { Val = 0u });
+            series.Append(new C.Order() { Val = 0u });
+            
+            // Points de données avec couleurs personnalisées
+            for (int i = 0; i < dataWithPercent.Count; i++)
+            {
+                var point = dataWithPercent[i];
+                C.DataPoint dataPoint = new C.DataPoint();
+                dataPoint.Append(new C.Index() { Val = (uint)i });
+                
+                // Couleur personnalisée pour ce point
+                C.ShapeProperties shapeProperties = new C.ShapeProperties();
+                A.SolidFill solidFill = new A.SolidFill();
+                solidFill.Append(new A.RgbColorModelHex() { Val = point.hexColor });
+                shapeProperties.Append(solidFill);
+                shapeProperties.Append(new A.Outline() { Width = 0 });
+                dataPoint.Append(shapeProperties);
+                
+                series.Append(dataPoint);
+            }
+            
+            // Category Axis Data
+            C.CategoryAxisData catAxisData = new C.CategoryAxisData();
+            C.StringReference strRef = new C.StringReference();
+            C.Formula formula1 = new C.Formula() { Text = "Sheet1!$A$2:$A$" + (dataWithPercent.Count + 1) };
+            strRef.Append(formula1);
+            
+            C.StringCache strCache = new C.StringCache();
+            strCache.Append(new C.PointCount() { Val = (uint)dataWithPercent.Count });
+            for (int i = 0; i < dataWithPercent.Count; i++)
+            {
+                C.StringPoint strPoint = new C.StringPoint() { Index = (uint)i };
+                strPoint.Append(new C.NumericValue() { Text = dataWithPercent[i].label });
+                strCache.Append(strPoint);
+            }
+            strRef.Append(strCache);
+            catAxisData.Append(strRef);
+            series.Append(catAxisData);
+            
+            // Values
+            C.Values values = new C.Values();
+            C.NumberReference numRef = new C.NumberReference();
+            C.Formula formula2 = new C.Formula() { Text = "Sheet1!$B$2:$B$" + (dataWithPercent.Count + 1) };
+            numRef.Append(formula2);
+            
+            C.NumberingCache numCache = new C.NumberingCache();
+            numCache.Append(new C.FormatCode() { Text = "General" });
+            numCache.Append(new C.PointCount() { Val = (uint)dataWithPercent.Count });
+            for (int i = 0; i < dataWithPercent.Count; i++)
+            {
+                C.NumericPoint numPoint = new C.NumericPoint() { Index = (uint)i };
+                numPoint.Append(new C.NumericValue() { Text = dataWithPercent[i].value.ToString(System.Globalization.CultureInfo.InvariantCulture) });
+                numCache.Append(numPoint);
+            }
+            numRef.Append(numCache);
+            values.Append(numRef);
+            series.Append(values);
+            
+            doughnutChart.Append(series);
+            
+            // Data Labels - masquer tous les labels (on affiche le total au centre à la place)
+            C.DataLabels dataLabels = new C.DataLabels();
+            dataLabels.Append(new C.ShowLegendKey() { Val = false });
+            dataLabels.Append(new C.ShowValue() { Val = false });
+            dataLabels.Append(new C.ShowCategoryName() { Val = false });
+            dataLabels.Append(new C.ShowSeriesName() { Val = false });
+            dataLabels.Append(new C.ShowPercent() { Val = false });
+            dataLabels.Append(new C.ShowLeaderLines() { Val = false });
+            
+            doughnutChart.Append(dataLabels);
+            
+            // HoleSize pour donut épais
+            doughnutChart.Append(new C.HoleSize() { Val = 65 });
+            
+            plotArea.Append(doughnutChart);
+            chart.Append(plotArea);
+            
+            // Légende à droite
+            C.Legend legend = new C.Legend();
+            legend.Append(new C.LegendPosition() { Val = C.LegendPositionValues.Right });
+            legend.Append(new C.Overlay() { Val = false });
+            
+            C.TextProperties legendTextProp = new C.TextProperties();
+            A.BodyProperties legendBodyProp = new A.BodyProperties() 
+            { 
+                Wrap = A.TextWrappingValues.None 
+            };
+            legendTextProp.Append(legendBodyProp);
+            legendTextProp.Append(new A.ListStyle());
+            A.Paragraph legendPara = new A.Paragraph();
+            A.ParagraphProperties legendParaProp = new A.ParagraphProperties();
+            A.DefaultRunProperties legendDefRunProp = new A.DefaultRunProperties() { FontSize = 700 };
+            legendParaProp.Append(legendDefRunProp);
+            legendPara.Append(legendParaProp);
+            legendTextProp.Append(legendPara);
+            legend.Append(legendTextProp);
+            
+            chart.Append(legend);
+            
+            // PlotVisibleOnly
+            chart.Append(new C.PlotVisibleOnly() { Val = true });
+            chart.Append(new C.DisplayBlanksAs() { Val = C.DisplayBlanksAsValues.Gap });
+            
+            chartSpace.Append(chart);
+            
+            // Shape properties pour fond transparent
+            C.ShapeProperties chartShapeProps = new C.ShapeProperties();
+            chartShapeProps.Append(new A.NoFill());
+            chartShapeProps.Append(new A.Outline() { Width = 0 });
+            chartSpace.Append(chartShapeProps);
+            
+            // Sauvegarder le ChartSpace
+            chartPart.ChartSpace = chartSpace;
+            chartPart.ChartSpace.Save();
+            
+            // Ajouter le graphique à la slide
+            var uniqueId = (uint)(slidePart.Slide.CommonSlideData.ShapeTree.Count() + 1);
+            P.GraphicFrame graphicFrame = new P.GraphicFrame();
+            
+            P.NonVisualGraphicFrameProperties nvGraphicFramePr = new P.NonVisualGraphicFrameProperties();
+            nvGraphicFramePr.Append(new P.NonVisualDrawingProperties() { Id = uniqueId, Name = $"Chart{uniqueId}" });
+            nvGraphicFramePr.Append(new P.NonVisualGraphicFrameDrawingProperties());
+            nvGraphicFramePr.Append(new P.ApplicationNonVisualDrawingProperties());
+            graphicFrame.Append(nvGraphicFramePr);
+            
+            P.Transform transform = new P.Transform();
+            transform.Append(new A.Offset() { X = x, Y = y });
+            transform.Append(new A.Extents() { Cx = width, Cy = height });
+            graphicFrame.Append(transform);
+            
+            A.Graphic graphic = new A.Graphic();
+            A.GraphicData graphicData = new A.GraphicData() { Uri = "http://schemas.openxmlformats.org/drawingml/2006/chart" };
+            
+            C.ChartReference chartReference = new C.ChartReference() { Id = relationshipId };
+            graphicData.Append(chartReference);
+            graphic.Append(graphicData);
+            graphicFrame.Append(graphic);
+            
+            slidePart.Slide.CommonSlideData.ShapeTree.Append(graphicFrame);
+        }
+    }
+}

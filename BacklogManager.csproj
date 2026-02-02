@@ -53,6 +53,10 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Security" />
+    <Reference Include="DocumentFormat.OpenXml, Version=2.20.0.0, Culture=neutral, PublicKeyToken=8fb06cb64d019a17, processorArchitecture=MSIL">
+      <HintPath>packages\DocumentFormat.OpenXml.2.20.0\lib\net46\DocumentFormat.OpenXml.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Data.SQLite, Version=1.0.118.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
       <HintPath>packages\System.Data.SQLite.Core.1.0.118\System.Data.SQLite.dll</HintPath>
       <Private>True</Private>
@@ -415,6 +419,7 @@
     <Compile Include="Services\CRAService.cs" />
     <Compile Include="Services\PermissionService.cs" />
     <Compile Include="Services\PokerService.cs" />
+    <Compile Include="Services\PowerPointGenerator.cs" />
     <Compile Include="Services\AuthenticationService.cs" />
     <Compile Include="Services\InitializationService.cs" />
     <Compile Include="Services\AuditLogService.cs" />

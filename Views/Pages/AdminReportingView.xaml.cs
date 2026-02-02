@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Media;
+using System.Windows.Shapes;
 using BacklogManager.Domain;
 using BacklogManager.Services;
 
@@ -18,6 +20,11 @@ namespace BacklogManager.Views.Pages
         private DateTime? _dateFinFiltre;
         private bool _isLoading = true;
         private List<Projet> _tousLesProjets = new List<Projet>();
+        
+        // Pour la génération IA
+        private Programme _currentProgramme;
+        private List<Projet> _currentProjets;
+        private List<BacklogItem> _currentTaches;
 
         public AdminReportingView(IDatabase database, AuthenticationService authService)
         {
@@ -105,6 +112,13 @@ namespace BacklogManager.Views.Pages
             LblWorkloadDays4.Text = LocalizationService.Instance.GetString("Reporting_WorkloadDays");
             LblAllCompleted.Text = LocalizationService.Instance.GetString("Reporting_AllCompleted");
             
+            // Section Programme détaillée
+            LblPhasesJalons.Text = LocalizationService.Instance.GetString("Reporting_PhasesAndMilestones");
+            LblChangeManagement.Text = LocalizationService.Instance.GetString("Reporting_ChangeManagement");
+            LblEvolvingScope.Text = LocalizationService.Instance.GetString("Reporting_EvolvingScope");
+            LblEvolvingScopeDesc.Text = LocalizationService.Instance.GetString("Reporting_EvolvingScopeDesc");
+            LblTimelineProjects.Text = LocalizationService.Instance.GetString("Reporting_TimelineProjects");
+            
             // Mettre à jour les en-têtes des colonnes du DataGrid
             MettreAJourEntetes();
 
@@ -163,6 +177,13 @@ namespace BacklogManager.Views.Pages
                 LblWorkloadDays3.Text = LocalizationService.Instance.GetString("Reporting_WorkloadDays");
                 LblWorkloadDays4.Text = LocalizationService.Instance.GetString("Reporting_WorkloadDays");
                 LblAllCompleted.Text = LocalizationService.Instance.GetString("Reporting_AllCompleted");
+                
+                // Section Programme détaillée
+                LblPhasesJalons.Text = LocalizationService.Instance.GetString("Reporting_PhasesAndMilestones");
+                LblChangeManagement.Text = LocalizationService.Instance.GetString("Reporting_ChangeManagement");
+                LblEvolvingScope.Text = LocalizationService.Instance.GetString("Reporting_EvolvingScope");
+                LblEvolvingScopeDesc.Text = LocalizationService.Instance.GetString("Reporting_EvolvingScopeDesc");
+                LblTimelineProjects.Text = LocalizationService.Instance.GetString("Reporting_TimelineProjects");
                 
                 // Mettre à jour les en-têtes des colonnes du DataGrid
                 MettreAJourEntetes();
@@ -388,6 +409,9 @@ namespace BacklogManager.Views.Pages
         {
             try
             {
+                // Remplir les informations du programme
+                RemplirInformationsProgramme(programme);
+                
                 var backlogService = new BacklogService(_database);
                 var toutesLesTaches = backlogService.GetAllBacklogItemsIncludingArchived();
                 
@@ -401,6 +425,15 @@ namespace BacklogManager.Views.Pages
                     MasquerKPIs();
                     return;
                 }
+                
+                // Remplir la timeline des projets
+                RemplirTimelineProjets(projets, toutesLesTaches);
+                
+                // Remplir le tableau Progress Status
+                RemplirProgressStatus(projets, toutesLesTaches);
+                
+                // Remplir Dashboard KPIs et Actions
+                RemplirDashboardKPIs(projets, toutesLesTaches);
                 
                 // Récupérer toutes les tâches de tous les projets du programme
                 var tachesToutes = toutesLesTaches.Where(t => projets.Any(p => p.Id == t.ProjetId)).ToList();
@@ -796,6 +829,16 @@ namespace BacklogManager.Views.Pages
             PanelComparatif.Visibility = Visibility.Visible;
             PanelTimelineGains.Visibility = Visibility.Visible;
             PanelContributions.Visibility = Visibility.Visible;
+            
+            // Afficher la section Programme détaillée uniquement en mode Programme
+            if (_modeAffichage == "programme")
+            {
+                PanelProgrammeDetails.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                PanelProgrammeDetails.Visibility = Visibility.Collapsed;
+            }
 
             // Mettre à jour les en-têtes des colonnes du DataGrid
             MettreAJourEntetes();
@@ -822,6 +865,7 @@ namespace BacklogManager.Views.Pages
             PanelComparatif.Visibility = Visibility.Collapsed;
             PanelTimelineGains.Visibility = Visibility.Collapsed;
             PanelContributions.Visibility = Visibility.Collapsed;
+            PanelProgrammeDetails.Visibility = Visibility.Collapsed;
         }
 
         private void CalculerEtAfficherStatsComparatives(List<BacklogItem> toutesLesTaches)
@@ -1123,6 +1167,2021 @@ namespace BacklogManager.Views.Pages
                 TxtComplexiteMoyenne.Text = "-";
             }
         }
+        
+        private void RemplirInformationsProgramme(Programme programme)
+        {
+            // Nom du programme
+            TxtNomProgramme.Text = programme.Nom;
+            
+            // Récupérer les projets du programme
+            var projets = _database.GetProjets().Where(p => p.ProgrammeId == programme.Id && p.Actif)
+                .OrderBy(p => p.DateDebut ?? DateTime.MaxValue)
+                .ToList();
+            
+            // Récupérer toutes les tâches pour avoir plus d'infos
+            var backlogService = new BacklogService(_database);
+            var toutesLesTaches = backlogService.GetAllBacklogItemsIncludingArchived();
+            
+            // Stocker pour usage dans la génération IA
+            _currentProgramme = programme;
+            _currentProjets = projets;
+            _currentTaches = toutesLesTaches;
+            
+            // Afficher les phases projet par projet (dynamiquement)
+            AfficherPhasesDynamiques(projets, toutesLesTaches);
+            
+            // Pré-remplir Change Management avec des informations pertinentes de gestion du changement
+            TxtChangeManagement.Children.Clear();
+            
+            // Analyse dynamique des changements dans la période
+            var dateAnalyse = _dateDebutFiltre ?? DateTime.Now.AddMonths(-3);
+            var tachesPeriode = toutesLesTaches
+                .Where(t => projets.Any(p => p.Id == t.ProjetId) && 
+                           t.DateCreation >= dateAnalyse)
+                .ToList();
+            
+            var changementsStatut = toutesLesTaches
+                .Where(t => projets.Any(p => p.Id == t.ProjetId) && 
+                           t.DateDerniereMaj >= dateAnalyse &&
+                           t.DateDerniereMaj != t.DateCreation)
+                .Count();
+            
+            var termineesCount = toutesLesTaches.Count(t => projets.Any(p => p.Id == t.ProjetId) && t.Statut == Statut.Termine && t.DateFin >= dateAnalyse);
+            
+            // Statistiques compactes
+            var statsBlock = new TextBlock { Margin = new Thickness(5, 5, 5, 8), FontSize = 11, Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#666")) };
+            statsBlock.Inlines.Add(new Run("• ") { FontWeight = FontWeights.Bold });
+            statsBlock.Inlines.Add(new Run(tachesPeriode.Count.ToString()) { FontWeight = FontWeights.Bold, Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00915A")) });
+            statsBlock.Inlines.Add(new Run(" nouvelle(s) demande(s) créée(s)"));
+            TxtChangeManagement.Children.Add(statsBlock);
+            
+            var modifsBlock = new TextBlock { Margin = new Thickness(5, 2, 5, 2), FontSize = 11, Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#666")) };
+            modifsBlock.Inlines.Add(new Run("• ") { FontWeight = FontWeights.Bold });
+            modifsBlock.Inlines.Add(new Run(changementsStatut.ToString()) { FontWeight = FontWeights.Bold, Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF9800")) });
+            modifsBlock.Inlines.Add(new Run(" modification(s) récente(s)"));
+            TxtChangeManagement.Children.Add(modifsBlock);
+            
+            var termBlock = new TextBlock { Margin = new Thickness(5, 2, 5, 15), FontSize = 11, Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#666")) };
+            termBlock.Inlines.Add(new Run("• ") { FontWeight = FontWeights.Bold });
+            termBlock.Inlines.Add(new Run(termineesCount.ToString()) { FontWeight = FontWeights.Bold, Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2196F3")) });
+            termBlock.Inlines.Add(new Run(" tâche(s) terminée(s)"));
+            TxtChangeManagement.Children.Add(termBlock);
+            
+            // Plan d'action compact basé UNIQUEMENT sur les données de la période sélectionnée
+            var planTitreBlock = new TextBlock
+            {
+                Text = "📋 PLAN D'ACTION",
+                FontSize = 12,
+                FontWeight = FontWeights.Bold,
+                Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#333")),
+                Margin = new Thickness(5, 10, 5, 8)
+            };
+            TxtChangeManagement.Children.Add(planTitreBlock);
+            
+            // 1. Analyser les types de tâches créées dans la période
+            var typesUniques = tachesPeriode.Select(t => t.TypeDemande).Distinct().Count();
+            var guide = new TextBlock
+            {
+                FontSize = 11,
+                Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#555")),
+                Margin = new Thickness(5, 3, 5, 2),
+                TextWrapping = TextWrapping.Wrap
+            };
+            guide.Inlines.Add(new Run("1   ") { FontWeight = FontWeights.Bold });
+            guide.Inlines.Add(new Run("User Guide & documentation: ") { FontWeight = FontWeights.SemiBold });
+            
+            if (tachesPeriode.Any())
+            {
+                guide.Inlines.Add(new Run($"{tachesPeriode.Count} nouvelle(s) demande(s) nécessitant documentation ({typesUniques} type(s) différent(s))"));
+            }
+            else
+            {
+                guide.Inlines.Add(new Run("Aucune nouvelle demande - documentation stable"));
+            }
+            TxtChangeManagement.Children.Add(guide);
+            
+            // 2. Analyser les développeurs assignés dans la période
+            var devsAssignes = tachesPeriode.Where(t => t.DevAssigneId.HasValue)
+                                            .Select(t => t.DevAssigneId.Value)
+                                            .Distinct()
+                                            .ToList();
+            var users = _database.GetUtilisateurs();
+            var devsDetails = devsAssignes.Select(devId => users.FirstOrDefault(u => u.Id == devId))
+                                          .Where(u => u != null)
+                                          .ToList();
+            
+            var training = new TextBlock
+            {
+                FontSize = 11,
+                Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#555")),
+                Margin = new Thickness(5, 8, 5, 2),
+                TextWrapping = TextWrapping.Wrap
+            };
+            training.Inlines.Add(new Run("2   ") { FontWeight = FontWeights.Bold });
+            training.Inlines.Add(new Run("Training Users: ") { FontWeight = FontWeights.SemiBold });
+            
+            if (devsDetails.Any())
+            {
+                var devsNoms = string.Join(", ", devsDetails.Take(2).Select(d => d.Nom));
+                if (devsDetails.Count > 2) devsNoms += $" +{devsDetails.Count - 2}";
+                training.Inlines.Add(new Run($"{devsDetails.Count} développeur(s) actif(s) sur période ({devsNoms}) - formation continue requise"));
+            }
+            else
+            {
+                training.Inlines.Add(new Run("Aucun développeur assigné sur la période analysée"));
+            }
+            TxtChangeManagement.Children.Add(training);
+            
+            // 3. Analyser les jalons dans la période
+            var dateDebut = _dateDebutFiltre ?? DateTime.MinValue;
+            var dateFin = _dateFinFiltre ?? DateTime.MaxValue;
+            var projetsActivePeriode = projets.Where(p => 
+                (!p.DateDebut.HasValue || p.DateDebut.Value <= dateFin) &&
+                (!p.DateFinPrevue.HasValue || p.DateFinPrevue.Value >= dateDebut)
+            ).ToList();
+            
+            var rollout = new TextBlock
+            {
+                FontSize = 11,
+                Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#555")),
+                Margin = new Thickness(5, 8, 5, 2),
+                TextWrapping = TextWrapping.Wrap
+            };
+            rollout.Inlines.Add(new Run("3   ") { FontWeight = FontWeights.Bold });
+            rollout.Inlines.Add(new Run("Rollout Strategy: ") { FontWeight = FontWeights.SemiBold });
+            
+            if (projetsActivePeriode.Any())
+            {
+                var projetsNoms = string.Join(", ", projetsActivePeriode.Take(2).Select(p => p.Nom));
+                if (projetsActivePeriode.Count > 2) projetsNoms += $" +{projetsActivePeriode.Count - 2}";
+                rollout.Inlines.Add(new Run($"{projetsActivePeriode.Count} projet(s) actif(s) sur période ({projetsNoms})"));
+            }
+            else
+            {
+                rollout.Inlines.Add(new Run("Aucun projet actif sur la période sélectionnée"));
+            }
+            TxtChangeManagement.Children.Add(rollout);
+            
+            // 4. Analyser l'activité réelle dans la période
+            var tachesEnCours = tachesPeriode.Count(t => t.Statut == Statut.EnCours);
+            var tachesHautePrio = tachesPeriode.Count(t => t.Priorite == Priorite.Haute);
+            
+            var support = new TextBlock
+            {
+                FontSize = 11,
+                Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#555")),
+                Margin = new Thickness(5, 8, 5, 2),
+                TextWrapping = TextWrapping.Wrap
+            };
+            support.Inlines.Add(new Run("4   ") { FontWeight = FontWeights.Bold });
+            support.Inlines.Add(new Run("Support and Feedback: ") { FontWeight = FontWeights.SemiBold });
+            
+            if (tachesPeriode.Any())
+            {
+                support.Inlines.Add(new Run($"{tachesEnCours} tâche(s) démarrée(s)"));
+                if (tachesHautePrio > 0)
+                {
+                    support.Inlines.Add(new Run($", {tachesHautePrio} haute priorité") { FontWeight = FontWeights.Bold, Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E53935")) });
+                }
+                support.Inlines.Add(new Run(" - suivi et feedback actif"));
+            }
+            else
+            {
+                support.Inlines.Add(new Run("Aucune activité sur période - monitoring en veille"));
+            }
+            TxtChangeManagement.Children.Add(support);
+            
+            // Pré-remplir Evolving Scope avec les tâches récentes ajoutées
+            TxtEvolvingScope.Children.Clear();
+            
+            var dateRecente = _dateDebutFiltre ?? DateTime.Now.AddMonths(-3);
+            var tachesRecentes = toutesLesTaches
+                .Where(t => projets.Any(p => p.Id == t.ProjetId) && 
+                           t.DateCreation >= dateRecente)
+                .OrderByDescending(t => t.DateCreation)
+                .Take(10)
+                .ToList();
+            
+            // Header
+            var evolvingHeaderBlock = new TextBlock
+            {
+                Text = "PÉRIMÈTRE ÉVOLUTIF",
+                FontSize = 15,
+                FontWeight = FontWeights.Bold,
+                Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2196F3")),
+                Margin = new Thickness(5, 5, 5, 10)
+            };
+            TxtEvolvingScope.Children.Add(evolvingHeaderBlock);
+            
+            if (tachesRecentes.Any())
+            {
+                var dateInfoBlock = new TextBlock
+                {
+                    Text = $"📅 Nouvelles demandes depuis {dateRecente:dd/MM/yyyy}",
+                    FontSize = 12,
+                    FontWeight = FontWeights.SemiBold,
+                    Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#333")),
+                    Margin = new Thickness(5, 0, 5, 15)
+                };
+                TxtEvolvingScope.Children.Add(dateInfoBlock);
+                
+                var groupeesParProjet = tachesRecentes.GroupBy(t => t.ProjetId);
+                foreach (var groupe in groupeesParProjet)
+                {
+                    var projetNom = projets.FirstOrDefault(p => p.Id == groupe.Key)?.Nom ?? "Projet inconnu";
+                    var projetBlock = new TextBlock
+                    {
+                        Text = $"📁 {projetNom}",
+                        FontSize = 12,
+                        FontWeight = FontWeights.Bold,
+                        Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#555")),
+                        Margin = new Thickness(5, 10, 5, 5)
+                    };
+                    TxtEvolvingScope.Children.Add(projetBlock);
+                    
+                    foreach (var tache in groupe)
+                    {
+                        var tacheBlock = new TextBlock { Margin = new Thickness(10, 2, 5, 2), FontSize = 11 };
+                        
+                        var priorite = tache.Priorite == Priorite.Haute ? "🔴" : 
+                                      tache.Priorite == Priorite.Moyenne ? "🟠" : "🟢";
+                        tacheBlock.Inlines.Add(new Run($"{priorite} "));
+                        tacheBlock.Inlines.Add(new Run($"[{tache.DateCreation:dd/MM}] ") { Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#999")) });
+                        tacheBlock.Inlines.Add(new Run(tache.Titre) { Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#666")) });
+                        
+                        TxtEvolvingScope.Children.Add(tacheBlock);
+                    }
+                }
+                
+                // Total et statistiques
+                var totalBlock = new TextBlock
+                {
+                    FontSize = 13,
+                    FontWeight = FontWeights.Bold,
+                    Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#333")),
+                    Margin = new Thickness(5, 20, 5, 5)
+                };
+                totalBlock.Inlines.Add(new Run("📊 Total: "));
+                totalBlock.Inlines.Add(new Run($"{tachesRecentes.Count}") { Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2196F3")) });
+                totalBlock.Inlines.Add(new Run(" nouvelle(s) demande(s)"));
+                TxtEvolvingScope.Children.Add(totalBlock);
+                
+                // Statistiques par priorité
+                var nbHaute = tachesRecentes.Count(t => t.Priorite == Priorite.Haute);
+                var nbMoyenne = tachesRecentes.Count(t => t.Priorite == Priorite.Moyenne);
+                var nbBasse = tachesRecentes.Count(t => t.Priorite == Priorite.Basse);
+                
+                var priTitreBlock = new TextBlock
+                {
+                    Text = "Répartition par priorité:",
+                    FontSize = 12,
+                    FontWeight = FontWeights.SemiBold,
+                    Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#555")),
+                    Margin = new Thickness(5, 10, 5, 5)
+                };
+                TxtEvolvingScope.Children.Add(priTitreBlock);
+                
+                if (nbHaute > 0)
+                {
+                    var hauteBlock = new TextBlock { Margin = new Thickness(10, 2, 5, 2), FontSize = 11 };
+                    hauteBlock.Inlines.Add(new Run("🔴 Haute: "));
+                    hauteBlock.Inlines.Add(new Run(nbHaute.ToString()) { FontWeight = FontWeights.Bold, Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E53935")) });
+                    TxtEvolvingScope.Children.Add(hauteBlock);
+                }
+                
+                if (nbMoyenne > 0)
+                {
+                    var moyenneBlock = new TextBlock { Margin = new Thickness(10, 2, 5, 2), FontSize = 11 };
+                    moyenneBlock.Inlines.Add(new Run("🟠 Moyenne: "));
+                    moyenneBlock.Inlines.Add(new Run(nbMoyenne.ToString()) { FontWeight = FontWeights.Bold, Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF9800")) });
+                    TxtEvolvingScope.Children.Add(moyenneBlock);
+                }
+                
+                if (nbBasse > 0)
+                {
+                    var basseBlock = new TextBlock { Margin = new Thickness(10, 2, 5, 2), FontSize = 11 };
+                    basseBlock.Inlines.Add(new Run("🟢 Basse: "));
+                    basseBlock.Inlines.Add(new Run(nbBasse.ToString()) { FontWeight = FontWeights.Bold, Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#4CAF50")) });
+                    TxtEvolvingScope.Children.Add(basseBlock);
+                }
+            }
+            else
+            {
+                var aucuneBlock = new TextBlock
+                {
+                    Text = "📭 Aucune nouvelle demande",
+                    FontSize = 13,
+                    FontWeight = FontWeights.Bold,
+                    Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#999")),
+                    Margin = new Thickness(5, 10, 5, 10)
+                };
+                TxtEvolvingScope.Children.Add(aucuneBlock);
+                
+                var stableBlock = new TextBlock
+                {
+                    Text = "Le périmètre est stable pour la période sélectionnée.",
+                    FontSize = 12,
+                    Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#666")),
+                    Margin = new Thickness(5, 5, 5, 15),
+                    TextWrapping = TextWrapping.Wrap
+                };
+                TxtEvolvingScope.Children.Add(stableBlock);
+                
+                var conseilTitreBlock = new TextBlock
+                {
+                    Text = "💡 Conseil:",
+                    FontSize = 12,
+                    FontWeight = FontWeights.Bold,
+                    Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF9800")),
+                    Margin = new Thickness(5, 10, 5, 5)
+                };
+                TxtEvolvingScope.Children.Add(conseilTitreBlock);
+                
+                var conseilBlock = new TextBlock
+                {
+                    Text = "Ajustez la période d'analyse pour voir les évolutions récentes du programme.",
+                    FontSize = 11,
+                    Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#666")),
+                    Margin = new Thickness(5, 0, 5, 5),
+                    TextWrapping = TextWrapping.Wrap
+                };
+                TxtEvolvingScope.Children.Add(conseilBlock);
+            }
+        }
+        
+        private void RemplirTimelineProjets(List<Projet> projets, List<BacklogItem> toutesLesTaches)
+        {
+            TimelineHeader.Children.Clear();
+            TimelineProjects.Children.Clear();
+            
+            if (!projets.Any())
+            {
+                var emptyBlock = new TextBlock
+                {
+                    Text = "Aucun projet dans ce programme",
+                    FontSize = 13,
+                    Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#999")),
+                    FontStyle = FontStyles.Italic,
+                    Margin = new Thickness(0, 10, 0, 10),
+                    TextAlignment = TextAlignment.Center
+                };
+                TimelineProjects.Children.Add(emptyBlock);
+                return;
+            }
+            
+            // Trouver la plage de dates
+            var projetsAvecDates = projets.Where(p => p.DateDebut.HasValue && p.DateFinPrevue.HasValue).ToList();
+            if (!projetsAvecDates.Any())
+            {
+                var emptyBlock = new TextBlock
+                {
+                    Text = "Aucune date définie pour les projets",
+                    FontSize = 13,
+                    Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#999")),
+                    FontStyle = FontStyles.Italic,
+                    Margin = new Thickness(0, 10, 0, 10),
+                    TextAlignment = TextAlignment.Center
+                };
+                TimelineProjects.Children.Add(emptyBlock);
+                return;
+            }
+            
+            var dateMin = projetsAvecDates.Min(p => p.DateDebut.Value);
+            var dateMax = projetsAvecDates.Max(p => p.DateFinPrevue.Value);
+            
+            // Arrondir au début et à la fin du mois
+            dateMin = new DateTime(dateMin.Year, dateMin.Month, 1);
+            dateMax = new DateTime(dateMax.Year, dateMax.Month, DateTime.DaysInMonth(dateMax.Year, dateMax.Month));
+            
+            // Calculer le nombre total de jours
+            var totalJours = (dateMax - dateMin).TotalDays;
+            
+            // Créer l'en-tête des mois
+            TimelineHeader.ColumnDefinitions.Clear();
+            var currentDate = dateMin;
+            var moisIndex = 0;
+            var moisList = new List<(DateTime date, int jours)>();
+            
+            while (currentDate <= dateMax)
+            {
+                var joursDansMois = DateTime.DaysInMonth(currentDate.Year, currentDate.Month);
+                var dernierJourMois = new DateTime(currentDate.Year, currentDate.Month, joursDansMois);
+                
+                if (dernierJourMois > dateMax)
+                    joursDansMois = (dateMax - currentDate).Days + 1;
+                
+                moisList.Add((currentDate, joursDansMois));
+                
+                // Créer une colonne proportionnelle
+                TimelineHeader.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(joursDansMois, GridUnitType.Star) });
+                
+                // Ajouter le texte du mois
+                var borderMois = new Border
+                {
+                    Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F5F5F5")),
+                    BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E0E0E0")),
+                    BorderThickness = new Thickness(0, 0, 1, 1),
+                    Padding = new Thickness(5)
+                };
+                Grid.SetColumn(borderMois, moisIndex);
+                
+                var textMois = new TextBlock
+                {
+                    Text = currentDate.ToString("MMM yyyy", System.Globalization.CultureInfo.GetCultureInfo("fr-FR")).ToUpper(),
+                    FontSize = 11,
+                    FontWeight = FontWeights.SemiBold,
+                    Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#666")),
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                borderMois.Child = textMois;
+                TimelineHeader.Children.Add(borderMois);
+                
+                currentDate = currentDate.AddMonths(1);
+                moisIndex++;
+            }
+            
+            // Créer les barres de projet
+            foreach (var projet in projetsAvecDates.OrderBy(p => p.DateDebut))
+            {
+                var tachesProjet = toutesLesTaches.Where(t => t.ProjetId == projet.Id).ToList();
+                int totalTaches = tachesProjet.Count;
+                int tachesCompletes = tachesProjet.Count(t => t.Statut == Statut.Termine || t.EstArchive);
+                
+                double pourcentage = totalTaches > 0 
+                    ? Math.Round((double)tachesCompletes / totalTaches * 100, 0) 
+                    : 0;
+                
+                // Calculer la position et la largeur de la barre
+                var joursDebut = (projet.DateDebut.Value - dateMin).TotalDays;
+                var joursTotal = (projet.DateFinPrevue.Value - projet.DateDebut.Value).TotalDays;
+                
+                // Créer le conteneur pour ce projet
+                var projetContainer = new Grid { Margin = new Thickness(0, 0, 0, 15) };
+                projetContainer.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(200) });
+                projetContainer.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                
+                // Nom du projet avec nombre de tâches
+                var nomProjet = new TextBlock
+                {
+                    Text = $"{projet.Nom} {tachesCompletes}/{totalTaches} tâches",
+                    FontSize = 12,
+                    FontWeight = FontWeights.SemiBold,
+                    Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#333")),
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Margin = new Thickness(0, 0, 10, 0),
+                    TextWrapping = TextWrapping.Wrap
+                };
+                Grid.SetColumn(nomProjet, 0);
+                projetContainer.Children.Add(nomProjet);
+                
+                // Timeline Grid synchronisé avec les mois
+                var timelineGrid = new Grid { Height = 35 };
+                Grid.SetColumn(timelineGrid, 1);
+                
+                // Copier les mêmes colonnes que l'en-tête
+                foreach (var colDef in TimelineHeader.ColumnDefinitions)
+                {
+                    timelineGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = colDef.Width });
+                }
+                
+                // Canvas par dessus le Grid pour positionner librement la barre
+                var timelineCanvas = new Canvas
+                {
+                    HorizontalAlignment = HorizontalAlignment.Stretch,
+                    VerticalAlignment = VerticalAlignment.Stretch
+                };
+                timelineGrid.Children.Add(timelineCanvas);
+                
+                // Binding qui sera calculé après le rendu
+                timelineGrid.Loaded += (s, e) =>
+                {
+                    var largeurDisponible = timelineGrid.ActualWidth;
+                    if (largeurDisponible <= 0) return;
+                    
+                    var pixelsParJour = largeurDisponible / totalJours;
+                    var leftPosition = joursDebut * pixelsParJour;
+                    var barreWidth = Math.Max(joursTotal * pixelsParJour, 30);
+                    
+                    // Barre de fond (orange clair)
+                    var barreFond = new Border
+                    {
+                        Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFE0B2")),
+                        Height = 28,
+                        Width = barreWidth,
+                        CornerRadius = new CornerRadius(4)
+                    };
+                    Canvas.SetLeft(barreFond, leftPosition);
+                    Canvas.SetTop(barreFond, 3);
+                    timelineCanvas.Children.Add(barreFond);
+                    
+                    // Barre de progression (orange)
+                    var barreProgression = new Border
+                    {
+                        Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF9800")),
+                        Height = 28,
+                        Width = barreWidth * (pourcentage / 100.0),
+                        CornerRadius = new CornerRadius(4),
+                        HorizontalAlignment = HorizontalAlignment.Left
+                    };
+                    Canvas.SetLeft(barreProgression, leftPosition);
+                    Canvas.SetTop(barreProgression, 3);
+                    timelineCanvas.Children.Add(barreProgression);
+                    
+                    // Texte du pourcentage
+                    var textPourcentage = new TextBlock
+                    {
+                        Text = $"{pourcentage}%",
+                        FontSize = 11,
+                        FontWeight = FontWeights.Bold,
+                        Foreground = new SolidColorBrush(Colors.White),
+                        VerticalAlignment = VerticalAlignment.Center,
+                        HorizontalAlignment = HorizontalAlignment.Center
+                    };
+                    Canvas.SetLeft(textPourcentage, leftPosition + (barreWidth / 2) - 15);
+                    Canvas.SetTop(textPourcentage, 8);
+                    timelineCanvas.Children.Add(textPourcentage);
+                };
+                
+                projetContainer.Children.Add(timelineGrid);
+                TimelineProjects.Children.Add(projetContainer);
+            }
+            
+            // Ajouter l'indicateur "Today" après le premier projet pour qu'il soit au-dessus de toutes les barres
+            if (projetsAvecDates.Any())
+            {
+                var todayContainer = new Grid { Margin = new Thickness(0, -(projetsAvecDates.Count * 50 + 40), 0, 0) };
+                todayContainer.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(200) });
+                todayContainer.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                
+                // Timeline Grid synchronisé avec les mois
+                var todayTimelineGrid = new Grid();
+                Grid.SetColumn(todayTimelineGrid, 1);
+                
+                // Copier les mêmes colonnes que l'en-tête
+                foreach (var colDef in TimelineHeader.ColumnDefinitions)
+                {
+                    todayTimelineGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = colDef.Width });
+                }
+                
+                // Canvas pour positionner l'indicateur
+                var todayCanvas = new Canvas
+                {
+                    HorizontalAlignment = HorizontalAlignment.Stretch,
+                    VerticalAlignment = VerticalAlignment.Stretch
+                };
+                todayTimelineGrid.Children.Add(todayCanvas);
+                
+                // Binding après le rendu
+                todayTimelineGrid.Loaded += (s, e) =>
+                {
+                    var largeurDisponible = todayTimelineGrid.ActualWidth;
+                    if (largeurDisponible <= 0) return;
+                    
+                    var today = DateTime.Now;
+                    if (today >= dateMin && today <= dateMax)
+                    {
+                        var pixelsParJour = largeurDisponible / totalJours;
+                        var joursDepuisDebut = (today - dateMin).TotalDays;
+                        var todayPosition = joursDepuisDebut * pixelsParJour;
+                        
+                        // Ligne verticale rouge avec effet d'ombre
+                        var ligneOmbre = new Border
+                        {
+                            Background = new SolidColorBrush(Color.FromArgb(40, 255, 0, 0)),
+                            Width = 3,
+                            Height = projetsAvecDates.Count * 50 + 30
+                        };
+                        Canvas.SetLeft(ligneOmbre, todayPosition - 1.5);
+                        Canvas.SetTop(ligneOmbre, 25);
+                        todayCanvas.Children.Add(ligneOmbre);
+                        
+                        var ligne = new Border
+                        {
+                            Background = new SolidColorBrush(Color.FromRgb(239, 83, 80)),
+                            Width = 2,
+                            Height = projetsAvecDates.Count * 50 + 30
+                        };
+                        Canvas.SetLeft(ligne, todayPosition - 1);
+                        Canvas.SetTop(ligne, 25);
+                        todayCanvas.Children.Add(ligne);
+                        
+                        // Triangle pointant vers le bas (flèche) avec bordure
+                        var triangleOmbre = new Polygon
+                        {
+                            Fill = new SolidColorBrush(Color.FromArgb(60, 0, 0, 0)),
+                            Points = new PointCollection
+                            {
+                                new System.Windows.Point(-7, 0),
+                                new System.Windows.Point(7, 0),
+                                new System.Windows.Point(0, 12)
+                            }
+                        };
+                        Canvas.SetLeft(triangleOmbre, todayPosition);
+                        Canvas.SetTop(triangleOmbre, 14);
+                        todayCanvas.Children.Add(triangleOmbre);
+                        
+                        var triangle = new Polygon
+                        {
+                            Fill = new SolidColorBrush(Color.FromRgb(239, 83, 80)),
+                            Points = new PointCollection
+                            {
+                                new System.Windows.Point(-6, 0),
+                                new System.Windows.Point(6, 0),
+                                new System.Windows.Point(0, 10)
+                            }
+                        };
+                        Canvas.SetLeft(triangle, todayPosition);
+                        Canvas.SetTop(triangle, 14);
+                        todayCanvas.Children.Add(triangle);
+                        
+                        // Label "Today" avec effet d'ombre
+                        var todayLabelOmbre = new Border
+                        {
+                            Background = new SolidColorBrush(Color.FromArgb(40, 0, 0, 0)),
+                            CornerRadius = new CornerRadius(4),
+                            Padding = new Thickness(8, 3, 8, 3)
+                        };
+                        Canvas.SetLeft(todayLabelOmbre, todayPosition - 22);
+                        Canvas.SetTop(todayLabelOmbre, -2);
+                        todayCanvas.Children.Add(todayLabelOmbre);
+                        
+                        var todayLabel = new Border
+                        {
+                            Background = new SolidColorBrush(Color.FromRgb(239, 83, 80)),
+                            CornerRadius = new CornerRadius(4),
+                            Padding = new Thickness(8, 3, 8, 3),
+                            Child = new TextBlock
+                            {
+                                Text = "Today",
+                                FontSize = 10,
+                                FontWeight = FontWeights.Bold,
+                                Foreground = new SolidColorBrush(Colors.White)
+                            }
+                        };
+                        Canvas.SetLeft(todayLabel, todayPosition - 23);
+                        Canvas.SetTop(todayLabel, -4);
+                        todayCanvas.Children.Add(todayLabel);
+                    }
+                };
+                
+                todayContainer.Children.Add(todayTimelineGrid);
+                TimelineProjects.Children.Add(todayContainer);
+            }
+        }
+        
+        /*
+        private void RemplirProgressStatus(List<Projet> projets, List<BacklogItem> toutesLesTaches)
+        {
+            if (GridProgressStatus == null || TxtHighPriorityCount == null || BadgeStatutProjet == null || TxtStatutProjet == null)
+                return;
+                
+            var progressData = new List<ProgressStatusRow>();
+            
+            foreach (var projet in projets)
+            {
+                var tachesProjet = toutesLesTaches.Where(t => t.ProjetId == projet.Id).ToList();
+                int totalTaches = tachesProjet.Count;
+                int tachesCompletes = tachesProjet.Count(t => t.Statut == Statut.Termine || t.EstArchive);
+                double pourcentage = totalTaches > 0 ? Math.Round((double)tachesCompletes / totalTaches * 100, 0) : 0;
+                
+                // Extraire les bénéficiaires
+                string beneficiaire = "N/A";
+                if (!string.IsNullOrEmpty(projet.Beneficiaires))
+                {
+                    try
+                    {
+                        var benefs = System.Text.Json.JsonSerializer.Deserialize<List<string>>(projet.Beneficiaires);
+                        if (benefs != null && benefs.Any())
+                        {
+                            beneficiaire = string.Join(", ", benefs);
+                        }
+                    }
+                    catch
+                    {
+                        beneficiaire = projet.Beneficiaires;
+                    }
+                }
+                
+                // Key Highlights - extraire des informations pertinentes
+                var highlights = new List<string>();
+                
+                // Ajouter le nombre de tâches en cours
+                var tachesEnCours = tachesProjet.Count(t => t.Statut == Statut.EnCours);
+                if (tachesEnCours > 0)
+                {
+                    highlights.Add($"• {tachesEnCours} tâche(s) en cours");
+                }
+                
+                // Ajouter les tâches hautement prioritaires
+                var tachesHautePrio = tachesProjet.Count(t => t.Priorite == Priorite.Haute || t.Priorite == Priorite.Urgent);
+                if (tachesHautePrio > 0)
+                {
+                    highlights.Add($"• {tachesHautePrio} tâche(s) haute priorité");
+                }
+                
+                // Ajouter l'ambition si définie
+                if (!string.IsNullOrEmpty(projet.Ambition) && projet.Ambition != "Non spécifiée")
+                {
+                    highlights.Add($"• {projet.Ambition}");
+                }
+                
+                // Ajouter les prochaines actions si définies
+                if (!string.IsNullOrEmpty(projet.NextActions))
+                {
+                    var nextActionsLines = projet.NextActions.Split('\n').Take(2);
+                    foreach (var line in nextActionsLines)
+                    {
+                        if (!string.IsNullOrWhiteSpace(line))
+                        {
+                            highlights.Add($"• {line.Trim()}");
+                        }
+                    }
+                }
+                
+                string keyHighlights = highlights.Any() ? string.Join("\n", highlights) : "En cours de développement";
+                
+                // Déterminer la couleur RAG
+                SolidColorBrush ragBrush = new SolidColorBrush(Color.FromRgb(76, 175, 80)); // Vert par défaut
+                if (!string.IsNullOrEmpty(projet.StatutRAG))
+                {
+                    switch (projet.StatutRAG.ToLower())
+                    {
+                        case "green":
+                            ragBrush = new SolidColorBrush(Color.FromRgb(76, 175, 80));
+                            break;
+                        case "amber":
+                        case "orange":
+                            ragBrush = new SolidColorBrush(Color.FromRgb(255, 152, 0));
+                            break;
+                        case "red":
+                            ragBrush = new SolidColorBrush(Color.FromRgb(244, 67, 54));
+                            break;
+                    }
+                }
+                
+                // Initial ETA et Updated ETA
+                string initialETA = projet.DateDebut?.ToString("MMM yyyy", System.Globalization.CultureInfo.GetCultureInfo("fr-FR")) ?? "N/A";
+                string updatedETA = projet.DateFinPrevue?.ToString("MMM yyyy", System.Globalization.CultureInfo.GetCultureInfo("fr-FR")) ?? "N/A";
+                
+                progressData.Add(new ProgressStatusRow
+                {
+                    Beneficiaire = beneficiaire,
+                    Description = projet.Nom,
+                    LeadProjet = projet.LeadProjet ?? "N/A",
+                    Phase = projet.Phase ?? "N/A",
+                    StatutRAGCouleur = ragBrush,
+                    KeyHighlights = keyHighlights,
+                    InitialETA = initialETA,
+                    UpdatedETA = updatedETA,
+                    ProgressPourcentage = $"{pourcentage}%"
+                });
+            }
+            
+            GridProgressStatus.ItemsSource = progressData;
+            GridProgressStatus.AlternationCount = 2;
+            
+            // Mettre à jour le badge de priorité
+            var totalHighPriority = toutesLesTaches.Count(t => projets.Any(p => p.Id == t.ProjetId) && 
+                (t.Priorite == Priorite.Haute || t.Priorite == Priorite.Urgent));
+            TxtHighPriorityCount.Text = $"High Priority: {totalHighPriority}";
+            
+            // Mettre à jour le statut global
+            bool hasRed = projets.Any(p => p.StatutRAG?.ToLower() == "red");
+            bool hasAmber = projets.Any(p => p.StatutRAG?.ToLower() == "amber" || p.StatutRAG?.ToLower() == "orange");
+            
+            if (hasRed)
+            {
+                BadgeStatutProjet.Background = new SolidColorBrush(Color.FromRgb(244, 67, 54));
+                TxtStatutProjet.Text = "AT RISK";
+            }
+            else if (hasAmber)
+            {
+                BadgeStatutProjet.Background = new SolidColorBrush(Color.FromRgb(255, 152, 0));
+                TxtStatutProjet.Text = "CAUTION";
+            }
+            else
+            {
+                BadgeStatutProjet.Background = new SolidColorBrush(Color.FromRgb(76, 175, 80));
+                TxtStatutProjet.Text = "WIP";
+            }
+        }
+        */
+        
+        private void RemplirProgressStatus(List<Projet> projets, List<BacklogItem> toutesLesTaches)
+        {
+            if (ContainerProgressStatus == null || TxtHighPriorityCount == null || BadgeStatutProjet == null || TxtStatutProjet == null)
+                return;
+                
+            ContainerProgressStatus.Children.Clear();
+            
+            // Créer l'en-tête du tableau
+            var headerGrid = new Grid
+            {
+                Background = new SolidColorBrush(Color.FromRgb(46, 125, 50)),
+                Height = 40,
+                Margin = new Thickness(0, 0, 0, 0)
+            };
+            
+            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(100) });
+            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(180) });
+            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(80) });
+            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(120) });
+            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(70) });
+            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(80) });
+            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(80) });
+            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(80) });
+            
+            var headers = new[] { "Beneficiary", "Project Description", "Project lead", "Project phase", "RAG", "Key highlights", "Initial ETA", "Updated ETA", "Progress (%)" };
+            for (int i = 0; i < headers.Length; i++)
+            {
+                var headerText = new TextBlock
+                {
+                    Text = headers[i],
+                    Foreground = new SolidColorBrush(Colors.White),
+                    FontWeight = FontWeights.Bold,
+                    FontSize = 11,
+                    Padding = new Thickness(12),
+                    VerticalAlignment = VerticalAlignment.Center,
+                    HorizontalAlignment = HorizontalAlignment.Center
+                };
+                Grid.SetColumn(headerText, i);
+                headerGrid.Children.Add(headerText);
+            }
+            
+            ContainerProgressStatus.Children.Add(headerGrid);
+            
+            // Créer les lignes pour chaque projet
+            int rowIndex = 0;
+            foreach (var projet in projets)
+            {
+                var tachesProjet = toutesLesTaches.Where(t => t.ProjetId == projet.Id).ToList();
+                int totalTaches = tachesProjet.Count;
+                int tachesCompletes = tachesProjet.Count(t => t.Statut == Statut.Termine || t.EstArchive);
+                double pourcentage = totalTaches > 0 ? Math.Round((double)tachesCompletes / totalTaches * 100, 0) : 0;
+                
+                var rowGrid = new Grid
+                {
+                    Background = rowIndex % 2 == 0 ? new SolidColorBrush(Colors.White) : new SolidColorBrush(Color.FromRgb(250, 250, 250)),
+                    MinHeight = 80,
+                    Margin = new Thickness(0, 0, 0, 0)
+                };
+                
+                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(100) });
+                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(180) });
+                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(80) });
+                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(120) });
+                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(70) });
+                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(80) });
+                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(80) });
+                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(80) });
+                
+                // Beneficiary
+                string beneficiaire = "N/A";
+                if (!string.IsNullOrEmpty(projet.Beneficiaires))
+                {
+                    try
+                    {
+                        var benefs = System.Text.Json.JsonSerializer.Deserialize<List<string>>(projet.Beneficiaires);
+                        if (benefs != null && benefs.Any())
+                            beneficiaire = string.Join(", ", benefs);
+                    }
+                    catch { beneficiaire = projet.Beneficiaires; }
+                }
+                
+                var txtBenef = new TextBlock { Text = beneficiaire, FontWeight = FontWeights.Bold, FontSize = 11, Foreground = new SolidColorBrush(Color.FromRgb(51, 51, 51)), Padding = new Thickness(10), TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
+                Grid.SetColumn(txtBenef, 0);
+                rowGrid.Children.Add(txtBenef);
+                
+                var txtDesc = new TextBlock { Text = projet.Nom, FontSize = 11, Foreground = new SolidColorBrush(Color.FromRgb(51, 51, 51)), Padding = new Thickness(10), TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Center };
+                Grid.SetColumn(txtDesc, 1);
+                rowGrid.Children.Add(txtDesc);
+                
+                var txtLead = new TextBlock { Text = projet.LeadProjet ?? "N/A", FontWeight = FontWeights.SemiBold, FontSize = 11, Foreground = new SolidColorBrush(Color.FromRgb(102, 102, 102)), Padding = new Thickness(10), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
+                Grid.SetColumn(txtLead, 2);
+                rowGrid.Children.Add(txtLead);
+                
+                var txtPhase = new TextBlock { Text = projet.Phase ?? "N/A", FontSize = 10, Foreground = new SolidColorBrush(Color.FromRgb(85, 85, 85)), Padding = new Thickness(10), TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
+                Grid.SetColumn(txtPhase, 3);
+                rowGrid.Children.Add(txtPhase);
+                
+                // RAG Status
+                Color ragColor = Color.FromRgb(76, 175, 80);
+                if (!string.IsNullOrEmpty(projet.StatutRAG))
+                {
+                    switch (projet.StatutRAG.ToLower())
+                    {
+                        case "green": ragColor = Color.FromRgb(76, 175, 80); break;
+                        case "amber":
+                        case "orange": ragColor = Color.FromRgb(255, 152, 0); break;
+                        case "red": ragColor = Color.FromRgb(244, 67, 54); break;
+                    }
+                }
+                
+                var ragCircle = new Border { Width = 40, Height = 40, CornerRadius = new CornerRadius(20), Background = new SolidColorBrush(ragColor), BorderBrush = new SolidColorBrush(Color.FromRgb(224, 224, 224)), BorderThickness = new Thickness(2), HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
+                Grid.SetColumn(ragCircle, 4);
+                rowGrid.Children.Add(ragCircle);
+                
+                // Key Highlights - Format WPF avec TextBlocks formatés (sans Expected gains)
+                var highlightsContainer = new StackPanel { Margin = new Thickness(10, 8, 10, 8), VerticalAlignment = VerticalAlignment.Top };
+                
+                // Tâches en cours avec descriptions
+                var tachesEnCoursList = tachesProjet.Where(t => t.Statut == Statut.EnCours).OrderByDescending(t => t.Priorite).Take(3).ToList();
+                foreach (var tache in tachesEnCoursList)
+                {
+                    var tacheBlock = new TextBlock { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 8), FontSize = 10, LineHeight = 14 };
+                    
+                    var titre = !string.IsNullOrEmpty(tache.Titre) ? tache.Titre : tache.Description;
+                    if (titre.Length > 60) titre = titre.Substring(0, 57) + "...";
+                    
+                    var runTitre = new Run(titre + ": ") { FontWeight = FontWeights.Bold, Foreground = new SolidColorBrush(Color.FromRgb(51, 51, 51)) };
+                    tacheBlock.Inlines.Add(runTitre);
+                    
+                    if (!string.IsNullOrEmpty(tache.Description) && tache.Description != tache.Titre)
+                    {
+                        var desc = tache.Description;
+                        if (desc.Length > 120) desc = desc.Substring(0, 117) + "...";
+                        var runDesc = new Run(desc) { Foreground = new SolidColorBrush(Color.FromRgb(85, 85, 85)) };
+                        tacheBlock.Inlines.Add(runDesc);
+                    }
+                    else
+                    {
+                        var runDesc = new Run("en cours de développement") { Foreground = new SolidColorBrush(Color.FromRgb(85, 85, 85)) };
+                        tacheBlock.Inlines.Add(runDesc);
+                    }
+                    
+                    highlightsContainer.Children.Add(tacheBlock);
+                }
+                
+                // Section "Ongoing" si des tâches en cours
+                if (tachesEnCoursList.Any() && highlightsContainer.Children.Count > 0)
+                {
+                    var ongoingBlock = new TextBlock { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 5, 0, 5), FontSize = 10, LineHeight = 14 };
+                    var runOngoing = new Run("Ongoing: ") { FontWeight = FontWeights.Bold, Foreground = new SolidColorBrush(Color.FromRgb(0, 145, 90)) };
+                    ongoingBlock.Inlines.Add(runOngoing);
+                    
+                    var ongoingText = tachesEnCoursList.Count == 1 ? "développement en cours" : $"{tachesEnCoursList.Count} développements actifs";
+                    var runOngoingDesc = new Run(ongoingText) { Foreground = new SolidColorBrush(Color.FromRgb(85, 85, 85)) };
+                    ongoingBlock.Inlines.Add(runOngoingDesc);
+                    
+                    highlightsContainer.Children.Add(ongoingBlock);
+                }
+                
+                // Next steps: prochaines actions
+                if (!string.IsNullOrEmpty(projet.NextActions))
+                {
+                    var nextStepsContainer = new StackPanel { Margin = new Thickness(0, 8, 0, 0) };
+                    
+                    var headerBlock = new TextBlock { FontWeight = FontWeights.Bold, FontSize = 10, Margin = new Thickness(0, 0, 0, 3), Foreground = new SolidColorBrush(Color.FromRgb(33, 150, 243)) };
+                    headerBlock.Text = "Next steps:";
+                    nextStepsContainer.Children.Add(headerBlock);
+                    
+                    var actions = projet.NextActions.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries).Take(3);
+                    foreach (var action in actions)
+                    {
+                        var actionText = action.Trim();
+                        if (actionText.Length > 90) actionText = actionText.Substring(0, 87) + "...";
+                        
+                        var actionBlock = new TextBlock { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 2, 0, 2), FontSize = 10, LineHeight = 14, Foreground = new SolidColorBrush(Color.FromRgb(85, 85, 85)) };
+                        actionBlock.Text = actionText;
+                        nextStepsContainer.Children.Add(actionBlock);
+                    }
+                    
+                    highlightsContainer.Children.Add(nextStepsContainer);
+                }
+                
+                Grid.SetColumn(highlightsContainer, 5);
+                rowGrid.Children.Add(highlightsContainer);
+                
+                var txtInitialETA = new TextBlock { Text = projet.DateDebut?.ToString("MMM yyyy", System.Globalization.CultureInfo.GetCultureInfo("fr-FR")) ?? "N/A", FontSize = 11, Foreground = new SolidColorBrush(Color.FromRgb(102, 102, 102)), Padding = new Thickness(10), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
+                Grid.SetColumn(txtInitialETA, 6);
+                rowGrid.Children.Add(txtInitialETA);
+                
+                var txtUpdatedETA = new TextBlock { Text = projet.DateFinPrevue?.ToString("MMM yyyy", System.Globalization.CultureInfo.GetCultureInfo("fr-FR")) ?? "N/A", FontWeight = FontWeights.SemiBold, FontSize = 11, Foreground = new SolidColorBrush(Color.FromRgb(51, 51, 51)), Padding = new Thickness(10), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
+                Grid.SetColumn(txtUpdatedETA, 7);
+                rowGrid.Children.Add(txtUpdatedETA);
+                
+                var txtProgress = new TextBlock { Text = $"{pourcentage}%", FontWeight = FontWeights.Bold, FontSize = 12, Foreground = new SolidColorBrush(Color.FromRgb(46, 125, 50)), Padding = new Thickness(10), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
+                Grid.SetColumn(txtProgress, 8);
+                rowGrid.Children.Add(txtProgress);
+                
+                var bottomBorder = new Border { BorderBrush = new SolidColorBrush(Color.FromRgb(224, 224, 224)), BorderThickness = new Thickness(0, 0, 0, 1), Height = rowGrid.MinHeight };
+                Grid.SetColumnSpan(bottomBorder, 9);
+                rowGrid.Children.Add(bottomBorder);
+                
+                ContainerProgressStatus.Children.Add(rowGrid);
+                rowIndex++;
+            }
+            
+            // Mettre à jour le badge de priorité
+            var totalHighPriority = toutesLesTaches.Count(t => projets.Any(p => p.Id == t.ProjetId) && (t.Priorite == Priorite.Haute || t.Priorite == Priorite.Urgent));
+            TxtHighPriorityCount.Text = $"High Priority: {totalHighPriority}";
+            
+            // Mettre à jour le statut global
+            bool hasRed = projets.Any(p => p.StatutRAG?.ToLower() == "red");
+            bool hasAmber = projets.Any(p => p.StatutRAG?.ToLower() == "amber" || p.StatutRAG?.ToLower() == "orange");
+            
+            if (hasRed) { BadgeStatutProjet.Background = new SolidColorBrush(Color.FromRgb(244, 67, 54)); TxtStatutProjet.Text = "AT RISK"; }
+            else if (hasAmber) { BadgeStatutProjet.Background = new SolidColorBrush(Color.FromRgb(255, 152, 0)); TxtStatutProjet.Text = "CAUTION"; }
+            else { BadgeStatutProjet.Background = new SolidColorBrush(Color.FromRgb(76, 175, 80)); TxtStatutProjet.Text = "WIP"; }
+        }
+        
+        // Classe pour le binding du DataGrid
+        public class ProgressStatusRow
+        {
+            public string Beneficiaire { get; set; }
+            public string Description { get; set; }
+            public string LeadProjet { get; set; }
+            public string Phase { get; set; }
+            public Brush StatutRAGCouleur { get; set; }
+            public string KeyHighlights { get; set; }
+            public string InitialETA { get; set; }
+            public string UpdatedETA { get; set; }
+            public string ProgressPourcentage { get; set; }
+        }
+        
+        private void AfficherPhasesDynamiques(List<Projet> projets, List<BacklogItem> toutesLesTaches)
+        {
+            ContainerPhases.Children.Clear();
+            
+            if (!projets.Any())
+            {
+                var emptyBlock = new TextBlock
+                {
+                    Text = "Aucun projet dans ce programme",
+                    FontSize = 13,
+                    Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#999")),
+                    FontStyle = FontStyles.Italic,
+                    Margin = new Thickness(0, 10, 0, 10),
+                    TextAlignment = TextAlignment.Center
+                };
+                ContainerPhases.Children.Add(emptyBlock);
+                return;
+            }
+            
+            foreach (var projet in projets)
+            {
+                var tachesProjet = toutesLesTaches.Where(t => t.ProjetId == projet.Id).ToList();
+                int totalTaches = tachesProjet.Count;
+                int tachesCompletes = tachesProjet.Count(t => t.Statut == Statut.Termine || t.EstArchive);
+                double avancement = totalTaches > 0 ? Math.Round((double)tachesCompletes / totalTaches * 100, 0) : 0;
+                
+                var phaseBorder = new Border
+                {
+                    Background = new SolidColorBrush(Colors.White),
+                    CornerRadius = new CornerRadius(8),
+                    Padding = new Thickness(20, 15, 20, 15),
+                    BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00915A")),
+                    BorderThickness = new Thickness(2),
+                    Margin = new Thickness(0, 0, 0, 15)
+                };
+                
+                var phaseContent = new StackPanel();
+                
+                // Titre du projet
+                var titreBlock = new TextBlock
+                {
+                    Text = projet.Nom,
+                    FontSize = 14,
+                    FontWeight = FontWeights.Bold,
+                    Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#333")),
+                    Margin = new Thickness(0, 0, 0, 8),
+                    TextWrapping = TextWrapping.Wrap
+                };
+                phaseContent.Children.Add(titreBlock);
+                
+                // Dates
+                if (projet.DateDebut.HasValue && projet.DateFinPrevue.HasValue)
+                {
+                    var dateBlock = new TextBlock
+                    {
+                        FontSize = 12,
+                        Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#666")),
+                        Margin = new Thickness(0, 0, 0, 5)
+                    };
+                    dateBlock.Inlines.Add(new Run("📅 "));
+                    dateBlock.Inlines.Add(new Run($"{projet.DateDebut.Value:dd/MM/yyyy} → {projet.DateFinPrevue.Value:dd/MM/yyyy}"));
+                    phaseContent.Children.Add(dateBlock);
+                }
+                else if (projet.DateFinPrevue.HasValue)
+                {
+                    var dateBlock = new TextBlock
+                    {
+                        Text = $"📅 Livraison: {projet.DateFinPrevue.Value:MMM yyyy}".ToUpper(),
+                        FontSize = 12,
+                        Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#666")),
+                        Margin = new Thickness(0, 0, 0, 5)
+                    };
+                    phaseContent.Children.Add(dateBlock);
+                }
+                
+                // Avancement
+                var avancementBlock = new TextBlock
+                {
+                    FontSize = 12,
+                    Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00915A")),
+                    FontWeight = FontWeights.SemiBold,
+                    Margin = new Thickness(0, 0, 0, 5)
+                };
+                avancementBlock.Inlines.Add(new Run("📊 Avancement: "));
+                avancementBlock.Inlines.Add(new Run($"{avancement}%") { FontWeight = FontWeights.Bold });
+                avancementBlock.Inlines.Add(new Run($" ({tachesCompletes}/{totalTaches} tâches)") { FontWeight = FontWeights.Normal });
+                phaseContent.Children.Add(avancementBlock);
+                
+                // Statut RAG si en retard
+                if (projet.DateFinPrevue.HasValue && projet.DateFinPrevue.Value < DateTime.Now && avancement < 100)
+                {
+                    var alerteBlock = new TextBlock
+                    {
+                        Text = "⚠️ EN RETARD",
+                        FontSize = 11,
+                        FontWeight = FontWeights.Bold,
+                        Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E53935")),
+                        Margin = new Thickness(0, 5, 0, 0)
+                    };
+                    phaseContent.Children.Add(alerteBlock);
+                }
+                
+                phaseBorder.Child = phaseContent;
+                ContainerPhases.Children.Add(phaseBorder);
+            }
+        }
+        
+        private void BtnGenererPowerPoint_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currentProgramme == null || _currentProjets == null || _currentTaches == null)
+            {
+                MessageBox.Show("Sélectionnez d'abord un programme", "Information", 
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+            
+            try
+            {
+                // Ouvrir un dialogue pour choisir l'emplacement de sauvegarde
+                var saveDialog = new Microsoft.Win32.SaveFileDialog
+                {
+                    Filter = "PowerPoint (*.pptx)|*.pptx",
+                    FileName = $"Reporting_{_currentProgramme.Nom}_{DateTime.Now:yyyyMMdd}.pptx",
+                    DefaultExt = ".pptx"
+                };
+                
+                if (saveDialog.ShowDialog() == true)
+                {
+                    BtnGenererPowerPoint.IsEnabled = false;
+                    var loadingStack = new StackPanel { Orientation = Orientation.Horizontal };
+                    loadingStack.Children.Add(new TextBlock { Text = "⏳", FontSize = 16, Margin = new Thickness(0, 0, 8, 0) });
+                    loadingStack.Children.Add(new TextBlock { Text = "Génération en cours...", FontSize = 13 });
+                    BtnGenererPowerPoint.Content = loadingStack;
+                    
+                    // Préparer les données du dashboard - FILTRER comme dans le reporting
+                    var tachesFiltered = _currentTaches
+                        .Where(t => t.TypeDemande != TypeDemande.Conges && 
+                                   t.TypeDemande != TypeDemande.NonTravaille && 
+                                   t.TypeDemande != TypeDemande.Support)
+                        .ToList();
+                    
+                    // Récupérer les équipes assignées aux projets du programme
+                    var equipesIds = _currentProjets
+                        .SelectMany(p => p.EquipesAssigneesIds ?? new List<int>())
+                        .Distinct()
+                        .ToList();
+                    
+                    var equipes = _database.GetAllEquipes()
+                        .Where(e => equipesIds.Contains(e.Id))
+                        .Select(e => e.Nom)
+                        .ToList();
+                    
+                    // Calculer les valeurs du dashboard - exclure les tâches archivées des statuts
+                    int ongoingCount = tachesFiltered.Count(t => t.Statut == Statut.EnCours && !t.EstArchive);
+                    int doneCount = tachesFiltered.Count(t => t.Statut == Statut.Termine && !t.EstArchive);
+                    int toStartCount = tachesFiltered.Count(t => (t.Statut == Statut.Afaire || t.Statut == Statut.APrioriser) && !t.EstArchive);
+                    int cancelledCount = tachesFiltered.Count(t => t.EstArchive);
+                    
+                    var donneesDashboard = new Dictionary<string, object>
+                    {
+                        { "StatusOverview", new { 
+                            Ongoing = ongoingCount, 
+                            Done = doneCount, 
+                            ToStart = toStartCount,
+                            Cancelled = cancelledCount
+                        } },
+                        { "Teams", equipes }
+                    };
+                    
+                    // IMPORTANT: Passer les tâches filtrées au lieu de _currentTaches
+                    PowerPointGenerator.GenererPowerPointProgramme(
+                        _currentProgramme,
+                        _currentProjets,
+                        tachesFiltered,  // Utiliser tachesFiltered au lieu de _currentTaches
+                        donneesDashboard,
+                        saveDialog.FileName
+                    );
+                    
+                    MessageBox.Show($"PowerPoint généré avec succès !\n\n{saveDialog.FileName}", 
+                        "Succès", MessageBoxButton.OK, MessageBoxImage.Information);
+                    
+                    // Ouvrir le fichier
+                    System.Diagnostics.Process.Start(saveDialog.FileName);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erreur lors de la génération du PowerPoint :\n{ex.Message}\n\n{ex.StackTrace}", 
+                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                BtnGenererPowerPoint.IsEnabled = true;
+                var stackPanel = new StackPanel { Orientation = Orientation.Horizontal };
+                stackPanel.Children.Add(new TextBlock { Text = "📊", FontSize = 16, Margin = new Thickness(0, 0, 8, 0) });
+                stackPanel.Children.Add(new TextBlock { Text = "Générer PowerPoint", FontSize = 13, FontWeight = FontWeights.SemiBold });
+                BtnGenererPowerPoint.Content = stackPanel;
+            }
+        }
+        
+        private async void BtnGenererAvecIA_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currentProgramme == null || _currentProjets == null || _currentTaches == null)
+            {
+                MessageBox.Show("Sélectionnez d'abord un programme", "Information", 
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+            
+            var apiKey = BacklogManager.Properties.Settings.Default["AgentChatToken"]?.ToString()?.Trim();
+            if (string.IsNullOrWhiteSpace(apiKey))
+            {
+                MessageBox.Show("La clé API OpenAI n'est pas configurée.\nConfigurez-la dans la section Chat.", 
+                    "Configuration requise", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            
+            BtnGenererAvecIA.IsEnabled = false;
+            var loadingStack = new StackPanel { Orientation = Orientation.Horizontal };
+            loadingStack.Children.Add(new TextBlock { Text = "⏳", FontSize = 16, Margin = new Thickness(0, 0, 8, 0) });
+            loadingStack.Children.Add(new TextBlock { Text = "Génération en cours...", FontSize = 13 });
+            BtnGenererAvecIA.Content = loadingStack;
+            
+            try
+            {
+                await GenererContenuAvecIA();
+                MessageBox.Show("Contenu généré avec succès !", "Succès", 
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erreur lors de la génération :\n{ex.Message}", "Erreur", 
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                BtnGenererAvecIA.IsEnabled = true;
+                var stackPanel = new StackPanel { Orientation = Orientation.Horizontal };
+                stackPanel.Children.Add(new TextBlock { Text = "✨", FontSize = 16, Margin = new Thickness(0, 0, 8, 0) });
+                stackPanel.Children.Add(new TextBlock { Text = "Générer avec IA", FontSize = 13, FontWeight = FontWeights.SemiBold });
+                BtnGenererAvecIA.Content = stackPanel;
+            }
+        }
+        
+        private async System.Threading.Tasks.Task GenererContenuAvecIA()
+        {
+            var dateAnalyse = _dateDebutFiltre ?? DateTime.Now.AddMonths(-3);
+            var tachesPeriode = _currentTaches
+                .Where(t => _currentProjets.Any(p => p.Id == t.ProjetId) && t.DateCreation >= dateAnalyse)
+                .ToList();
+            
+            var periodeDebut = _dateDebutFiltre?.ToString("dd/MM/yyyy") ?? "Début";
+            var periodeFin = _dateFinFiltre?.ToString("dd/MM/yyyy") ?? "Aujourd'hui";
+            
+            var prompt = $@"Tu es un expert en gestion de projet et change management.
+
+**CONTEXTE DU PROGRAMME: {_currentProgramme.Nom}**
+
+**PROJETS ({_currentProjets.Count}):**
+{string.Join("\n", _currentProjets.Select(p => $"- {p.Nom}: {(p.DateDebut.HasValue ? p.DateDebut.Value.ToString("MM/yyyy") : "?")} → {(p.DateFinPrevue.HasValue ? p.DateFinPrevue.Value.ToString("MM/yyyy") : "?")}"))}
+
+**ACTIVITÉ PÉRIODE ({periodeDebut} → {periodeFin}):**
+- {tachesPeriode.Count()} nouvelle(s) demande(s)
+- {tachesPeriode.Count(t => t.Statut == Statut.EnCours)} en cours
+- {tachesPeriode.Count(t => t.Statut == Statut.Termine)} terminée(s)
+- {tachesPeriode.Count(t => t.Priorite == Priorite.Haute)} haute priorité
+
+Génère un contenu structuré pour le reporting programme avec ces sections (utilise EXACTEMENT ces marqueurs):
+
+[CHANGE_MANAGEMENT]
+3-4 lignes maximum décrivant:
+- Actions concrètes de change management basées sur l'activité
+- Focus sur documentation, training, support selon les demandes créées
+- Mention des projets actifs et équipes concernées
+
+[EVOLVING_SCOPE]
+Liste des demandes principales ajoutées dans la période, formatée ainsi:
+- Date + titre bref de chaque demande (max 5-6 demandes les plus significatives)
+- Regroupées par projet si pertinent
+- Statistiques de priorités
+
+Sois concis, précis, et base-toi UNIQUEMENT sur les données fournies.";
+
+            var response = await AppelerIA(prompt);
+            InterpreterEtAfficherResultat(response, tachesPeriode);
+        }
+        
+        private async System.Threading.Tasks.Task<string> AppelerIA(string prompt)
+        {
+            using (var httpClient = new System.Net.Http.HttpClient())
+            {
+                var apiKey = BacklogManager.Properties.Settings.Default["AgentChatToken"]?.ToString()?.Trim();
+                httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
+                httpClient.Timeout = TimeSpan.FromMinutes(2);
+                
+                var requestBody = new
+                {
+                    model = "gpt-oss-120b",
+                    messages = new[]
+                    {
+                        new { role = "system", content = "Tu es un expert en gestion de projet. Réponds de manière concise et structurée." },
+                        new { role = "user", content = prompt }
+                    },
+                    temperature = 0.7,
+                    max_tokens = 1500
+                };
+                
+                var json = System.Text.Json.JsonSerializer.Serialize(requestBody);
+                var content = new System.Net.Http.StringContent(json, System.Text.Encoding.UTF8, "application/json");
+                
+                var response = await httpClient.PostAsync("https://genfactory-ai.analytics.cib.echonet/genai/api/v2/chat/completions", content);
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception($"Erreur API (Code {(int)response.StatusCode})");
+                }
+                
+                var responseBody = await response.Content.ReadAsStringAsync();
+                using (var document = System.Text.Json.JsonDocument.Parse(responseBody))
+                {
+                    return document.RootElement.GetProperty("choices")[0].GetProperty("message").GetProperty("content").GetString();
+                }
+            }
+        }
+        
+        private void InterpreterEtAfficherResultat(string response, List<BacklogItem> tachesPeriode)
+        {
+            // Extraire Change Management
+            var changeMatch = System.Text.RegularExpressions.Regex.Match(response, @"\[CHANGE_MANAGEMENT\](.*?)(?=\[|$)", System.Text.RegularExpressions.RegexOptions.Singleline);
+            if (changeMatch.Success)
+            {
+                var changeText = changeMatch.Groups[1].Value.Trim();
+                TxtChangeManagement.Children.Clear();
+                
+                var lines = changeText.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var line in lines)
+                {
+                    var cleanLine = line.Trim().TrimStart('-', '•', '*').Trim();
+                    if (!string.IsNullOrWhiteSpace(cleanLine))
+                    {
+                        var block = new TextBlock
+                        {
+                            Text = $"• {cleanLine}",
+                            FontSize = 11,
+                            Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#555")),
+                            Margin = new Thickness(5, 3, 5, 3),
+                            TextWrapping = TextWrapping.Wrap
+                        };
+                        TxtChangeManagement.Children.Add(block);
+                    }
+                }
+            }
+            
+            // Extraire Evolving Scope
+            var evolvingMatch = System.Text.RegularExpressions.Regex.Match(response, @"\[EVOLVING_SCOPE\](.*?)(?=\[|$)", System.Text.RegularExpressions.RegexOptions.Singleline);
+            if (evolvingMatch.Success)
+            {
+                var evolvingText = evolvingMatch.Groups[1].Value.Trim();
+                TxtEvolvingScope.Children.Clear();
+                
+                var lines = evolvingText.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var line in lines)
+                {
+                    var cleanLine = line.Trim();
+                    if (!string.IsNullOrWhiteSpace(cleanLine))
+                    {
+                        var block = new TextBlock
+                        {
+                            Text = cleanLine.StartsWith("-") || cleanLine.StartsWith("•") ? cleanLine : $"• {cleanLine}",
+                            FontSize = 11,
+                            Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#555")),
+                            Margin = new Thickness(5, 2, 5, 2),
+                            TextWrapping = TextWrapping.Wrap
+                        };
+                        TxtEvolvingScope.Children.Add(block);
+                    }
+                }
+            }
+        }
+        
+        private void RemplirDashboardKPIs(List<Projet> projets, List<BacklogItem> toutesLesTaches)
+        {
+            if (ContainerActionsInitiatives == null || ContainerTeamsFilter == null)
+                return;
+                
+            ContainerActionsInitiatives.Children.Clear();
+            ContainerTeamsFilter.Children.Clear();
+            
+            // Filtrer les tâches (exclure Congé, Non travaillé, Support)
+            var tachesFiltered = toutesLesTaches
+                .Where(t => t.TypeDemande != TypeDemande.Conges && 
+                           t.TypeDemande != TypeDemande.NonTravaille && 
+                           t.TypeDemande != TypeDemande.Support)
+                .ToList();
+            
+            // Remplir le filtre TEAM(S) - Récupérer TOUTES les équipes de la DB
+            var toutesEquipes = _database.GetAllEquipes().Where(e => e.Actif).OrderBy(e => e.Nom).ToList();
+            
+            // Identifier les équipes impliquées dans le programme
+            var equipesImpliquees = new HashSet<string>();
+            foreach (var projet in projets)
+            {
+                if (projet.EquipesAssigneesIds != null && projet.EquipesAssigneesIds.Any())
+                {
+                    foreach (var equipeId in projet.EquipesAssigneesIds)
+                    {
+                        var equipe = toutesEquipes.FirstOrDefault(e => e.Id == equipeId);
+                        if (equipe != null)
+                            equipesImpliquees.Add(equipe.Nom);
+                    }
+                }
+            }
+            
+            // Afficher toutes les équipes, cocher celles impliquées
+            foreach (var equipe in toutesEquipes)
+            {
+                var chk = new CheckBox
+                {
+                    Content = equipe.Nom,
+                    IsChecked = equipesImpliquees.Contains(equipe.Nom),
+                    Margin = new Thickness(0, 0, 0, 5),
+                    FontSize = 10
+                };
+                ContainerTeamsFilter.Children.Add(chk);
+            }
+            
+            // Remplir les graphiques circulaires
+            RemplirStatusOverview(tachesFiltered);
+            RemplirWPPerMonth(tachesFiltered);
+            
+            // Remplir le tableau ACTIONS / INITIATIVES depuis les tâches
+            var tachesActives = tachesFiltered
+                .Where(t => t.Statut != Statut.Termine && !t.EstArchive)
+                .OrderByDescending(t => t.Priorite)
+                .Take(10)
+                .ToList();
+                
+            int rowIndex = 0;
+            foreach (var tache in tachesActives)
+            {
+                var rowGrid = new Grid
+                {
+                    Background = rowIndex % 2 == 0 ? new SolidColorBrush(Colors.White) : new SolidColorBrush(Color.FromRgb(250, 250, 250)),
+                    MinHeight = 60,
+                    Margin = new Thickness(0, 0, 0, 0)
+                };
+                
+                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(250) });
+                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(100) });
+                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(120) });
+                
+                // Action / Initiative
+                var titre = !string.IsNullOrEmpty(tache.Titre) ? tache.Titre : tache.Description;
+                var txtAction = new TextBlock
+                {
+                    Text = titre,
+                    FontSize = 11,
+                    Foreground = new SolidColorBrush(Color.FromRgb(51, 51, 51)),
+                    Padding = new Thickness(15, 10, 10, 10),
+                    TextWrapping = TextWrapping.Wrap,
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                Grid.SetColumn(txtAction, 0);
+                rowGrid.Children.Add(txtAction);
+                
+                // Priority
+                Color priorityColor = Color.FromRgb(76, 175, 80); // Vert par défaut
+                string priorityText = "Low";
+                
+                switch (tache.Priorite)
+                {
+                    case Priorite.Urgent:
+                    case Priorite.Haute:
+                        priorityColor = Color.FromRgb(244, 67, 54); // Rouge
+                        priorityText = "High";
+                        break;
+                    case Priorite.Moyenne:
+                        priorityColor = Color.FromRgb(255, 193, 7); // Jaune
+                        priorityText = "Medium";
+                        break;
+                    case Priorite.Basse:
+                        priorityColor = Color.FromRgb(76, 175, 80); // Vert
+                        priorityText = "Low";
+                        break;
+                }
+                
+                var priorityBorder = new Border
+                {
+                    Background = new SolidColorBrush(priorityColor),
+                    Width = 70,
+                    Height = 30,
+                    CornerRadius = new CornerRadius(4),
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                
+                var txtPriority = new TextBlock
+                {
+                    Text = priorityText,
+                    FontSize = 11,
+                    FontWeight = FontWeights.Bold,
+                    Foreground = new SolidColorBrush(Colors.White),
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                
+                priorityBorder.Child = txtPriority;
+                Grid.SetColumn(priorityBorder, 1);
+                rowGrid.Children.Add(priorityBorder);
+                
+                // Next Steps - Description détaillée avec contexte
+                var nextSteps = "";
+                var projet = projets.FirstOrDefault(p => p.Id == tache.ProjetId);
+                
+                if (!string.IsNullOrEmpty(tache.Description))
+                {
+                    nextSteps = tache.Description;
+                }
+                else if (!string.IsNullOrEmpty(tache.Titre))
+                {
+                    // Si pas de description mais un titre, utiliser le titre avec contexte
+                    nextSteps = $"{tache.Titre} - ";
+                    switch (tache.Statut)
+                    {
+                        case Statut.Afaire:
+                            nextSteps += "À planifier et démarrer";
+                            break;
+                        case Statut.EnCours:
+                            nextSteps += "Développement en cours";
+                            if (tache.ChiffrageJours.HasValue)
+                                nextSteps += $" (estimé: {Math.Round(tache.ChiffrageJours.Value, 1)}j)";
+                            break;
+                        case Statut.Test:
+                            nextSteps += "En phase de test";
+                            break;
+                        case Statut.EnAttente:
+                            nextSteps += "⚠️ En attente - nécessite déblocage";
+                            break;
+                        default:
+                            nextSteps += "Planification en cours";
+                            break;
+                    }
+                }
+                else
+                {
+                    nextSteps = $"Tâche #{tache.Id} - Définition des prochaines étapes en cours";
+                }
+                
+                if (nextSteps.Length > 200)
+                    nextSteps = nextSteps.Substring(0, 197) + "...";
+                
+                // Conteneur pour Next Steps + bouton edit
+                var nextStepsContainer = new Grid();
+                nextStepsContainer.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                nextStepsContainer.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(30) });
+                
+                var txtNextSteps = new TextBlock
+                {
+                    Text = nextSteps,
+                    FontSize = 10,
+                    Foreground = new SolidColorBrush(Color.FromRgb(85, 85, 85)),
+                    Padding = new Thickness(10),
+                    TextWrapping = TextWrapping.Wrap,
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                Grid.SetColumn(txtNextSteps, 0);
+                nextStepsContainer.Children.Add(txtNextSteps);
+                
+                // Bouton d'édition discret
+                var btnEdit = new Button
+                {
+                    Content = "✏️",
+                    FontSize = 12,
+                    Width = 24,
+                    Height = 24,
+                    Background = new SolidColorBrush(Color.FromRgb(240, 240, 240)),
+                    BorderBrush = new SolidColorBrush(Color.FromRgb(220, 220, 220)),
+                    BorderThickness = new Thickness(1),
+                    Cursor = System.Windows.Input.Cursors.Hand,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    ToolTip = "Éditer les détails du next step",
+                    Tag = tache // Stocker la tâche pour pouvoir la récupérer
+                };
+                
+                btnEdit.Click += BtnEditNextStep_Click;
+                
+                Grid.SetColumn(btnEdit, 1);
+                nextStepsContainer.Children.Add(btnEdit);
+                
+                Grid.SetColumn(nextStepsContainer, 2);
+                rowGrid.Children.Add(nextStepsContainer);
+                
+                // ETA
+                var eta = tache.DateFinAttendue?.ToString("dd/MM/yyyy") ?? "N/A";
+                var txtETA = new TextBlock
+                {
+                    Text = eta,
+                    FontSize = 11,
+                    Foreground = new SolidColorBrush(Color.FromRgb(102, 102, 102)),
+                    Padding = new Thickness(10),
+                    VerticalAlignment = VerticalAlignment.Center,
+                    HorizontalAlignment = HorizontalAlignment.Center
+                };
+                Grid.SetColumn(txtETA, 3);
+                rowGrid.Children.Add(txtETA);
+                
+                // Bordure inférieure
+                var bottomBorder = new Border
+                {
+                    BorderBrush = new SolidColorBrush(Color.FromRgb(224, 224, 224)),
+                    BorderThickness = new Thickness(0, 0, 0, 1),
+                    Height = rowGrid.MinHeight
+                };
+                Grid.SetColumnSpan(bottomBorder, 4);
+                rowGrid.Children.Add(bottomBorder);
+                
+                ContainerActionsInitiatives.Children.Add(rowGrid);
+                rowIndex++;
+            }
+            
+            // Mettre à jour le compteur total d'initiatives
+            if (TxtTotalInitiatives != null)
+            {
+                TxtTotalInitiatives.Text = tachesActives.Count.ToString();
+            }
+        }
+        
+        private void BtnEditNextStep_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            if (button?.Tag is BacklogItem tache)
+            {
+                // Créer une fenêtre modale simple
+                var dialog = new Window
+                {
+                    Title = $"Éditer Next Step - {tache.Titre ?? $"Tâche #{tache.Id}"}",
+                    Width = 600,
+                    Height = 400,
+                    WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                    Owner = Window.GetWindow(this),
+                    ResizeMode = ResizeMode.NoResize,
+                    Background = new SolidColorBrush(Colors.White)
+                };
+                
+                var mainGrid = new Grid { Margin = new Thickness(20) };
+                mainGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(40) });
+                mainGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+                mainGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(50) });
+                
+                // Label
+                var label = new TextBlock
+                {
+                    Text = "Détails du Next Step:",
+                    FontSize = 14,
+                    FontWeight = FontWeights.Bold,
+                    Foreground = new SolidColorBrush(Color.FromRgb(51, 51, 51)),
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                Grid.SetRow(label, 0);
+                mainGrid.Children.Add(label);
+                
+                // TextBox pour éditer la description
+                var txtDescription = new TextBox
+                {
+                    Text = tache.Description ?? "",
+                    TextWrapping = TextWrapping.Wrap,
+                    AcceptsReturn = true,
+                    VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                    Padding = new Thickness(10),
+                    FontSize = 12,
+                    BorderBrush = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
+                    BorderThickness = new Thickness(1)
+                };
+                Grid.SetRow(txtDescription, 1);
+                mainGrid.Children.Add(txtDescription);
+                
+                // Boutons
+                var buttonsPanel = new StackPanel
+                {
+                    Orientation = Orientation.Horizontal,
+                    HorizontalAlignment = HorizontalAlignment.Right,
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                
+                var btnCancel = new Button
+                {
+                    Content = "Annuler",
+                    Width = 100,
+                    Height = 32,
+                    Margin = new Thickness(0, 0, 10, 0),
+                    Background = new SolidColorBrush(Color.FromRgb(240, 240, 240)),
+                    BorderBrush = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
+                    Cursor = System.Windows.Input.Cursors.Hand
+                };
+                btnCancel.Click += (s, ev) => dialog.Close();
+                
+                var btnSave = new Button
+                {
+                    Content = "💾 Enregistrer",
+                    Width = 120,
+                    Height = 32,
+                    Background = new SolidColorBrush(Color.FromRgb(0, 145, 90)),
+                    Foreground = new SolidColorBrush(Colors.White),
+                    BorderThickness = new Thickness(0),
+                    FontWeight = FontWeights.Bold,
+                    Cursor = System.Windows.Input.Cursors.Hand
+                };
+                
+                btnSave.Click += (s, ev) =>
+                {
+                    try
+                    {
+                        tache.Description = txtDescription.Text;
+                        tache.DateDerniereMaj = DateTime.Now;
+                        _database.AddOrUpdateBacklogItem(tache);
+                        
+                        MessageBox.Show("Next Step mis à jour avec succès !", "Succès", MessageBoxButton.OK, MessageBoxImage.Information);
+                        dialog.Close();
+                        
+                        // Rafraîchir l'affichage
+                        if (_currentProgramme != null)
+                        {
+                            var projets = _database.GetProjetsByProgramme(_currentProgramme.Id);
+                            var taches = _database.GetBacklogItems();
+                            RemplirDashboardKPIs(projets, taches);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Erreur lors de la mise à jour: {ex.Message}", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                };
+                
+                buttonsPanel.Children.Add(btnCancel);
+                buttonsPanel.Children.Add(btnSave);
+                
+                Grid.SetRow(buttonsPanel, 2);
+                mainGrid.Children.Add(buttonsPanel);
+                
+                dialog.Content = mainGrid;
+                dialog.ShowDialog();
+            }
+        }
+        
+        private void RemplirStatusOverview(List<BacklogItem> taches)
+        {
+            if (CanvasStatusOverview == null)
+                return;
+                
+            CanvasStatusOverview.Children.Clear();
+            
+            // Calculer les statistiques - le total inclut toutes les tâches filtrées (y compris archivées)
+            int total = taches.Count;  // Toutes les tâches filtrées
+            int ongoing = taches.Count(t => t.Statut == Statut.EnCours && !t.EstArchive);
+            int done = taches.Count(t => t.Statut == Statut.Termine && !t.EstArchive);
+            int toStart = taches.Count(t => (t.Statut == Statut.Afaire || t.Statut == Statut.APrioriser) && !t.EstArchive);
+            int cancelled = taches.Count(t => t.EstArchive);
+            
+            if (total == 0)
+                return;
+            
+            // Créer le graphique en donut
+            double centerX = 75;
+            double centerY = 75;
+            double radius = 60;
+            double innerRadius = 40;
+            
+            double currentAngle = -90; // Commencer en haut
+            
+            // Couleurs
+            var colors = new[]
+            {
+                (ongoing, Color.FromRgb(76, 175, 80), "Ongoing"),      // Vert
+                (done, Color.FromRgb(0, 145, 90), "Done"),             // Vert foncé
+                (toStart, Color.FromRgb(158, 158, 158), "To be Start"), // Gris
+                (cancelled, Color.FromRgb(189, 189, 189), "Cancelled")  // Gris clair
+            };
+            
+            foreach (var (count, color, label) in colors)
+            {
+                if (count == 0) continue;
+                
+                double percentage = (double)count / total;
+                double angleSize = percentage * 360;
+                
+                // Créer l'arc
+                var path = new System.Windows.Shapes.Path
+                {
+                    Fill = new SolidColorBrush(color),
+                    Data = CreateDonutSegment(centerX, centerY, radius, innerRadius, currentAngle, angleSize)
+                };
+                
+                CanvasStatusOverview.Children.Add(path);
+                currentAngle += angleSize;
+            }
+            
+            // Mettre à jour le compteur total
+            if (TxtTotalInitiatives != null)
+            {
+                TxtTotalInitiatives.Text = total.ToString();
+            }
+            
+            // Ajouter la légende en dessous du graphique
+            double legendY = 160;
+            double legendX = 10;
+            
+            var legendItems = new[]
+            {
+                (Color.FromRgb(76, 175, 80), $"Ongoing ({ongoing})", ongoing),
+                (Color.FromRgb(0, 145, 90), $"Done ({done})", done),
+                (Color.FromRgb(158, 158, 158), $"To be Start ({toStart})", toStart),
+                (Color.FromRgb(189, 189, 189), $"Cancelled ({cancelled})", cancelled)
+            };
+            
+            int index = 0;
+            foreach (var (color, label, count) in legendItems)
+            {
+                if (count == 0) continue;
+                
+                // Carré de couleur
+                var rect = new System.Windows.Shapes.Rectangle
+                {
+                    Width = 12,
+                    Height = 12,
+                    Fill = new SolidColorBrush(color)
+                };
+                Canvas.SetLeft(rect, legendX);
+                Canvas.SetTop(rect, legendY + (index * 18));
+                CanvasStatusOverview.Children.Add(rect);
+                
+                // Label
+                var labelText = new TextBlock
+                {
+                    Text = label,
+                    FontSize = 9,
+                    Foreground = new SolidColorBrush(Color.FromRgb(85, 85, 85))
+                };
+                Canvas.SetLeft(labelText, legendX + 18);
+                Canvas.SetTop(labelText, legendY + (index * 18) - 1);
+                CanvasStatusOverview.Children.Add(labelText);
+                
+                index++;
+            }
+        }
+        
+        private void RemplirWPPerMonth(List<BacklogItem> taches)
+        {
+            if (CanvasWPMonth == null)
+                return;
+                
+            CanvasWPMonth.Children.Clear();
+            
+            if (!taches.Any())
+                return;
+            
+            // Grouper les tâches par mois de création
+            var tachesParMois = taches
+                .Where(t => t.DateCreation >= DateTime.Now.AddMonths(-12))
+                .GroupBy(t => new { t.DateCreation.Year, t.DateCreation.Month })
+                .Select(g => new
+                {
+                    Mois = new DateTime(g.Key.Year, g.Key.Month, 1),
+                    Count = g.Count()
+                })
+                .OrderBy(x => x.Mois)
+                .ToList();
+            
+            if (!tachesParMois.Any())
+                return;
+            
+            // Créer le graphique circulaire
+            double centerX = 75;
+            double centerY = 75;
+            double radius = 60;
+            double innerRadius = 40;
+            
+            double currentAngle = -90;
+            int totalTaches = tachesParMois.Sum(x => x.Count);
+            
+            // Couleurs alternées
+            var colors = new[]
+            {
+                Color.FromRgb(0, 145, 90),   // Vert foncé
+                Color.FromRgb(76, 175, 80),  // Vert
+                Color.FromRgb(129, 199, 132) // Vert clair
+            };
+            
+            int colorIndex = 0;
+            foreach (var mois in tachesParMois)
+            {
+                double percentage = (double)mois.Count / totalTaches;
+                double angleSize = percentage * 360;
+                
+                if (angleSize < 1) continue; // Skip très petits segments
+                
+                var path = new System.Windows.Shapes.Path
+                {
+                    Fill = new SolidColorBrush(colors[colorIndex % colors.Length]),
+                    Data = CreateDonutSegment(centerX, centerY, radius, innerRadius, currentAngle, angleSize)
+                };
+                
+                CanvasWPMonth.Children.Add(path);
+                currentAngle += angleSize;
+                colorIndex++;
+            }
+            
+            // Texte central avec pourcentage moyen
+            var avgPerMonth = tachesParMois.Any() ? (int)tachesParMois.Average(x => x.Count) : 0;
+            var centerText = new TextBlock
+            {
+                Text = $"{avgPerMonth}\n/mois",
+                FontSize = 16,
+                FontWeight = FontWeights.Bold,
+                Foreground = new SolidColorBrush(Color.FromRgb(0, 145, 90)),
+                TextAlignment = TextAlignment.Center
+            };
+            Canvas.SetLeft(centerText, centerX - 25);
+            Canvas.SetTop(centerText, centerY - 18);
+            CanvasWPMonth.Children.Add(centerText);
+        }
+        
+        private System.Windows.Media.Geometry CreateDonutSegment(double centerX, double centerY, double radius, double innerRadius, double startAngle, double angleSize)
+        {
+            double startAngleRad = startAngle * Math.PI / 180;
+            double endAngleRad = (startAngle + angleSize) * Math.PI / 180;
+            
+            Point outerStart = new Point(
+                centerX + radius * Math.Cos(startAngleRad),
+                centerY + radius * Math.Sin(startAngleRad)
+            );
+            
+            Point outerEnd = new Point(
+                centerX + radius * Math.Cos(endAngleRad),
+                centerY + radius * Math.Sin(endAngleRad)
+            );
+            
+            Point innerStart = new Point(
+                centerX + innerRadius * Math.Cos(startAngleRad),
+                centerY + innerRadius * Math.Sin(startAngleRad)
+            );
+            
+            Point innerEnd = new Point(
+                centerX + innerRadius * Math.Cos(endAngleRad),
+                centerY + innerRadius * Math.Sin(endAngleRad)
+            );
+            
+            bool largeArc = angleSize > 180;
+            
+            var figure = new PathFigure { StartPoint = outerStart };
+            
+            figure.Segments.Add(new ArcSegment
+            {
+                Point = outerEnd,
+                Size = new Size(radius, radius),
+                IsLargeArc = largeArc,
+                SweepDirection = SweepDirection.Clockwise
+            });
+            
+            figure.Segments.Add(new LineSegment { Point = innerEnd });
+            
+            figure.Segments.Add(new ArcSegment
+            {
+                Point = innerStart,
+                Size = new Size(innerRadius, innerRadius),
+                IsLargeArc = largeArc,
+                SweepDirection = SweepDirection.Counterclockwise
+            });
+            
+            figure.IsClosed = true;
+            
+            return new PathGeometry { Figures = { figure } };
+        }
+    }
+    
+    public class ProjetTimelineItem
+    {
+        public string NomProjet { get; set; }
+        public double Pourcentage { get; set; }
     }
 
     public class ReportingContributionInfo
@@ -1176,6 +3235,30 @@ namespace BacklogManager.Views.Pages
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    
+    public class ColorStringToBrushConverter : System.Windows.Data.IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            if (value is string colorString && !string.IsNullOrEmpty(colorString))
+            {
+                try
+                {
+                    return new SolidColorBrush((Color)ColorConverter.ConvertFromString(colorString));
+                }
+                catch
+                {
+                    return new SolidColorBrush(Colors.Gray);
+                }
+            }
+            return new SolidColorBrush(Colors.Gray);
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             throw new NotImplementedException();
         }

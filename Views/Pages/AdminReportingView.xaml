@@ -7,12 +7,14 @@
              HorizontalAlignment="Stretch"
              VerticalAlignment="Stretch">
     <UserControl.Resources>
-        <local:ReportingPercentageToWidthConverter x:Key="PercentageToWidthConverter"/>
+        <!--<local:ReportingPercentageToWidthConverter x:Key="PercentageToWidthConverter"/>-->
     </UserControl.Resources>
     
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
         <Grid Margin="40,25">
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -616,7 +618,7 @@
 
             <!-- Section Contributions des Ressources (caché par défaut) -->
             <Border x:Name="PanelContributions" Grid.Row="6" Background="White" CornerRadius="12" 
-                    Padding="30,25" Margin="0,0,0,0" Visibility="Collapsed">
+                    Padding="30,25" Margin="0,0,0,20" Visibility="Collapsed">
                 <Border.Effect>
                     <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.1" Color="#000000"/>
                 </Border.Effect>
@@ -706,13 +708,13 @@
                                             <Border Grid.Column="0" Height="20" Background="#E0E0E0" 
                                                     CornerRadius="10" Margin="0,0,10,0">
                                                 <Border Height="20" Background="#FF9800" CornerRadius="10" 
-                                                        HorizontalAlignment="Left">
-                                                    <Border.Width>
+                                                        HorizontalAlignment="Left" Width="200">
+                                                    <!--<Border.Width>
                                                         <MultiBinding Converter="{StaticResource PercentageToWidthConverter}">
                                                             <Binding Path="PourcentageContribution"/>
                                                             <Binding RelativeSource="{RelativeSource AncestorType=Border}" Path="ActualWidth"/>
                                                         </MultiBinding>
-                                                    </Border.Width>
+                                                    </Border.Width>-->
                                                 </Border>
                                             </Border>
                                             
@@ -729,6 +731,330 @@
                     </DataGrid>
                 </StackPanel>
             </Border>
+
+            <!-- Section Programme détaillée (caché par défaut, visible uniquement en mode Programme) -->
+            <StackPanel x:Name="PanelProgrammeDetails" Grid.Row="7" Margin="0,0,0,20" Visibility="Collapsed">
+                
+                <!-- Nom du Programme avec bouton IA -->
+                <Border Background="White" CornerRadius="12" Padding="30,25" Margin="0,0,0,20">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.1" Color="#000000"/>
+                    </Border.Effect>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="15"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock x:Name="TxtNomProgramme" Grid.Column="0" 
+                                   Text="E2E BG PROGRAM - AUTO DRAFTING" 
+                                   FontSize="24" FontWeight="Bold" Foreground="#00915A" 
+                                   VerticalAlignment="Center" TextAlignment="Center"/>
+                        
+                        <Button x:Name="BtnGenererPowerPoint" Grid.Column="1" 
+                                Background="#2196F3" Foreground="White" 
+                                Padding="15,10" BorderThickness="0" Cursor="Hand"
+                                Click="BtnGenererPowerPoint_Click"
+                                ToolTip="Générer un PowerPoint">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}" 
+                                                        CornerRadius="8" Padding="{TemplateBinding Padding}">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="📊" FontSize="16" Margin="0,0,8,0"/>
+                                                        <TextBlock Text="Générer PowerPoint" FontSize="13" FontWeight="SemiBold"/>
+                                                    </StackPanel>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="#1976D2"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        
+                        <Button x:Name="BtnGenererAvecIA" Grid.Column="3" 
+                                Background="#00915A" Foreground="White" 
+                                Padding="15,10" BorderThickness="0" Cursor="Hand"
+                                Click="BtnGenererAvecIA_Click"
+                                ToolTip="Générer avec l'IA">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}" 
+                                                        CornerRadius="8" Padding="{TemplateBinding Padding}">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="✨" FontSize="16" Margin="0,0,8,0"/>
+                                                        <TextBlock Text="Générer avec IA" FontSize="13" FontWeight="SemiBold"/>
+                                                    </StackPanel>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="#00A566"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </Grid>
+                </Border>
+
+                <!-- Phases/jalons dynamiques -->
+                <Border Background="White" CornerRadius="12" Padding="30,25" Margin="0,0,0,20">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.1" Color="#000000"/>
+                    </Border.Effect>
+                    <StackPanel>
+                        <TextBlock x:Name="LblPhasesJalons" Text="📌 PHASES &amp; JALONS" 
+                                   FontSize="16" FontWeight="Bold" Foreground="#333" Margin="0,0,0,20"/>
+                        
+                        <!-- Conteneur dynamique pour les phases -->
+                        <StackPanel x:Name="ContainerPhases" Orientation="Vertical"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Blocs Change Management et Evolving Scope -->
+                <Grid Margin="0,0,0,20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <!-- Change Management -->
+                    <Border Grid.Column="0" Background="White" CornerRadius="12" Padding="25,20">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.1" Color="#000000"/>
+                        </Border.Effect>
+                        <StackPanel>
+                            <TextBlock x:Name="LblChangeManagement" Text="🔄 CHANGE MANAGEMENT" 
+                                       FontSize="14" FontWeight="Bold" Foreground="#FF9800" Margin="0,0,0,15"/>
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="400">
+                                <StackPanel x:Name="TxtChangeManagement" Background="White"/>
+                            </ScrollViewer>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- Evolving Scope -->
+                    <Border Grid.Column="2" Background="White" CornerRadius="12" Padding="25,20">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.1" Color="#000000"/>
+                        </Border.Effect>
+                        <StackPanel>
+                            <TextBlock x:Name="LblEvolvingScope" Text="📈 EVOLVING SCOPE" 
+                                       FontSize="14" FontWeight="Bold" Foreground="#2196F3" Margin="0,0,0,10"/>
+                            <TextBlock x:Name="LblEvolvingScopeDesc" Text="items added over time" 
+                                       FontSize="11" Foreground="#999" FontStyle="Italic" Margin="0,0,0,15"/>
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="400">
+                                <StackPanel x:Name="TxtEvolvingScope" Background="White"/>
+                            </ScrollViewer>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- Timeline d'avancement des projets du programme -->
+                <Border Background="White" CornerRadius="12" Padding="30,25" Margin="0,0,0,0">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.1" Color="#000000"/>
+                    </Border.Effect>
+                    <StackPanel>
+                        <TextBlock x:Name="LblTimelineProjects" Text="📅 TIMELINE D'AVANCEMENT DES PROJETS" 
+                                   FontSize="16" FontWeight="Bold" Foreground="#333" Margin="0,0,0,20"/>
+                        
+                        <!-- Conteneur pour la timeline avec mois -->
+                        <Grid x:Name="TimelineContainer">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/> <!-- En-tête mois -->
+                                <RowDefinition Height="10"/>
+                                <RowDefinition Height="Auto"/> <!-- Projets -->
+                            </Grid.RowDefinitions>
+                            
+                            <!-- En-tête des mois sera généré dynamiquement -->
+                            <Grid x:Name="TimelineHeader" Grid.Row="0" Height="60"/>
+                            
+                            <!-- Liste des projets avec barres positionnées -->
+                            <StackPanel x:Name="TimelineProjects" Grid.Row="2"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+                
+                <!-- Tableau Progress Status (détails projets/bénéficiaires) -->
+                <Border Background="White" CornerRadius="12" Padding="30,25" Margin="0,20,0,0">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.1" Color="#000000"/>
+                    </Border.Effect>
+                    <StackPanel>
+                        <Grid Margin="0,0,0,20">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <TextBlock Grid.Column="0" Text="📋 PROGRESS STATUS" 
+                                       FontSize="16" FontWeight="Bold" Foreground="#333"/>
+                            
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <Border Background="#FFEBEE" CornerRadius="4" Padding="8,4" Margin="0,0,10,0">
+                                    <TextBlock x:Name="TxtHighPriorityCount" Text="High Priority: 0" 
+                                               FontSize="11" FontWeight="SemiBold" Foreground="#D32F2F"/>
+                                </Border>
+                                <Border x:Name="BadgeStatutProjet" Background="#E8F5E9" CornerRadius="4" Padding="8,4">
+                                    <TextBlock x:Name="TxtStatutProjet" Text="WIP" 
+                                               FontSize="11" FontWeight="Bold" Foreground="#2E7D32"/>
+                                </Border>
+                            </StackPanel>
+                        </Grid>
+                        
+                        <!-- Conteneur pour les lignes du tableau (créé dynamiquement) -->
+                        <StackPanel x:Name="ContainerProgressStatus" Background="White"/>
+                    </StackPanel>
+                </Border>
+                
+                <!-- Dashboard KPIs et Actions/Initiatives -->
+                <Border Background="White" CornerRadius="12" Padding="30,25" Margin="0,20,0,0">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.1" Color="#000000"/>
+                    </Border.Effect>
+                    <StackPanel>
+                        <!-- Ligne des KPIs et filtres -->
+                        <Grid Margin="0,0,0,30">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="15"/>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="15"/>
+                                <ColumnDefinition Width="250"/>
+                                <ColumnDefinition Width="15"/>
+                                <ColumnDefinition Width="220"/>
+                                <ColumnDefinition Width="15"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="15"/>
+                                <ColumnDefinition Width="280"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <!-- % STATUS OVERVIEW -->
+                            <Border Grid.Column="0" Background="#FAFAFA" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="8" Padding="15">
+                                <StackPanel>
+                                    <TextBlock Text="📊 % STATUS OVERVIEW" FontSize="10" FontWeight="Bold" Foreground="#666" Margin="0,0,0,10"/>
+                                    <Canvas x:Name="CanvasStatusOverview" Width="150" Height="150" HorizontalAlignment="Center"/>
+                                    <TextBlock x:Name="TxtTotalInitiatives" Text="0" FontSize="28" FontWeight="Bold" 
+                                               Foreground="#00915A" HorizontalAlignment="Center" Margin="0,-85,0,0"/>
+                                </StackPanel>
+                            </Border>
+                            
+                            <!-- % of WP per Month -->
+                            <Border Grid.Column="2" Background="#FAFAFA" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="8" Padding="15">
+                                <StackPanel>
+                                    <TextBlock Text="📈 % of WP per Month" FontSize="10" FontWeight="Bold" Foreground="#666" Margin="0,0,0,10"/>
+                                    <Canvas x:Name="CanvasWPMonth" Width="150" Height="150" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                            
+                            <!-- TEAM(S) -->
+                            <Border Grid.Column="4" Background="#FAFAFA" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="8" Padding="15">
+                                <StackPanel>
+                                    <TextBlock Text="👥 TEAM(S)" FontSize="11" FontWeight="Bold" Foreground="#333" Margin="0,0,0,10"/>
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="150">
+                                        <StackPanel x:Name="ContainerTeamsFilter"/>
+                                    </ScrollViewer>
+                                </StackPanel>
+                            </Border>
+                            
+                            <!-- SCOPE -->
+                            <Border Grid.Column="6" Background="#FAFAFA" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="8" Padding="15">
+                                <StackPanel>
+                                    <TextBlock Text="🌍 SCOPE" FontSize="11" FontWeight="Bold" Foreground="#333" Margin="0,0,0,10"/>
+                                    <CheckBox x:Name="ChkScopeGlobal" Content="Global" Margin="0,0,0,5" IsChecked="True"/>
+                                    <CheckBox x:Name="ChkScopeLocal" Content="Local" Margin="0,0,0,5" IsChecked="True"/>
+                                    <CheckBox x:Name="ChkScopeTransversal" Content="Transversal" IsChecked="True"/>
+                                    
+                                    <Border Background="White" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,15,0,0">
+                                        <StackPanel>
+                                            <TextBlock Text="TOM Consolidation Rate" FontSize="9" Foreground="#666" Margin="0,0,0,8"/>
+                                            
+                                            <TextBlock Text="PRIORITY" FontSize="9" FontWeight="Bold" Foreground="#333" Margin="0,0,0,5"/>
+                                            <Grid Margin="0,0,0,8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Border Grid.Column="0" Background="#4CAF50" Height="20" CornerRadius="3" Margin="0,0,2,0"/>
+                                                <Border Grid.Column="1" Background="#FFC107" Height="20" CornerRadius="3" Margin="1,0,1,0"/>
+                                                <Border Grid.Column="2" Background="#F44336" Height="20" CornerRadius="3" Margin="2,0,0,0"/>
+                                            </Grid>
+                                            
+                                            <TextBlock Text="RISK" FontSize="9" FontWeight="Bold" Foreground="#333" Margin="0,0,0,5"/>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Border Grid.Column="0" Background="#4CAF50" Height="20" CornerRadius="3" Margin="0,0,2,0"/>
+                                                <Border Grid.Column="1" Background="#FFC107" Height="20" CornerRadius="3" Margin="1,0,1,0"/>
+                                                <Border Grid.Column="2" Background="#F44336" Height="20" CornerRadius="3" Margin="2,0,0,0"/>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </Border>
+                            
+                            <!-- DRIVERS -->
+                            <Border Grid.Column="8" Background="#FAFAFA" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="8" Padding="15">
+                                <StackPanel>
+                                    <TextBlock Text="🎯 DRIVERS" FontSize="11" FontWeight="Bold" Foreground="#333" Margin="0,0,0,10"/>
+                                    <CheckBox x:Name="ChkDriverComm" Content="Communication &amp; Continuous..." Margin="0,0,0,5" IsChecked="True"/>
+                                    <CheckBox x:Name="ChkDriverIT" Content="IT Development" Margin="0,0,0,5" IsChecked="True"/>
+                                    <CheckBox x:Name="ChkDriverProcess" Content="Process Efficiency" Margin="0,0,0,5" IsChecked="True"/>
+                                    <CheckBox x:Name="ChkDriverTool" Content="Tool &amp; Automation Development" IsChecked="True"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                        
+                        <!-- Tableau ACTIONS / INITIATIVES -->
+                        <StackPanel>
+                            <TextBlock Text="📋 ACTIONS / INITIATIVES" FontSize="14" FontWeight="Bold" Foreground="#333" Margin="0,0,0,15"/>
+                            
+                            <!-- En-tête du tableau -->
+                            <Grid x:Name="HeaderActionsInitiatives" Background="#00915A" Height="40">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="250"/>
+                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="120"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <TextBlock Grid.Column="0" Text="ACTIONS / INITIATIVES" FontSize="11" FontWeight="Bold" 
+                                           Foreground="White" VerticalAlignment="Center" Margin="15,0,0,0"/>
+                                <TextBlock Grid.Column="1" Text="PRIORITY" FontSize="11" FontWeight="Bold" 
+                                           Foreground="White" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                                <TextBlock Grid.Column="2" Text="NEXT STEPS" FontSize="11" FontWeight="Bold" 
+                                           Foreground="White" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                                <TextBlock Grid.Column="3" Text="ETA" FontSize="11" FontWeight="Bold" 
+                                           Foreground="White" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                            </Grid>
+                            
+                            <!-- Conteneur pour les lignes du tableau -->
+                            <StackPanel x:Name="ContainerActionsInitiatives" Background="White"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
         </Grid>
     </ScrollViewer>
 </UserControl>
