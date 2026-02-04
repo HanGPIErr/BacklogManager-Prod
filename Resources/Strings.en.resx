@@ -2366,6 +2366,204 @@ This action is irreversible.</value>
   <data name="Reporting_AllCompleted" xml:space="preserve">
     <value>✅ ALL COMPLETED</value>
   </data>
+  <data name="Reporting_PhasesAndMilestones" xml:space="preserve">
+    <value>📌 PHASES &amp; MILESTONES</value>
+  </data>
+  <data name="Reporting_ChangeManagement" xml:space="preserve">
+    <value>🔄 CHANGE MANAGEMENT</value>
+  </data>
+  <data name="Reporting_EvolvingScope" xml:space="preserve">
+    <value>📈 EVOLVING SCOPE</value>
+  </data>
+  <data name="Reporting_EvolvingScopeDesc" xml:space="preserve">
+    <value>items added over time</value>
+  </data>
+  <data name="Reporting_TimelineProjects" xml:space="preserve">
+    <value>📅 PROJECT PROGRESS TIMELINE</value>
+  </data>
+  <data name="Reporting_Beneficiary" xml:space="preserve">
+    <value>Beneficiary</value>
+  </data>
+  <data name="Reporting_ProjectDescription" xml:space="preserve">
+    <value>Project Description</value>
+  </data>
+  <data name="Reporting_ProjectLead" xml:space="preserve">
+    <value>Project lead</value>
+  </data>
+  <data name="Reporting_ProjectPhase" xml:space="preserve">
+    <value>Project phase</value>
+  </data>
+  <data name="Reporting_RAG" xml:space="preserve">
+    <value>RAG</value>
+  </data>
+  <data name="Reporting_KeyHighlights" xml:space="preserve">
+    <value>Key highlights</value>
+  </data>
+  <data name="Reporting_InitialETA" xml:space="preserve">
+    <value>Initial ETA</value>
+  </data>
+  <data name="Reporting_UpdatedETA" xml:space="preserve">
+    <value>Updated ETA</value>
+  </data>
+  <data name="Reporting_ProgressPercent" xml:space="preserve">
+    <value>Progress (%)</value>
+  </data>
+  <data name="Reporting_InDevelopment" xml:space="preserve">
+    <value>in development</value>
+  </data>
+  <data name="Reporting_OngoingDevelopment" xml:space="preserve">
+    <value>development in progress</value>
+  </data>
+  <data name="Reporting_ActiveDevelopments" xml:space="preserve">
+    <value>{0} active developments</value>
+  </data>
+  <data name="Reporting_Ongoing" xml:space="preserve">
+    <value>Ongoing:</value>
+  </data>
+  <data name="Reporting_NextSteps" xml:space="preserve">
+    <value>Next steps:</value>
+  </data>
+  <data name="Reporting_AtRiskStatus" xml:space="preserve">
+    <value>AT RISK</value>
+  </data>
+  <data name="Reporting_CautionStatus" xml:space="preserve">
+    <value>CAUTION</value>
+  </data>
+  <data name="Reporting_WIPStatus" xml:space="preserve">
+    <value>WIP</value>
+  </data>
+  <data name="Reporting_HighPriority" xml:space="preserve">
+    <value>High Priority</value>
+  </data>
+  <data name="Reporting_LateStatus" xml:space="preserve">
+    <value>⚠️ DELAYED</value>
+  </data>
+  <data name="Reporting_NoProjectInProgram" xml:space="preserve">
+    <value>No project in this program</value>
+  </data>
+  <data name="Reporting_Delivery2" xml:space="preserve">
+    <value>Delivery:</value>
+  </data>
+  <data name="Reporting_ProgressLabel" xml:space="preserve">
+    <value>Progress:</value>
+  </data>
+  <data name="Reporting_TasksUnit" xml:space="preserve">
+    <value>tasks</value>
+  </data>
+  <data name="Reporting_SelectProgramFirst" xml:space="preserve">
+    <value>Select a program first</value>
+  </data>
+  <data name="Reporting_Information" xml:space="preserve">
+    <value>Information</value>
+  </data>
+  <data name="Reporting_GeneratingInProgress" xml:space="preserve">
+    <value>Generating...</value>
+  </data>
+  <data name="Reporting_GenerateSuccess" xml:space="preserve">
+    <value>PowerPoint generated successfully!</value>
+  </data>
+  <data name="Reporting_Success" xml:space="preserve">
+    <value>Success</value>
+  </data>
+  <data name="Reporting_GeneratePowerPoint" xml:space="preserve">
+    <value>Generate PowerPoint</value>
+  </data>
+  <data name="Reporting_GenerateWithAI" xml:space="preserve">
+    <value>Generate with AI</value>
+  </data>
+  <data name="Reporting_ContentGeneratedSuccess" xml:space="preserve">
+    <value>Content generated successfully!</value>
+  </data>
+  <data name="Reporting_Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="Reporting_GenerationError" xml:space="preserve">
+    <value>Error during generation:\n{0}</value>
+  </data>
+  <data name="Reporting_ActionInitiative" xml:space="preserve">
+    <value>Action / Initiative</value>
+  </data>
+  <data name="Reporting_Priority" xml:space="preserve">
+    <value>Priority</value>
+  </data>
+  <data name="Reporting_NextStepsHeader" xml:space="preserve">
+    <value>Next Steps</value>
+  </data>
+  <data name="Reporting_ETA" xml:space="preserve">
+    <value>ETA</value>
+  </data>
+  <data name="Reporting_PriorityLow" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="Reporting_PriorityMedium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="Reporting_PriorityHigh" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="Reporting_EditNextStepTitle" xml:space="preserve">
+    <value>Edit Next Step - {0}</value>
+  </data>
+  <data name="Reporting_NextStepDetails" xml:space="preserve">
+    <value>Next Step Details:</value>
+  </data>
+  <data name="Reporting_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Reporting_Save" xml:space="preserve">
+    <value>💾 Save</value>
+  </data>
+  <data name="Reporting_NextStepUpdated" xml:space="preserve">
+    <value>Next Step updated successfully!</value>
+  </data>
+  <data name="Reporting_UpdateError" xml:space="preserve">
+    <value>Error during update: {0}</value>
+  </data>
+  <data name="Reporting_ToPlanAndStart" xml:space="preserve">
+    <value>To plan and start</value>
+  </data>
+  <data name="Reporting_DevelopmentInProgress" xml:space="preserve">
+    <value>Development in progress</value>
+  </data>
+  <data name="Reporting_EstimatedDays" xml:space="preserve">
+    <value>(estimated: {0}d)</value>
+  </data>
+  <data name="Reporting_InTestPhase" xml:space="preserve">
+    <value>In testing phase</value>
+  </data>
+  <data name="Reporting_OnHold" xml:space="preserve">
+    <value>⚠️ On hold - requires unblocking</value>
+  </data>
+  <data name="Reporting_PlanningInProgress" xml:space="preserve">
+    <value>Planning in progress</value>
+  </data>
+  <data name="Reporting_TaskDefinitionInProgress" xml:space="preserve">
+    <value>Task #{0} - Next steps definition in progress</value>
+  </data>
+  <data name="Reporting_DataLoadError" xml:space="preserve">
+    <value>Error loading data: {0}</value>
+  </data>
+  <data name="Reporting_NoActiveProjects" xml:space="preserve">
+    <value>No active projects found for this program.</value>
+  </data>
+  <data name="Reporting_StatisticsLoadError" xml:space="preserve">
+    <value>Error loading statistics: {0}</value>
+  </data>
+  <data name="Reporting_PowerPointGenerationError" xml:space="preserve">
+    <value>Error generating PowerPoint:\n{0}\n\n{1}</value>
+  </data>
+  <data name="Reporting_GeneratePowerPointTooltip" xml:space="preserve">
+    <value>Generate a PowerPoint</value>
+  </data>
+  <data name="Reporting_GenerateWithAITooltip" xml:space="preserve">
+    <value>Generate with AI</value>
+  </data>
+  <data name="Reporting_Start" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="Reporting_TodayDate" xml:space="preserve">
+    <value>Today</value>
+  </data>
   <data name="ChatHistory_Title" xml:space="preserve">
     <value>Conversation History - AI Agent</value>
   </data>
@@ -3128,6 +3326,110 @@ Note: Go to the 💬 Chat with AI section to configure your token.</value>
   </data>
   <data name="StatsAIAnalysis_Close" xml:space="preserve">
     <value>Close</value>
+  </data>
+  
+  <!-- Statistics Reporting Strings -->
+  <data name="Reporting_NewRequestsCreated" xml:space="preserve">
+    <value>new request(s) created</value>
+  </data>
+  <data name="Reporting_RecentModifications" xml:space="preserve">
+    <value>recent modification(s)</value>
+  </data>
+  <data name="Reporting_CompletedTasks" xml:space="preserve">
+    <value>completed task(s)</value>
+  </data>
+  <data name="Reporting_ActionPlan" xml:space="preserve">
+    <value>📋 ACTION PLAN</value>
+  </data>
+  <data name="Reporting_UserGuideAndDoc" xml:space="preserve">
+    <value>User Guide &amp; documentation: </value>
+  </data>
+  <data name="Reporting_RequiringDoc" xml:space="preserve">
+    <value>new request(s) requiring documentation</value>
+  </data>
+  <data name="Reporting_DifferentTypes" xml:space="preserve">
+    <value>different type(s)</value>
+  </data>
+  <data name="Reporting_NoNewRequests" xml:space="preserve">
+    <value>No new requests - stable documentation</value>
+  </data>
+  <data name="Reporting_TrainingUsers" xml:space="preserve">
+    <value>Training Users: </value>
+  </data>
+  <data name="Reporting_ActiveDevelopers" xml:space="preserve">
+    <value>active developer(s) in period</value>
+  </data>
+  <data name="Reporting_ContinuousTraining" xml:space="preserve">
+    <value>continuous training required</value>
+  </data>
+  <data name="Reporting_NoDevAssigned" xml:space="preserve">
+    <value>No developer assigned during analyzed period</value>
+  </data>
+  <data name="Reporting_RolloutStrategy" xml:space="preserve">
+    <value>Rollout Strategy: </value>
+  </data>
+  <data name="Reporting_ActiveProjects" xml:space="preserve">
+    <value>active project(s) in period</value>
+  </data>
+  <data name="Reporting_NoActiveProjects" xml:space="preserve">
+    <value>No active projects in the selected period</value>
+  </data>
+  <data name="Reporting_SupportAndFeedback" xml:space="preserve">
+    <value>Support and Feedback: </value>
+  </data>
+  <data name="Reporting_StartedTasks" xml:space="preserve">
+    <value>started task(s)</value>
+  </data>
+  <data name="Reporting_HighPriority" xml:space="preserve">
+    <value>high priority</value>
+  </data>
+  <data name="Reporting_ActiveTracking" xml:space="preserve">
+    <value>active tracking and feedback</value>
+  </data>
+  <data name="Reporting_NoActivityOnPeriod" xml:space="preserve">
+    <value>No activity in period - monitoring on standby</value>
+  </data>
+  <data name="Reporting_EvolvingScope" xml:space="preserve">
+    <value>EVOLVING SCOPE</value>
+  </data>
+  <data name="Reporting_NewRequestsSince" xml:space="preserve">
+    <value>📅 New requests since</value>
+  </data>
+  <data name="Reporting_Total" xml:space="preserve">
+    <value>📊 Total: </value>
+  </data>
+  <data name="Reporting_DistributionByPriority" xml:space="preserve">
+    <value>Distribution by priority:</value>
+  </data>
+  <data name="Reporting_High" xml:space="preserve">
+    <value>High: </value>
+  </data>
+  <data name="Reporting_Medium" xml:space="preserve">
+    <value>Medium: </value>
+  </data>
+  <data name="Reporting_Low" xml:space="preserve">
+    <value>Low: </value>
+  </data>
+  <data name="Reporting_NoNewRequests2" xml:space="preserve">
+    <value>📭 No new requests</value>
+  </data>
+  <data name="Reporting_StableScope" xml:space="preserve">
+    <value>The scope is stable for the selected period.</value>
+  </data>
+  <data name="Reporting_Tip" xml:space="preserve">
+    <value>💡 Tip:</value>
+  </data>
+  <data name="Reporting_AdjustPeriod" xml:space="preserve">
+    <value>Adjust the analysis period to see recent program evolutions.</value>
+  </data>
+  <data name="Reporting_UnknownProject" xml:space="preserve">
+    <value>Unknown project</value>
+  </data>
+  <data name="Reporting_NoProgramProject" xml:space="preserve">
+    <value>No projects in this program</value>
+  </data>
+  <data name="Reporting_NoDates" xml:space="preserve">
+    <value>No dates defined for projects</value>
   </data>
   
   <!-- Email Request Analysis Window -->

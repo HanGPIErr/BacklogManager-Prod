@@ -43,8 +43,8 @@ namespace BacklogManager.Views.Pages
             catch (Exception ex)
             {
                 _isLoading = false;
-                MessageBox.Show($"Erreur lors du chargement des données: {ex.Message}",
-                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(string.Format(LocalizationService.Instance.GetString("Reporting_DataLoadError"), ex.Message),
+                    LocalizationService.Instance.GetString("Reporting_Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -420,8 +420,8 @@ namespace BacklogManager.Views.Pages
                 
                 if (projets.Count == 0)
                 {
-                    MessageBox.Show("Aucun projet actif trouvé pour ce programme.", 
-                        "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show(LocalizationService.Instance.GetString("Reporting_NoActiveProjects"), 
+                        LocalizationService.Instance.GetString("Reporting_Information"), MessageBoxButton.OK, MessageBoxImage.Information);
                     MasquerKPIs();
                     return;
                 }
@@ -579,8 +579,8 @@ namespace BacklogManager.Views.Pages
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erreur lors du chargement des statistiques: {ex.Message}", 
-                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(string.Format(LocalizationService.Instance.GetString("Reporting_StatisticsLoadError"), ex.Message), 
+                    LocalizationService.Instance.GetString("Reporting_Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -721,8 +721,8 @@ namespace BacklogManager.Views.Pages
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erreur lors du chargement des statistiques: {ex.Message}", 
-                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(string.Format(LocalizationService.Instance.GetString("Reporting_StatisticsLoadError"), ex.Message), 
+                    LocalizationService.Instance.GetString("Reporting_Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -1212,25 +1212,25 @@ namespace BacklogManager.Views.Pages
             var statsBlock = new TextBlock { Margin = new Thickness(5, 5, 5, 8), FontSize = 11, Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#666")) };
             statsBlock.Inlines.Add(new Run("• ") { FontWeight = FontWeights.Bold });
             statsBlock.Inlines.Add(new Run(tachesPeriode.Count.ToString()) { FontWeight = FontWeights.Bold, Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00915A")) });
-            statsBlock.Inlines.Add(new Run(" nouvelle(s) demande(s) créée(s)"));
+            statsBlock.Inlines.Add(new Run($" {LocalizationService.Instance.GetString("Reporting_NewRequestsCreated")}"));
             TxtChangeManagement.Children.Add(statsBlock);
             
             var modifsBlock = new TextBlock { Margin = new Thickness(5, 2, 5, 2), FontSize = 11, Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#666")) };
             modifsBlock.Inlines.Add(new Run("• ") { FontWeight = FontWeights.Bold });
             modifsBlock.Inlines.Add(new Run(changementsStatut.ToString()) { FontWeight = FontWeights.Bold, Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF9800")) });
-            modifsBlock.Inlines.Add(new Run(" modification(s) récente(s)"));
+            modifsBlock.Inlines.Add(new Run($" {LocalizationService.Instance.GetString("Reporting_RecentModifications")}"));
             TxtChangeManagement.Children.Add(modifsBlock);
             
             var termBlock = new TextBlock { Margin = new Thickness(5, 2, 5, 15), FontSize = 11, Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#666")) };
             termBlock.Inlines.Add(new Run("• ") { FontWeight = FontWeights.Bold });
             termBlock.Inlines.Add(new Run(termineesCount.ToString()) { FontWeight = FontWeights.Bold, Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2196F3")) });
-            termBlock.Inlines.Add(new Run(" tâche(s) terminée(s)"));
+            termBlock.Inlines.Add(new Run($" {LocalizationService.Instance.GetString("Reporting_CompletedTasks")}"));
             TxtChangeManagement.Children.Add(termBlock);
             
             // Plan d'action compact basé UNIQUEMENT sur les données de la période sélectionnée
             var planTitreBlock = new TextBlock
             {
-                Text = "📋 PLAN D'ACTION",
+                Text = LocalizationService.Instance.GetString("Reporting_ActionPlan"),
                 FontSize = 12,
                 FontWeight = FontWeights.Bold,
                 Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#333")),
@@ -1248,15 +1248,15 @@ namespace BacklogManager.Views.Pages
                 TextWrapping = TextWrapping.Wrap
             };
             guide.Inlines.Add(new Run("1   ") { FontWeight = FontWeights.Bold });
-            guide.Inlines.Add(new Run("User Guide & documentation: ") { FontWeight = FontWeights.SemiBold });
+            guide.Inlines.Add(new Run(LocalizationService.Instance.GetString("Reporting_UserGuideAndDoc")) { FontWeight = FontWeights.SemiBold });
             
             if (tachesPeriode.Any())
             {
-                guide.Inlines.Add(new Run($"{tachesPeriode.Count} nouvelle(s) demande(s) nécessitant documentation ({typesUniques} type(s) différent(s))"));
+                guide.Inlines.Add(new Run($"{tachesPeriode.Count} {LocalizationService.Instance.GetString("Reporting_RequiringDoc")} ({typesUniques} {LocalizationService.Instance.GetString("Reporting_DifferentTypes")})"));
             }
             else
             {
-                guide.Inlines.Add(new Run("Aucune nouvelle demande - documentation stable"));
+                guide.Inlines.Add(new Run(LocalizationService.Instance.GetString("Reporting_NoNewRequests")));
             }
             TxtChangeManagement.Children.Add(guide);
             
@@ -1278,17 +1278,17 @@ namespace BacklogManager.Views.Pages
                 TextWrapping = TextWrapping.Wrap
             };
             training.Inlines.Add(new Run("2   ") { FontWeight = FontWeights.Bold });
-            training.Inlines.Add(new Run("Training Users: ") { FontWeight = FontWeights.SemiBold });
+            training.Inlines.Add(new Run(LocalizationService.Instance.GetString("Reporting_TrainingUsers")) { FontWeight = FontWeights.SemiBold });
             
             if (devsDetails.Any())
             {
                 var devsNoms = string.Join(", ", devsDetails.Take(2).Select(d => d.Nom));
                 if (devsDetails.Count > 2) devsNoms += $" +{devsDetails.Count - 2}";
-                training.Inlines.Add(new Run($"{devsDetails.Count} développeur(s) actif(s) sur période ({devsNoms}) - formation continue requise"));
+                training.Inlines.Add(new Run($"{devsDetails.Count} {LocalizationService.Instance.GetString("Reporting_ActiveDevelopers")} ({devsNoms}) - {LocalizationService.Instance.GetString("Reporting_ContinuousTraining")}"));
             }
             else
             {
-                training.Inlines.Add(new Run("Aucun développeur assigné sur la période analysée"));
+                training.Inlines.Add(new Run(LocalizationService.Instance.GetString("Reporting_NoDevAssigned")));
             }
             TxtChangeManagement.Children.Add(training);
             
@@ -1308,17 +1308,17 @@ namespace BacklogManager.Views.Pages
                 TextWrapping = TextWrapping.Wrap
             };
             rollout.Inlines.Add(new Run("3   ") { FontWeight = FontWeights.Bold });
-            rollout.Inlines.Add(new Run("Rollout Strategy: ") { FontWeight = FontWeights.SemiBold });
+            rollout.Inlines.Add(new Run(LocalizationService.Instance.GetString("Reporting_RolloutStrategy")) { FontWeight = FontWeights.SemiBold });
             
             if (projetsActivePeriode.Any())
             {
                 var projetsNoms = string.Join(", ", projetsActivePeriode.Take(2).Select(p => p.Nom));
                 if (projetsActivePeriode.Count > 2) projetsNoms += $" +{projetsActivePeriode.Count - 2}";
-                rollout.Inlines.Add(new Run($"{projetsActivePeriode.Count} projet(s) actif(s) sur période ({projetsNoms})"));
+                rollout.Inlines.Add(new Run($"{projetsActivePeriode.Count} {LocalizationService.Instance.GetString("Reporting_ActiveProjects")} ({projetsNoms})"));
             }
             else
             {
-                rollout.Inlines.Add(new Run("Aucun projet actif sur la période sélectionnée"));
+                rollout.Inlines.Add(new Run(LocalizationService.Instance.GetString("Reporting_NoActiveProjects")));
             }
             TxtChangeManagement.Children.Add(rollout);
             
@@ -1334,20 +1334,20 @@ namespace BacklogManager.Views.Pages
                 TextWrapping = TextWrapping.Wrap
             };
             support.Inlines.Add(new Run("4   ") { FontWeight = FontWeights.Bold });
-            support.Inlines.Add(new Run("Support and Feedback: ") { FontWeight = FontWeights.SemiBold });
+            support.Inlines.Add(new Run(LocalizationService.Instance.GetString("Reporting_SupportAndFeedback")) { FontWeight = FontWeights.SemiBold });
             
             if (tachesPeriode.Any())
             {
-                support.Inlines.Add(new Run($"{tachesEnCours} tâche(s) démarrée(s)"));
+                support.Inlines.Add(new Run($"{tachesEnCours} {LocalizationService.Instance.GetString("Reporting_StartedTasks")}"));
                 if (tachesHautePrio > 0)
                 {
-                    support.Inlines.Add(new Run($", {tachesHautePrio} haute priorité") { FontWeight = FontWeights.Bold, Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E53935")) });
+                    support.Inlines.Add(new Run($", {tachesHautePrio} {LocalizationService.Instance.GetString("Reporting_HighPriority")}") { FontWeight = FontWeights.Bold, Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E53935")) });
                 }
-                support.Inlines.Add(new Run(" - suivi et feedback actif"));
+                support.Inlines.Add(new Run($" - {LocalizationService.Instance.GetString("Reporting_ActiveTracking")}"));
             }
             else
             {
-                support.Inlines.Add(new Run("Aucune activité sur période - monitoring en veille"));
+                support.Inlines.Add(new Run(LocalizationService.Instance.GetString("Reporting_NoActivityOnPeriod")));
             }
             TxtChangeManagement.Children.Add(support);
             
@@ -1365,7 +1365,7 @@ namespace BacklogManager.Views.Pages
             // Header
             var evolvingHeaderBlock = new TextBlock
             {
-                Text = "PÉRIMÈTRE ÉVOLUTIF",
+                Text = LocalizationService.Instance.GetString("Reporting_EvolvingScope"),
                 FontSize = 15,
                 FontWeight = FontWeights.Bold,
                 Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2196F3")),
@@ -1377,7 +1377,7 @@ namespace BacklogManager.Views.Pages
             {
                 var dateInfoBlock = new TextBlock
                 {
-                    Text = $"📅 Nouvelles demandes depuis {dateRecente:dd/MM/yyyy}",
+                    Text = $"{LocalizationService.Instance.GetString("Reporting_NewRequestsSince")} {dateRecente:dd/MM/yyyy}",
                     FontSize = 12,
                     FontWeight = FontWeights.SemiBold,
                     Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#333")),
@@ -1388,7 +1388,7 @@ namespace BacklogManager.Views.Pages
                 var groupeesParProjet = tachesRecentes.GroupBy(t => t.ProjetId);
                 foreach (var groupe in groupeesParProjet)
                 {
-                    var projetNom = projets.FirstOrDefault(p => p.Id == groupe.Key)?.Nom ?? "Projet inconnu";
+                    var projetNom = projets.FirstOrDefault(p => p.Id == groupe.Key)?.Nom ?? LocalizationService.Instance.GetString("Reporting_UnknownProject");
                     var projetBlock = new TextBlock
                     {
                         Text = $"📁 {projetNom}",
@@ -1421,9 +1421,9 @@ namespace BacklogManager.Views.Pages
                     Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#333")),
                     Margin = new Thickness(5, 20, 5, 5)
                 };
-                totalBlock.Inlines.Add(new Run("📊 Total: "));
+                totalBlock.Inlines.Add(new Run(LocalizationService.Instance.GetString("Reporting_Total")));
                 totalBlock.Inlines.Add(new Run($"{tachesRecentes.Count}") { Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2196F3")) });
-                totalBlock.Inlines.Add(new Run(" nouvelle(s) demande(s)"));
+                totalBlock.Inlines.Add(new Run($" {LocalizationService.Instance.GetString("Reporting_NewRequestsCreated")}"));
                 TxtEvolvingScope.Children.Add(totalBlock);
                 
                 // Statistiques par priorité
@@ -1433,7 +1433,7 @@ namespace BacklogManager.Views.Pages
                 
                 var priTitreBlock = new TextBlock
                 {
-                    Text = "Répartition par priorité:",
+                    Text = LocalizationService.Instance.GetString("Reporting_DistributionByPriority"),
                     FontSize = 12,
                     FontWeight = FontWeights.SemiBold,
                     Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#555")),
@@ -1444,7 +1444,7 @@ namespace BacklogManager.Views.Pages
                 if (nbHaute > 0)
                 {
                     var hauteBlock = new TextBlock { Margin = new Thickness(10, 2, 5, 2), FontSize = 11 };
-                    hauteBlock.Inlines.Add(new Run("🔴 Haute: "));
+                    hauteBlock.Inlines.Add(new Run($"🔴 {LocalizationService.Instance.GetString("Reporting_High")}"));
                     hauteBlock.Inlines.Add(new Run(nbHaute.ToString()) { FontWeight = FontWeights.Bold, Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E53935")) });
                     TxtEvolvingScope.Children.Add(hauteBlock);
                 }
@@ -1452,7 +1452,7 @@ namespace BacklogManager.Views.Pages
                 if (nbMoyenne > 0)
                 {
                     var moyenneBlock = new TextBlock { Margin = new Thickness(10, 2, 5, 2), FontSize = 11 };
-                    moyenneBlock.Inlines.Add(new Run("🟠 Moyenne: "));
+                    moyenneBlock.Inlines.Add(new Run($"🟠 {LocalizationService.Instance.GetString("Reporting_Medium")}"));
                     moyenneBlock.Inlines.Add(new Run(nbMoyenne.ToString()) { FontWeight = FontWeights.Bold, Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF9800")) });
                     TxtEvolvingScope.Children.Add(moyenneBlock);
                 }
@@ -1460,7 +1460,7 @@ namespace BacklogManager.Views.Pages
                 if (nbBasse > 0)
                 {
                     var basseBlock = new TextBlock { Margin = new Thickness(10, 2, 5, 2), FontSize = 11 };
-                    basseBlock.Inlines.Add(new Run("🟢 Basse: "));
+                    basseBlock.Inlines.Add(new Run($"🟢 {LocalizationService.Instance.GetString("Reporting_Low")}"));
                     basseBlock.Inlines.Add(new Run(nbBasse.ToString()) { FontWeight = FontWeights.Bold, Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#4CAF50")) });
                     TxtEvolvingScope.Children.Add(basseBlock);
                 }
@@ -1469,7 +1469,7 @@ namespace BacklogManager.Views.Pages
             {
                 var aucuneBlock = new TextBlock
                 {
-                    Text = "📭 Aucune nouvelle demande",
+                    Text = LocalizationService.Instance.GetString("Reporting_NoNewRequests2"),
                     FontSize = 13,
                     FontWeight = FontWeights.Bold,
                     Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#999")),
@@ -1479,7 +1479,7 @@ namespace BacklogManager.Views.Pages
                 
                 var stableBlock = new TextBlock
                 {
-                    Text = "Le périmètre est stable pour la période sélectionnée.",
+                    Text = LocalizationService.Instance.GetString("Reporting_StableScope"),
                     FontSize = 12,
                     Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#666")),
                     Margin = new Thickness(5, 5, 5, 15),
@@ -1489,7 +1489,7 @@ namespace BacklogManager.Views.Pages
                 
                 var conseilTitreBlock = new TextBlock
                 {
-                    Text = "💡 Conseil:",
+                    Text = LocalizationService.Instance.GetString("Reporting_Tip"),
                     FontSize = 12,
                     FontWeight = FontWeights.Bold,
                     Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF9800")),
@@ -1499,7 +1499,7 @@ namespace BacklogManager.Views.Pages
                 
                 var conseilBlock = new TextBlock
                 {
-                    Text = "Ajustez la période d'analyse pour voir les évolutions récentes du programme.",
+                    Text = LocalizationService.Instance.GetString("Reporting_AdjustPeriod"),
                     FontSize = 11,
                     Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#666")),
                     Margin = new Thickness(5, 0, 5, 5),
@@ -1535,7 +1535,7 @@ namespace BacklogManager.Views.Pages
             {
                 var emptyBlock = new TextBlock
                 {
-                    Text = "Aucune date définie pour les projets",
+                    Text = LocalizationService.Instance.GetString("Reporting_NoDates"),
                     FontSize = 13,
                     Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#999")),
                     FontStyle = FontStyles.Italic,
@@ -1587,7 +1587,7 @@ namespace BacklogManager.Views.Pages
                 
                 var textMois = new TextBlock
                 {
-                    Text = currentDate.ToString("MMM yyyy", System.Globalization.CultureInfo.GetCultureInfo("fr-FR")).ToUpper(),
+                    Text = currentDate.ToString("MMM yyyy", LocalizationService.Instance.CurrentCulture).ToUpper(),
                     FontSize = 11,
                     FontWeight = FontWeights.SemiBold,
                     Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#666")),
@@ -1899,7 +1899,7 @@ namespace BacklogManager.Views.Pages
                     }
                 }
                 
-                string keyHighlights = highlights.Any() ? string.Join("\n", highlights) : "En cours de développement";
+                string keyHighlights = highlights.Any() ? string.Join("\n", highlights) : LocalizationService.Instance.GetString("Reporting_InDevelopment");
                 
                 // Déterminer la couleur RAG
                 SolidColorBrush ragBrush = new SolidColorBrush(Color.FromRgb(76, 175, 80)); // Vert par défaut
@@ -1921,8 +1921,8 @@ namespace BacklogManager.Views.Pages
                 }
                 
                 // Initial ETA et Updated ETA
-                string initialETA = projet.DateDebut?.ToString("MMM yyyy", System.Globalization.CultureInfo.GetCultureInfo("fr-FR")) ?? "N/A";
-                string updatedETA = projet.DateFinPrevue?.ToString("MMM yyyy", System.Globalization.CultureInfo.GetCultureInfo("fr-FR")) ?? "N/A";
+                string initialETA = projet.DateDebut?.ToString("MMM yyyy", LocalizationService.Instance.CurrentCulture) ?? "N/A";
+                string updatedETA = projet.DateFinPrevue?.ToString("MMM yyyy", LocalizationService.Instance.CurrentCulture) ?? "N/A";
                 
                 progressData.Add(new ProgressStatusRow
                 {
@@ -1993,7 +1993,17 @@ namespace BacklogManager.Views.Pages
             headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(80) });
             headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(80) });
             
-            var headers = new[] { "Beneficiary", "Project Description", "Project lead", "Project phase", "RAG", "Key highlights", "Initial ETA", "Updated ETA", "Progress (%)" };
+            var headers = new[] { 
+                LocalizationService.Instance.GetString("Reporting_Beneficiary"),
+                LocalizationService.Instance.GetString("Reporting_ProjectDescription"),
+                LocalizationService.Instance.GetString("Reporting_ProjectLead"),
+                LocalizationService.Instance.GetString("Reporting_ProjectPhase"),
+                LocalizationService.Instance.GetString("Reporting_RAG"),
+                LocalizationService.Instance.GetString("Reporting_KeyHighlights"),
+                LocalizationService.Instance.GetString("Reporting_InitialETA"),
+                LocalizationService.Instance.GetString("Reporting_UpdatedETA"),
+                LocalizationService.Instance.GetString("Reporting_ProgressPercent")
+            };
             for (int i = 0; i < headers.Length; i++)
             {
                 var headerText = new TextBlock
@@ -2108,7 +2118,7 @@ namespace BacklogManager.Views.Pages
                     }
                     else
                     {
-                        var runDesc = new Run("en cours de développement") { Foreground = new SolidColorBrush(Color.FromRgb(85, 85, 85)) };
+                        var runDesc = new Run(LocalizationService.Instance.GetString("Reporting_InDevelopment")) { Foreground = new SolidColorBrush(Color.FromRgb(85, 85, 85)) };
                         tacheBlock.Inlines.Add(runDesc);
                     }
                     
@@ -2119,10 +2129,12 @@ namespace BacklogManager.Views.Pages
                 if (tachesEnCoursList.Any() && highlightsContainer.Children.Count > 0)
                 {
                     var ongoingBlock = new TextBlock { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 5, 0, 5), FontSize = 10, LineHeight = 14 };
-                    var runOngoing = new Run("Ongoing: ") { FontWeight = FontWeights.Bold, Foreground = new SolidColorBrush(Color.FromRgb(0, 145, 90)) };
+                    var runOngoing = new Run(LocalizationService.Instance.GetString("Reporting_Ongoing") + " ") { FontWeight = FontWeights.Bold, Foreground = new SolidColorBrush(Color.FromRgb(0, 145, 90)) };
                     ongoingBlock.Inlines.Add(runOngoing);
                     
-                    var ongoingText = tachesEnCoursList.Count == 1 ? "développement en cours" : $"{tachesEnCoursList.Count} développements actifs";
+                    var ongoingText = tachesEnCoursList.Count == 1 
+                        ? LocalizationService.Instance.GetString("Reporting_OngoingDevelopment") 
+                        : string.Format(LocalizationService.Instance.GetString("Reporting_ActiveDevelopments"), tachesEnCoursList.Count);
                     var runOngoingDesc = new Run(ongoingText) { Foreground = new SolidColorBrush(Color.FromRgb(85, 85, 85)) };
                     ongoingBlock.Inlines.Add(runOngoingDesc);
                     
@@ -2135,7 +2147,7 @@ namespace BacklogManager.Views.Pages
                     var nextStepsContainer = new StackPanel { Margin = new Thickness(0, 8, 0, 0) };
                     
                     var headerBlock = new TextBlock { FontWeight = FontWeights.Bold, FontSize = 10, Margin = new Thickness(0, 0, 0, 3), Foreground = new SolidColorBrush(Color.FromRgb(33, 150, 243)) };
-                    headerBlock.Text = "Next steps:";
+                    headerBlock.Text = LocalizationService.Instance.GetString("Reporting_NextSteps");
                     nextStepsContainer.Children.Add(headerBlock);
                     
                     var actions = projet.NextActions.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries).Take(3);
@@ -2155,11 +2167,11 @@ namespace BacklogManager.Views.Pages
                 Grid.SetColumn(highlightsContainer, 5);
                 rowGrid.Children.Add(highlightsContainer);
                 
-                var txtInitialETA = new TextBlock { Text = projet.DateDebut?.ToString("MMM yyyy", System.Globalization.CultureInfo.GetCultureInfo("fr-FR")) ?? "N/A", FontSize = 11, Foreground = new SolidColorBrush(Color.FromRgb(102, 102, 102)), Padding = new Thickness(10), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
+                var txtInitialETA = new TextBlock { Text = projet.DateDebut?.ToString("MMM yyyy", LocalizationService.Instance.CurrentCulture) ?? "N/A", FontSize = 11, Foreground = new SolidColorBrush(Color.FromRgb(102, 102, 102)), Padding = new Thickness(10), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
                 Grid.SetColumn(txtInitialETA, 6);
                 rowGrid.Children.Add(txtInitialETA);
                 
-                var txtUpdatedETA = new TextBlock { Text = projet.DateFinPrevue?.ToString("MMM yyyy", System.Globalization.CultureInfo.GetCultureInfo("fr-FR")) ?? "N/A", FontWeight = FontWeights.SemiBold, FontSize = 11, Foreground = new SolidColorBrush(Color.FromRgb(51, 51, 51)), Padding = new Thickness(10), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
+                var txtUpdatedETA = new TextBlock { Text = projet.DateFinPrevue?.ToString("MMM yyyy", LocalizationService.Instance.CurrentCulture) ?? "N/A", FontWeight = FontWeights.SemiBold, FontSize = 11, Foreground = new SolidColorBrush(Color.FromRgb(51, 51, 51)), Padding = new Thickness(10), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
                 Grid.SetColumn(txtUpdatedETA, 7);
                 rowGrid.Children.Add(txtUpdatedETA);
                 
@@ -2183,9 +2195,9 @@ namespace BacklogManager.Views.Pages
             bool hasRed = projets.Any(p => p.StatutRAG?.ToLower() == "red");
             bool hasAmber = projets.Any(p => p.StatutRAG?.ToLower() == "amber" || p.StatutRAG?.ToLower() == "orange");
             
-            if (hasRed) { BadgeStatutProjet.Background = new SolidColorBrush(Color.FromRgb(244, 67, 54)); TxtStatutProjet.Text = "AT RISK"; }
-            else if (hasAmber) { BadgeStatutProjet.Background = new SolidColorBrush(Color.FromRgb(255, 152, 0)); TxtStatutProjet.Text = "CAUTION"; }
-            else { BadgeStatutProjet.Background = new SolidColorBrush(Color.FromRgb(76, 175, 80)); TxtStatutProjet.Text = "WIP"; }
+            if (hasRed) { BadgeStatutProjet.Background = new SolidColorBrush(Color.FromRgb(244, 67, 54)); TxtStatutProjet.Text = LocalizationService.Instance.GetString("Reporting_AtRiskStatus"); }
+            else if (hasAmber) { BadgeStatutProjet.Background = new SolidColorBrush(Color.FromRgb(255, 152, 0)); TxtStatutProjet.Text = LocalizationService.Instance.GetString("Reporting_CautionStatus"); }
+            else { BadgeStatutProjet.Background = new SolidColorBrush(Color.FromRgb(76, 175, 80)); TxtStatutProjet.Text = LocalizationService.Instance.GetString("Reporting_WIPStatus"); }
         }
         
         // Classe pour le binding du DataGrid
@@ -2269,7 +2281,7 @@ namespace BacklogManager.Views.Pages
                 {
                     var dateBlock = new TextBlock
                     {
-                        Text = $"📅 Livraison: {projet.DateFinPrevue.Value:MMM yyyy}".ToUpper(),
+                        Text = $"📅 {LocalizationService.Instance.GetString("Reporting_Delivery2")} {projet.DateFinPrevue.Value:MMM yyyy}".ToUpper(),
                         FontSize = 12,
                         Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#666")),
                         Margin = new Thickness(0, 0, 0, 5)
@@ -2285,9 +2297,9 @@ namespace BacklogManager.Views.Pages
                     FontWeight = FontWeights.SemiBold,
                     Margin = new Thickness(0, 0, 0, 5)
                 };
-                avancementBlock.Inlines.Add(new Run("📊 Avancement: "));
+                avancementBlock.Inlines.Add(new Run($"📊 {LocalizationService.Instance.GetString("Reporting_ProgressLabel")} "));
                 avancementBlock.Inlines.Add(new Run($"{avancement}%") { FontWeight = FontWeights.Bold });
-                avancementBlock.Inlines.Add(new Run($" ({tachesCompletes}/{totalTaches} tâches)") { FontWeight = FontWeights.Normal });
+                avancementBlock.Inlines.Add(new Run($" ({tachesCompletes}/{totalTaches} {LocalizationService.Instance.GetString("Reporting_TasksUnit")})") { FontWeight = FontWeights.Normal });
                 phaseContent.Children.Add(avancementBlock);
                 
                 // Statut RAG si en retard
@@ -2295,7 +2307,7 @@ namespace BacklogManager.Views.Pages
                 {
                     var alerteBlock = new TextBlock
                     {
-                        Text = "⚠️ EN RETARD",
+                        Text = LocalizationService.Instance.GetString("Reporting_LateStatus"),
                         FontSize = 11,
                         FontWeight = FontWeights.Bold,
                         Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E53935")),
@@ -2313,7 +2325,8 @@ namespace BacklogManager.Views.Pages
         {
             if (_currentProgramme == null || _currentProjets == null || _currentTaches == null)
             {
-                MessageBox.Show("Sélectionnez d'abord un programme", "Information", 
+                MessageBox.Show(LocalizationService.Instance.GetString("Reporting_SelectProgramFirst"), 
+                    LocalizationService.Instance.GetString("Reporting_Information"), 
                     MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
@@ -2333,7 +2346,7 @@ namespace BacklogManager.Views.Pages
                     BtnGenererPowerPoint.IsEnabled = false;
                     var loadingStack = new StackPanel { Orientation = Orientation.Horizontal };
                     loadingStack.Children.Add(new TextBlock { Text = "⏳", FontSize = 16, Margin = new Thickness(0, 0, 8, 0) });
-                    loadingStack.Children.Add(new TextBlock { Text = "Génération en cours...", FontSize = 13 });
+                    loadingStack.Children.Add(new TextBlock { Text = LocalizationService.Instance.GetString("Reporting_GeneratingInProgress"), FontSize = 13 });
                     BtnGenererPowerPoint.Content = loadingStack;
                     
                     // Préparer les données du dashboard - FILTRER comme dans le reporting
@@ -2380,8 +2393,8 @@ namespace BacklogManager.Views.Pages
                         saveDialog.FileName
                     );
                     
-                    MessageBox.Show($"PowerPoint généré avec succès !\n\n{saveDialog.FileName}", 
-                        "Succès", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show($"{LocalizationService.Instance.GetString("Reporting_GenerateSuccess")}\n\n{saveDialog.FileName}", 
+                        LocalizationService.Instance.GetString("Reporting_Success"), MessageBoxButton.OK, MessageBoxImage.Information);
                     
                     // Ouvrir le fichier
                     System.Diagnostics.Process.Start(saveDialog.FileName);
@@ -2389,15 +2402,15 @@ namespace BacklogManager.Views.Pages
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erreur lors de la génération du PowerPoint :\n{ex.Message}\n\n{ex.StackTrace}", 
-                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(string.Format(LocalizationService.Instance.GetString("Reporting_PowerPointGenerationError"), ex.Message, ex.StackTrace), 
+                    LocalizationService.Instance.GetString("Reporting_Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {
                 BtnGenererPowerPoint.IsEnabled = true;
                 var stackPanel = new StackPanel { Orientation = Orientation.Horizontal };
                 stackPanel.Children.Add(new TextBlock { Text = "📊", FontSize = 16, Margin = new Thickness(0, 0, 8, 0) });
-                stackPanel.Children.Add(new TextBlock { Text = "Générer PowerPoint", FontSize = 13, FontWeight = FontWeights.SemiBold });
+                stackPanel.Children.Add(new TextBlock { Text = LocalizationService.Instance.GetString("Reporting_GeneratePowerPoint"), FontSize = 13, FontWeight = FontWeights.SemiBold });
                 BtnGenererPowerPoint.Content = stackPanel;
             }
         }
@@ -2406,7 +2419,8 @@ namespace BacklogManager.Views.Pages
         {
             if (_currentProgramme == null || _currentProjets == null || _currentTaches == null)
             {
-                MessageBox.Show("Sélectionnez d'abord un programme", "Information", 
+                MessageBox.Show(LocalizationService.Instance.GetString("Reporting_SelectProgramFirst"), 
+                    LocalizationService.Instance.GetString("Reporting_Information"), 
                     MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
@@ -2422,18 +2436,20 @@ namespace BacklogManager.Views.Pages
             BtnGenererAvecIA.IsEnabled = false;
             var loadingStack = new StackPanel { Orientation = Orientation.Horizontal };
             loadingStack.Children.Add(new TextBlock { Text = "⏳", FontSize = 16, Margin = new Thickness(0, 0, 8, 0) });
-            loadingStack.Children.Add(new TextBlock { Text = "Génération en cours...", FontSize = 13 });
+            loadingStack.Children.Add(new TextBlock { Text = LocalizationService.Instance.GetString("Reporting_GeneratingInProgress"), FontSize = 13 });
             BtnGenererAvecIA.Content = loadingStack;
             
             try
             {
                 await GenererContenuAvecIA();
-                MessageBox.Show("Contenu généré avec succès !", "Succès", 
+                MessageBox.Show(LocalizationService.Instance.GetString("Reporting_ContentGeneratedSuccess"), 
+                    LocalizationService.Instance.GetString("Reporting_Success"), 
                     MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erreur lors de la génération :\n{ex.Message}", "Erreur", 
+                MessageBox.Show(string.Format(LocalizationService.Instance.GetString("Reporting_GenerationError"), ex.Message), 
+                    LocalizationService.Instance.GetString("Reporting_Error"), 
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
@@ -2441,7 +2457,7 @@ namespace BacklogManager.Views.Pages
                 BtnGenererAvecIA.IsEnabled = true;
                 var stackPanel = new StackPanel { Orientation = Orientation.Horizontal };
                 stackPanel.Children.Add(new TextBlock { Text = "✨", FontSize = 16, Margin = new Thickness(0, 0, 8, 0) });
-                stackPanel.Children.Add(new TextBlock { Text = "Générer avec IA", FontSize = 13, FontWeight = FontWeights.SemiBold });
+                stackPanel.Children.Add(new TextBlock { Text = LocalizationService.Instance.GetString("Reporting_GenerateWithAI"), FontSize = 13, FontWeight = FontWeights.SemiBold });
                 BtnGenererAvecIA.Content = stackPanel;
             }
         }
@@ -2453,37 +2469,97 @@ namespace BacklogManager.Views.Pages
                 .Where(t => _currentProjets.Any(p => p.Id == t.ProjetId) && t.DateCreation >= dateAnalyse)
                 .ToList();
             
-            var periodeDebut = _dateDebutFiltre?.ToString("dd/MM/yyyy") ?? "Début";
-            var periodeFin = _dateFinFiltre?.ToString("dd/MM/yyyy") ?? "Aujourd'hui";
+            var periodeDebut = _dateDebutFiltre?.ToString("dd/MM/yyyy") ?? LocalizationService.Instance.GetString("Reporting_Start");
+            var periodeFin = _dateFinFiltre?.ToString("dd/MM/yyyy") ?? LocalizationService.Instance.GetString("Reporting_TodayDate");
             
-            var prompt = $@"Tu es un expert en gestion de projet et change management.
-
-**CONTEXTE DU PROGRAMME: {_currentProgramme.Nom}**
-
-**PROJETS ({_currentProjets.Count}):**
-{string.Join("\n", _currentProjets.Select(p => $"- {p.Nom}: {(p.DateDebut.HasValue ? p.DateDebut.Value.ToString("MM/yyyy") : "?")} → {(p.DateFinPrevue.HasValue ? p.DateFinPrevue.Value.ToString("MM/yyyy") : "?")}"))}
-
-**ACTIVITÉ PÉRIODE ({periodeDebut} → {periodeFin}):**
-- {tachesPeriode.Count()} nouvelle(s) demande(s)
-- {tachesPeriode.Count(t => t.Statut == Statut.EnCours)} en cours
-- {tachesPeriode.Count(t => t.Statut == Statut.Termine)} terminée(s)
-- {tachesPeriode.Count(t => t.Priorite == Priorite.Haute)} haute priorité
-
-Génère un contenu structuré pour le reporting programme avec ces sections (utilise EXACTEMENT ces marqueurs):
-
-[CHANGE_MANAGEMENT]
-3-4 lignes maximum décrivant:
+            // Adapter le prompt selon la langue actuelle
+            var currentLanguage = LocalizationService.Instance.CurrentLanguageCode;
+            string expertDesc, programContext, projectsHeader, activityPeriod, newRequests, inProgress, completed, highPriority;
+            string changeManagementInstructions, evolvingScopeInstructions, beConsise;
+            
+            if (currentLanguage == "en")
+            {
+                expertDesc = "You are an expert in project management and change management.";
+                programContext = "PROGRAM CONTEXT";
+                projectsHeader = "PROJECTS";
+                activityPeriod = "PERIOD ACTIVITY";
+                newRequests = "new request(s)";
+                inProgress = "in progress";
+                completed = "completed";
+                highPriority = "high priority";
+                changeManagementInstructions = @"3-4 lines maximum describing:
+- Concrete change management actions based on activity
+- Focus on documentation, training, support according to created requests
+- Mention of active projects and teams involved";
+                evolvingScopeInstructions = @"List of main requests added in the period, formatted as follows:
+- Date + brief title of each request (max 5-6 most significant requests)
+- Grouped by project if relevant
+- Priority statistics";
+                beConsise = "Be concise, precise, and base yourself ONLY on the data provided.";
+            }
+            else if (currentLanguage == "es")
+            {
+                expertDesc = "Eres un experto en gestión de proyectos y gestión del cambio.";
+                programContext = "CONTEXTO DEL PROGRAMA";
+                projectsHeader = "PROYECTOS";
+                activityPeriod = "ACTIVIDAD DEL PERÍODO";
+                newRequests = "nueva(s) solicitud(es)";
+                inProgress = "en curso";
+                completed = "completada(s)";
+                highPriority = "alta prioridad";
+                changeManagementInstructions = @"Máximo 3-4 líneas describiendo:
+- Acciones concretas de gestión del cambio basadas en la actividad
+- Enfoque en documentación, formación, soporte según las solicitudes creadas
+- Mención de proyectos activos y equipos involucrados";
+                evolvingScopeInstructions = @"Lista de las principales solicitudes añadidas en el período, formateada así:
+- Fecha + título breve de cada solicitud (máximo 5-6 solicitudes más significativas)
+- Agrupadas por proyecto si es relevante
+- Estadísticas de prioridades";
+                beConsise = "Sé conciso, preciso y basa tus respuestas ÚNICAMENTE en los datos proporcionados.";
+            }
+            else // français par défaut
+            {
+                expertDesc = "Tu es un expert en gestion de projet et change management.";
+                programContext = "CONTEXTE DU PROGRAMME";
+                projectsHeader = "PROJETS";
+                activityPeriod = "ACTIVITÉ PÉRIODE";
+                newRequests = "nouvelle(s) demande(s)";
+                inProgress = "en cours";
+                completed = "terminée(s)";
+                highPriority = "haute priorité";
+                changeManagementInstructions = @"3-4 lignes maximum décrivant:
 - Actions concrètes de change management basées sur l'activité
 - Focus sur documentation, training, support selon les demandes créées
-- Mention des projets actifs et équipes concernées
-
-[EVOLVING_SCOPE]
-Liste des demandes principales ajoutées dans la période, formatée ainsi:
+- Mention des projets actifs et équipes concernées";
+                evolvingScopeInstructions = @"Liste des demandes principales ajoutées dans la période, formatée ainsi:
 - Date + titre bref de chaque demande (max 5-6 demandes les plus significatives)
 - Regroupées par projet si pertinent
-- Statistiques de priorités
+- Statistiques de priorités";
+                beConsise = "Sois concis, précis, et base-toi UNIQUEMENT sur les données fournies.";
+            }
+            
+            var prompt = $@"{expertDesc}
 
-Sois concis, précis, et base-toi UNIQUEMENT sur les données fournies.";
+**{programContext}: {_currentProgramme.Nom}**
+
+**{projectsHeader} ({_currentProjets.Count}):**
+{string.Join("\n", _currentProjets.Select(p => $"- {p.Nom}: {(p.DateDebut.HasValue ? p.DateDebut.Value.ToString("MM/yyyy") : "?")} → {(p.DateFinPrevue.HasValue ? p.DateFinPrevue.Value.ToString("MM/yyyy") : "?")}"))}
+
+**{activityPeriod} ({periodeDebut} → {periodeFin}):**
+- {tachesPeriode.Count()} {newRequests}
+- {tachesPeriode.Count(t => t.Statut == Statut.EnCours)} {inProgress}
+- {tachesPeriode.Count(t => t.Statut == Statut.Termine)} {completed}
+- {tachesPeriode.Count(t => t.Priorite == Priorite.Haute)} {highPriority}
+
+Generate structured content for the program reporting with these sections (use EXACTLY these markers):
+
+[CHANGE_MANAGEMENT]
+{changeManagementInstructions}
+
+[EVOLVING_SCOPE]
+{evolvingScopeInstructions}
+
+{beConsise}";
 
             var response = await AppelerIA(prompt);
             InterpreterEtAfficherResultat(response, tachesPeriode);
@@ -2497,12 +2573,20 @@ Sois concis, précis, et base-toi UNIQUEMENT sur les données fournies.";
                 httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
                 httpClient.Timeout = TimeSpan.FromMinutes(2);
                 
+                // Adapter le message système selon la langue
+                var currentLanguage = LocalizationService.Instance.CurrentLanguageCode;
+                string systemMessage = currentLanguage == "en" 
+                    ? "You are a project management expert. Respond in a concise and structured manner."
+                    : currentLanguage == "es"
+                    ? "Eres un experto en gestión de proyectos. Responde de manera concisa y estructurada."
+                    : "Tu es un expert en gestion de projet. Réponds de manière concise et structurée.";
+                
                 var requestBody = new
                 {
                     model = "gpt-oss-120b",
                     messages = new[]
                     {
-                        new { role = "system", content = "Tu es un expert en gestion de projet. Réponds de manière concise et structurée." },
+                        new { role = "system", content = systemMessage },
                         new { role = "user", content = prompt }
                     },
                     temperature = 0.7,
@@ -2677,15 +2761,15 @@ Sois concis, précis, et base-toi UNIQUEMENT sur les données fournies.";
                     case Priorite.Urgent:
                     case Priorite.Haute:
                         priorityColor = Color.FromRgb(244, 67, 54); // Rouge
-                        priorityText = "High";
+                        priorityText = LocalizationService.Instance.GetString("Reporting_PriorityHigh");
                         break;
                     case Priorite.Moyenne:
                         priorityColor = Color.FromRgb(255, 193, 7); // Jaune
-                        priorityText = "Medium";
+                        priorityText = LocalizationService.Instance.GetString("Reporting_PriorityMedium");
                         break;
                     case Priorite.Basse:
                         priorityColor = Color.FromRgb(76, 175, 80); // Vert
-                        priorityText = "Low";
+                        priorityText = LocalizationService.Instance.GetString("Reporting_PriorityLow");
                         break;
                 }
                 
@@ -2728,27 +2812,27 @@ Sois concis, précis, et base-toi UNIQUEMENT sur les données fournies.";
                     switch (tache.Statut)
                     {
                         case Statut.Afaire:
-                            nextSteps += "À planifier et démarrer";
+                            nextSteps += LocalizationService.Instance.GetString("Reporting_ToPlanAndStart");
                             break;
                         case Statut.EnCours:
-                            nextSteps += "Développement en cours";
+                            nextSteps += LocalizationService.Instance.GetString("Reporting_DevelopmentInProgress");
                             if (tache.ChiffrageJours.HasValue)
-                                nextSteps += $" (estimé: {Math.Round(tache.ChiffrageJours.Value, 1)}j)";
+                                nextSteps += " " + string.Format(LocalizationService.Instance.GetString("Reporting_EstimatedDays"), Math.Round(tache.ChiffrageJours.Value, 1));
                             break;
                         case Statut.Test:
-                            nextSteps += "En phase de test";
+                            nextSteps += LocalizationService.Instance.GetString("Reporting_InTestPhase");
                             break;
                         case Statut.EnAttente:
-                            nextSteps += "⚠️ En attente - nécessite déblocage";
+                            nextSteps += LocalizationService.Instance.GetString("Reporting_OnHold");
                             break;
                         default:
-                            nextSteps += "Planification en cours";
+                            nextSteps += LocalizationService.Instance.GetString("Reporting_PlanningInProgress");
                             break;
                     }
                 }
                 else
                 {
-                    nextSteps = $"Tâche #{tache.Id} - Définition des prochaines étapes en cours";
+                    nextSteps = string.Format(LocalizationService.Instance.GetString("Reporting_TaskDefinitionInProgress"), tache.Id);
                 }
                 
                 if (nextSteps.Length > 200)
@@ -2839,7 +2923,7 @@ Sois concis, précis, et base-toi UNIQUEMENT sur les données fournies.";
                 // Créer une fenêtre modale simple
                 var dialog = new Window
                 {
-                    Title = $"Éditer Next Step - {tache.Titre ?? $"Tâche #{tache.Id}"}",
+                    Title = string.Format(LocalizationService.Instance.GetString("Reporting_EditNextStepTitle"), tache.Titre ?? $"Tâche #{tache.Id}"),
                     Width = 600,
                     Height = 400,
                     WindowStartupLocation = WindowStartupLocation.CenterOwner,
@@ -2856,7 +2940,7 @@ Sois concis, précis, et base-toi UNIQUEMENT sur les données fournies.";
                 // Label
                 var label = new TextBlock
                 {
-                    Text = "Détails du Next Step:",
+                    Text = LocalizationService.Instance.GetString("Reporting_NextStepDetails"),
                     FontSize = 14,
                     FontWeight = FontWeights.Bold,
                     Foreground = new SolidColorBrush(Color.FromRgb(51, 51, 51)),
@@ -2890,7 +2974,7 @@ Sois concis, précis, et base-toi UNIQUEMENT sur les données fournies.";
                 
                 var btnCancel = new Button
                 {
-                    Content = "Annuler",
+                    Content = LocalizationService.Instance.GetString("Reporting_Cancel"),
                     Width = 100,
                     Height = 32,
                     Margin = new Thickness(0, 0, 10, 0),
@@ -2902,7 +2986,7 @@ Sois concis, précis, et base-toi UNIQUEMENT sur les données fournies.";
                 
                 var btnSave = new Button
                 {
-                    Content = "💾 Enregistrer",
+                    Content = LocalizationService.Instance.GetString("Reporting_Save"),
                     Width = 120,
                     Height = 32,
                     Background = new SolidColorBrush(Color.FromRgb(0, 145, 90)),
@@ -2920,7 +3004,9 @@ Sois concis, précis, et base-toi UNIQUEMENT sur les données fournies.";
                         tache.DateDerniereMaj = DateTime.Now;
                         _database.AddOrUpdateBacklogItem(tache);
                         
-                        MessageBox.Show("Next Step mis à jour avec succès !", "Succès", MessageBoxButton.OK, MessageBoxImage.Information);
+                        MessageBox.Show(LocalizationService.Instance.GetString("Reporting_NextStepUpdated"), 
+                            LocalizationService.Instance.GetString("Reporting_Success"), 
+                            MessageBoxButton.OK, MessageBoxImage.Information);
                         dialog.Close();
                         
                         // Rafraîchir l'affichage
@@ -2933,7 +3019,9 @@ Sois concis, précis, et base-toi UNIQUEMENT sur les données fournies.";
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Erreur lors de la mise à jour: {ex.Message}", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show(string.Format(LocalizationService.Instance.GetString("Reporting_UpdateError"), ex.Message), 
+                            LocalizationService.Instance.GetString("Reporting_Error"), 
+                            MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 };
                 
