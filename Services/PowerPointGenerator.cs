@@ -48,7 +48,9 @@ namespace BacklogManager.Services
         private static void CreatePresentationParts(PresentationPart presentationPart)
         {
             presentationPart.Presentation.SlideIdList = new SlideIdList();
-            presentationPart.Presentation.SlideSize = new SlideSize() { Cx = 9144000, Cy = 6858000 };
+            // Format 16:9 (10 pouces x 5.625 pouces ou custom)
+            // Standard PowerPoint 16:9 : largeur 13.333 pouces (12192000 EMU), hauteur 7.5 pouces (6858000 EMU)
+            presentationPart.Presentation.SlideSize = new SlideSize() { Cx = 12192000, Cy = 6858000 };
             presentationPart.Presentation.Save();
         }
 
@@ -269,9 +271,9 @@ namespace BacklogManager.Services
             SlidePart slidePart = CreerSlideVierge(presentationPart);
             ShapeTree shapeTree = slidePart.Slide.CommonSlideData.ShapeTree;
             
-            // Titre principal aligné à gauche avec nom complet + Program - Auto Drafting
+            // Titre principal aligné à gauche avec nom complet + Program - Auto Drafting (Largeur adaptée 16:9)
             string titreComplet = $"{programme.Nom.ToUpper()} Program - Auto Drafting";
-            AjouterTexte(shapeTree, titreComplet, 500000, 300000, 8000000, 450000, 24, true, "00915A", A.TextAlignmentTypeValues.Left, "Calibri");
+            AjouterTexte(shapeTree, titreComplet, 500000, 300000, 11000000, 450000, 24, true, "00915A", A.TextAlignmentTypeValues.Left, "Calibri");
             
             long yPos = 950000;
             
@@ -310,8 +312,8 @@ namespace BacklogManager.Services
             // Change Management et Evolving Scope - 2 colonnes parfaitement alignées
             long col1X = 500000;
             long gapBetweenCards = 200000;
-            // Calculer pour que les deux blocs prennent toute la largeur disponible
-            long totalWidth = 8200000; // Largeur totale disponible
+            // Calculer pour que les deux blocs prennent toute la largeur disponible (adapté 16:9)
+            long totalWidth = 11200000; // Largeur totale disponible augmentée
             long colWidth = (totalWidth - gapBetweenCards) / 2; // Largeur égale pour les deux
             long col2X = col1X + colWidth + gapBetweenCards;
             long cmHeight = 1150000;
@@ -346,8 +348,8 @@ namespace BacklogManager.Services
             
             yPos += 1430000;
             
-            // Timeline professionnelle Gantt-style avec vrais projets
-            AjouterTexte(shapeTree, "📅 PROJECT TIMELINE", 500000, yPos, 8000000, 280000, 11, true, "37474F", A.TextAlignmentTypeValues.Left, "Aptos");
+            // Timeline professionnelle Gantt-style avec vrais projets (largeur adaptée 16:9)
+            AjouterTexte(shapeTree, "📅 PROJECT TIMELINE", 500000, yPos, 11000000, 280000, 11, true, "37474F", A.TextAlignmentTypeValues.Left, "Aptos");
             yPos += 400000;
             
             // Plage de dates fixe pour la timeline (nov 2025 - mai 2026)
@@ -363,9 +365,9 @@ namespace BacklogManager.Services
                 if (maxDate > dateFin) dateFin = maxDate;
             }
             
-            // Timeline avec mois
+            // Timeline avec mois (élargie pour 16:9)
             long timelineX = 1200000;
-            long timelineWidth = 7500000;
+            long timelineWidth = 10500000;
             long timelineRowHeight = 270000;
             long barHeight = 250000; // Augmenté pour que le texte ne soit pas coupé
             
@@ -470,8 +472,8 @@ namespace BacklogManager.Services
             SlidePart slidePart = CreerSlideVierge(presentationPart);
             ShapeTree shapeTree = slidePart.Slide.CommonSlideData.ShapeTree;
             
-            // Titre en vert à gauche avec pagination dynamique
-            AjouterTexte(shapeTree, $"PROGRESS STATUS ({slideNumber}/{totalSlides})", 300000, 300000, 2600000, 400000, 24, true, "2E7D32", A.TextAlignmentTypeValues.Left, "Calibri");
+            // Titre en vert à gauche avec pagination dynamique (largeur 16:9)
+            AjouterTexte(shapeTree, $"PROGRESS STATUS ({slideNumber}/{totalSlides})", 300000, 300000, 11000000, 400000, 24, true, "2E7D32", A.TextAlignmentTypeValues.Left, "Calibri");
             
             // Encadré rouge au milieu avec texte du programme - décalé plus à droite
             string programText = $"{programme.Nom} Program related Projects\nconsidered High Priority";
@@ -479,14 +481,15 @@ namespace BacklogManager.Services
             AjouterTexte(shapeTree, programText, 3750000, 330000, 3100000, 350000, 11, true, "D32F2F", A.TextAlignmentTypeValues.Center, "Aptos");
             
             // Encadré rouge "WIP" à droite
-            AjouterRectangle(shapeTree, 8500000, 300000, 400000, 400000, "FFEBEE", "D32F2F");
-            AjouterTexte(shapeTree, "WIP", 8530000, 350000, 340000, 300000, 10, true, "D32F2F", A.TextAlignmentTypeValues.Center, "Aptos");
+            AjouterRectangle(shapeTree, 8500000 + 3000000, 300000, 400000, 400000, "FFEBEE", "D32F2F");
+            AjouterTexte(shapeTree, "WIP", 8530000 + 3000000, 350000, 340000, 300000, 10, true, "D32F2F", A.TextAlignmentTypeValues.Center, "Aptos");
             
             long yPos = 850000;
             long xPos = 200000;
             
             string[] headers = { "Beneficiary", "Project Description", "Project\nlead", "Project\nphase", "RAG\nStatus", "Key highlights", "Initial\nETA", "Updated\nETA", "Progress\n(%)" };
-            long[] widths = { 800000, 1100000, 600000, 650000, 400000, 2600000, 650000, 650000, 550000 };
+            // Largeurs ajustées pour 16:9 - Key Highlights (index 5) augmenté de 3000000
+            long[] widths = { 800000, 1100000, 600000, 650000, 400000, 5600000, 650000, 650000, 550000 };
             
             // En-têtes avec fond vert foncé et bordure noire
             for (int i = 0; i < headers.Length; i++)
@@ -594,13 +597,13 @@ namespace BacklogManager.Services
             SlidePart slidePart = CreerSlideVierge(presentationPart);
             ShapeTree shapeTree = slidePart.Slide.CommonSlideData.ShapeTree;
             
-            // Titre en vert aligné à gauche comme les autres slides
-            AjouterTexte(shapeTree, "DASHBOARD KPIs", 300000, 300000, 8500000, 400000, 24, true, "2E7D32", A.TextAlignmentTypeValues.Left, "Calibri");
+            // Titre en vert aligné à gauche comme les autres slides (16:9)
+            AjouterTexte(shapeTree, "DASHBOARD KPIs", 300000, 300000, 11500000, 400000, 24, true, "2E7D32", A.TextAlignmentTypeValues.Left, "Calibri");
             
             long yPos = 850000;
             long boxHeight = 1300000;
             
-            // 5 blocs sur la même ligne
+            // 5 blocs sur la même ligne - on garde le layout gauche pour l'instant mais on pourrait écarter
             long col1X = 250000;
             long col2X = 2050000;
             long col3X = 3500000;
@@ -744,12 +747,13 @@ namespace BacklogManager.Services
             
             yPos += boxHeight + 250000;
             
-            // ACTIONS / INITIATIVES section avec vraies données
-            AjouterTexte(shapeTree, "ACTIONS / INITIATIVES", 250000, yPos, 8600000, 300000, 11, true, "333333", A.TextAlignmentTypeValues.Left, "Aptos");
+            // ACTIONS / INITIATIVES section avec vraies données (largeur 16:9)
+            AjouterTexte(shapeTree, "ACTIONS / INITIATIVES", 250000, yPos, 11600000, 300000, 11, true, "333333", A.TextAlignmentTypeValues.Left, "Aptos");
             yPos += 400000;
             
             string[] actHeaders = { "ACTIONS / INITIATIVES", "PRIORITY", "NEXT STEPS", "ETA" };
-            long[] actWidths = { 2500000, 800000, 4200000, 1100000 };
+            // Next Steps élargi de 3M pour remplir l'écran
+            long[] actWidths = { 2500000, 800000, 7200000, 1100000 };
             long xPos = 250000;
             
             for (int i = 0; i < actHeaders.Length; i++)
