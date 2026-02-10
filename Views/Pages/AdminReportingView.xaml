@@ -623,13 +623,74 @@
                     <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.1" Color="#000000"/>
                 </Border.Effect>
                 <StackPanel>
-                    <TextBlock x:Name="LblContributionsTitle" Text="👥 CONTRIBUTIONS DES RESSOURCES" FontSize="16" FontWeight="Bold" 
-                               Foreground="#333" Margin="0,0,0,20"/>
+                    <Grid Margin="0,0,0,20">
+                        <TextBlock x:Name="LblContributionsTitle" Text="👥 CONTRIBUTIONS DES RESSOURCES" FontSize="16" FontWeight="Bold" 
+                                   Foreground="#333" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                        <Button x:Name="BtnExportExcel" Content="📥 Export Excel" HorizontalAlignment="Right"
+                                Background="#00915A" Foreground="White" Padding="15,8" BorderThickness="0"
+                                Cursor="Hand" Click="BtnExportExcel_Click">
+                            <Button.Style>
+                                 <Style TargetType="Button">
+                                      <Setter Property="Template">
+                                          <Setter.Value>
+                                              <ControlTemplate TargetType="Button">
+                                                  <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                                       <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                  </Border>
+                                              </ControlTemplate>
+                                          </Setter.Value>
+                                      </Setter>
+                                      <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                 <Setter Property="Background" Value="#00A568"/>
+                                            </Trigger>
+                                      </Style.Triggers>
+                                 </Style>
+                            </Button.Style>
+                        </Button>
+                    </Grid>
                     
                     <DataGrid x:Name="ListeContributions" AutoGenerateColumns="False" 
                               IsReadOnly="True" HeadersVisibility="Column"
                               GridLinesVisibility="None" Background="Transparent"
-                              BorderThickness="0" RowHeight="50">
+                              BorderThickness="0" RowHeight="50"
+                              RowDetailsVisibilityMode="VisibleWhenSelected">
+                        <DataGrid.RowDetailsTemplate>
+                            <DataTemplate>
+                                <Border Background="#FAFAFA" Padding="20,15" BorderBrush="#E0E0E0" BorderThickness="0,1,0,1" Margin="0,0,0,10">
+                                     <StackPanel>
+                                         <TextBlock Text="📅 Détail temps par jour" FontWeight="Bold" Foreground="#666" Margin="0,0,0,10" FontSize="12"/>
+                                         <ItemsControl ItemsSource="{Binding DetailTempsParJour}">
+                                             <ItemsControl.ItemTemplate>
+                                                 <DataTemplate>
+                                                     <Grid Margin="0,0,0,8">
+                                                         <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="120"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="100"/>
+                                                         </Grid.ColumnDefinitions>
+                                                         <TextBlock Text="{Binding DateFormattee}" Foreground="#888" FontSize="12"/>
+                                                         <TextBlock Grid.Column="1" Text="{Binding Scope}" Foreground="#333" FontSize="12"/>
+                                                         <TextBlock Grid.Column="2" Text="{Binding Heures, StringFormat={}{0:0.##} h}" FontWeight="Bold" Foreground="#00915A" HorizontalAlignment="Right" FontSize="12"/>
+                                                     </Grid>
+                                                 </DataTemplate>
+                                             </ItemsControl.ItemTemplate>
+                                             <ItemsControl.ItemsPanel>
+                                                 <ItemsPanelTemplate>
+                                                     <StackPanel/>
+                                                 </ItemsPanelTemplate>
+                                             </ItemsControl.ItemsPanel>
+                                         </ItemsControl>
+                                         <Border Margin="0,10,0,0" BorderThickness="0,1,0,0" BorderBrush="#EEE" Padding="0,5,0,0" HorizontalAlignment="Right" Width="200">
+                                            <Grid>
+                                                <TextBlock Text="Total Période" Foreground="#666" FontWeight="SemiBold"/>
+                                                <TextBlock Text="{Binding TempsTotalFormatte}" HorizontalAlignment="Right" Foreground="#00915A" FontWeight="Bold"/>
+                                            </Grid>
+                                         </Border>
+                                     </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </DataGrid.RowDetailsTemplate>
                         <DataGrid.ColumnHeaderStyle>
                             <Style TargetType="DataGridColumnHeader">
                                 <Setter Property="Background" Value="#F5F5F5"/>
@@ -674,6 +735,19 @@
                             
                             <DataGridTextColumn x:Name="ColTeam" Header="ÉQUIPE" Binding="{Binding NomEquipe}" 
                                                 Width="120" FontSize="13"/>
+
+                            <DataGridTextColumn x:Name="ColNbMembres" Header="MBRS" Binding="{Binding NbMembresEquipeActifs}" 
+                                                Width="60" FontSize="13">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                        <Setter Property="ToolTip" Value="Membres actifs de l'équipe sur le programme"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <DataGridTextColumn x:Name="ColTotalTime" Header="TOTAL" Binding="{Binding TempsTotalFormatte}" 
+                                                Width="80" FontSize="13" FontWeight="SemiBold"/>
                             
                             <DataGridTextColumn x:Name="ColCompletedTasks" Header="TÂCHES COMPLÉTÉES" Width="150" FontSize="13">
                                 <DataGridTextColumn.Binding>

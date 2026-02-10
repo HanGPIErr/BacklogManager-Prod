@@ -8,6 +8,9 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using BacklogManager.Domain;
 using BacklogManager.Services;
+using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Packaging;
+using Xl = DocumentFormat.OpenXml.Spreadsheet;
 
 namespace BacklogManager.Views.Pages
 {
@@ -541,29 +544,103 @@ namespace BacklogManager.Views.Pages
                     TxtProgressionTemps.Text = "Dates non définies";
                 }
                 
-                // Gains - Consolider les gains de tous les projets
-                var gainsTemps = new List<string>();
-                var gainsFinanciers = new List<string>();
+                // Gains - Consolider les gains de tous les projets avec calcul des totaux
                 
-                foreach (var projet in projets)
+                // Fonction locale pour parser les gains (valeur et unité normalisée)
+                (double val, string unit) ParseGain(string text) 
                 {
-                    if (!string.IsNullOrEmpty(projet.GainsTemps) && projet.GainsTemps != "Non spécifié")
+                    if (string.IsNullOrWhiteSpace(text)) return (0, "");
+                    // Chercher un nombre (ex: 5, 4500, 5.5)
+                    var match = System.Text.RegularExpressions.Regex.Match(text, @"([\d\.,]+)\s*(.*)$");
+                    if (match.Success) 
                     {
-                        gainsTemps.Add($"{projet.Nom}: {projet.GainsTemps}");
+                        string numPart = match.Groups[1].Value.Replace(",", ".");
+                        if (double.TryParse(numPart, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double v)) 
+                        {
+                            // Normalisation basique de l'unité
+                            string u = match.Groups[2].Value.Trim();
+                            string uLower = u.ToLowerInvariant();
+                            
+                            // Normalisation Temps et Argent
+                            if (uLower.StartsWith("h") || uLower.Contains("heure")) 
+                                u = System.Text.RegularExpressions.Regex.Replace(u, "heures?", "h", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                                
+                            if (uLower.Contains("sem") || uLower.Contains("week")) 
+                                u = System.Text.RegularExpressions.Regex.Replace(u, "sem(aines?)?|week", "semaine", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                                
+                            if (uLower.Contains("an")) 
+                                u = System.Text.RegularExpressions.Regex.Replace(u, "annuels?|years?", "an", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                            
+                            return (v, u);
+                        }
                     }
-                    if (!string.IsNullOrEmpty(projet.GainsFinanciers) && projet.GainsFinanciers != "Non spécifié")
-                    {
-                        gainsFinanciers.Add($"{projet.Nom}: {projet.GainsFinanciers}");
-                    }
+                    return (0, ""); // Non parsable
                 }
-                
-                TxtGainsTemps.Text = gainsTemps.Count > 0 
-                    ? string.Join("\n", gainsTemps) 
-                    : "Non spécifié";
+
+                string FormatGainsList(List<Projet> projs, Func<Projet, string> selector) 
+                {
+                    var items = new List<(string Name, double Val, string Unit, string Original)>();
+                    bool hasParsableItems = false;
                     
-                TxtGainsFinanciers.Text = gainsFinanciers.Count > 0 
-                    ? string.Join("\n", gainsFinanciers) 
-                    : "Non spécifié";
+                    foreach(var p in projs) 
+                    {
+                         string raw = selector(p);
+                         if(!string.IsNullOrWhiteSpace(raw) && raw != "Non spécifié") 
+                         {
+                             var parsed = ParseGain(raw);
+                             if (parsed.val > 0 && !string.IsNullOrEmpty(parsed.unit)) hasParsableItems = true;
+                             items.Add((p.Nom, parsed.val, parsed.unit, raw));
+                         }
+                    }
+                    
+                    if (items.Count == 0) return "Non spécifié";
+                    
+                    var sb = new System.Text.StringBuilder();
+                    
+                    // Si on a des items parsables, on essaie de grouper
+                    if (hasParsableItems)
+                    {
+                        var groups = items.GroupBy(x => x.Unit).OrderByDescending(g => g.Count());
+                        
+                        foreach(var group in groups) 
+                        {
+                             if (!string.IsNullOrEmpty(group.Key) && group.Sum(x => x.Val) > 0) 
+                             {
+                                 double total = group.Sum(x => x.Val);
+                                 sb.AppendLine($"TOTAL: {total} {group.Key}");
+                                 sb.AppendLine(""); 
+                                 
+                                 foreach(var item in group) 
+                                 {
+                                     double pct = total > 0 ? Math.Round((item.Val / total) * 100) : 0;
+                                     sb.AppendLine($"{item.Name}: {item.Original} ({pct}%)");
+                                 }
+                             } 
+                             else 
+                             {
+                                 // Items non parsables ou sans unité claire
+                                 foreach(var item in group) 
+                                 {
+                                     sb.AppendLine($"{item.Name}: {item.Original}");
+                                 }
+                             }
+                             if (group != groups.Last()) sb.AppendLine("\n---");
+                        }
+                    }
+                    else
+                    {
+                         // Affichage simple si rien n'est calculable
+                         foreach(var item in items) 
+                         {
+                             sb.AppendLine($"{item.Name}: {item.Original}");
+                         }
+                    }
+                    
+                    return sb.ToString().TrimEnd();
+                }
+
+                TxtGainsTemps.Text = FormatGainsList(projets, p => p.GainsTemps);
+                TxtGainsFinanciers.Text = FormatGainsList(projets, p => p.GainsFinanciers);
                 
                 // Contributions des ressources - Agrégées sur tous les projets
                 ChargerContributionsRessources(taches);
@@ -763,27 +840,35 @@ namespace BacklogManager.Views.Pages
         private void ChargerContributionsRessources(List<BacklogItem> taches)
         {
             var contributions = new Dictionary<string, ReportingContributionInfo>();
+            var userCache = _database.GetUtilisateurs();
+            var teamCache = _database.GetAllEquipes();
+            var projectCache = _database.GetProjets();
+
+            // Filtrer les CRAs pour la période
+            var dateDeb = _dateDebutFiltre;
+            var dateFin = _dateFinFiltre;
+            
+            // Récupérer les CRA de la période impliquant les tâches filtrées
+            var allCras = _database.GetCRAs(dateDebut: dateDeb, dateFin: dateFin);
+            var taskIds = new HashSet<int>(taches.Select(t => t.Id));
+            var relevantCras = allCras.Where(c => taskIds.Contains(c.BacklogItemId)).ToList();
             
             foreach (var tache in taches)
             {
                 if (tache.DevAssigneId.HasValue)
                 {
-                    var dev = _database.GetUtilisateurs().FirstOrDefault(u => u.Id == tache.DevAssigneId.Value);
+                    var dev = userCache.FirstOrDefault(u => u.Id == tache.DevAssigneId.Value);
                     if (dev != null)
                     {
                         string devKey = dev.Nom;
                         
                         if (!contributions.ContainsKey(devKey))
                         {
-                            // Récupérer le nom de l'équipe du développeur
                             string nomEquipe = "-";
                             if (dev.EquipeId.HasValue)
                             {
-                                var equipe = _database.GetAllEquipes().FirstOrDefault(e => e.Id == dev.EquipeId.Value);
-                                if (equipe != null)
-                                {
-                                    nomEquipe = equipe.Nom;
-                                }
+                                var equipe = teamCache.FirstOrDefault(e => e.Id == dev.EquipeId.Value);
+                                if (equipe != null) nomEquipe = equipe.Nom;
                             }
                             
                             contributions[devKey] = new ReportingContributionInfo
@@ -792,7 +877,10 @@ namespace BacklogManager.Views.Pages
                                 NomEquipe = nomEquipe,
                                 TachesTotal = 0,
                                 TachesCompletes = 0,
-                                HeuresEstimees = 0
+                                HeuresEstimees = 0,
+                                TempsTotalHeures = 0,
+                                NbMembresEquipeActifs = 0,
+                                DetailTempsParJour = new List<ReportingDailyTime>()
                             };
                         }
                         
@@ -804,6 +892,75 @@ namespace BacklogManager.Views.Pages
                         contributions[devKey].HeuresEstimees += tache.ChiffrageHeures ?? 0;
                     }
                 }
+            }
+            
+            // Intégrer les données de CRA (Temps réel)
+            foreach (var cra in relevantCras)
+            {
+                var dev = userCache.FirstOrDefault(u => u.Id == cra.DevId);
+                if (dev == null) continue;
+                
+                string devKey = dev.Nom;
+                
+                if (!contributions.ContainsKey(devKey))
+                {
+                     string nomEquipe = "-";
+                     if (dev.EquipeId.HasValue)
+                     {
+                         var equipe = teamCache.FirstOrDefault(e => e.Id == dev.EquipeId.Value);
+                         if (equipe != null) nomEquipe = equipe.Nom;
+                     }
+                     
+                     contributions[devKey] = new ReportingContributionInfo
+                     {
+                         NomDeveloppeur = devKey,
+                         NomEquipe = nomEquipe,
+                         TachesTotal = 0,
+                         TachesCompletes = 0,
+                         HeuresEstimees = 0,
+                         TempsTotalHeures = 0,
+                         NbMembresEquipeActifs = 0,
+                         DetailTempsParJour = new List<ReportingDailyTime>()
+                     };
+                }
+                
+                contributions[devKey].TempsTotalHeures += cra.HeuresTravaillees;
+                
+                // Ajouter détail journalier
+                var tache = taches.FirstOrDefault(t => t.Id == cra.BacklogItemId);
+                string nomProjet = "?";
+                string nomTache = tache?.Titre ?? "Tâche inconnue";
+                
+                if (tache != null)
+                {
+                    var proj = projectCache.FirstOrDefault(p => p.Id == tache.ProjetId);
+                    if (proj != null) nomProjet = proj.Nom;
+                }
+                
+                contributions[devKey].DetailTempsParJour.Add(new ReportingDailyTime
+                {
+                    Date = cra.Date,
+                    Heures = cra.HeuresTravaillees,
+                    NomProjet = nomProjet,
+                    NomTache = nomTache
+                });
+            }
+            
+            // Calculer NbMembresEquipeActifs (Nombre unique de contributeurs distincts de l'équipe sur le scope)
+            var devsParEquipe = contributions.Values
+                .Where(c => c.NomEquipe != "-")
+                .GroupBy(c => c.NomEquipe)
+                .ToDictionary(g => g.Key, g => g.Count());
+                
+            foreach (var c in contributions.Values)
+            {
+                if (c.NomEquipe != "-" && devsParEquipe.ContainsKey(c.NomEquipe))
+                {
+                    c.NbMembresEquipeActifs = devsParEquipe[c.NomEquipe];
+                }
+                
+                // Trier les détails temporels
+                c.DetailTempsParJour = c.DetailTempsParJour.OrderBy(d => d.Date).ToList();
             }
             
             // Calculer les pourcentages
@@ -846,16 +1003,13 @@ namespace BacklogManager.Views.Pages
         
         private void MettreAJourEntetes()
         {
-            // Mettre à jour les en-têtes des colonnes du DataGrid Contributions
-            if (ListeContributions?.Columns != null && ListeContributions.Columns.Count >= 6)
-            {
-                ((DataGridTextColumn)ListeContributions.Columns[0]).Header = LocalizationService.Instance.GetString("Reporting_Members");
-                ((DataGridTextColumn)ListeContributions.Columns[1]).Header = LocalizationService.Instance.GetString("Reporting_Team");
-                ((DataGridTextColumn)ListeContributions.Columns[2]).Header = LocalizationService.Instance.GetString("Reporting_CompletedTasks");
-                ((DataGridTextColumn)ListeContributions.Columns[3]).Header = LocalizationService.Instance.GetString("Reporting_CompletionRate");
-                ((DataGridTextColumn)ListeContributions.Columns[4]).Header = LocalizationService.Instance.GetString("Reporting_EstimatedDays");
-                ((DataGridTemplateColumn)ListeContributions.Columns[5]).Header = LocalizationService.Instance.GetString("Reporting_Contribution");
-            }
+            // Mettre à jour les en-têtes des colonnes via les noms des contrôles (plus robuste que les index)
+            if (ColMembers != null) ColMembers.Header = LocalizationService.Instance.GetString("Reporting_Members");
+            if (ColTeam != null) ColTeam.Header = LocalizationService.Instance.GetString("Reporting_Team");
+            if (ColCompletedTasks != null) ColCompletedTasks.Header = LocalizationService.Instance.GetString("Reporting_CompletedTasks");
+            if (ColCompletionRate != null) ColCompletionRate.Header = LocalizationService.Instance.GetString("Reporting_CompletionRate");
+            if (ColEstimatedDays != null) ColEstimatedDays.Header = LocalizationService.Instance.GetString("Reporting_EstimatedDays");
+            if (ColContribution != null) ColContribution.Header = LocalizationService.Instance.GetString("Reporting_Contribution");
         }
 
         private void MasquerKPIs()
@@ -1663,10 +1817,26 @@ namespace BacklogManager.Views.Pages
                     var leftPosition = joursDebut * pixelsParJour;
                     var barreWidth = Math.Max(joursTotal * pixelsParJour, 30);
                     
-                    // Barre de fond (orange clair)
+                    // Déterminer les couleurs en fonction de l'avancement
+                    string coulFondStr, coulBarreStr;
+                    
+                    if (pourcentage >= 100)
+                    {
+                        // Vert foncé BNP pour 100% terminé
+                        coulFondStr = "#00915A"; 
+                        coulBarreStr = "#00915A";
+                    }
+                    else
+                    {
+                        // Vert plus clair pour l'avancement en cours (au lieu de l'orange)
+                        coulFondStr = "#C8E6C9"; // Fond vert très pâle
+                        coulBarreStr = "#4CAF50"; // Vert standard
+                    }
+
+                    // Barre de fond
                     var barreFond = new Border
                     {
-                        Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFE0B2")),
+                        Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(coulFondStr)),
                         Height = 28,
                         Width = barreWidth,
                         CornerRadius = new CornerRadius(4)
@@ -1675,10 +1845,10 @@ namespace BacklogManager.Views.Pages
                     Canvas.SetTop(barreFond, 3);
                     timelineCanvas.Children.Add(barreFond);
                     
-                    // Barre de progression (orange)
+                    // Barre de progression
                     var barreProgression = new Border
                     {
-                        Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF9800")),
+                        Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(coulBarreStr)),
                         Height = 28,
                         Width = barreWidth * (pourcentage / 100.0),
                         CornerRadius = new CornerRadius(4),
@@ -3264,8 +3434,152 @@ Generate structured content for the program reporting with these sections (use E
             
             return new PathGeometry { Figures = { figure } };
         }
-    }
     
+        private void BtnExportExcel_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var items = ListeContributions.ItemsSource as List<ReportingContributionInfo>;
+                if (items == null || !items.Any())
+                {
+                    MessageBox.Show(LocalizationService.Instance.GetString("Reporting_NoDataToExport") ?? "Aucune donnée à exporter.", 
+                                    LocalizationService.Instance.GetString("Reporting_Information"), MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+
+                string pgmName = _currentProgramme != null ? _currentProgramme.Nom : (_currentProjets.Count == 1 ? _currentProjets[0].Nom : "Projet");
+                pgmName = string.Join("_", pgmName.Split(System.IO.Path.GetInvalidFileNameChars())); // Sanitize filename
+                string fileName = $"reporting_resource_contributions_{pgmName}_{DateTime.Now:yyyyMMdd_HHmm}.xlsx";
+                
+                var saveDialog = new Microsoft.Win32.SaveFileDialog
+                {
+                    Filter = "Excel Files (*.xlsx)|*.xlsx",
+                    FileName = fileName,
+                    DefaultExt = ".xlsx"
+                };
+
+                if (saveDialog.ShowDialog() == true)
+                {
+                    GenererFichierExcel(saveDialog.FileName, items);
+                    
+                    if (MessageBox.Show("Fichier Excel généré avec succès. Voulez-vous l'ouvrir ?", "Export réussi", 
+                        MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                    {
+                        System.Diagnostics.Process.Start(saveDialog.FileName);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erreur lors de l'export Excel : {ex.Message}", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void GenererFichierExcel(string filePath, List<ReportingContributionInfo> data)
+        {
+            using (var spreadsheetDocument = SpreadsheetDocument.Create(filePath, SpreadsheetDocumentType.Workbook))
+            {
+                var workbookPart = spreadsheetDocument.AddWorkbookPart();
+                workbookPart.Workbook = new Xl.Workbook();
+
+                var sheets = spreadsheetDocument.WorkbookPart.Workbook.AppendChild(new Xl.Sheets());
+
+                // 1. Feuille Resource Contributions
+                var worksheetPart1 = workbookPart.AddNewPart<WorksheetPart>();
+                var sheetData1 = new Xl.SheetData();
+                worksheetPart1.Worksheet = new Xl.Worksheet(sheetData1);
+
+                var sheet1 = new Xl.Sheet() { Id = spreadsheetDocument.WorkbookPart.GetIdOfPart(worksheetPart1), SheetId = 1, Name = "Resource Contributions" };
+                sheets.Append(sheet1);
+
+                // Header Sheet 1
+                Xl.Row headerRow1 = new Xl.Row();
+                headerRow1.Append(
+                    ConstructCell("Resource", Xl.CellValues.String),
+                    ConstructCell("Team", Xl.CellValues.String),
+                    ConstructCell("Nb Members", Xl.CellValues.String),
+                    ConstructCell("Total Time (Format)", Xl.CellValues.String),
+                    ConstructCell("Total Time (Hours)", Xl.CellValues.String),
+                    ConstructCell("Completed Tasks", Xl.CellValues.String),
+                    ConstructCell("Total Tasks", Xl.CellValues.String),
+                    ConstructCell("Completion Rate", Xl.CellValues.String),
+                    ConstructCell("Estimated Days", Xl.CellValues.String),
+                    ConstructCell("Contribution %", Xl.CellValues.String)
+                );
+                sheetData1.AppendChild(headerRow1);
+
+                foreach (var item in data)
+                {
+                    Xl.Row row = new Xl.Row();
+                    row.Append(
+                        ConstructCell(item.NomDeveloppeur ?? "", Xl.CellValues.String),
+                        ConstructCell(item.NomEquipe ?? "", Xl.CellValues.String),
+                        ConstructCell(item.NbMembresEquipeActifs.ToString(), Xl.CellValues.Number),
+                        ConstructCell(item.TempsTotalFormatte, Xl.CellValues.String),
+                        ConstructCell(item.TempsTotalHeures.ToString("F2").Replace(',', '.'), Xl.CellValues.Number),
+                        ConstructCell(item.TachesCompletes.ToString(), Xl.CellValues.Number),
+                        ConstructCell(item.TachesTotal.ToString(), Xl.CellValues.Number),
+                        ConstructCell(item.TauxCompletion, Xl.CellValues.String),
+                        ConstructCell(item.JoursEstimes, Xl.CellValues.String),
+                        ConstructCell(item.PourcentageContribution.ToString("F1").Replace(',', '.'), Xl.CellValues.Number)
+                    );
+                    sheetData1.AppendChild(row);
+                }
+
+                // 2. Feuille Daily Time
+                var worksheetPart2 = workbookPart.AddNewPart<WorksheetPart>();
+                var sheetData2 = new Xl.SheetData();
+                worksheetPart2.Worksheet = new Xl.Worksheet(sheetData2);
+
+                var sheet2 = new Xl.Sheet() { Id = spreadsheetDocument.WorkbookPart.GetIdOfPart(worksheetPart2), SheetId = 2, Name = "Daily Time" };
+                sheets.Append(sheet2);
+
+                // Header Sheet 2
+                Xl.Row headerRow2 = new Xl.Row();
+                headerRow2.Append(
+                    ConstructCell("Date", Xl.CellValues.String),
+                    ConstructCell("Resource", Xl.CellValues.String),
+                    ConstructCell("Team", Xl.CellValues.String),
+                    ConstructCell("Scope (Project/Task)", Xl.CellValues.String),
+                    ConstructCell("Project", Xl.CellValues.String),
+                    ConstructCell("Task", Xl.CellValues.String),
+                    ConstructCell("Time (Hours)", Xl.CellValues.String)
+                );
+                sheetData2.AppendChild(headerRow2);
+                
+                // Flatten data for daily view
+                foreach (var item in data)
+                {
+                    foreach (var daily in item.DetailTempsParJour)
+                    {
+                        Xl.Row row = new Xl.Row();
+                        row.Append(
+                            ConstructCell(daily.Date.ToShortDateString(), Xl.CellValues.String),
+                            ConstructCell(item.NomDeveloppeur ?? "", Xl.CellValues.String),
+                            ConstructCell(item.NomEquipe ?? "", Xl.CellValues.String),
+                            ConstructCell(daily.Scope ?? "", Xl.CellValues.String),
+                            ConstructCell(daily.NomProjet ?? "", Xl.CellValues.String),
+                            ConstructCell(daily.NomTache ?? "", Xl.CellValues.String),
+                            ConstructCell(daily.Heures.ToString("F2").Replace(',', '.'), Xl.CellValues.Number)
+                        );
+                        sheetData2.AppendChild(row);
+                    }
+                }
+
+                workbookPart.Workbook.Save();
+            }
+        }
+
+        private Xl.Cell ConstructCell(string value, Xl.CellValues dataType)
+        {
+            return new Xl.Cell()
+            {
+                CellValue = new Xl.CellValue(value),
+                DataType = new EnumValue<Xl.CellValues>(dataType)
+            };
+        }
+    }
+
     public class ProjetTimelineItem
     {
         public string NomProjet { get; set; }
@@ -3280,10 +3594,22 @@ Generate structured content for the program reporting with these sections (use E
         public int TachesCompletes { get; set; }
         public double HeuresEstimees { get; set; }
         public double PourcentageContribution { get; set; }
+        public double TempsTotalHeures { get; set; }
+        public int NbMembresEquipeActifs { get; set; }
+        public List<ReportingDailyTime> DetailTempsParJour { get; set; } = new List<ReportingDailyTime>();
         
         public string TauxCompletion => TachesTotal > 0 
             ? $"{Math.Round((double)TachesCompletes / TachesTotal * 100, 0)}%" 
             : "0%";
+
+        public string TempsTotalFormatte
+        {
+            get
+            {
+                double jours = TempsTotalHeures / 8.0;
+                return $"{Math.Round(jours, 1)}j";
+            }
+        }
         
         public string JoursEstimes
         {
@@ -3309,6 +3635,16 @@ Generate structured content for the program reporting with these sections (use E
                 }
             }
         }
+    }
+
+    public class ReportingDailyTime
+    {
+        public DateTime Date { get; set; }
+        public string NomProjet { get; set; }
+        public string NomTache { get; set; }
+        public double Heures { get; set; }
+        public string DateFormattee => Date.ToString("dd/MM/yyyy");
+        public string Scope => string.IsNullOrEmpty(NomTache) ? NomProjet : $"{NomProjet} - {NomTache}";
     }
 
     public class ReportingPercentageToWidthConverter : System.Windows.Data.IMultiValueConverter
