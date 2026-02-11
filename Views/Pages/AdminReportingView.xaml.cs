@@ -865,23 +865,15 @@ namespace BacklogManager.Views.Pages
                         if (!contributions.ContainsKey(devKey))
                         {
                             string nomEquipe = "-";
-                            if (dev.EquipeId.HasValue)
-                            {
-                                var equipe = teamCache.FirstOrDefault(e => e.Id == dev.EquipeId.Value);
-                                if (equipe != null) nomEquipe = equipe.Nom;
-                            }
+                            var equipe = teamCache.FirstOrDefault(e => e.Id == dev.EquipeId);
+                            if (equipe != null) nomEquipe = equipe.Nom;
                             
-                            contributions[devKey] = new ReportingContributionInfo
+                            contributions.Add(devKey, new ReportingContributionInfo
                             {
                                 NomDeveloppeur = devKey,
                                 NomEquipe = nomEquipe,
-                                TachesTotal = 0,
-                                TachesCompletes = 0,
-                                HeuresEstimees = 0,
-                                TempsTotalHeures = 0,
-                                NbMembresEquipeActifs = 0,
                                 DetailTempsParJour = new List<ReportingDailyTime>()
-                            };
+                            });
                         }
                         
                         contributions[devKey].TachesTotal++;
@@ -889,13 +881,37 @@ namespace BacklogManager.Views.Pages
                         {
                             contributions[devKey].TachesCompletes++;
                         }
+                        
+                        // Ajouter le détail même si pas de temps loggué (pour l'export Excel)
+                        var proj = projectCache.FirstOrDefault(p => p.Id == tache.ProjetId);
+                        if (proj != null)
+                        {
+                             // Vérifier si ce projet est déjà listé pour ce dev (via une tâche à 0h)
+                             // On ajoute une entrée "fictive" à 0h pour que le projet apparaisse dans l'export
+                             // SI ET SEULEMENT SI le développeur n'a pas déjà enregistré du temps sur ce projet
+                             bool aDejaTempsSurCeProjet = contributions[devKey].DetailTempsParJour.Any(dt => dt.NomProjet == proj.Nom && dt.Heures > 0);
+                             bool aDejaFicheProjet = contributions[devKey].DetailTempsParJour.Any(dt => dt.NomProjet == proj.Nom); // Même à 0
+                             
+                             if (!aDejaTempsSurCeProjet && !aDejaFicheProjet)
+                             {
+                                  contributions[devKey].DetailTempsParJour.Add(new ReportingDailyTime
+                                  {
+                                      Date = DateTime.MinValue, // Marqueur
+                                      Heures = 0,
+                                      NomProjet = proj.Nom,
+                                      NomTache = "Affectation (sans temps)",
+                                      IsAssignmentOnly = true
+                                  });
+                             }
+                        }
+                        
                         contributions[devKey].HeuresEstimees += tache.ChiffrageHeures ?? 0;
                     }
                 }
             }
             
             // Intégrer les données de CRA (Temps réel)
-            foreach (var cra in relevantCras)
+            foreach (var cra in relevantCras.Where(c => c.HeuresTravaillees > 0))
             {
                 var dev = userCache.FirstOrDefault(u => u.Id == cra.DevId);
                 if (dev == null) continue;
@@ -1006,6 +1022,7 @@ namespace BacklogManager.Views.Pages
             // Mettre à jour les en-têtes des colonnes via les noms des contrôles (plus robuste que les index)
             if (ColMembers != null) ColMembers.Header = LocalizationService.Instance.GetString("Reporting_Members");
             if (ColTeam != null) ColTeam.Header = LocalizationService.Instance.GetString("Reporting_Team");
+            if (ColProjects != null) ColProjects.Header = LocalizationService.Instance.GetString("Reporting_Projects") ?? "PROJETS";
             if (ColCompletedTasks != null) ColCompletedTasks.Header = LocalizationService.Instance.GetString("Reporting_CompletedTasks");
             if (ColCompletionRate != null) ColCompletionRate.Header = LocalizationService.Instance.GetString("Reporting_CompletionRate");
             if (ColEstimatedDays != null) ColEstimatedDays.Header = LocalizationService.Instance.GetString("Reporting_EstimatedDays");
@@ -3491,6 +3508,17 @@ Generate structured content for the program reporting with these sections (use E
 
                 var sheet1 = new Xl.Sheet() { Id = spreadsheetDocument.WorkbookPart.GetIdOfPart(worksheetPart1), SheetId = 1, Name = "Resource Contributions" };
                 sheets.Append(sheet1);
+                
+                // Calculer le nombre max de projets pour une personne pour créer les en-têtes dynamiques
+                int maxProjects = 0;
+                foreach (var item in data)
+                {
+                    var projectCount = item.DetailTempsParJour
+                        .Select(d => d.NomProjet)
+                        .Distinct()
+                        .Count();
+                    if (projectCount > maxProjects) maxProjects = projectCount;
+                }
 
                 // Header Sheet 1
                 Xl.Row headerRow1 = new Xl.Row();
@@ -3506,6 +3534,17 @@ Generate structured content for the program reporting with these sections (use E
                     ConstructCell("Estimated Days", Xl.CellValues.String),
                     ConstructCell("Contribution %", Xl.CellValues.String)
                 );
+                
+                // Ajouter les colonnes dynamiques par projet
+                for (int i = 1; i <= maxProjects; i++)
+                {
+                    headerRow1.Append(
+                        ConstructCell($"Project {i}", Xl.CellValues.String),
+                        ConstructCell($"Time {i} (Days)", Xl.CellValues.String),
+                        ConstructCell($"Time {i} (Hours)", Xl.CellValues.String)
+                    );
+                }
+                
                 sheetData1.AppendChild(headerRow1);
 
                 foreach (var item in data)
@@ -3523,6 +3562,41 @@ Generate structured content for the program reporting with these sections (use E
                         ConstructCell(item.JoursEstimes, Xl.CellValues.String),
                         ConstructCell(item.PourcentageContribution.ToString("F1").Replace(',', '.'), Xl.CellValues.Number)
                     );
+                    
+                    // Ajouter les détails par projet
+                    var projetsTemps = item.DetailTempsParJour
+                        .GroupBy(d => d.NomProjet)
+                        .Select(g => new { 
+                            Nom = g.Key, 
+                            Heures = g.Sum(x => x.Heures) 
+                        })
+                        .OrderByDescending(x => x.Heures)
+                        .ToList();
+                        
+                    for (int i = 0; i < maxProjects; i++)
+                    {
+                        if (i < projetsTemps.Count)
+                        {
+                            var proj = projetsTemps[i];
+                            double jours = Math.Round(proj.Heures / 8.0, 1);
+                            
+                            row.Append(
+                                ConstructCell(proj.Nom, Xl.CellValues.String),
+                                ConstructCell(jours.ToString("F1").Replace(',', '.') + "j", Xl.CellValues.String),
+                                ConstructCell(proj.Heures.ToString("F2").Replace(',', '.'), Xl.CellValues.Number)
+                            );
+                        }
+                        else
+                        {
+                            // Cellules vides si pas de projet
+                            row.Append(
+                                ConstructCell("", Xl.CellValues.String),
+                                ConstructCell("", Xl.CellValues.String),
+                                ConstructCell("", Xl.CellValues.String)
+                            );
+                        }
+                    }
+                    
                     sheetData1.AppendChild(row);
                 }
 
@@ -3598,6 +3672,23 @@ Generate structured content for the program reporting with these sections (use E
         public int NbMembresEquipeActifs { get; set; }
         public List<ReportingDailyTime> DetailTempsParJour { get; set; } = new List<ReportingDailyTime>();
         
+        public string ProjetsImpliques
+        {
+            get
+            {
+                if (DetailTempsParJour == null || !DetailTempsParJour.Any()) return "-";
+                
+                var projets = DetailTempsParJour
+                    .Where(d => !string.IsNullOrEmpty(d.NomProjet))
+                    .Select(d => d.NomProjet)
+                    .Distinct()
+                    .OrderBy(p => p)
+                    .ToList();
+                    
+                return projets.Any() ? string.Join(", ", projets) : "-";
+            }
+        }
+        
         public string TauxCompletion => TachesTotal > 0 
             ? $"{Math.Round((double)TachesCompletes / TachesTotal * 100, 0)}%" 
             : "0%";
@@ -3643,7 +3734,8 @@ Generate structured content for the program reporting with these sections (use E
         public string NomProjet { get; set; }
         public string NomTache { get; set; }
         public double Heures { get; set; }
-        public string DateFormattee => Date.ToString("dd/MM/yyyy");
+        public bool IsAssignmentOnly { get; set; }
+        public string DateFormattee => Date == DateTime.MinValue ? "-" : Date.ToString("dd/MM/yyyy");
         public string Scope => string.IsNullOrEmpty(NomTache) ? NomProjet : $"{NomProjet} - {NomTache}";
     }
 
