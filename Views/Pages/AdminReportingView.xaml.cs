@@ -1022,7 +1022,13 @@ namespace BacklogManager.Views.Pages
             // Mettre à jour les en-têtes des colonnes via les noms des contrôles (plus robuste que les index)
             if (ColMembers != null) ColMembers.Header = LocalizationService.Instance.GetString("Reporting_Members");
             if (ColTeam != null) ColTeam.Header = LocalizationService.Instance.GetString("Reporting_Team");
-            if (ColProjects != null) ColProjects.Header = LocalizationService.Instance.GetString("Reporting_Projects") ?? "PROJETS";
+            if (ColProjects != null) 
+            {
+                var headerText = LocalizationService.Instance.GetString("Reporting_Projects");
+                // Fallback si la ressource n'existe pas ou retourne la clé entre crochets
+                if (string.IsNullOrEmpty(headerText) || headerText.StartsWith("[")) headerText = "PROJETS";
+                ColProjects.Header = headerText;
+            }
             if (ColCompletedTasks != null) ColCompletedTasks.Header = LocalizationService.Instance.GetString("Reporting_CompletedTasks");
             if (ColCompletionRate != null) ColCompletionRate.Header = LocalizationService.Instance.GetString("Reporting_CompletionRate");
             if (ColEstimatedDays != null) ColEstimatedDays.Header = LocalizationService.Instance.GetString("Reporting_EstimatedDays");
@@ -3452,6 +3458,16 @@ Generate structured content for the program reporting with these sections (use E
             return new PathGeometry { Figures = { figure } };
         }
     
+        private void DataGridRow_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (sender is DataGridRow row)
+            {
+                row.DetailsVisibility = row.DetailsVisibility == Visibility.Visible 
+                    ? Visibility.Collapsed 
+                    : Visibility.Visible;
+            }
+        }
+
         private void BtnExportExcel_Click(object sender, RoutedEventArgs e)
         {
             try

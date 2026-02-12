@@ -271,86 +271,128 @@ namespace BacklogManager.Services
             SlidePart slidePart = CreerSlideVierge(presentationPart);
             ShapeTree shapeTree = slidePart.Slide.CommonSlideData.ShapeTree;
             
-            // Titre principal aligné à gauche avec nom complet + Program - Auto Drafting (Largeur adaptée 16:9)
+            // Titre principal aligné à gauche en vert foncé (comme screenshot)
+            // avec ligne verte en dessous
             string titreComplet = $"{programme.Nom.ToUpper()} Program - Auto Drafting";
+            // Ensure hexColor "00915A" is applied correctly. Previous builds may have missed it. 
+            // Re-applying with slight Y shift to force update if needed (300000 -> 300000) - Just keep color.
             AjouterTexte(shapeTree, titreComplet, 500000, 300000, 11000000, 450000, 24, true, "00915A", A.TextAlignmentTypeValues.Left, "Calibri");
             
-            long yPos = 950000;
+            // Ligne verte sous le titre
+            AjouterRectangle(shapeTree, 500000, 700000, 11000000, 20000, "00915A", null);
             
-            // Section principale en haut avec fond vert clair
+            long yPos = 850000;
+            
+            // Top Section - 2 colonnes comme sur le screenshot
+            // Si on a au moins 1 projet, on l'affiche à gauche. 
+            // Si on en a un 2ème, on l'affiche à droite. Sinon on laisse vide ou on met un placeholder.
+            
+            long gap = 300000;
+            long colWidth = (11200000 - gap) / 2; // Largeur 16:9 divisée par 2
+            
+            // --- BOX 1 (Gauche) ---
             if (projets.Count > 0)
             {
                 var projet1 = projets[0];
                 var tachesProjet1 = taches.Where(t => t.ProjetId == projet1.Id).ToList();
                 
-                long mainX = 500000;
-                long mainWidth = 4200000;
-                long mainHeight = 1100000;
+                long boxX = 500000;
+                long boxHeight = 1300000;
                 
-                // Fond vert très clair
-                AjouterRectangle(shapeTree, mainX, yPos, mainWidth, mainHeight, "E8F5E9", "66BB6A");
+                // Header Vert Foncé (#00915A - BNP Green)
+                AjouterRectangle(shapeTree, boxX, yPos, colWidth, 180000, "00915A", null);
+                AjouterTexte(shapeTree, $"{projet1.Nom} - Phase 1", boxX + 100000, yPos - 50000, colWidth - 200000, 300000, 11, true, "FFFFFF", A.TextAlignmentTypeValues.Left, "Aptos");
                 
-                // En-tête vert foncé BNP
-                AjouterRectangle(shapeTree, mainX, yPos, mainWidth, 330000, "2E7D32", null);
-                AjouterTexte(shapeTree, $"{projet1.Nom} - Phase 1, nov. 25", mainX + 100000, yPos + 80000, mainWidth - 200000, 180000, 10, true, "FFFFFF", A.TextAlignmentTypeValues.Left, "Aptos");
+                // Body Vert très clair (#F1F8E9)
+                AjouterRectangle(shapeTree, boxX, yPos + 180000, colWidth, boxHeight - 180000, "F1F8E9", null);
                 
-                // Description
-                long contentY = yPos + 380000;
-                var description = $"Mise en œuvre de {projet1.Nom} avec {tachesProjet1.Count} tâches planifiées.";
-                AjouterTexte(shapeTree, description, mainX + 100000, contentY, mainWidth - 200000, 200000, 11, false, "1B5E20", A.TextAlignmentTypeValues.Left, "Aptos");
+                // Contenu
+                long contentY = yPos + 230000;
+                var description = $"Mise en œuvre de {projet1.Nom}. Scope self-admin et engine.";
+                AjouterTexte(shapeTree, "• " + description, boxX + 100000, contentY, colWidth - 200000, 200000, 10, false, "333333", A.TextAlignmentTypeValues.Left, "Aptos");
                 
-                contentY += 240000;
-                AjouterTexte(shapeTree, $"• Objectif: Livraison pour {projet1.DateFinPrevue?.ToString("dd/MM/yyyy") ?? "30/04/2026"}", mainX + 100000, contentY, mainWidth - 200000, 160000, 11, false, "2E7D32", A.TextAlignmentTypeValues.Left, "Aptos");
-                contentY += 190000;
+                contentY += 200000;
+                AjouterTexte(shapeTree, $"• Objectif: Livraison {projet1.DateFinPrevue:MM/yyyy}", boxX + 100000, contentY, colWidth - 200000, 160000, 10, false, "333333", A.TextAlignmentTypeValues.Left, "Aptos");
                 
-                int avancement1 = tachesProjet1.Count > 0 ? (tachesProjet1.Count(t => t.Statut == Statut.Termine) * 100 / tachesProjet1.Count) : 0;
-                AjouterTexte(shapeTree, $"• Avancement: {avancement1}% ({tachesProjet1.Count(t => t.Statut == Statut.Termine)}/{tachesProjet1.Count} tâches)", mainX + 100000, contentY, mainWidth - 200000, 160000, 11, false, "2E7D32", A.TextAlignmentTypeValues.Left, "Aptos");
+                contentY += 150000;
+                int avancement = tachesProjet1.Count > 0 ? (tachesProjet1.Count(t => t.Statut == Statut.Termine) * 100 / tachesProjet1.Count) : 0;
+                AjouterTexte(shapeTree, $"• Status: {avancement}% ({tachesProjet1.Count(t => t.Statut == Statut.Termine)}/{tachesProjet1.Count} tâches)", boxX + 100000, contentY, colWidth - 200000, 160000, 10, false, "333333", A.TextAlignmentTypeValues.Left, "Aptos");
             }
             
-            yPos += 1280000;
+            // --- BOX 2 (Droite) ---
+            if (projets.Count > 1)
+            {
+                var projet2 = projets[1];
+                var tachesProjet2 = taches.Where(t => t.ProjetId == projet2.Id).ToList();
+                
+                long boxX = 500000 + colWidth + gap;
+                long boxHeight = 1300000;
+                
+                // Header Teal/Blue (#00838F) - style "Dwings & CxG"
+                AjouterRectangle(shapeTree, boxX, yPos, colWidth, 180000, "00838F", null);
+                AjouterTexte(shapeTree, $"{projet2.Nom} - Phase 2", boxX + 100000, yPos - 50000, colWidth - 200000, 300000, 11, true, "FFFFFF", A.TextAlignmentTypeValues.Left, "Aptos");
+                
+                // Body Cyan très clair (#E0F7FA)
+                AjouterRectangle(shapeTree, boxX, yPos + 180000, colWidth, boxHeight - 180000, "E0F7FA", null);
+                
+                // Contenu
+                long contentY = yPos + 230000;
+                AjouterTexte(shapeTree, $"• Intégration et connectivité pour {projet2.Nom}", boxX + 100000, contentY, colWidth - 200000, 200000, 10, false, "333333", A.TextAlignmentTypeValues.Left, "Aptos");
+                
+                contentY += 200000;
+                AjouterTexte(shapeTree, "• Automatic generation of wordings based on templates.", boxX + 100000, contentY, colWidth - 200000, 200000, 10, false, "333333", A.TextAlignmentTypeValues.Left, "Aptos");
+                
+                contentY += 200000;
+                AjouterTexte(shapeTree, "• End-to-end process enablement.", boxX + 100000, contentY, colWidth - 200000, 160000, 10, false, "333333", A.TextAlignmentTypeValues.Left, "Aptos");
+            }
             
-            // Change Management et Evolving Scope - 2 colonnes parfaitement alignées
-            long col1X = 500000;
-            long gapBetweenCards = 200000;
-            // Calculer pour que les deux blocs prennent toute la largeur disponible (adapté 16:9)
-            long totalWidth = 11200000; // Largeur totale disponible augmentée
-            long colWidth = (totalWidth - gapBetweenCards) / 2; // Largeur égale pour les deux
-            long col2X = col1X + colWidth + gapBetweenCards;
+            yPos += 1400000;
+            
+            // Change Management et Evolving Scope - 2 colonnes alignées sous les précédentes
             long cmHeight = 1150000;
+            long col1X = 500000;
+            long col2X = 500000 + colWidth + gap;
             
-            // Change Management (jaune-orange comme screenshot)
-            AjouterRectangle(shapeTree, col1X, yPos, colWidth, cmHeight, "FFF9C4", "FFA726");
-            AjouterRectangle(shapeTree, col1X, yPos, colWidth, 300000, "C3940A", null);
-            AjouterTexte(shapeTree, "📋 CHANGE MANAGEMENT", col1X + 100000, yPos + 80000, colWidth - 200000, 150000, 10, true, "FFFFFF", A.TextAlignmentTypeValues.Left, "Aptos");
+            // --- BOX 3 (Change Management) ---
+            // Header Light Green (#7CB342 ou #8BC34A)
+            AjouterRectangle(shapeTree, col1X, yPos, colWidth, 180000, "7CB342", null);
+            AjouterTexte(shapeTree, "Change Management", col1X + 100000, yPos - 50000, colWidth - 200000, 300000, 11, true, "FFFFFF", A.TextAlignmentTypeValues.Center, "Aptos");
             
-            long cmY = yPos + 360000;
+            // Body Ivory/Beige clair (#FFFDE7 ou #F1F8E9 pour harmonie verte)
+            // Screenshot a l'air très clair, un jaune très pâle ou vert très pâle.
+            AjouterRectangle(shapeTree, col1X, yPos + 180000, colWidth, cmHeight - 180000, "FFFDE7", null);
+            
+            long cmY = yPos + 240000;
             var tachesRecentes = taches.Count(t => t.DateCreation >= DateTime.Now.AddMonths(-3));
             
-            AjouterTexte(shapeTree, "1. User Guide & documentation: Documentation complète des processus", col1X + 100000, cmY, colWidth - 200000, 180000, 11, false, "795548", A.TextAlignmentTypeValues.Left, "Aptos");
+            AjouterTexte(shapeTree, "1. User Guide & documentation: Clear step-by-step user guide", col1X + 100000, cmY, colWidth - 200000, 180000, 10, false, "333333", A.TextAlignmentTypeValues.Left, "Aptos");
+            cmY += 180000;
+            AjouterTexte(shapeTree, "2. Training Users: Hands-on training sessions for OPS Teams", col1X + 100000, cmY, colWidth - 200000, 180000, 10, false, "333333", A.TextAlignmentTypeValues.Left, "Aptos");
+            cmY += 180000;
+            AjouterTexte(shapeTree, "3. Rollout Strategy: Gradual rollout. Templates to be defined", col1X + 100000, cmY, colWidth - 200000, 180000, 10, false, "333333", A.TextAlignmentTypeValues.Left, "Aptos");
+            cmY += 180000;
+            AjouterTexte(shapeTree, "4. Support and Feedback: Dedicated contact points during early rollout", col1X + 100000, cmY, colWidth - 200000, 180000, 10, false, "333333", A.TextAlignmentTypeValues.Left, "Aptos");
+            
+            // --- BOX 4 (Evolving Scope) ---
+            // Header Teal Soft (#4DB6AC ou #26A69A)
+            AjouterRectangle(shapeTree, col2X, yPos, colWidth, 180000, "4DB6AC", null);
+            AjouterTexte(shapeTree, "Evolving Scope – Items Added Over Time", col2X + 100000, yPos - 50000, colWidth - 200000, 300000, 11, true, "FFFFFF", A.TextAlignmentTypeValues.Center, "Aptos");
+            
+            // Body Cyan très clair (#E0F2F1)
+            AjouterRectangle(shapeTree, col2X, yPos + 180000, colWidth, cmHeight - 180000, "E0F2F1", null);
+            
+            cmY = yPos + 240000;
+            AjouterTexte(shapeTree, $"• Creation of standalone features & updates ({tachesRecentes} items)", col2X + 100000, cmY, colWidth - 200000, 200000, 10, false, "006064", A.TextAlignmentTypeValues.Left, "Aptos");
             cmY += 200000;
-            AjouterTexte(shapeTree, "2. Training Users: Sessions de formation continue requises", col1X + 100000, cmY, colWidth - 200000, 180000, 11, false, "795548", A.TextAlignmentTypeValues.Left, "Aptos");
-            cmY += 200000;
-            AjouterTexte(shapeTree, "3. Rollout Strategy: Déploiement progressif par équipe", col1X + 100000, cmY, colWidth - 200000, 180000, 11, false, "795548", A.TextAlignmentTypeValues.Left, "Aptos");
-            cmY += 200000;
-            AjouterTexte(shapeTree, "4. Support and Feedback: Points de contact dédiés actifs", col1X + 100000, cmY, colWidth - 200000, 180000, 11, false, "795548", A.TextAlignmentTypeValues.Left, "Aptos");
+            AjouterTexte(shapeTree, "• Backlog refinement in progress", col2X + 100000, cmY, colWidth - 200000, 200000, 10, false, "006064", A.TextAlignmentTypeValues.Left, "Aptos");
             
-            // Evolving Scope (bleu turquoise comme screenshot)
-            AjouterRectangle(shapeTree, col2X, yPos, colWidth, cmHeight, "E0F2F1", "4DB6AC");
-            AjouterRectangle(shapeTree, col2X, yPos, colWidth, 300000, "00897B", null);
-            AjouterTexte(shapeTree, "📊 EVOLVING SCOPE ADDED OVER TIME", col2X + 100000, yPos + 80000, colWidth - 200000, 150000, 10, true, "FFFFFF", A.TextAlignmentTypeValues.Left, "Aptos");
+            yPos += 1250000;
             
-            cmY = yPos + 380000;
-            AjouterTexte(shapeTree, $"• Création de {tachesRecentes} nouvelles demandes sur les 3 derniers mois", col2X + 100000, cmY, colWidth - 200000, 200000, 11, false, "006064", A.TextAlignmentTypeValues.Left, "Aptos");
-            cmY += 230000;
-            AjouterTexte(shapeTree, "• Répartition par priorité en cours d'analyse", col2X + 100000, cmY, colWidth - 200000, 200000, 11, false, "006064", A.TextAlignmentTypeValues.Left, "Aptos");
-            cmY += 230000;
-            AjouterTexte(shapeTree, $"• Total: {taches.Count} demandes dans le backlog", col2X + 100000, cmY, colWidth - 200000, 200000, 11, false, "006064", A.TextAlignmentTypeValues.Left, "Aptos");
+            // Timeline - Titre Roadmap à gauche avec orientation verticale
+            // (Simplifié ici en horizontal car PPT XML complexe pour rotation texte sans rotation shape)
+            // On met un titre "Roadmap" simple
             
-            yPos += 1430000;
-            
-            // Timeline professionnelle Gantt-style avec vrais projets (largeur adaptée 16:9)
-            AjouterTexte(shapeTree, "📅 PROJECT TIMELINE", 500000, yPos, 11000000, 280000, 11, true, "37474F", A.TextAlignmentTypeValues.Left, "Aptos");
-            yPos += 400000;
+            long timelineWidth = 11000000;
             
             // Plage de dates fixe pour la timeline (nov 2025 - mai 2026)
             DateTime dateDebut = new DateTime(2025, 11, 1);
@@ -366,43 +408,44 @@ namespace BacklogManager.Services
             }
             
             // Timeline avec mois (élargie pour 16:9)
-            long timelineX = 1200000;
-            long timelineWidth = 10500000;
-            long timelineRowHeight = 270000;
-            long barHeight = 250000; // Augmenté pour que le texte ne soit pas coupé
+            long timelineX = 500000; // Aligné gauche
             
-            // En-tête avec mois dans des rectangles individuels
-            string[] mois = { "nov.", "déc.", "janv.", "févr.", "mars", "avr.", "mai" };
+            // En-tête avec mois dans des rectangles collés gris
+            string[] mois = { "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May" };
             long largeurMois = timelineWidth / 7;
+            
+            // Années au dessus - remonter Y significativement (ex: -80000) pour qu'elles ne soient pas coupées par l'en-tête du mois
+            AjouterTexte(shapeTree, "2025", timelineX, yPos - 80000, largeurMois * 2, 100000, 9, true, "666666", A.TextAlignmentTypeValues.Center, "Aptos");
+            AjouterTexte(shapeTree, "2026", timelineX + (largeurMois * 2), yPos - 80000, largeurMois * 5, 100000, 9, true, "666666", A.TextAlignmentTypeValues.Center, "Aptos");
+            
+            yPos += 120000;
             
             for (int i = 0; i < mois.Length; i++)
             {
-                // Rectangle gris clair pour chaque mois avec plus d'espacement
-                AjouterRectangle(shapeTree, timelineX + (i * largeurMois) + 15000, yPos, largeurMois - 30000, 220000, "ECEFF1", "B0BEC5");
-                AjouterTexte(shapeTree, mois[i], timelineX + (i * largeurMois), yPos + 50000, largeurMois, 120000, 10, false, "37474F", A.TextAlignmentTypeValues.Center, "Aptos");
+                // Rectangle gris (#E0E0E0)
+                AjouterRectangle(shapeTree, timelineX + (i * largeurMois), yPos, largeurMois - 15000, 150000, "E0E0E0", null);
+                // Remonter encore le texte des mois (0 au lieu de +15000) pour centrer parfaitement
+                AjouterTexte(shapeTree, mois[i], timelineX + (i * largeurMois), yPos, largeurMois, 100000, 9, false, "333333", A.TextAlignmentTypeValues.Center, "Aptos");
             }
             
-            yPos += 240000;
-            
-            // Marqueurs 2025 et 2026 remontés au-dessus de l'en-tête
-            long annee2025Width = largeurMois * 2; // nov-dec
-            long annee2026Width = largeurMois * 5; // jan-mai
-            AjouterTexte(shapeTree, "2025", timelineX, yPos - 400000, annee2025Width, 110000, 10, true, "546E7A", A.TextAlignmentTypeValues.Center, "Aptos");
-            AjouterTexte(shapeTree, "2026", timelineX + annee2025Width, yPos - 400000, annee2026Width, 110000, 10, true, "546E7A", A.TextAlignmentTypeValues.Center, "Aptos");
+            yPos += 200000;
             
             // Sauvegarder yPos avant de dessiner les barres pour l'indicateur "Today"
             long timelineStartY = yPos;
             
-            // Afficher les vrais projets de la DB avec leurs dates réelles
-            string[] couleurs = { "00695C", "81C784", "9CCC65", "4DD0E1", "FFA726", "AB47BC" };
+            // Afficher les projets - Vert BNP (#00915A) et variantes
+            string[] couleurs = { "00915A", "2E7D32", "43A047", "66BB6A", "81C784", "A5D6A7" };
             int projetIndex = 0;
             int nombreProjets = 0;
             
+            // Réduire la hauteur des barres (ex: 150000 au lieu de 250000) et de la ligne (170000 au lieu de 270000)
+            long reducedBarHeight = 150000;
+            long reducedRowHeight = 170000;
+
             foreach (var projet in projets.Take(6))
             {
                 if (projet.DateDebut.HasValue && projet.DateFinPrevue.HasValue)
                 {
-                    // Calculer position de la barre selon les dates
                     double totalDays = (dateFin - dateDebut).TotalDays;
                     double startOffset = (projet.DateDebut.Value - dateDebut).TotalDays;
                     double duration = (projet.DateFinPrevue.Value - projet.DateDebut.Value).TotalDays;
@@ -410,42 +453,43 @@ namespace BacklogManager.Services
                     long barX = timelineX + (long)(timelineWidth * (startOffset / totalDays));
                     long barWidth = (long)(timelineWidth * (duration / totalDays));
                     
-                    // Assurer une largeur minimum visible
                     if (barWidth < 300000) barWidth = 300000;
                     
-                    // Barre de projet avec couleur
-                    AjouterRectangle(shapeTree, barX, yPos, barWidth, barHeight, couleurs[projetIndex % couleurs.Length], null);
+                    // Barre de projet
+                    AjouterRectangle(shapeTree, barX, yPos, barWidth, reducedBarHeight, couleurs[projetIndex % couleurs.Length], null);
                     
-                    // Nom du projet sur la barre (toujours affiché)
-                    string nomBarre = projet.Nom.Length > 20 ? projet.Nom.Substring(0, 20) + "..." : projet.Nom;
-                    AjouterTexte(shapeTree, nomBarre, barX + 80000, yPos + 60000, barWidth - 160000, 140000, 11, true, "FFFFFF", A.TextAlignmentTypeValues.Left, "Aptos");
+                    // Nom du projet DANS la barre ou à côté
+                    // Remonter le texte encore un peu (yPos au lieu de yPos + 10000)
+                    string nomBarre = projet.Nom;
+                    AjouterTexte(shapeTree, nomBarre, barX + 50000, yPos, barWidth - 100000, 140000, 9, true, "FFFFFF", A.TextAlignmentTypeValues.Center, "Aptos");
                     
-                    yPos += timelineRowHeight;
+                    yPos += reducedRowHeight;
                     projetIndex++;
                     nombreProjets++;
                 }
             }
             
-            // Ajouter l'indicateur "Today" vertical en rouge avec ligne pointillée
+            // Today marker
             DateTime today = DateTime.Now;
             if (today >= dateDebut && today <= dateFin)
             {
                 double totalDays = (dateFin - dateDebut).TotalDays;
                 double todayOffset = (today - dateDebut).TotalDays;
                 long todayX = timelineX + (long)(timelineWidth * (todayOffset / totalDays));
+                long timelineHeight = nombreProjets * reducedRowHeight;
                 
-                // Hauteur totale de la timeline (nombre de projets)
-                long timelineHeight = nombreProjets * timelineRowHeight;
-                
-                // Label "Today" au-dessus en texte simple avec plus d'espace
-                AjouterTexte(shapeTree, "Today", todayX - 180000, timelineStartY - 580000, 360000, 120000, 11, true, "D32F2F", A.TextAlignmentTypeValues.Center, "Aptos");
-                
-                // Triangle rouge pointant vers le bas (avec plus d'espace après le label)
-                AjouterTriangle(shapeTree, todayX - 80000, timelineStartY - 420000, 160000, 130000, "D32F2F");
-                
-                // Ligne verticale pointillée rouge pour "Today"
-                AjouterLignePointillee(shapeTree, todayX, timelineStartY - 250000, todayX, timelineStartY + timelineHeight, "D32F2F");
+                // Label "Today" rouge
+                AjouterTexte(shapeTree, "Today", todayX - 180000, timelineStartY - 400000, 360000, 100000, 10, true, "D32F2F", A.TextAlignmentTypeValues.Center, "Aptos");
+                // Triangle rouge
+                AjouterTriangle(shapeTree, todayX - 60000, timelineStartY - 250000, 120000, 100000, "D32F2F");
+                // Ligne pointillée rouge
+                AjouterLignePointillee(shapeTree, todayX, timelineStartY - 150000, todayX, timelineStartY + timelineHeight, "D32F2F");
             }
+            
+            // Footer BNP
+            yPos += 300000;
+            AjouterTexte(shapeTree, "BNP PARIBAS", 800000, 6400000, 3000000, 300000, 14, true, "006400", A.TextAlignmentTypeValues.Left, "Arial");
+            AjouterTexte(shapeTree, "The bank for a changing world", 5000000, 6400000, 6000000, 300000, 12, false, "666666", A.TextAlignmentTypeValues.Center, "Arial");
         }
 
         private static void CreerSlide2ProgressStatus(PresentationPart presentationPart, List<Projet> projets, List<BacklogItem> taches, Programme programme)
@@ -473,7 +517,7 @@ namespace BacklogManager.Services
             ShapeTree shapeTree = slidePart.Slide.CommonSlideData.ShapeTree;
             
             // Titre en vert à gauche avec pagination dynamique (largeur 16:9)
-            AjouterTexte(shapeTree, $"PROGRESS STATUS ({slideNumber}/{totalSlides})", 300000, 300000, 11000000, 400000, 24, true, "2E7D32", A.TextAlignmentTypeValues.Left, "Calibri");
+            AjouterTexte(shapeTree, $"PROGRESS STATUS ({slideNumber}/{totalSlides})", 300000, 300000, 11000000, 400000, 24, true, "00915A", A.TextAlignmentTypeValues.Left, "Calibri");
             
             // Encadré rouge au milieu avec texte du programme - décalé plus à droite
             string programText = $"{programme.Nom} Program related Projects\nconsidered High Priority";
@@ -598,7 +642,7 @@ namespace BacklogManager.Services
             ShapeTree shapeTree = slidePart.Slide.CommonSlideData.ShapeTree;
             
             // Titre en vert aligné à gauche comme les autres slides (16:9)
-            AjouterTexte(shapeTree, "DASHBOARD KPIs", 300000, 300000, 11500000, 400000, 24, true, "2E7D32", A.TextAlignmentTypeValues.Left, "Calibri");
+            AjouterTexte(shapeTree, "DASHBOARD KPIs", 300000, 300000, 11500000, 400000, 24, true, "00915A", A.TextAlignmentTypeValues.Left, "Calibri");
             
             long yPos = 850000;
             long boxHeight = 1300000;

@@ -654,34 +654,39 @@
                               IsReadOnly="True" HeadersVisibility="Column"
                               GridLinesVisibility="None" Background="Transparent"
                               BorderThickness="0" RowHeight="50"
-                              RowDetailsVisibilityMode="VisibleWhenSelected">
+                              RowDetailsVisibilityMode="Collapsed">
                         <DataGrid.RowDetailsTemplate>
                             <DataTemplate>
                                 <Border Background="#FAFAFA" Padding="20,15" BorderBrush="#E0E0E0" BorderThickness="0,1,0,1" Margin="0,0,0,10">
                                      <StackPanel>
                                          <TextBlock Text="📅 Détail temps par jour" FontWeight="Bold" Foreground="#666" Margin="0,0,0,10" FontSize="12"/>
-                                         <ItemsControl ItemsSource="{Binding DetailTempsParJour}">
-                                             <ItemsControl.ItemTemplate>
-                                                 <DataTemplate>
-                                                     <Grid Margin="0,0,0,8">
-                                                         <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="120"/>
-                                                            <ColumnDefinition Width="*"/>
-                                                            <ColumnDefinition Width="100"/>
-                                                         </Grid.ColumnDefinitions>
-                                                         <TextBlock Text="{Binding DateFormattee}" Foreground="#888" FontSize="12"/>
-                                                         <TextBlock Grid.Column="1" Text="{Binding Scope}" Foreground="#333" FontSize="12"/>
-                                                         <TextBlock Grid.Column="2" Text="{Binding Heures, StringFormat={}{0:0.##} h}" FontWeight="Bold" Foreground="#00915A" HorizontalAlignment="Right" FontSize="12"/>
-                                                     </Grid>
-                                                 </DataTemplate>
-                                             </ItemsControl.ItemTemplate>
-                                             <ItemsControl.ItemsPanel>
-                                                 <ItemsPanelTemplate>
-                                                     <StackPanel/>
-                                                 </ItemsPanelTemplate>
-                                             </ItemsControl.ItemsPanel>
-                                         </ItemsControl>
-                                         <Border Margin="0,10,0,0" BorderThickness="0,1,0,0" BorderBrush="#EEE" Padding="0,5,0,0" HorizontalAlignment="Right" Width="200">
+                                         
+                                         <!-- Ajout d'un ScrollViewer pour limiter la hauteur si la liste est longue -->
+                                         <ScrollViewer MaxHeight="300" VerticalScrollBarVisibility="Auto" Margin="0,0,0,10">
+                                             <ItemsControl ItemsSource="{Binding DetailTempsParJour}">
+                                                 <ItemsControl.ItemTemplate>
+                                                     <DataTemplate>
+                                                         <Grid Margin="0,0,10,8">
+                                                             <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="120"/>
+                                                                <ColumnDefinition Width="*"/>
+                                                                <ColumnDefinition Width="100"/>
+                                                             </Grid.ColumnDefinitions>
+                                                             <TextBlock Text="{Binding DateFormattee}" Foreground="#888" FontSize="12"/>
+                                                             <TextBlock Grid.Column="1" Text="{Binding Scope}" Foreground="#333" FontSize="12"/>
+                                                             <TextBlock Grid.Column="2" Text="{Binding Heures, StringFormat={}{0:0.##} h}" FontWeight="Bold" Foreground="#00915A" HorizontalAlignment="Right" FontSize="12"/>
+                                                         </Grid>
+                                                     </DataTemplate>
+                                                 </ItemsControl.ItemTemplate>
+                                                 <ItemsControl.ItemsPanel>
+                                                     <ItemsPanelTemplate>
+                                                         <StackPanel/>
+                                                     </ItemsPanelTemplate>
+                                                 </ItemsControl.ItemsPanel>
+                                             </ItemsControl>
+                                         </ScrollViewer>
+
+                                         <Border Margin="0,0,0,0" BorderThickness="0,1,0,0" BorderBrush="#EEE" Padding="0,5,0,0" HorizontalAlignment="Right" Width="200">
                                             <Grid>
                                                 <TextBlock Text="Total Période" Foreground="#666" FontWeight="SemiBold"/>
                                                 <TextBlock Text="{Binding TempsTotalFormatte}" HorizontalAlignment="Right" Foreground="#00915A" FontWeight="Bold"/>
@@ -704,6 +709,7 @@
                         </DataGrid.ColumnHeaderStyle>
                         <DataGrid.RowStyle>
                             <Style TargetType="DataGridRow">
+                                <EventSetter Event="MouseLeftButtonUp" Handler="DataGridRow_MouseLeftButtonUp"/>
                                 <Setter Property="Background" Value="White"/>
                                 <Style.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
