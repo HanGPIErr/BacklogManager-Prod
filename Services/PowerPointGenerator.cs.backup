@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -48,7 +48,7 @@ namespace BacklogManager.Services
         private static void CreatePresentationParts(PresentationPart presentationPart)
         {
             presentationPart.Presentation.SlideIdList = new SlideIdList();
-            presentationPart.Presentation.SlideSize = new SlideSize() { Cx = 12192000, Cy = 6858000, Type = SlideSizeValues.Screen16x9 };
+            presentationPart.Presentation.SlideSize = new SlideSize() { Cx = 9144000, Cy = 6858000 };
             presentationPart.Presentation.Save();
         }
 
@@ -179,7 +179,7 @@ namespace BacklogManager.Services
             shape.ShapeProperties.Transform2D.Offset = new A.Offset() { X = x, Y = y };
             shape.ShapeProperties.Transform2D.Extents = new A.Extents() { Cx = diameter, Cy = diameter };
             
-            // Utiliser Ellipse pour créer un vrai cercle
+            // Utiliser Ellipse pour cr├®er un vrai cercle
             shape.ShapeProperties.Append(new A.PresetGeometry(new A.AdjustValueList()) { Preset = A.ShapeTypeValues.Ellipse });
             shape.ShapeProperties.Append(new A.SolidFill(new A.RgbColorModelHex() { Val = fillColor }));
 
@@ -200,13 +200,13 @@ namespace BacklogManager.Services
 
             shape.ShapeProperties = new P.ShapeProperties();
             
-            // Créer un triangle avec CustomGeometry pointant vers le bas
+            // Cr├®er un triangle avec CustomGeometry pointant vers le bas
             A.Transform2D transform2D = new A.Transform2D();
             transform2D.Offset = new A.Offset() { X = x, Y = y };
             transform2D.Extents = new A.Extents() { Cx = width, Cy = height };
             shape.ShapeProperties.Transform2D = transform2D;
             
-            // Géométrie personnalisée pour un triangle pointant vers le bas
+            // G├®om├®trie personnalis├®e pour un triangle pointant vers le bas
             A.CustomGeometry customGeometry = new A.CustomGeometry();
             A.AdjustValueList adjList = new A.AdjustValueList();
             customGeometry.Append(adjList);
@@ -252,10 +252,10 @@ namespace BacklogManager.Services
             A.PresetGeometry presetGeometry = new A.PresetGeometry() { Preset = A.ShapeTypeValues.Line };
             shape.ShapeProperties.Append(presetGeometry);
             
-            // Ligne pointillée rouge
+            // Ligne pointill├®e rouge
             A.Outline outline = new A.Outline() { Width = 25400 }; // Largeur de ligne
             outline.Append(new A.SolidFill(new A.RgbColorModelHex() { Val = lineColor }));
-            outline.Append(new A.PresetDash() { Val = A.PresetLineDashValues.Dash }); // Style pointillé
+            outline.Append(new A.PresetDash() { Val = A.PresetLineDashValues.Dash }); // Style pointill├®
             shape.ShapeProperties.Append(outline);
 
             shape.TextBody = new P.TextBody(new A.BodyProperties(), new A.ListStyle());
@@ -268,7 +268,7 @@ namespace BacklogManager.Services
             SlidePart slidePart = CreerSlideVierge(presentationPart);
             ShapeTree shapeTree = slidePart.Slide.CommonSlideData.ShapeTree;
             
-            // Titre principal aligné à gauche avec nom complet + Program - Auto Drafting
+            // Titre principal align├® ├á gauche avec nom complet + Program - Auto Drafting
             string titreComplet = $"{programme.Nom.ToUpper()} Program - Auto Drafting";
             AjouterTexte(shapeTree, titreComplet, 500000, 300000, 8000000, 450000, 30, true, "00915A", A.TextAlignmentTypeValues.Left);
             
@@ -284,69 +284,69 @@ namespace BacklogManager.Services
                 long mainWidth = 4200000;
                 long mainHeight = 1100000;
                 
-                // Fond vert très clair
+                // Fond vert tr├¿s clair
                 AjouterRectangle(shapeTree, mainX, yPos, mainWidth, mainHeight, "E8F5E9", "66BB6A");
                 
-                // En-tête vert foncé BNP
+                // En-t├¬te vert fonc├® BNP
                 AjouterRectangle(shapeTree, mainX, yPos, mainWidth, 330000, "2E7D32", null);
                 AjouterTexte(shapeTree, $"{projet1.Nom} - Phase 1, nov. 25", mainX + 100000, yPos + 80000, mainWidth - 200000, 180000, 12, true, "FFFFFF");
                 
                 // Description
                 long contentY = yPos + 380000;
-                var description = $"Mise en œuvre de {projet1.Nom} avec {tachesProjet1.Count} tâches planifiées.";
+                var description = $"Mise en ┼ôuvre de {projet1.Nom} avec {tachesProjet1.Count} t├óches planifi├®es.";
                 AjouterTexte(shapeTree, description, mainX + 100000, contentY, mainWidth - 200000, 200000, 10, false, "1B5E20");
                 
                 contentY += 240000;
-                AjouterTexte(shapeTree, $"• Objectif: Livraison pour {projet1.DateFinPrevue?.ToString("dd/MM/yyyy") ?? "30/04/2026"}", mainX + 100000, contentY, mainWidth - 200000, 160000, 9, false, "2E7D32");
+                AjouterTexte(shapeTree, $"ÔÇó Objectif: Livraison pour {projet1.DateFinPrevue?.ToString("dd/MM/yyyy") ?? "30/04/2026"}", mainX + 100000, contentY, mainWidth - 200000, 160000, 9, false, "2E7D32");
                 contentY += 190000;
                 
                 int avancement1 = tachesProjet1.Count > 0 ? (tachesProjet1.Count(t => t.Statut == Statut.Termine) * 100 / tachesProjet1.Count) : 0;
-                AjouterTexte(shapeTree, $"• Avancement: {avancement1}% ({tachesProjet1.Count(t => t.Statut == Statut.Termine)}/{tachesProjet1.Count} tâches)", mainX + 100000, contentY, mainWidth - 200000, 160000, 9, false, "2E7D32");
+                AjouterTexte(shapeTree, $"ÔÇó Avancement: {avancement1}% ({tachesProjet1.Count(t => t.Statut == Statut.Termine)}/{tachesProjet1.Count} t├óches)", mainX + 100000, contentY, mainWidth - 200000, 160000, 9, false, "2E7D32");
             }
             
             yPos += 1280000;
             
-            // Change Management et Evolving Scope - 2 colonnes parfaitement alignées
+            // Change Management et Evolving Scope - 2 colonnes parfaitement align├®es
             long col1X = 500000;
             long gapBetweenCards = 200000;
             // Calculer pour que les deux blocs prennent toute la largeur disponible
             long totalWidth = 8200000; // Largeur totale disponible
-            long colWidth = (totalWidth - gapBetweenCards) / 2; // Largeur égale pour les deux
+            long colWidth = (totalWidth - gapBetweenCards) / 2; // Largeur ├®gale pour les deux
             long col2X = col1X + colWidth + gapBetweenCards;
             long cmHeight = 1150000;
             
             // Change Management (jaune-orange comme screenshot)
             AjouterRectangle(shapeTree, col1X, yPos, colWidth, cmHeight, "FFF9C4", "FFA726");
             AjouterRectangle(shapeTree, col1X, yPos, colWidth, 300000, "C3940A", null);
-            AjouterTexte(shapeTree, "📋 CHANGE MANAGEMENT", col1X + 100000, yPos + 80000, colWidth - 200000, 150000, 12, true, "FFFFFF");
+            AjouterTexte(shapeTree, "­ƒôï CHANGE MANAGEMENT", col1X + 100000, yPos + 80000, colWidth - 200000, 150000, 12, true, "FFFFFF");
             
             long cmY = yPos + 360000;
             var tachesRecentes = taches.Count(t => t.DateCreation >= DateTime.Now.AddMonths(-3));
             
-            AjouterTexte(shapeTree, "1. User Guide & documentation: Documentation complète des processus", col1X + 100000, cmY, colWidth - 200000, 180000, 9, false, "795548");
+            AjouterTexte(shapeTree, "1. User Guide & documentation: Documentation compl├¿te des processus", col1X + 100000, cmY, colWidth - 200000, 180000, 9, false, "795548");
             cmY += 200000;
             AjouterTexte(shapeTree, "2. Training Users: Sessions de formation continue requises", col1X + 100000, cmY, colWidth - 200000, 180000, 9, false, "795548");
             cmY += 200000;
-            AjouterTexte(shapeTree, "3. Rollout Strategy: Déploiement progressif par équipe", col1X + 100000, cmY, colWidth - 200000, 180000, 9, false, "795548");
+            AjouterTexte(shapeTree, "3. Rollout Strategy: D├®ploiement progressif par ├®quipe", col1X + 100000, cmY, colWidth - 200000, 180000, 9, false, "795548");
             cmY += 200000;
-            AjouterTexte(shapeTree, "4. Support and Feedback: Points de contact dédiés actifs", col1X + 100000, cmY, colWidth - 200000, 180000, 9, false, "795548");
+            AjouterTexte(shapeTree, "4. Support and Feedback: Points de contact d├®di├®s actifs", col1X + 100000, cmY, colWidth - 200000, 180000, 9, false, "795548");
             
             // Evolving Scope (bleu turquoise comme screenshot)
             AjouterRectangle(shapeTree, col2X, yPos, colWidth, cmHeight, "E0F2F1", "4DB6AC");
             AjouterRectangle(shapeTree, col2X, yPos, colWidth, 300000, "00897B", null);
-            AjouterTexte(shapeTree, "📈 EVOLVING SCOPE ADDED OVER TIME", col2X + 100000, yPos + 80000, colWidth - 200000, 150000, 12, true, "FFFFFF");
+            AjouterTexte(shapeTree, "­ƒôè EVOLVING SCOPE ADDED OVER TIME", col2X + 100000, yPos + 80000, colWidth - 200000, 150000, 12, true, "FFFFFF");
             
             cmY = yPos + 380000;
-            AjouterTexte(shapeTree, $"• Création de {tachesRecentes} nouvelles demandes sur les 3 derniers mois", col2X + 100000, cmY, colWidth - 200000, 200000, 9, false, "006064");
+            AjouterTexte(shapeTree, $"ÔÇó Cr├®ation de {tachesRecentes} nouvelles demandes sur les 3 derniers mois", col2X + 100000, cmY, colWidth - 200000, 200000, 9, false, "006064");
             cmY += 230000;
-            AjouterTexte(shapeTree, "• Répartition par priorité en cours d'analyse", col2X + 100000, cmY, colWidth - 200000, 200000, 9, false, "006064");
+            AjouterTexte(shapeTree, "ÔÇó R├®partition par priorit├® en cours d'analyse", col2X + 100000, cmY, colWidth - 200000, 200000, 9, false, "006064");
             cmY += 230000;
-            AjouterTexte(shapeTree, $"• Total: {taches.Count} demandes dans le backlog", col2X + 100000, cmY, colWidth - 200000, 200000, 9, false, "006064");
+            AjouterTexte(shapeTree, $"ÔÇó Total: {taches.Count} demandes dans le backlog", col2X + 100000, cmY, colWidth - 200000, 200000, 9, false, "006064");
             
             yPos += 1430000;
             
             // Timeline professionnelle Gantt-style avec vrais projets
-            AjouterTexte(shapeTree, "📅 PROJECT TIMELINE", 500000, yPos, 8000000, 280000, 14, true, "37474F");
+            AjouterTexte(shapeTree, "­ƒôà PROJECT TIMELINE", 500000, yPos, 8000000, 280000, 14, true, "37474F");
             yPos += 400000;
             
             // Plage de dates fixe pour la timeline (nov 2025 - mai 2026)
@@ -366,10 +366,10 @@ namespace BacklogManager.Services
             long timelineX = 1200000;
             long timelineWidth = 7500000;
             long timelineRowHeight = 270000;
-            long barHeight = 250000; // Augmenté pour que le texte ne soit pas coupé
+            long barHeight = 250000; // Augment├® pour que le texte ne soit pas coup├®
             
-            // En-tête avec mois dans des rectangles individuels
-            string[] mois = { "nov.", "déc.", "janv.", "févr.", "mars", "avr.", "mai" };
+            // En-t├¬te avec mois dans des rectangles individuels
+            string[] mois = { "nov.", "d├®c.", "janv.", "f├®vr.", "mars", "avr.", "mai" };
             long largeurMois = timelineWidth / 7;
             
             for (int i = 0; i < mois.Length; i++)
@@ -381,7 +381,7 @@ namespace BacklogManager.Services
             
             yPos += 240000;
             
-            // Marqueurs 2025 et 2026 remontés au-dessus de l'en-tête
+            // Marqueurs 2025 et 2026 remont├®s au-dessus de l'en-t├¬te
             long annee2025Width = largeurMois * 2; // nov-dec
             long annee2026Width = largeurMois * 5; // jan-mai
             AjouterTexte(shapeTree, "2025", timelineX, yPos - 400000, annee2025Width, 110000, 10, true, "546E7A", A.TextAlignmentTypeValues.Center);
@@ -390,7 +390,7 @@ namespace BacklogManager.Services
             // Sauvegarder yPos avant de dessiner les barres pour l'indicateur "Today"
             long timelineStartY = yPos;
             
-            // Afficher les vrais projets de la DB avec leurs dates réelles
+            // Afficher les vrais projets de la DB avec leurs dates r├®elles
             string[] couleurs = { "00695C", "81C784", "9CCC65", "4DD0E1", "FFA726", "AB47BC" };
             int projetIndex = 0;
             int nombreProjets = 0;
@@ -413,7 +413,7 @@ namespace BacklogManager.Services
                     // Barre de projet avec couleur
                     AjouterRectangle(shapeTree, barX, yPos, barWidth, barHeight, couleurs[projetIndex % couleurs.Length], null);
                     
-                    // Nom du projet sur la barre (toujours affiché)
+                    // Nom du projet sur la barre (toujours affich├®)
                     string nomBarre = projet.Nom.Length > 20 ? projet.Nom.Substring(0, 20) + "..." : projet.Nom;
                     AjouterTexte(shapeTree, nomBarre, barX + 80000, yPos + 60000, barWidth - 160000, 140000, 9, true, "FFFFFF", A.TextAlignmentTypeValues.Left);
                     
@@ -423,7 +423,7 @@ namespace BacklogManager.Services
                 }
             }
             
-            // Ajouter l'indicateur "Today" vertical en rouge avec ligne pointillée
+            // Ajouter l'indicateur "Today" vertical en rouge avec ligne pointill├®e
             DateTime today = DateTime.Now;
             if (today >= dateDebut && today <= dateFin)
             {
@@ -437,10 +437,10 @@ namespace BacklogManager.Services
                 // Label "Today" au-dessus en texte simple avec plus d'espace
                 AjouterTexte(shapeTree, "Today", todayX - 180000, timelineStartY - 580000, 360000, 120000, 11, true, "D32F2F", A.TextAlignmentTypeValues.Center);
                 
-                // Triangle rouge pointant vers le bas (avec plus d'espace après le label)
+                // Triangle rouge pointant vers le bas (avec plus d'espace apr├¿s le label)
                 AjouterTriangle(shapeTree, todayX - 80000, timelineStartY - 420000, 160000, 130000, "D32F2F");
                 
-                // Ligne verticale pointillée rouge pour "Today"
+                // Ligne verticale pointill├®e rouge pour "Today"
                 AjouterLignePointillee(shapeTree, todayX, timelineStartY - 250000, todayX, timelineStartY + timelineHeight, "D32F2F");
             }
         }
@@ -450,17 +450,17 @@ namespace BacklogManager.Services
             SlidePart slidePart = CreerSlideVierge(presentationPart);
             ShapeTree shapeTree = slidePart.Slide.CommonSlideData.ShapeTree;
             
-            // Titre en vert à gauche
+            // Titre en vert ├á gauche
             int slideNumber = 1;
             int totalSlides = 5;
             AjouterTexte(shapeTree, $"PROGRESS STATUS ({slideNumber}/{totalSlides})", 300000, 300000, 2600000, 400000, 18, true, "2E7D32", A.TextAlignmentTypeValues.Left);
             
-            // Encadré rouge au milieu avec texte du programme
+            // Encadr├® rouge au milieu avec texte du programme
             string programText = $"{programme.Nom} Program related Projects\nconsidered High Priority";
             AjouterRectangle(shapeTree, 3100000, 300000, 3200000, 400000, "FFEBEE", "D32F2F");
             AjouterTexte(shapeTree, programText, 3150000, 330000, 3100000, 350000, 9, true, "D32F2F", A.TextAlignmentTypeValues.Center);
             
-            // Encadré rouge "WIP" à droite
+            // Encadr├® rouge "WIP" ├á droite
             AjouterRectangle(shapeTree, 8500000, 300000, 400000, 400000, "FFEBEE", "D32F2F");
             AjouterTexte(shapeTree, "WIP", 8530000, 350000, 340000, 300000, 12, true, "D32F2F", A.TextAlignmentTypeValues.Center);
             
@@ -470,7 +470,7 @@ namespace BacklogManager.Services
             string[] headers = { "Beneficiary", "Project Description", "Project\nlead", "Project\nphase", "RAG\nStatus", "Key highlights", "Initial\nETA", "Updated\nETA", "Progress\n(%)" };
             long[] widths = { 800000, 1100000, 600000, 650000, 400000, 2600000, 650000, 650000, 550000 };
             
-            // En-têtes avec fond vert foncé et bordure noire
+            // En-t├¬tes avec fond vert fonc├® et bordure noire
             for (int i = 0; i < headers.Length; i++)
             {
                 AjouterRectangle(shapeTree, xPos, yPos, widths[i], 400000, "2E7D32", "000000");
@@ -480,20 +480,20 @@ namespace BacklogManager.Services
             
             yPos += 400000;
             
-            // Lignes de données avec détails complets
+            // Lignes de donn├®es avec d├®tails complets
             int rowIndex = 0;
             foreach (var projet in projets.Take(5))
             {
                 var tachesProjet = taches.Where(t => t.ProjetId == projet.Id).ToList();
                 int progression = tachesProjet.Count > 0 ? (tachesProjet.Count(t => t.Statut == Statut.Termine) * 100 / tachesProjet.Count) : 0;
                 
-                // Déterminer la couleur de fond (alternance)
+                // D├®terminer la couleur de fond (alternance)
                 string bgColor = rowIndex % 2 == 0 ? "FFFFFF" : "F5F5F5";
                 string ragColor = progression >= 70 ? "4CAF50" : (progression >= 40 ? "FFA726" : "EF5350");
                 
                 xPos = 200000;
                 
-                // Bénéficiaire
+                // B├®n├®ficiaire
                 string beneficiary = "TOM";
                 if (projet.Nom.Contains("TFSC")) beneficiary = "TFSC";
                 AjouterRectangle(shapeTree, xPos, yPos, widths[0], 350000, bgColor, "000000");
@@ -517,23 +517,23 @@ namespace BacklogManager.Services
                 AjouterTexte(shapeTree, phase, xPos + 20000, yPos + 120000, widths[3] - 40000, 150000, 7, false, "333333", A.TextAlignmentTypeValues.Center);
                 xPos += widths[3];
                 
-                // RAG Status (cercle coloré)
+                // RAG Status (cercle color├®)
                 AjouterRectangle(shapeTree, xPos, yPos, widths[4], 350000, bgColor, "000000");
                 AjouterRectangle(shapeTree, xPos + 150000, yPos + 130000, 80000, 80000, ragColor, null);
                 xPos += widths[4];
                 
-                // Key highlights avec plusieurs points détaillés
+                // Key highlights avec plusieurs points d├®taill├®s
                 AjouterRectangle(shapeTree, xPos, yPos, widths[5], 350000, bgColor, "000000");
                 string highlights = "";
                 if (tachesProjet.Count > 0)
                 {
                     var tachesTerminees = tachesProjet.Count(t => t.Statut == Statut.Termine);
-                    highlights = $"• {tachesTerminees}/{tachesProjet.Count} tasks completed";
+                    highlights = $"ÔÇó {tachesTerminees}/{tachesProjet.Count} tasks completed";
                     var tachesEnCours = tachesProjet.Where(t => t.Statut == Statut.EnCours).Take(1);
                     foreach (var tache in tachesEnCours)
                     {
                         string tacheNom = tache.Titre.Length > 35 ? tache.Titre.Substring(0, 35) + "..." : tache.Titre;
-                        highlights += $"\n• {tacheNom}";
+                        highlights += $"\nÔÇó {tacheNom}";
                     }
                 }
                 else
@@ -568,26 +568,26 @@ namespace BacklogManager.Services
             SlidePart slidePart = CreerSlideVierge(presentationPart);
             ShapeTree shapeTree = slidePart.Slide.CommonSlideData.ShapeTree;
             
-            // Titre en vert aligné à gauche comme les autres slides
+            // Titre en vert align├® ├á gauche comme les autres slides
             AjouterTexte(shapeTree, "DASHBOARD KPIs", 300000, 300000, 8500000, 400000, 22, true, "2E7D32", A.TextAlignmentTypeValues.Left);
             
             long yPos = 850000;
             long boxHeight = 1300000;
             
-            // 5 blocs sur la même ligne
+            // 5 blocs sur la m├¬me ligne
             long col1X = 250000;
             long col2X = 2050000;
             long col3X = 3500000;
             long col4X = 5700000;
             long col5X = 7450000;
             
-            long box1Width = 1700000;  // STATUS OVERVIEW - augmenté encore
+            long box1Width = 1700000;  // STATUS OVERVIEW - augment├® encore
             long box2Width = 1350000;  // % of WP per Month
             long box3Width = 2100000;  // TEAM(S)
-            long box4Width = 1500000;  // SCOPE - réduit
-            long box5Width = 1400000;  // DRIVERS - réduit
+            long box4Width = 1500000;  // SCOPE - r├®duit
+            long box5Width = 1400000;  // DRIVERS - r├®duit
             
-            // Récupérer les vraies données du dashboard depuis les paramètres passés
+            // R├®cup├®rer les vraies donn├®es du dashboard depuis les param├¿tres pass├®s
             var statusData = donneesDashboard.ContainsKey("StatusOverview") ? 
                 (dynamic)donneesDashboard["StatusOverview"] : null;
             
@@ -595,14 +595,14 @@ namespace BacklogManager.Services
             int done = statusData?.Done ?? 0;
             int toStart = statusData?.ToStart ?? 0;
             int cancelled = statusData?.Cancelled ?? 0;
-            // Le total inclut toutes les tâches filtrées (y compris archivées)
+            // Le total inclut toutes les t├óches filtr├®es (y compris archiv├®es)
             int total = taches.Count;
             
             // 1. % STATUS OVERVIEW avec vrai donut chart PowerPoint
             AjouterRectangle(shapeTree, col1X, yPos, box1Width, boxHeight, "FFFFFF", "BDBDBD");
             AjouterTexte(shapeTree, "% STATUS OVERVIEW", col1X + 50000, yPos + 20000, box1Width - 100000, 100000, 7, true, "333333");
             
-            // Créer un vrai donut chart avec les données de statut - avec chiffres dans les labels
+            // Cr├®er un vrai donut chart avec les donn├®es de statut - avec chiffres dans les labels
             var chartData = new List<(string label, double value, string hexColor)>
             {
                 ($"Ongoing ({ongoing})", ongoing, "66BB6A"),
@@ -617,7 +617,7 @@ namespace BacklogManager.Services
             AjouterRectangle(shapeTree, col2X, yPos, box2Width, boxHeight, "FFFFFF", "BDBDBD");
             AjouterTexte(shapeTree, "% of WP per Month", col2X + 50000, yPos + 20000, box2Width - 100000, 100000, 7, true, "333333");
             
-            // Calculer moyenne par mois avec vraies données - grouper par mois comme dans l'UI
+            // Calculer moyenne par mois avec vraies donn├®es - grouper par mois comme dans l'UI
             var tachesParMois = taches
                 .Where(t => t.DateCreation >= DateTime.Now.AddMonths(-12))
                 .GroupBy(t => new { t.DateCreation.Year, t.DateCreation.Month })
@@ -626,7 +626,7 @@ namespace BacklogManager.Services
             
             int avgWpPerMonth = tachesParMois.Any() ? (int)tachesParMois.Average(x => x.Count) : 0;
             
-            // Créer un donut chart simple avec 2 segments - MAXIMUM TAILLE
+            // Cr├®er un donut chart simple avec 2 segments - MAXIMUM TAILLE
             var chartData2 = new List<(string label, double value, string hexColor)>
             {
                 ("Team 1", 68, "00897B"),
@@ -638,17 +638,17 @@ namespace BacklogManager.Services
             // Texte en bas
             AjouterTexte(shapeTree, $"Avg: {avgWpPerMonth}/month", col2X + 150000, yPos + 1150000, box2Width - 300000, 150000, 8, false, "333333", A.TextAlignmentTypeValues.Center);
             
-            // 3. TEAM(S) - afficher les vraies équipes assignées aux projets
+            // 3. TEAM(S) - afficher les vraies ├®quipes assign├®es aux projets
             AjouterRectangle(shapeTree, col3X, yPos, box3Width, boxHeight, "FFFFFF", "BDBDBD");
             AjouterTexte(shapeTree, "TEAM(S)", col3X + 50000, yPos + 80000, box3Width - 100000, 200000, 10, true, "333333");
             
-            // Récupérer les noms des équipes depuis donneesDashboard
+            // R├®cup├®rer les noms des ├®quipes depuis donneesDashboard
             var teamsData = donneesDashboard.ContainsKey("Teams") ? 
                 (List<string>)donneesDashboard["Teams"] : new List<string>();
             
             long teamY = yPos + 350000;
             
-            // Liste de toutes les équipes possibles
+            // Liste de toutes les ├®quipes possibles
             var allTeams = new List<string> 
             { 
                 "Change BAU",
@@ -661,11 +661,11 @@ namespace BacklogManager.Services
                 "Transformation & Implementation"
             };
             
-            // Afficher les équipes avec checkbox cochée si dans les données
-            foreach (var team in allTeams.Take(6))  // Limiter à 6 pour tenir dans l'espace
+            // Afficher les ├®quipes avec checkbox coch├®e si dans les donn├®es
+            foreach (var team in allTeams.Take(6))  // Limiter ├á 6 pour tenir dans l'espace
             {
                 bool isChecked = teamsData.Any(t => t.Contains(team.Split('/')[0].Trim()));
-                string checkbox = isChecked ? "☑" : "☐";
+                string checkbox = isChecked ? "Ôÿæ" : "ÔÿÉ";
                 string teamDisplay = team.Length > 35 ? team.Substring(0, 35) + "..." : team;
                 AjouterTexte(shapeTree, $"{checkbox} {teamDisplay}", col3X + 80000, teamY, box3Width - 150000, 120000, 7, false, "333333");
                 teamY += 150000;
@@ -676,23 +676,23 @@ namespace BacklogManager.Services
             AjouterTexte(shapeTree, "SCOPE", col4X + 50000, yPos + 80000, box4Width - 100000, 200000, 10, true, "333333");
             
             long scopeY = yPos + 350000;
-            AjouterTexte(shapeTree, "☑ Global", col4X + 80000, scopeY, box4Width - 150000, 120000, 7, false, "333333");
+            AjouterTexte(shapeTree, "Ôÿæ Global", col4X + 80000, scopeY, box4Width - 150000, 120000, 7, false, "333333");
             scopeY += 150000;
-            AjouterTexte(shapeTree, "☑ Local", col4X + 80000, scopeY, box4Width - 150000, 120000, 7, false, "333333");
+            AjouterTexte(shapeTree, "Ôÿæ Local", col4X + 80000, scopeY, box4Width - 150000, 120000, 7, false, "333333");
             scopeY += 150000;
-            AjouterTexte(shapeTree, "☑ Transversal", col4X + 80000, scopeY, box4Width - 150000, 120000, 7, false, "333333");
+            AjouterTexte(shapeTree, "Ôÿæ Transversal", col4X + 80000, scopeY, box4Width - 150000, 120000, 7, false, "333333");
             
             // Indicateurs TOM Consolidation Rate, Priority, Risk - afficher une seule couleur selon niveau
             scopeY += 180000;
             AjouterTexte(shapeTree, "TOM Consolidation Rate", col4X + 80000, scopeY, box4Width - 150000, 80000, 5, false, "666666");
             
-            // Calculer le niveau de priorité basé sur les données (% de done)
+            // Calculer le niveau de priorit├® bas├® sur les donn├®es (% de done)
             double donePercent = total > 0 ? ((double)done / total) * 100 : 0;
             string priorityColor = donePercent >= 70 ? "4CAF50" : (donePercent >= 40 ? "FFA726" : "EF5350");
             
             scopeY += 110000;
             AjouterTexte(shapeTree, "PRIORITY", col4X + 80000, scopeY, 400000, 60000, 8, true, "333333");
-            // Barre de couleur à DROITE du texte - encore plus décalée et descendue
+            // Barre de couleur ├á DROITE du texte - encore plus d├®cal├®e et descendue
             AjouterRectangle(shapeTree, col4X + 620000, scopeY + 22000, 350000, 40000, priorityColor, null);
             
             // Calculer le niveau de risque (inverse de la progression)
@@ -700,7 +700,7 @@ namespace BacklogManager.Services
             
             scopeY += 100000;
             AjouterTexte(shapeTree, "RISK", col4X + 80000, scopeY, 400000, 60000, 8, true, "333333");
-            // Barre de couleur à DROITE du texte - encore plus décalée et descendue
+            // Barre de couleur ├á DROITE du texte - encore plus d├®cal├®e et descendue
             AjouterRectangle(shapeTree, col4X + 620000, scopeY + 22000, 350000, 40000, riskColor, null);
             
             // 5. DRIVERS
@@ -708,17 +708,17 @@ namespace BacklogManager.Services
             AjouterTexte(shapeTree, "DRIVERS", col5X + 50000, yPos + 80000, box5Width - 100000, 200000, 10, true, "333333");
             
             long driverY = yPos + 400000;
-            AjouterTexte(shapeTree, "☑ Communication", col5X + 80000, driverY, box5Width - 150000, 150000, 8, false, "333333");
+            AjouterTexte(shapeTree, "Ôÿæ Communication", col5X + 80000, driverY, box5Width - 150000, 150000, 8, false, "333333");
             driverY += 180000;
-            AjouterTexte(shapeTree, "☑ IT Development", col5X + 80000, driverY, box5Width - 150000, 150000, 8, false, "333333");
+            AjouterTexte(shapeTree, "Ôÿæ IT Development", col5X + 80000, driverY, box5Width - 150000, 150000, 8, false, "333333");
             driverY += 180000;
-            AjouterTexte(shapeTree, "☑ Process Efficiency", col5X + 80000, driverY, box5Width - 150000, 150000, 8, false, "333333");
+            AjouterTexte(shapeTree, "Ôÿæ Process Efficiency", col5X + 80000, driverY, box5Width - 150000, 150000, 8, false, "333333");
             driverY += 180000;
-            AjouterTexte(shapeTree, "☑ Tool & Automation", col5X + 80000, driverY, box5Width - 150000, 150000, 8, false, "333333");
+            AjouterTexte(shapeTree, "Ôÿæ Tool & Automation", col5X + 80000, driverY, box5Width - 150000, 150000, 8, false, "333333");
             
             yPos += boxHeight + 250000;
             
-            // ACTIONS / INITIATIVES section avec vraies données
+            // ACTIONS / INITIATIVES section avec vraies donn├®es
             AjouterTexte(shapeTree, "ACTIONS / INITIATIVES", 250000, yPos, 8600000, 300000, 14, true, "333333");
             yPos += 400000;
             
@@ -735,7 +735,7 @@ namespace BacklogManager.Services
             
             yPos += 300000;
             
-            // Récupérer les vraies tâches/actions du programme - EXCLURE CONGES, NON TRAVAILLE ET SUPPORT
+            // R├®cup├®rer les vraies t├óches/actions du programme - EXCLURE CONGES, NON TRAVAILLE ET SUPPORT
             var tachesFiltered = taches.Where(t => 
                 t.TypeDemande != TypeDemande.Conges && 
                 t.TypeDemande != TypeDemande.NonTravaille && 
@@ -758,9 +758,9 @@ namespace BacklogManager.Services
                 AjouterTexte(shapeTree, nomAction, xPos + 50000, yPos + 120000, actWidths[0] - 100000, 150000, 8, false, "333333");
                 xPos += actWidths[0];
                 
-                // Priority avec badge coloré
+                // Priority avec badge color├®
                 string priorityText = "Medium";
-                string actPriorityColor = "FFA726"; // Orange par défaut
+                string actPriorityColor = "FFA726"; // Orange par d├®faut
                 if (action.Priorite == Priorite.Haute)
                 {
                     priorityText = "High";
@@ -773,7 +773,7 @@ namespace BacklogManager.Services
                 }
                 
                 AjouterRectangle(shapeTree, xPos, yPos, actWidths[1], 350000, "FFFFFF", "000000");
-                // Badge coloré mieux centré - texte encore plus haut
+                // Badge color├® mieux centr├® - texte encore plus haut
                 long badgeY = yPos + 70000;  
                 long badgeHeight = 210000;    
                 AjouterRectangle(shapeTree, xPos + 120000, badgeY, 560000, badgeHeight, actPriorityColor, null);
@@ -799,7 +799,7 @@ namespace BacklogManager.Services
 
         private static void AddDoughnutChart(SlidePart slidePart, List<(string label, double value, string hexColor)> data, long x, long y, long width, long height)
         {
-            // Créer la partie graphique
+            // Cr├®er la partie graphique
             ChartPart chartPart = slidePart.AddNewPart<ChartPart>();
             string relationshipId = slidePart.GetIdOfPart(chartPart);
             
@@ -807,7 +807,7 @@ namespace BacklogManager.Services
             double total = data.Sum(d => d.value);
             var dataWithPercent = data.Select(d => (d.label, d.value, percent: total > 0 ? (d.value / total) * 100 : 0, d.hexColor)).ToList();
             
-            // Créer le graphique donut
+            // Cr├®er le graphique donut
             C.ChartSpace chartSpace = new C.ChartSpace();
             chartSpace.Append(new C.Date1904() { Val = false });
             chartSpace.Append(new C.EditingLanguage() { Val = "en-US" });
@@ -830,14 +830,14 @@ namespace BacklogManager.Services
             series.Append(new C.Index() { Val = 0u });
             series.Append(new C.Order() { Val = 0u });
             
-            // Points de données avec couleurs personnalisées
+            // Points de donn├®es avec couleurs personnalis├®es
             for (int i = 0; i < dataWithPercent.Count; i++)
             {
                 var point = dataWithPercent[i];
                 C.DataPoint dataPoint = new C.DataPoint();
                 dataPoint.Append(new C.Index() { Val = (uint)i });
                 
-                // Couleur personnalisée pour ce point
+                // Couleur personnalis├®e pour ce point
                 C.ShapeProperties shapeProperties = new C.ShapeProperties();
                 A.SolidFill solidFill = new A.SolidFill();
                 solidFill.Append(new A.RgbColorModelHex() { Val = point.hexColor });
@@ -887,7 +887,7 @@ namespace BacklogManager.Services
             
             doughnutChart.Append(series);
             
-            // Data Labels - masquer tous les labels (on affiche le total au centre à la place)
+            // Data Labels - masquer tous les labels (on affiche le total au centre ├á la place)
             C.DataLabels dataLabels = new C.DataLabels();
             dataLabels.Append(new C.ShowLegendKey() { Val = false });
             dataLabels.Append(new C.ShowValue() { Val = false });
@@ -898,13 +898,13 @@ namespace BacklogManager.Services
             
             doughnutChart.Append(dataLabels);
             
-            // HoleSize pour donut épais
+            // HoleSize pour donut ├®pais
             doughnutChart.Append(new C.HoleSize() { Val = 65 });
             
             plotArea.Append(doughnutChart);
             chart.Append(plotArea);
             
-            // Légende à droite
+            // L├®gende ├á droite
             C.Legend legend = new C.Legend();
             legend.Append(new C.LegendPosition() { Val = C.LegendPositionValues.Right });
             legend.Append(new C.Overlay() { Val = false });
@@ -942,7 +942,7 @@ namespace BacklogManager.Services
             chartPart.ChartSpace = chartSpace;
             chartPart.ChartSpace.Save();
             
-            // Ajouter le graphique à la slide
+            // Ajouter le graphique ├á la slide
             var uniqueId = (uint)(slidePart.Slide.CommonSlideData.ShapeTree.Count() + 1);
             P.GraphicFrame graphicFrame = new P.GraphicFrame();
             
@@ -969,4 +969,3 @@ namespace BacklogManager.Services
         }
     }
 }
-

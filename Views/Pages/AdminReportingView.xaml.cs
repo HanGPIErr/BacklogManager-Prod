@@ -3513,7 +3513,7 @@ Generate structured content for the program reporting with these sections (use E
 
                 if (saveDialog.ShowDialog() == true)
                 {
-                    GenererFichierExcel(saveDialog.FileName, items);
+                    GenererFichierExcel(saveDialog.FileName, items, _dateDebutFiltre, _dateFinFiltre);
                     
                     if (MessageBox.Show("Fichier Excel généré avec succès. Voulez-vous l'ouvrir ?", "Export réussi", 
                         MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
@@ -3528,7 +3528,7 @@ Generate structured content for the program reporting with these sections (use E
             }
         }
 
-        private void GenererFichierExcel(string filePath, List<ReportingContributionInfo> data)
+        private void GenererFichierExcel(string filePath, List<ReportingContributionInfo> data, DateTime? dateDebut, DateTime? dateFin)
         {
             using (var spreadsheetDocument = SpreadsheetDocument.Create(filePath, SpreadsheetDocumentType.Workbook))
             {
@@ -3544,6 +3544,32 @@ Generate structured content for the program reporting with these sections (use E
 
                 var sheet1 = new Xl.Sheet() { Id = spreadsheetDocument.WorkbookPart.GetIdOfPart(worksheetPart1), SheetId = 1, Name = "Resource Contributions" };
                 sheets.Append(sheet1);
+                
+                // Ligne d'information sur la période
+                string periodeInfo = "Period: ";
+                if (dateDebut.HasValue && dateFin.HasValue)
+                {
+                    periodeInfo += $"{dateDebut.Value:dd/MM/yyyy} - {dateFin.Value:dd/MM/yyyy}";
+                }
+                else if (dateDebut.HasValue)
+                {
+                    periodeInfo += $"From {dateDebut.Value:dd/MM/yyyy}";
+                }
+                else if (dateFin.HasValue)
+                {
+                    periodeInfo += $"Until {dateFin.Value:dd/MM/yyyy}";
+                }
+                else
+                {
+                    periodeInfo += "All time";
+                }
+                
+                Xl.Row periodRow = new Xl.Row();
+                periodRow.Append(ConstructCell(periodeInfo, Xl.CellValues.String));
+                sheetData1.AppendChild(periodRow);
+                
+                // Ligne vide
+                sheetData1.AppendChild(new Xl.Row());
                 
                 // Calculer le nombre max de projets pour une personne pour créer les en-têtes dynamiques
                 int maxProjects = 0;
@@ -3649,6 +3675,14 @@ Generate structured content for the program reporting with these sections (use E
 
                 var sheet2 = new Xl.Sheet() { Id = spreadsheetDocument.WorkbookPart.GetIdOfPart(worksheetPart2), SheetId = 2, Name = "Daily Time" };
                 sheets.Append(sheet2);
+
+                // Ligne d'information sur la période
+                Xl.Row periodRow2 = new Xl.Row();
+                periodRow2.Append(ConstructCell(periodeInfo, Xl.CellValues.String));
+                sheetData2.AppendChild(periodRow2);
+                
+                // Ligne vide
+                sheetData2.AppendChild(new Xl.Row());
 
                 // Header Sheet 2
                 Xl.Row headerRow2 = new Xl.Row();
