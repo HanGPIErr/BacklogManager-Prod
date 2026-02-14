@@ -843,6 +843,7 @@ namespace BacklogManager.Views.Pages
             var userCache = _database.GetUtilisateurs();
             var teamCache = _database.GetAllEquipes();
             var projectCache = _database.GetProjets();
+            var programCache = _database.GetAllProgrammes();
 
             // Filtrer les CRAs pour la période
             var dateDeb = _dateDebutFiltre;
@@ -886,6 +887,14 @@ namespace BacklogManager.Views.Pages
                         var proj = projectCache.FirstOrDefault(p => p.Id == tache.ProjetId);
                         if (proj != null)
                         {
+                             // Lookup Programme
+                             string nomProgramme = "-";
+                             if (proj.ProgrammeId.HasValue) 
+                             {
+                                 var prog = programCache.FirstOrDefault(p => p.Id == proj.ProgrammeId.Value);
+                                 if (prog != null) nomProgramme = prog.Nom;
+                             }
+                             
                              // Vérifier si ce projet est déjà listé pour ce dev (via une tâche à 0h)
                              // On ajoute une entrée "fictive" à 0h pour que le projet apparaisse dans l'export
                              // SI ET SEULEMENT SI le développeur n'a pas déjà enregistré du temps sur ce projet
@@ -899,6 +908,7 @@ namespace BacklogManager.Views.Pages
                                       Date = DateTime.MinValue, // Marqueur
                                       Heures = 0,
                                       NomProjet = proj.Nom,
+                                      NomProgramme = nomProgramme,
                                       NomTache = "Affectation (sans temps)",
                                       IsAssignmentOnly = true
                                   });
@@ -945,12 +955,21 @@ namespace BacklogManager.Views.Pages
                 // Ajouter détail journalier
                 var tache = taches.FirstOrDefault(t => t.Id == cra.BacklogItemId);
                 string nomProjet = "?";
+                string nomProgramme = "-";
                 string nomTache = tache?.Titre ?? "Tâche inconnue";
                 
                 if (tache != null)
                 {
                     var proj = projectCache.FirstOrDefault(p => p.Id == tache.ProjetId);
-                    if (proj != null) nomProjet = proj.Nom;
+                    if (proj != null)
+                    {
+                        nomProjet = proj.Nom;
+                        if (proj.ProgrammeId.HasValue) 
+                        {
+                            var prog = programCache.FirstOrDefault(p => p.Id == proj.ProgrammeId.Value);
+                            if (prog != null) nomProgramme = prog.Nom;
+                        }
+                    }
                 }
                 
                 contributions[devKey].DetailTempsParJour.Add(new ReportingDailyTime
@@ -958,6 +977,7 @@ namespace BacklogManager.Views.Pages
                     Date = cra.Date,
                     Heures = cra.HeuresTravaillees,
                     NomProjet = nomProjet,
+                    NomProgramme = nomProgramme,
                     NomTache = nomTache
                 });
             }
@@ -3541,6 +3561,7 @@ Generate structured content for the program reporting with these sections (use E
                 headerRow1.Append(
                     ConstructCell("Resource", Xl.CellValues.String),
                     ConstructCell("Team", Xl.CellValues.String),
+                    ConstructCell("Programs", Xl.CellValues.String),
                     ConstructCell("Nb Members", Xl.CellValues.String),
                     ConstructCell("Total Time (Format)", Xl.CellValues.String),
                     ConstructCell("Total Time (Hours)", Xl.CellValues.String),
@@ -3555,6 +3576,7 @@ Generate structured content for the program reporting with these sections (use E
                 for (int i = 1; i <= maxProjects; i++)
                 {
                     headerRow1.Append(
+                        ConstructCell($"Program {i}", Xl.CellValues.String),
                         ConstructCell($"Project {i}", Xl.CellValues.String),
                         ConstructCell($"Time {i} (Days)", Xl.CellValues.String),
                         ConstructCell($"Time {i} (Hours)", Xl.CellValues.String)
@@ -3569,6 +3591,7 @@ Generate structured content for the program reporting with these sections (use E
                     row.Append(
                         ConstructCell(item.NomDeveloppeur ?? "", Xl.CellValues.String),
                         ConstructCell(item.NomEquipe ?? "", Xl.CellValues.String),
+                        ConstructCell(item.ProgrammesImpliques ?? "", Xl.CellValues.String),
                         ConstructCell(item.NbMembresEquipeActifs.ToString(), Xl.CellValues.Number),
                         ConstructCell(item.TempsTotalFormatte, Xl.CellValues.String),
                         ConstructCell(item.TempsTotalHeures.ToString("F2").Replace(',', '.'), Xl.CellValues.Number),
@@ -3584,6 +3607,7 @@ Generate structured content for the program reporting with these sections (use E
                         .GroupBy(d => d.NomProjet)
                         .Select(g => new { 
                             Nom = g.Key, 
+                            NomProgramme = g.First().NomProgramme,
                             Heures = g.Sum(x => x.Heures) 
                         })
                         .OrderByDescending(x => x.Heures)
@@ -3597,6 +3621,7 @@ Generate structured content for the program reporting with these sections (use E
                             double jours = Math.Round(proj.Heures / 8.0, 1);
                             
                             row.Append(
+                                ConstructCell(proj.NomProgramme ?? "-", Xl.CellValues.String),
                                 ConstructCell(proj.Nom, Xl.CellValues.String),
                                 ConstructCell(jours.ToString("F1").Replace(',', '.') + "j", Xl.CellValues.String),
                                 ConstructCell(proj.Heures.ToString("F2").Replace(',', '.'), Xl.CellValues.Number)
@@ -3606,6 +3631,7 @@ Generate structured content for the program reporting with these sections (use E
                         {
                             // Cellules vides si pas de projet
                             row.Append(
+                                ConstructCell("", Xl.CellValues.String),
                                 ConstructCell("", Xl.CellValues.String),
                                 ConstructCell("", Xl.CellValues.String),
                                 ConstructCell("", Xl.CellValues.String)
@@ -3704,6 +3730,23 @@ Generate structured content for the program reporting with these sections (use E
                 return projets.Any() ? string.Join(", ", projets) : "-";
             }
         }
+
+        public string ProgrammesImpliques
+        {
+            get
+            {
+                if (DetailTempsParJour == null || !DetailTempsParJour.Any()) return "-";
+                
+                var programmes = DetailTempsParJour
+                    .Where(d => !string.IsNullOrEmpty(d.NomProgramme))
+                    .Select(d => d.NomProgramme)
+                    .Distinct()
+                    .OrderBy(p => p)
+                    .ToList();
+                    
+                return programmes.Any() ? string.Join(", ", programmes) : "-";
+            }
+        }
         
         public string TauxCompletion => TachesTotal > 0 
             ? $"{Math.Round((double)TachesCompletes / TachesTotal * 100, 0)}%" 
@@ -3748,6 +3791,7 @@ Generate structured content for the program reporting with these sections (use E
     {
         public DateTime Date { get; set; }
         public string NomProjet { get; set; }
+        public string NomProgramme { get; set; }
         public string NomTache { get; set; }
         public double Heures { get; set; }
         public bool IsAssignmentOnly { get; set; }

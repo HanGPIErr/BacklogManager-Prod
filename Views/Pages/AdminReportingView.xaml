@@ -741,6 +741,17 @@
                             
                             <DataGridTextColumn x:Name="ColTeam" Header="ÉQUIPE" Binding="{Binding NomEquipe}" 
                                                 Width="120" FontSize="13"/>
+
+                            <DataGridTextColumn x:Name="ColProgrammes" Header="PROGRAMMES" Binding="{Binding ProgrammesImpliques}" 
+                                                Width="150" FontSize="12">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="TextWrapping" Value="Wrap"/>
+                                        <Setter Property="Padding" Value="5,0"/>
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
                                                 
                             <DataGridTextColumn x:Name="ColProjects" Header="PROJETS" Binding="{Binding ProjetsImpliques}" 
                                                 Width="150" FontSize="12">
