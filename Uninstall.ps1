@@ -8,7 +8,7 @@ param(
 )
 
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "  BacklogManager - Désinstallation" -ForegroundColor Cyan
+Write-Host "  ORBITT - Désinstallation" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 
@@ -24,7 +24,7 @@ if (-not $isAdmin) {
 }
 
 if (-not (Test-Path $InstallPath)) {
-    Write-Host "BacklogManager n'est pas installé dans: $InstallPath" -ForegroundColor Yellow
+    Write-Host "ORBITT n'est pas installé dans: $InstallPath" -ForegroundColor Yellow
     Write-Host ""
     Read-Host "Appuyez sur Entrée pour quitter"
     exit 0
@@ -34,7 +34,7 @@ Write-Host "Chemin d'installation: $InstallPath" -ForegroundColor Yellow
 Write-Host ""
 
 if (-not $Silent) {
-    Write-Host "ATTENTION: Cette action va supprimer BacklogManager." -ForegroundColor Red
+    Write-Host "ATTENTION: Cette action va supprimer ORBITT." -ForegroundColor Red
     Write-Host "La base de données sera conservée dans le dossier 'data'." -ForegroundColor Yellow
     Write-Host ""
     $response = Read-Host "Voulez-vous continuer? (O/N)"

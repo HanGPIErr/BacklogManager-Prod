@@ -123,15 +123,9 @@ Un paragraphe de bilan général : niveau de performance, engagement, fiabilité
         {
             try
             {
-                var apiKey = BacklogManager.Properties.Settings.Default["AgentChatToken"]?.ToString()?.Trim();
-                if (string.IsNullOrWhiteSpace(apiKey))
-                {
-                    throw new Exception("La clé API OpenAI n'est pas configurée. Configurez-la dans la section Chat.");
-                }
-
                 using (var httpClient = new HttpClient())
                 {
-                    httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
+                    httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {AIConfigService.GetToken()}");
                     httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
                     httpClient.Timeout = TimeSpan.FromMinutes(2);
 
@@ -156,7 +150,7 @@ Un paragraphe de bilan général : niveau de performance, engagement, fiabilité
 
                     var requestBody = new
                     {
-                        model = "gpt-oss-120b",
+                        model = AIConfigService.MODEL,
                         messages = new[]
                         {
                             new { role = "system", content = systemContent },
@@ -169,7 +163,7 @@ Un paragraphe de bilan général : niveau de performance, engagement, fiabilité
                     var json = JsonSerializer.Serialize(requestBody);
                     var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                    var response = await httpClient.PostAsync("https://genfactory-ai.analytics.cib.echonet/genai/api/v2/chat/completions", content);
+                    var response = await httpClient.PostAsync(AIConfigService.API_URL, content);
                     
                     if (!response.IsSuccessStatusCode)
                     {

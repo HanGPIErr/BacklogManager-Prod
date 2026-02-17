@@ -1,5 +1,5 @@
 ' ========================================================
-' BacklogManager - Lanceur avec mapping automatique
+' ORBITT - Lanceur avec mapping automatique
 ' ========================================================
 
 Set WshShell = CreateObject("WScript.Shell")

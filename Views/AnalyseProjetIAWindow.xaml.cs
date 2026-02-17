@@ -15,12 +15,8 @@ namespace BacklogManager.Views
 {
     public partial class AnalyseProjetIAWindow : Window
     {
-        private const string API_URL = "https://genfactory-ai.analytics.cib.echonet/genai/api/v2/chat/completions";
-        private const string MODEL = "gpt-oss-120b";
-        
         private readonly Projet _projet;
         private readonly List<BacklogItem> _taches;
-        private string _apiToken;
 
         public AnalyseProjetIAWindow(Projet projet, List<BacklogItem> taches)
         {
@@ -34,9 +30,6 @@ namespace BacklogManager.Views
             
             // Afficher le nom du projet
             TxtNomProjet.Text = $"{LocalizationService.Instance.GetString("ProjectAIAnalysis_ProjectLabel")} {projet.Nom}";
-            
-            // Charger le token API
-            _apiToken = Properties.Settings.Default.AgentChatToken;
             
             // Générer l'analyse en arrière-plan
             _ = GenererAnalyseAsync();
@@ -62,11 +55,6 @@ namespace BacklogManager.Views
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(_apiToken))
-                {
-                    AfficherErreur(LocalizationService.Instance.GetString("ProjectAIAnalysis_TokenNotConfigured"));
-                    return;
-                }
 
                 // Analyser les données du projet
                 var stats = AnalyserProjet();
@@ -299,7 +287,7 @@ Sois constructif, précis et propose des solutions concrètes.";
         {
             using (var client = new HttpClient())
             {
-                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_apiToken}");
+                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {AIConfigService.GetToken()}");
                 
                 var langCode = LocalizationService.Instance.CurrentLanguageCode;
                 string langInstruction;
@@ -322,7 +310,7 @@ Sois constructif, précis et propose des solutions concrètes.";
 
                 var requestBody = new
                 {
-                    model = MODEL,
+                    model = AIConfigService.MODEL,
                     messages = new[]
                     {
                         new { role = "system", content = systemContent },
@@ -334,7 +322,7 @@ Sois constructif, précis et propose des solutions concrètes.";
                 var json = JsonSerializer.Serialize(requestBody);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                var response = await client.PostAsync(API_URL, content);
+                var response = await client.PostAsync(AIConfigService.API_URL, content);
                 response.EnsureSuccessStatusCode();
 
                 var responseBody = await response.Content.ReadAsStringAsync();

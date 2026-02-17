@@ -72,7 +72,6 @@ namespace BacklogManager
             Loaded += (s, e) =>
             {
                 InitialiserTextes();
-                ChargerInfoProjets();
                 AfficherUtilisateurConnecte();
                 VerifierPermissions();
                 VerifierPermissionsAdmin();
@@ -102,7 +101,6 @@ namespace BacklogManager
             AdminSectionTitle.Text = loc["Menu_Section_Administration"];
             TxtHeaderActions.Text = loc["Menu_Section_Actions"];
             TxtHeaderAdmin.Text = loc["Menu_Section_Administration"];
-            TxtHeaderProjects.Text = $"📁 {loc["Menu_Projects"]}";
             
             // Menu buttons
             BtnDashboard.Content = $"🏠 {loc["Menu_Dashboard"]}";
@@ -118,12 +116,6 @@ namespace BacklogManager
             
             // Bouton changer utilisateur
             BtnChangerUtilisateurMenu.Content = $"🔄 {loc["Menu_ChangeUser"]}";
-            
-            // Tooltip
-            BtnGererProjetsTooltip.ToolTip = loc["Menu_ManageProjects"];
-            
-            // Mettre à jour le nombre de projets
-            ChargerInfoProjets();
         }
 
         private void InitialiserNotifications()
@@ -195,19 +187,6 @@ namespace BacklogManager
             TxtHeaderAdmin.Visibility = hasAdminAccess ? Visibility.Visible : Visibility.Collapsed;
         }
 
-        private void ChargerInfoProjets()
-        {
-            try
-            {
-                var projets = _backlogService.GetAllProjets();
-                TxtNbProjets.Text = string.Format(LocalizationService.Instance["Menu_ActiveProjects"], projets.Count);
-            }
-            catch
-            {
-                // Ignorer les erreurs de chargement initial
-            }
-        }
-
         private void BtnGererEquipe_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -219,24 +198,6 @@ namespace BacklogManager
             catch (System.Exception ex)
             {
                 MessageBox.Show(string.Format("Erreur lors de l'ouverture de la gestion de l'équipe: {0}", ex.Message), 
-                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private void BtnGererProjets_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                var window = new GestionProjetsWindow(_backlogService);
-                window.Owner = this;
-                window.ShowDialog();
-                
-                // Rafraîchir après fermeture
-                ChargerInfoProjets();
-            }
-            catch (System.Exception ex)
-            {
-                MessageBox.Show(string.Format("Erreur lors de l'ouverture de la gestion des projets: {0}", ex.Message), 
                     "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }

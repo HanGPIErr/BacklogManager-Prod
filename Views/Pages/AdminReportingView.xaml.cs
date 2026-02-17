@@ -2638,13 +2638,7 @@ namespace BacklogManager.Views.Pages
                 return;
             }
             
-            var apiKey = BacklogManager.Properties.Settings.Default["AgentChatToken"]?.ToString()?.Trim();
-            if (string.IsNullOrWhiteSpace(apiKey))
-            {
-                MessageBox.Show("La clé API OpenAI n'est pas configurée.\nConfigurez-la dans la section Chat.", 
-                    "Configuration requise", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
+            // Le token est maintenant centralisé dans AIConfigService
             
             BtnGenererAvecIA.IsEnabled = false;
             var loadingStack = new StackPanel { Orientation = Orientation.Horizontal };
@@ -2782,8 +2776,7 @@ Generate structured content for the program reporting with these sections (use E
         {
             using (var httpClient = new System.Net.Http.HttpClient())
             {
-                var apiKey = BacklogManager.Properties.Settings.Default["AgentChatToken"]?.ToString()?.Trim();
-                httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
+                httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {AIConfigService.GetToken()}");
                 httpClient.Timeout = TimeSpan.FromMinutes(2);
                 
                 // Adapter le message système selon la langue
@@ -2796,7 +2789,7 @@ Generate structured content for the program reporting with these sections (use E
                 
                 var requestBody = new
                 {
-                    model = "gpt-oss-120b",
+                    model = AIConfigService.MODEL,
                     messages = new[]
                     {
                         new { role = "system", content = systemMessage },
@@ -2809,7 +2802,7 @@ Generate structured content for the program reporting with these sections (use E
                 var json = System.Text.Json.JsonSerializer.Serialize(requestBody);
                 var content = new System.Net.Http.StringContent(json, System.Text.Encoding.UTF8, "application/json");
                 
-                var response = await httpClient.PostAsync("https://genfactory-ai.analytics.cib.echonet/genai/api/v2/chat/completions", content);
+                var response = await httpClient.PostAsync(AIConfigService.API_URL, content);
                 
                 if (!response.IsSuccessStatusCode)
                 {

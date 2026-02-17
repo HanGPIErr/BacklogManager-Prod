@@ -1,5 +1,5 @@
 # ========================================================
-# BacklogManager - Lanceur intelligent avec mapping réseau
+# ORBITT - Lanceur intelligent avec mapping réseau
 # ========================================================
 
 param(
@@ -96,7 +96,7 @@ function Set-DatabasePath {
 # ===== MAIN =====
 
 Write-Host "==================================" -ForegroundColor Cyan
-Write-Host "  BacklogManager - Demarrage" -ForegroundColor Cyan
+Write-Host "  ORBITT - Demarrage" -ForegroundColor Cyan
 Write-Host "==================================" -ForegroundColor Cyan
 Write-Host ""
 
@@ -138,8 +138,8 @@ if ($NetworkPath -and -not $NoMapping) {
 }
 
 # Lancer l'application
-Write-Host "Lancement de BacklogManager..." -ForegroundColor Green
+Write-Host "Lancement d'ORBITT..." -ForegroundColor Green
 Start-Process $ExePath -WorkingDirectory $AppPath
 
 Write-Host ""
-Write-Host "BacklogManager demarre!" -ForegroundColor Green
+Write-Host "ORBITT demarre!" -ForegroundColor Green

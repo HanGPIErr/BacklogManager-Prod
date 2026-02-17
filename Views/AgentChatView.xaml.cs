@@ -17,14 +17,8 @@ namespace BacklogManager.Views
 {
     public partial class AgentChatView : UserControl, INotifyPropertyChanged
     {
-        private const string API_URL = "https://genfactory-ai.analytics.cib.echonet/genai/api/v2/chat/completions";
-        private const string MODEL = "gpt-oss-120b";
-        private const string TOKEN_KEY = "AgentChatToken";
         private const string LOG_FILE = "chat_debug.log";
         
-        private string _apiToken;
-        private bool _needTokenConfiguration;
-        private bool _chatVisible;
         private string _messageActuel;
         private bool _canSendMessage;
         private readonly ChatHistoryService _chatHistoryService;
@@ -35,18 +29,6 @@ namespace BacklogManager.Views
         public event PropertyChangedEventHandler PropertyChanged;
 
         public ObservableCollection<ChatMessage> Messages { get; set; }
-
-        public bool NeedTokenConfiguration
-        {
-            get => _needTokenConfiguration;
-            set { _needTokenConfiguration = value; OnPropertyChanged(); }
-        }
-
-        public bool ChatVisible
-        {
-            get => _chatVisible;
-            set { _chatVisible = value; OnPropertyChanged(); }
-        }
 
         public string MessageActuel
         {
@@ -79,13 +61,19 @@ namespace BacklogManager.Views
             TxtSendHint.Text = LocalizationService.Instance.GetString("AIChat_SendHint");
             BtnNewConversation.Content = LocalizationService.Instance.GetString("AIChat_BtnNewConversation");
             BtnClearHistory.Content = LocalizationService.Instance.GetString("AIChat_BtnClearHistory");
-            BtnModifyToken.Content = LocalizationService.Instance.GetString("AIChat_BtnModifyToken");
             
             _chatHistoryService = chatHistoryService;
             _currentUser = currentUser;
             _mainWindow = mainWindow;
             
-            LoadToken();
+            // Message de bienvenue - Le token est maintenant centralisé dans AIConfigService
+            Messages.Add(new ChatMessage
+            {
+                IsUser = false,
+                Auteur = LocalizationService.Instance.GetString("AIChat_AgentTitle"),
+                Message = LocalizationService.Instance.GetString("AIChat_WelcomeMessage"),
+                Horodatage = DateTime.Now.ToString("HH:mm")
+            });
         }
 
         private void BtnRetour_Click(object sender, RoutedEventArgs e)
@@ -93,73 +81,6 @@ namespace BacklogManager.Views
             // Retour au Dashboard
             var btnDashboard = _mainWindow.FindName("BtnDashboard") as Button;
             btnDashboard?.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));
-        }
-
-        private void LoadToken()
-        {
-            try
-            {
-                _apiToken = Properties.Settings.Default[TOKEN_KEY]?.ToString()?.Trim();
-                
-                if (string.IsNullOrWhiteSpace(_apiToken))
-                {
-                    NeedTokenConfiguration = true;
-                    ChatVisible = false;
-                }
-                else
-                {
-                    NeedTokenConfiguration = false;
-                    ChatVisible = true;
-                    
-                    // Message de bienvenue
-                    Messages.Add(new ChatMessage
-                    {
-                        IsUser = false,
-                        Auteur = LocalizationService.Instance.GetString("AIChat_AgentTitle"),
-                        Message = LocalizationService.Instance.GetString("AIChat_WelcomeMessage"),
-                        Horodatage = DateTime.Now.ToString("HH:mm")
-                    });
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Erreur lors du chargement du token : {ex.Message}", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private void SaveToken_Click(object sender, RoutedEventArgs e)
-        {
-            var token = TxtToken.Text.Trim();
-            
-            if (string.IsNullOrWhiteSpace(token))
-            {
-                MessageBox.Show("Veuillez saisir un token valide.", "Erreur", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            try
-            {
-                Properties.Settings.Default[TOKEN_KEY] = token;
-                Properties.Settings.Default.Save();
-                
-                _apiToken = token;
-                NeedTokenConfiguration = false;
-                ChatVisible = true;
-                
-                Messages.Add(new ChatMessage
-                {
-                    IsUser = false,
-                    Auteur = "Agent Project & Change",
-                    Message = "Bonjour ! Je suis votre assistante virtuelle. N'hésitez pas à me poser vos questions ! 😊",
-                    Horodatage = DateTime.Now.ToString("HH:mm")
-                });
-                
-                MessageBox.Show("Token enregistré avec succès !", "Succès", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Erreur lors de l'enregistrement du token : {ex.Message}", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
         }
 
         private async void Send_Click(object sender, RoutedEventArgs e)
@@ -240,10 +161,13 @@ namespace BacklogManager.Views
                 client.Timeout = TimeSpan.FromSeconds(60);
                 client.DefaultRequestHeaders.Clear();
                 
-                LogDebug($"Token length: {_apiToken?.Length ?? 0}");
-                LogDebug($"Token first 20 chars: {(_apiToken?.Length >= 20 ? _apiToken.Substring(0, 20) : _apiToken)}");
+                // Utilisation du token centralisé
+                var apiToken = AIConfigService.GetToken();
                 
-                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_apiToken}");
+                LogDebug($"Token length: {apiToken?.Length ?? 0}");
+                LogDebug($"Token first 20 chars: {(apiToken?.Length >= 20 ? apiToken.Substring(0, 20) : apiToken)}");
+                
+                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiToken}");
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
                 
                 var conversationHistory = Messages
@@ -270,11 +194,11 @@ namespace BacklogManager.Views
                         break;
                 }
 
-                string systemPrompt = @"Tu es Agent Project & Change, assistante virtuelle experte en gestion de projet agile pour BacklogManager.
+                string systemPrompt = @"Tu es Agent Project & Change, assistante virtuelle experte en gestion de projet agile pour ORBITT.
 
 **Personnalité** : Bienveillante, pédagogue, avec humour et émojis. Réponds de façon CONCISE (3-4 lignes max).
 
-**BacklogManager - Fonctions principales** :
+**ORBITT - Fonctions principales** :
 • 📋 Backlog : Créer/modifier tâches (➕ Nouvelle tâche)
 • 🎯 Kanban : Glisser-déposer cartes entre colonnes (À FAIRE → EN COURS → TERMINÉ)
 • ⏱️ CRA : Saisir heures travaillées (calendrier mensuel, validé par admin)
@@ -308,7 +232,7 @@ namespace BacklogManager.Views
 
                 var requestBody = new
                 {
-                    model = MODEL,
+                    model = AIConfigService.MODEL,
                     messages = messages,
                     temperature = 0.7,
                     max_tokens = 400
@@ -317,11 +241,11 @@ namespace BacklogManager.Views
                 var jsonContent = JsonSerializer.Serialize(requestBody);
                 var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
-                LogDebug($"API URL: {API_URL}");
+                LogDebug($"API URL: {AIConfigService.API_URL}");
                 LogDebug($"Request body: {jsonContent.Substring(0, Math.Min(500, jsonContent.Length))}...");
-                LogDebug($"Authorization header: Bearer {_apiToken?.Substring(0, Math.Min(20, _apiToken?.Length ?? 0))}...");
+                LogDebug($"Authorization header: Bearer {apiToken?.Substring(0, Math.Min(20, apiToken?.Length ?? 0))}...");
 
-                var response = await client.PostAsync(API_URL, content);
+                var response = await client.PostAsync(AIConfigService.API_URL, content);
                 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -410,22 +334,6 @@ namespace BacklogManager.Views
                 {
                     MessageBox.Show($"Erreur lors de l'effacement de l'historique : {ex.Message}", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
-            }
-        }
-
-        private void ChangeToken_Click(object sender, RoutedEventArgs e)
-        {
-            var result = MessageBox.Show(
-                LocalizationService.Instance.GetString("AIAnalysis_TokenConfig_Message"),
-                LocalizationService.Instance.GetString("AIChat_ModifyTokenTitle"),
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Question);
-
-            if (result == MessageBoxResult.Yes)
-            {
-                ChatVisible = false;
-                NeedTokenConfiguration = true;
-                TxtToken.Text = "";
             }
         }
 

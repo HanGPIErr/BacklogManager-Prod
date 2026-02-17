@@ -8,7 +8,7 @@ param(
 )
 
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "  BacklogManager - Installation" -ForegroundColor Cyan
+Write-Host "  ORBITT - Installation" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 
@@ -119,12 +119,12 @@ Write-Host "========================================" -ForegroundColor Green
 Write-Host "  Installation terminée avec succès!" -ForegroundColor Green
 Write-Host "========================================" -ForegroundColor Green
 Write-Host ""
-Write-Host "BacklogManager a été installé dans:" -ForegroundColor White
+Write-Host "ORBITT a été installé dans:" -ForegroundColor White
 Write-Host "  $InstallPath" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "Lancez l'application via:" -ForegroundColor White
 Write-Host "  - Le raccourci sur le bureau" -ForegroundColor Gray
-Write-Host "  - Le menu Démarrer > BacklogManager" -ForegroundColor Gray
+Write-Host "  - Le menu Démarrer > ORBITT" -ForegroundColor Gray
 Write-Host ""
 
 if (-not $Silent) {

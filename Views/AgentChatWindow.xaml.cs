@@ -18,14 +18,8 @@ namespace BacklogManager.Views
 {
     public partial class AgentChatWindow : Window, INotifyPropertyChanged
     {
-        private const string API_URL = "https://genfactory-ai.analytics.cib.echonet/genai/api/v2/chat/completions";
-        private const string MODEL = "gpt-oss-120b";
-        private const string TOKEN_KEY = "AgentChatToken";
         private const string LOG_FILE = "chat_debug.log";
         
-        private string _apiToken;
-        private bool _needTokenConfiguration;
-        private bool _chatVisible;
         private string _messageActuel;
         private bool _canSendMessage;
         private readonly ChatHistoryService _chatHistoryService;
@@ -33,18 +27,6 @@ namespace BacklogManager.Views
         private int? _conversationId;
 
         public ObservableCollection<ChatMessage> Messages { get; set; }
-
-        public bool NeedTokenConfiguration
-        {
-            get => _needTokenConfiguration;
-            set { _needTokenConfiguration = value; OnPropertyChanged(); }
-        }
-
-        public bool ChatVisible
-        {
-            get => _chatVisible;
-            set { _chatVisible = value; OnPropertyChanged(); }
-        }
 
         public string MessageActuel
         {
@@ -79,7 +61,14 @@ namespace BacklogManager.Views
             _chatHistoryService = chatHistoryService;
             _currentUser = currentUser;
             
-            LoadToken();
+            // Message de bienvenue - Le token est maintenant centralisé dans AIConfigService
+            Messages.Add(new ChatMessage
+            {
+                IsUser = false,
+                Auteur = LocalizationService.Instance.GetString("AIChat_AgentTitle"),
+                Message = LocalizationService.Instance.GetString("AIChat_WelcomeMessage"),
+                Horodatage = DateTime.Now.ToString("HH:mm")
+            });
         }
 
         private void BtnRetour_Click(object sender, RoutedEventArgs e)
@@ -110,77 +99,6 @@ namespace BacklogManager.Views
                 {
                     AddReaction(message, textBlock.Text);
                 }
-            }
-        }
-
-        private void LoadToken()
-        {
-            try
-            {
-                // Charger le token depuis les paramètres locaux
-                _apiToken = Properties.Settings.Default[TOKEN_KEY]?.ToString()?.Trim();
-                
-                if (string.IsNullOrWhiteSpace(_apiToken))
-                {
-                    NeedTokenConfiguration = true;
-                    ChatVisible = false;
-                }
-                else
-                {
-                    NeedTokenConfiguration = false;
-                    ChatVisible = true;
-                    
-                    // Message de bienvenue
-                    Messages.Add(new ChatMessage
-                    {
-                        IsUser = false,
-                        Auteur = "🤖 " + LocalizationService.Instance.GetString("AIChat_AgentTitle"),
-                        Message = LocalizationService.Instance.GetString("AIChat_WelcomeMessageFull"),
-                        Horodatage = DateTime.Now.ToString("HH:mm")
-                    });
-                }
-            }
-            catch
-            {
-                NeedTokenConfiguration = true;
-                ChatVisible = false;
-            }
-        }
-
-        private void SaveToken_Click(object sender, RoutedEventArgs e)
-        {
-            var token = TxtToken.Text.Trim();
-            
-            if (string.IsNullOrWhiteSpace(token))
-            {
-                MessageBox.Show("Veuillez saisir un token valide.", "Erreur", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            try
-            {
-                // Sauvegarder dans les paramètres locaux
-                Properties.Settings.Default[TOKEN_KEY] = token;
-                Properties.Settings.Default.Save();
-                
-                _apiToken = token;
-                NeedTokenConfiguration = false;
-                ChatVisible = true;
-                
-                // Message de bienvenue
-                Messages.Add(new ChatMessage
-                {
-                    IsUser = false,
-                    Auteur = LocalizationService.Instance.GetString("AIChat_AgentTitle"),
-                    Message = LocalizationService.Instance.GetString("AIChat_WelcomeMessageFull"),
-                    Horodatage = DateTime.Now.ToString("HH:mm")
-                });
-                
-                MessageBox.Show("Token enregistré avec succès !", "Succès", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Erreur lors de l'enregistrement du token : {ex.Message}", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -291,11 +209,14 @@ namespace BacklogManager.Views
                 client.Timeout = TimeSpan.FromSeconds(60);
                 client.DefaultRequestHeaders.Clear();
                 
-                // Logging pour debug
-                LogDebug($"Token length: {_apiToken?.Length ?? 0}");
-                LogDebug($"Token first 20 chars: {(_apiToken?.Length >= 20 ? _apiToken.Substring(0, 20) : _apiToken)}");
+                // Utiliser le token centralisé
+                var apiToken = AIConfigService.GetToken();
                 
-                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_apiToken}");
+                // Logging pour debug
+                LogDebug($"Token length: {apiToken?.Length ?? 0}");
+                LogDebug($"Token first 20 chars: {(apiToken?.Length >= 20 ? apiToken.Substring(0, 20) : apiToken)}");
+                
+                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiToken}");
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
                 
                 // Construire l'historique de conversation pour le contexte
@@ -324,7 +245,7 @@ namespace BacklogManager.Views
 
                 var requestBody = new
                 {
-                    model = MODEL,
+                    model = AIConfigService.MODEL,
                     messages = messages,
                     temperature = 0.7,
                     max_tokens = 400
@@ -334,11 +255,11 @@ namespace BacklogManager.Views
                 var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
                 // Logging pour debug
-                LogDebug($"API URL: {API_URL}");
+                LogDebug($"API URL: {AIConfigService.API_URL}");
                 LogDebug($"Request body: {jsonContent.Substring(0, Math.Min(500, jsonContent.Length))}...");
-                LogDebug($"Authorization header: Bearer {_apiToken?.Substring(0, Math.Min(20, _apiToken?.Length ?? 0))}...");
+                LogDebug($"Authorization header: Bearer {apiToken?.Substring(0, Math.Min(20, apiToken?.Length ?? 0))}...");
 
-                var response = await client.PostAsync(API_URL, content);
+                var response = await client.PostAsync(AIConfigService.API_URL, content);
                 
                 // Gérer les erreurs HTTP avec plus de détails
                 if (!response.IsSuccessStatusCode)
@@ -397,22 +318,6 @@ namespace BacklogManager.Views
             }
         }
 
-        private void ChangeToken_Click(object sender, RoutedEventArgs e)
-        {
-            var result = MessageBox.Show(
-                "Voulez-vous vraiment changer votre token d'accès ?\nL'historique de conversation sera conservé.",
-                "Confirmation",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Question);
-
-            if (result == MessageBoxResult.Yes)
-            {
-                ChatVisible = false;
-                NeedTokenConfiguration = true;
-                TxtToken.Clear();
-            }
-        }
-
         private string GetSystemPrompt(string languageCode, string userMessage)
         {
             // Détecter la langue du message utilisateur (si différente de la langue système)
@@ -422,11 +327,11 @@ namespace BacklogManager.Views
             switch (targetLanguage.ToLower())
             {
                 case "es":
-                    return @"Eres Agente Project & Change, asistente virtual experta en gestión de proyectos ágiles para BacklogManager.
+                    return @"Eres Agente Project & Change, asistente virtual experta en gestión de proyectos ágiles para ORBITT.
 
 **Personalidad**: Amable, pedagógica, con humor y emojis. Responde de manera CONCISA (3-4 líneas máx).
 
-**BacklogManager - Funciones principales**:
+**ORBITT - Funciones principales**:
 • 📋 Backlog: Crear/modificar tareas (➕ Nueva tarea)
 • 🎯 Kanban: Arrastrar y soltar tarjetas entre columnas (POR HACER → EN CURSO → TERMINADO)
 • ⏱️ CRA: Registrar horas trabajadas (calendario mensual, validado por admin)
@@ -449,11 +354,11 @@ namespace BacklogManager.Views
 ✓ Estructura tus respuestas con títulos ### cuando sea necesario";
 
                 case "en":
-                    return @"You are Agent Project & Change, a virtual assistant expert in agile project management for BacklogManager.
+                    return @"You are Agent Project & Change, a virtual assistant expert in agile project management for ORBITT.
 
-**Personality**: Kind, educational, with humor and emojis. Answer CONCISELY (3-4 lines max).
+**Personality**: Kind, pedagogical, with humor and emojis. Answer CONCISELY (3-4 lines max).
 
-**BacklogManager - Main features**:
+**ORBITT - Main features**:
 • 📋 Backlog: Create/edit tasks (➕ New task)
 • 🎯 Kanban: Drag and drop cards between columns (TO DO → IN PROGRESS → DONE)
 • ⏱️ CRA: Log worked hours (monthly calendar, validated by admin)
@@ -476,11 +381,11 @@ namespace BacklogManager.Views
 ✓ Structure your answers with ### headings when needed";
 
                 default: // French
-                    return @"Tu es Agent Project & Change, assistante virtuelle experte en gestion de projet agile pour BacklogManager.
+                    return @"Tu es Agent Project & Change, assistante virtuelle experte en gestion de projet agile pour ORBITT.
 
-**Personnalité**: Bienveillante, pédagogue, avec humour et émojis. Réponds de façon CONCISE (3-4 lignes max).
+**Personnalité** : Bienveillante, pédagogue, avec humour et émojis. Réponds de façon CONCISE (3-4 lignes max).
 
-**BacklogManager - Fonctions principales**:
+**ORBITT - Fonctions principales**:
 • 📋 Backlog: Créer/modifier tâches (➕ Nouvelle tâche)
 • 🎯 Kanban: Glisser-déposer cartes entre colonnes (À FAIRE → EN COURS → TERMINÉ)
 • ⏱️ CRA: Saisir heures travaillées (calendrier mensuel, validé par admin)

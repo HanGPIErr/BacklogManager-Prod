@@ -11,9 +11,6 @@ namespace BacklogManager.Views
 {
     public partial class RapportValidationWindow : Window
     {
-        private const string API_URL = "https://genfactory-ai.analytics.cib.echonet/genai/api/v2/chat/completions";
-        private const string MODEL = "gpt-oss-120b";
-        
         public class TacheRapport
         {
             public string Nom { get; set; }
@@ -23,7 +20,6 @@ namespace BacklogManager.Views
         private readonly int _nombreValidations;
         private readonly int _nombreRetards;
         private readonly int _nombreTemps;
-        private string _apiToken;
 
         public RapportValidationWindow(int nombreValidations, List<TacheRapport> tachesRetard, List<TacheRapport> tachesTemps)
         {
@@ -57,17 +53,11 @@ namespace BacklogManager.Views
                 BorderAucuneDonnee.Visibility = Visibility.Visible;
             }
 
-            // Charger le token API
-            _apiToken = Properties.Settings.Default.AgentChatToken;
+            // Le token est maintenant centralisé dans AIConfigService
+            BorderAnalyseIA.Visibility = Visibility.Visible;
             
-            // Afficher la section IA seulement si le token est configuré
-            if (!string.IsNullOrWhiteSpace(_apiToken))
-            {
-                BorderAnalyseIA.Visibility = Visibility.Visible;
-                
-                // Générer l'analyse en arrière-plan
+            // Générer l'analyse en arrière-plan
                 _ = GenererAnalyseIAAsync(tachesRetard, tachesTemps);
-            }
         }
 
         private async Task GenererAnalyseIAAsync(List<TacheRapport> tachesRetard, List<TacheRapport> tachesTemps)
@@ -163,7 +153,7 @@ Sois encourageant même en cas de retards, propose des solutions concrètes.";
         {
             using (var client = new HttpClient())
             {
-                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_apiToken}");
+                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {AIConfigService.GetToken()}");
                 
                 var langCode = LocalizationService.Instance.CurrentLanguageCode;
                 string langInstruction;
@@ -184,7 +174,7 @@ Sois encourageant même en cas de retards, propose des solutions concrètes.";
 
                 var requestBody = new
                 {
-                    model = MODEL,
+                    model = AIConfigService.MODEL,
                     messages = new[]
                     {
                         new { role = "system", content = systemContent },
@@ -193,10 +183,10 @@ Sois encourageant même en cas de retards, propose des solutions concrètes.";
                     temperature = 0.7
                 };
 
-                var json = JsonSerializer.Serialize(requestBody);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var jsonContent = JsonSerializer.Serialize(requestBody);
+                var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
-                var response = await client.PostAsync(API_URL, content);
+                var response = await client.PostAsync(AIConfigService.API_URL, content);
                 response.EnsureSuccessStatusCode();
 
                 var responseBody = await response.Content.ReadAsStringAsync();

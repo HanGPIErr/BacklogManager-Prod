@@ -61,50 +61,8 @@
             </Grid>
         </Border>
 
-        <!-- Configuration Token (affiché si pas de token) -->
-        <Border Grid.Row="1" Background="White" Padding="40" Margin="20"
-                Visibility="{Binding NeedTokenConfiguration, Converter={StaticResource BooleanToVisibilityConverter}}">
-            <StackPanel MaxWidth="500" VerticalAlignment="Center">
-                <TextBlock Text="🔑 Configuration de l'accès" FontSize="20" FontWeight="Bold" Foreground="#2C3E50" HorizontalAlignment="Center"/>
-                <TextBlock Text="Pour utiliser l'agent IA, vous devez configurer votre token d'accès personnel." 
-                           TextWrapping="Wrap" Margin="0,15,0,0" Foreground="#7F8C8D" TextAlignment="Center"/>
-                
-                <TextBlock Text="Token API" FontSize="14" FontWeight="SemiBold" Margin="0,25,0,5" Foreground="#2C3E50"/>
-                <TextBox x:Name="TxtToken" Padding="10" FontSize="12" Height="100" TextWrapping="Wrap" AcceptsReturn="True"
-                         VerticalScrollBarVisibility="Auto"/>
-                
-                <TextBlock Text="⚠️ Ce token sera stocké localement sur votre machine uniquement" 
-                           FontSize="11" Foreground="#E74C3C" Margin="0,5,0,0" TextAlignment="Center"/>
-                
-                <Button Content="💾 Enregistrer le token" Padding="15,8" FontSize="14" Margin="0,20,0,0"
-                        Background="#27AE60" Foreground="White" BorderThickness="0" Cursor="Hand"
-                        Click="SaveToken_Click" HorizontalAlignment="Center">
-                    <Button.Style>
-                        <Style TargetType="Button">
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="Button">
-                                        <Border Background="{TemplateBinding Background}" 
-                                                CornerRadius="5" Padding="{TemplateBinding Padding}">
-                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        </Border>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                            <Style.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Background" Value="#229954"/>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                </Button>
-            </StackPanel>
-        </Border>
-
         <!-- Chat Interface -->
         <ScrollViewer Grid.Row="1" x:Name="ScrollMessages" VerticalScrollBarVisibility="Auto"
-                      Visibility="{Binding ChatVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
                       Padding="20">
             <ItemsControl ItemsSource="{Binding Messages}">
                 <ItemsControl.ItemTemplate>
@@ -139,8 +97,7 @@
         </ScrollViewer>
 
         <!-- Input Area -->
-        <Border Grid.Row="2" Background="White" Padding="20,10,20,10" BorderBrush="#E1DFDD" BorderThickness="0,1,0,0"
-                Visibility="{Binding ChatVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+        <Border Grid.Row="2" Background="White" Padding="20,10,20,10" BorderBrush="#E1DFDD" BorderThickness="0,1,0,0">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -228,32 +185,6 @@
                     <Button x:Name="BtnClearHistory" Content="🗑️ Effacer l'historique" Margin="10,0,0,0" Padding="10,6" FontSize="11"
                             Background="Transparent" Foreground="#605E5C" BorderThickness="1" BorderBrush="#E1DFDD" Cursor="Hand"
                             Click="ClearHistory_Click">
-                        <Button.Style>
-                            <Style TargetType="Button">
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="Button">
-                                            <Border Background="{TemplateBinding Background}" 
-                                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                                    CornerRadius="4" Padding="{TemplateBinding Padding}">
-                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                            </Border>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                                <Style.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="#EDEBE9"/>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
-                    
-                    <Button x:Name="BtnModifyToken" Content="🔑 Modifier le token" Margin="10,0,0,0" Padding="10,6" FontSize="11"
-                            Background="Transparent" Foreground="#605E5C" BorderThickness="1" BorderBrush="#E1DFDD" Cursor="Hand"
-                            Click="ChangeToken_Click">
                         <Button.Style>
                             <Style TargetType="Button">
                                 <Setter Property="Template">

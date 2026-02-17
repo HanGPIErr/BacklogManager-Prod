@@ -1,5 +1,5 @@
 ' =====================================
-' BacklogManager - Installation VBS
+' ORBITT - Installation VBS
 ' =====================================
 
 Option Explicit
@@ -19,7 +19,7 @@ strDestPath = "C:\SGI_SUPPORT\APPLICATIONS\BacklogManager"
 strExePath = strDestPath & "\BacklogManager.exe"
 
 ' Message de bienvenue
-intResult = MsgBox("BacklogManager - Installation" & vbCrLf & vbCrLf & _
+intResult = MsgBox("ORBITT - Installation" & vbCrLf & vbCrLf & _
                    "L'application sera installée dans :" & vbCrLf & _
                    strDestPath & vbCrLf & vbCrLf & _
                    "Voulez-vous continuer ?", vbQuestion + vbYesNo, "Installation")
@@ -50,7 +50,7 @@ CreateDesktopShortcut strExePath
 
 ' Message de fin
 MsgBox "Installation terminée avec succès !" & vbCrLf & vbCrLf & _
-       "BacklogManager va maintenant démarrer.", vbInformation, "Installation"
+       "ORBITT va maintenant démarrer.", vbInformation, "Installation"
 
 ' Lancer l'application
 objWshShell.Run """" & strExePath & """", 1, False
@@ -126,7 +126,7 @@ Sub CreateDesktopShortcut(strTargetPath)
     Set objShortcut = objWshShell.CreateShortcut(strShortcutPath)
     objShortcut.TargetPath = strTargetPath
     objShortcut.WorkingDirectory = objFSO.GetParentFolderName(strTargetPath)
-    objShortcut.Description = "BacklogManager - Gestion de projets Agile"
+    objShortcut.Description = "ORBITT - Gestion de projets Agile"
     objShortcut.IconLocation = strTargetPath & ",0"
     objShortcut.Save
 End Sub

@@ -195,28 +195,7 @@ namespace BacklogManager.Views
 
         private void BtnAnalyserIA_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            var loc = Services.LocalizationService.Instance;
-            
-            // Vérifier que le token API est configuré
-            var apiToken = BacklogManager.Properties.Settings.Default["AgentChatToken"]?.ToString()?.Trim();
-            if (string.IsNullOrWhiteSpace(apiToken))
-            {
-                var result = System.Windows.MessageBox.Show(
-                    loc.GetString("AIAnalysis_TokenRequired_Message"),
-                    loc.GetString("AIAnalysis_TokenRequired_Title"),
-                    System.Windows.MessageBoxButton.YesNo,
-                    System.Windows.MessageBoxImage.Information);
-                
-                if (result == System.Windows.MessageBoxResult.Yes)
-                {
-                    System.Windows.MessageBox.Show(
-                        loc.GetString("AIAnalysis_TokenConfig_Message"),
-                        loc.GetString("AIAnalysis_TokenConfig_Title"),
-                        System.Windows.MessageBoxButton.OK,
-                        System.Windows.MessageBoxImage.Information);
-                }
-                return;
-            }
+            // Le token est maintenant centralisé dans AIConfigService
 
             if (DataContext is StatistiquesViewModel viewModel)
             {

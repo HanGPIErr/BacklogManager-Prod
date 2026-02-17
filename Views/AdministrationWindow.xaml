@@ -1,7 +1,7 @@
 <Window x:Class="BacklogManager.Views.AdministrationWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="⚙️ Administration - BNP Paribas Backlog Manager" 
+        Title="⚙️ Administration - BNP Paribas ORBITT" 
         Height="700" Width="1100"
         WindowStartupLocation="CenterOwner"
         Background="#F5F5F5">

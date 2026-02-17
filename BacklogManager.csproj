@@ -420,6 +420,7 @@
     <Compile Include="Services\PermissionService.cs" />
     <Compile Include="Services\PokerService.cs" />
     <Compile Include="Services\PowerPointGenerator.cs" />
+    <Compile Include="Services\AIConfigService.cs" />
     <Compile Include="Services\AuthenticationService.cs" />
     <Compile Include="Services\InitializationService.cs" />
     <Compile Include="Services\AuditLogService.cs" />

@@ -266,28 +266,7 @@ namespace BacklogManager.Views
 
         private void AnalyserIA_Click(object sender, RoutedEventArgs e)
         {
-            // Vérifier que le token API est configuré
-            var apiToken = BacklogManager.Properties.Settings.Default["AgentChatToken"]?.ToString()?.Trim();
-            if (string.IsNullOrWhiteSpace(apiToken))
-            {
-                var result = MessageBox.Show(
-                    "Pour utiliser l'analyse IA, vous devez d'abord configurer votre token API OpenAI.\n\n" +
-                    "Voulez-vous le configurer maintenant ?\n\n" +
-                    "Note : Rendez-vous dans la section 💬 Chat avec l'IA pour configurer votre token.",
-                    "Token API requis",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Information);
-                
-                if (result == MessageBoxResult.Yes)
-                {
-                    MessageBox.Show(
-                        "Allez dans la section '💬 Chat avec l'IA' du menu principal pour configurer votre token API.",
-                        "Configuration",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Information);
-                }
-                return;
-            }
+            // Le token est maintenant centralisé dans AIConfigService
 
             // Déterminer la description de la période
             string periodeDescription = "Toutes les données";

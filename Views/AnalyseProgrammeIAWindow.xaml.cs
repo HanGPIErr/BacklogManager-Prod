@@ -15,11 +15,7 @@ namespace BacklogManager.Views
 {
     public partial class AnalyseProgrammeIAWindow : Window
     {
-        private const string API_URL = "https://genfactory-ai.analytics.cib.echonet/genai/api/v2/chat/completions";
-        private const string MODEL = "gpt-oss-120b";
-        
         private readonly Programme _programme;
-        private string _apiToken;
 
         public AnalyseProgrammeIAWindow(Programme programme)
         {
@@ -32,9 +28,6 @@ namespace BacklogManager.Views
             
             // Afficher le nom du programme
             TxtNomProgramme.Text = $"{LocalizationService.Instance.GetString("ProgramAIAnalysis_ProgramLabel")} {programme.Nom}";
-            
-            // Charger le token API
-            _apiToken = Properties.Settings.Default.AgentChatToken;
             
             // Générer l'analyse en arrière-plan
             _ = GenererAnalyseAsync();
@@ -56,12 +49,6 @@ namespace BacklogManager.Views
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(_apiToken))
-                {
-                    AfficherErreur(LocalizationService.Instance.GetString("ProgramAIAnalysis_TokenNotConfigured"));
-                    return;
-                }
-
                 // Récupérer les données du programme
                 var database = new SqliteDatabase();
                 var backlogService = new BacklogService(database);
@@ -157,7 +144,7 @@ Utilise des sections claires avec des titres en MAJUSCULES suivis de deux-points
         {
             using (var httpClient = new HttpClient())
             {
-                httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_apiToken}");
+                httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {AIConfigService.GetToken()}");
 
                 var langCode = LocalizationService.Instance.CurrentLanguageCode;
                 string langInstruction;
@@ -178,7 +165,7 @@ Utilise des sections claires avec des titres en MAJUSCULES suivis de deux-points
 
                 var requestBody = new
                 {
-                    model = MODEL,
+                    model = AIConfigService.MODEL,
                     messages = new[]
                     {
                         new { role = "system", content = systemContent },
@@ -191,7 +178,7 @@ Utilise des sections claires avec des titres en MAJUSCULES suivis de deux-points
                 var jsonContent = JsonSerializer.Serialize(requestBody);
                 var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
-                var response = await httpClient.PostAsync(API_URL, content);
+                var response = await httpClient.PostAsync(AIConfigService.API_URL, content);
                 var responseString = await response.Content.ReadAsStringAsync();
 
                 if (!response.IsSuccessStatusCode)

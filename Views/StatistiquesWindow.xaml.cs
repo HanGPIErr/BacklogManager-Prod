@@ -304,7 +304,7 @@ namespace BacklogManager.Views
             // Header
             html.AppendLine("    <div class='header'>");
             html.AppendLine("        <h1>📊 RAPPORT DE STATISTIQUES</h1>");
-            html.AppendLine($"        <p>BNP Paribas - Backlog Manager | Généré le {DateTime.Now:dd/MM/yyyy à HH:mm}</p>");
+            html.AppendLine($"        <p>BNP Paribas - ORBITT | Généré le {DateTime.Now:dd/MM/yyyy à HH:mm}</p>");
             html.AppendLine("    </div>");
             
             // KPI Cards
@@ -427,7 +427,7 @@ namespace BacklogManager.Views
             
             // Footer
             html.AppendLine("    <div class='footer'>");
-            html.AppendLine("        <p>© BNP Paribas - Backlog Manager</p>");
+            html.AppendLine("        <p>© BNP Paribas - ORBITT</p>");
             html.AppendLine("        <p>Pour imprimer en PDF : Fichier → Imprimer → Enregistrer en PDF</p>");
             html.AppendLine("    </div>");
             

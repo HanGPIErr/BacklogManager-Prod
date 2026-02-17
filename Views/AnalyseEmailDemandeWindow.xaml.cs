@@ -14,13 +14,8 @@ namespace BacklogManager.Views
 {
     public partial class AnalyseEmailDemandeWindow : Window, INotifyPropertyChanged
     {
-        private const string API_URL = "https://genfactory-ai.analytics.cib.echonet/genai/api/v2/chat/completions";
-        private const string MODEL = "gpt-oss-120b";
-        private const string TOKEN_KEY = "AgentChatToken";
-
         private readonly IDatabase _database;
         private readonly AuthenticationService _authService;
-        private string _apiToken;
         private List<string> _champsIncertains = new List<string>();
         private bool _isClosing = false;
 
@@ -49,9 +44,6 @@ namespace BacklogManager.Views
             _authService = authService;
 
             this.DataContext = this;
-
-            // Charger le token API
-            _apiToken = BacklogManager.Properties.Settings.Default[TOKEN_KEY]?.ToString()?.Trim();
 
             InitialiserComboBoxes();
             InitialiserTextes();
@@ -259,26 +251,7 @@ namespace BacklogManager.Views
                 return;
             }
 
-            // Vérifier le token
-            if (string.IsNullOrWhiteSpace(_apiToken))
-            {
-                var result = MessageBox.Show(
-                    "Le token API n'est pas configuré.\n\n" +
-                    "Pour utiliser l'analyse IA, vous devez configurer votre token dans la section '💬 Chat avec l'IA'.\n\n" +
-                    "Voulez-vous continuer sans l'IA (saisie manuelle) ?",
-                    "Token API manquant",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Question);
-
-                if (result == MessageBoxResult.No)
-                    return;
-
-                // Ouvrir la fenêtre d'édition classique
-                var editWindow = new EditionDemandeWindow(_database, _authService);
-                editWindow.ShowDialog();
-                Close();
-                return;
-            }
+            // Le token est maintenant centralisé dans AIConfigService
 
             try
             {
@@ -481,7 +454,7 @@ namespace BacklogManager.Views
             {
                 client.Timeout = TimeSpan.FromSeconds(90);
                 client.DefaultRequestHeaders.Clear();
-                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_apiToken}");
+                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {AIConfigService.GetToken()}");
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
 
                 var langCode = LocalizationService.Instance.CurrentLanguageCode;
@@ -584,7 +557,7 @@ Analyse cet email et réponds UNIQUEMENT avec le JSON complet (pas de texte avan
 
                 var requestBody = new
                 {
-                    model = MODEL,
+                    model = AIConfigService.MODEL,
                     messages = messages,
                     temperature = 0.3, // Plus bas pour des résultats plus déterministes
                     max_tokens = 2000 // Augmenté pour gérer tous les champs
@@ -593,7 +566,7 @@ Analyse cet email et réponds UNIQUEMENT avec le JSON complet (pas de texte avan
                 var jsonContent = JsonSerializer.Serialize(requestBody);
                 var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
-                var response = await client.PostAsync(API_URL, content);
+                var response = await client.PostAsync(AIConfigService.API_URL, content);
 
                 if (!response.IsSuccessStatusCode)
                 {

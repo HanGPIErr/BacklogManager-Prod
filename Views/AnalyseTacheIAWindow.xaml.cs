@@ -11,13 +11,9 @@ namespace BacklogManager.Views
 {
     public partial class AnalyseTacheIAWindow : Window
     {
-        private const string API_URL = "https://genfactory-ai.analytics.cib.echonet/genai/api/v2/chat/completions";
-        private const string MODEL = "gpt-oss-120b";
-        
         private readonly BacklogItem _tache;
         private readonly double _tempsReelHeures;
         private readonly double _progressionPourcentage;
-        private string _apiToken;
 
         public AnalyseTacheIAWindow(BacklogItem tache, double tempsReelHeures, double progressionPourcentage)
         {
@@ -28,9 +24,6 @@ namespace BacklogManager.Views
             _progressionPourcentage = progressionPourcentage;
             
             InitializeLocalizedTexts();
-            
-            // Charger le token API
-            _apiToken = Properties.Settings.Default.AgentChatToken;
             
             // Afficher le titre
             TxtTitreTache.Text = tache.Titre;
@@ -56,12 +49,6 @@ namespace BacklogManager.Views
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(_apiToken))
-                {
-                    AfficherErreur("Token API non configuré. Configurez-le dans la section Chat.");
-                    return;
-                }
-
                 // Construire le prompt pour l'IA
                 var chiffrageJours = _tache.ChiffrageHeures.HasValue ? _tache.ChiffrageHeures.Value / 8.0 : 0;
                 var tempsReelJours = _tempsReelHeures / 8.0;
@@ -249,7 +236,7 @@ Sois constructif, précis et propose des solutions concrètes basées sur les do
         {
             using (var client = new HttpClient())
             {
-                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_apiToken}");
+                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {AIConfigService.GetToken()}");
                 client.Timeout = TimeSpan.FromMinutes(2);
 
                 var langCode = LocalizationService.Instance.CurrentLanguageCode;
@@ -273,7 +260,7 @@ Sois constructif, précis et propose des solutions concrètes basées sur les do
 
                 var requestBody = new
                 {
-                    model = MODEL,
+                    model = AIConfigService.MODEL,
                     messages = new[]
                     {
                         new { role = "system", content = systemContent },
@@ -285,7 +272,7 @@ Sois constructif, précis et propose des solutions concrètes basées sur les do
                 var json = JsonSerializer.Serialize(requestBody);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                var response = await client.PostAsync(API_URL, content);
+                var response = await client.PostAsync(AIConfigService.API_URL, content);
                 
                 if (!response.IsSuccessStatusCode)
                 {
