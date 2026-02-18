@@ -79,7 +79,7 @@ namespace BacklogManager.Services
                 Version = 3,
                 JournalMode = isUncPath ? SQLiteJournalModeEnum.Delete : SQLiteJournalModeEnum.Delete, // DELETE pour réseau
                 Pooling = true,
-                BusyTimeout = 30000, // 30 secondes
+                BusyTimeout = 3000, // 3 secondes (réduit de 30s pour échec rapide)
                 ReadOnly = true,
                 SyncMode = SynchronizationModes.Full // Sécurité maximale
             };
@@ -92,7 +92,7 @@ namespace BacklogManager.Services
                 Version = 3,
                 JournalMode = isUncPath ? SQLiteJournalModeEnum.Delete : SQLiteJournalModeEnum.Delete, // DELETE pour réseau
                 Pooling = true,
-                BusyTimeout = 30000, // 30 secondes
+                BusyTimeout = 3000, // 3 secondes (réduit de 30s pour échec rapide)
                 ReadOnly = false,
                 SyncMode = SynchronizationModes.Full // Sécurité maximale
             };
@@ -159,8 +159,8 @@ namespace BacklogManager.Services
             }
         }
 
-        // Exécution avec retry en cas de lock ou erreur réseau
-        private T ExecuteWithRetry<T>(Func<T> action, int maxRetries = 10)
+        // Exécution avec retry en cas de lock ou erreur réseau (réduit à 3 tentatives)
+        private T ExecuteWithRetry<T>(Func<T> action, int maxRetries = 3)
         {
             int retryCount = 0;
             while (true)
@@ -182,7 +182,7 @@ namespace BacklogManager.Services
                                           $"Message: {ex.Message}\n\n" +
                                           $"Veuillez réessayer dans quelques instants.", ex);
                     }
-                    // Attente exponentielle avec jitter: 100ms, 200ms, 400ms, 800ms...
+                    // Attente exponentielle avec jitter: 100ms, 200ms, 400ms
                     var baseDelay = 100 * (int)Math.Pow(2, retryCount - 1);
                     var jitter = new Random().Next(0, 50);
                     System.Threading.Thread.Sleep(baseDelay + jitter);

@@ -413,22 +413,144 @@ namespace BacklogManager.ViewModels
             }
         }
 
+        /// <summary>
+        /// Change le statut d'une tâche de manière asynchrone avec optimistic UI
+        /// </summary>
+        public async System.Threading.Tasks.Task ChangerStatutTacheAsync(BacklogItem tache, Statut nouveauStatut)
+        {
+            if (tache == null) return;
+            
+            var oldStatut = tache.Statut;
+            
+            // 1. Update immédiat de l'UI (Optimistic UI)
+            tache.Statut = nouveauStatut;
+            tache.DateDerniereMaj = System.DateTime.Now;
+            
+            // Déplacer visuellement l'item entre les colonnes AVANT la sauvegarde
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                DeplacerItemEntreColonnes(tache, oldStatut, nouveauStatut);
+            });
+            
+            try
+            {
+                // 2. Sauvegarde en arrière-plan via la queue d'écriture (évite conflits multi-users)
+                await _backlogService.SaveBacklogItemAsync(tache);
+                
+                // 3. Notifier les autres vues (Backlog)
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    TacheStatutChanged?.Invoke(this, System.EventArgs.Empty);
+                });
+            }
+            catch (System.Exception ex)
+            {
+                // Rollback en cas d'erreur
+                tache.Statut = oldStatut;
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    DeplacerItemEntreColonnes(tache, nouveauStatut, oldStatut);
+                    MessageBox.Show($"Erreur lors de la sauvegarde : {ex.Message}", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                });
+            }
+        }
+        
+        /// <summary>
+        /// Version synchrone pour compatibilité arrière (utilise la version async)
+        /// </summary>
         public void ChangerStatutTache(BacklogItem tache, Statut nouveauStatut)
         {
-            if (tache != null)
+            // Fire and forget pour ne pas bloquer
+            _ = ChangerStatutTacheAsync(tache, nouveauStatut);
+        }
+        
+        /// <summary>
+        /// Déplace un item entre les colonnes sans recharger toute la liste
+        /// </summary>
+        private void DeplacerItemEntreColonnes(BacklogItem tache, Statut ancienStatut, Statut nouveauStatut)
+        {
+            // Trouver et retirer l'item de son ancienne colonne
+            KanbanItemViewModel itemViewModel = null;
+            ObservableCollection<KanbanItemViewModel> sourceCollection = GetCollectionForStatut(ancienStatut);
+            
+            if (sourceCollection != null)
             {
-                tache.Statut = nouveauStatut;
-                tache.DateDerniereMaj = System.DateTime.Now;
-                
-                // Sauvegarder dans la base de données
-                _backlogService.SaveBacklogItem(tache);
-                
-                // Rafraîchir l'affichage
-                LoadItems();
-                
-                // Notifier les autres vues (Backlog)
-                TacheStatutChanged?.Invoke(this, System.EventArgs.Empty);
+                itemViewModel = sourceCollection.FirstOrDefault(vm => vm.Item.Id == tache.Id);
+                if (itemViewModel != null)
+                {
+                    sourceCollection.Remove(itemViewModel);
+                }
             }
+            
+            // Si on n'a pas trouvé l'item, le créer
+            if (itemViewModel == null)
+            {
+                itemViewModel = CreateKanbanItemViewModel(tache);
+            }
+            else
+            {
+                // Mettre à jour les métriques
+                itemViewModel.Item = tache;
+            }
+            
+            // Ajouter l'item dans sa nouvelle colonne
+            ObservableCollection<KanbanItemViewModel> targetCollection = GetCollectionForStatut(nouveauStatut);
+            if (targetCollection != null)
+            {
+                targetCollection.Add(itemViewModel);
+            }
+            
+            // Mettre à jour les compteurs WIP
+            CountEnCours = ItemsEnCours.Count;
+            CountEnTest = ItemsEnTest.Count;
+        }
+        
+        /// <summary>
+        /// Retourne la collection correspondant au statut donné
+        /// </summary>
+        private ObservableCollection<KanbanItemViewModel> GetCollectionForStatut(Statut statut)
+        {
+            switch (statut)
+            {
+                case Statut.EnAttente:
+                    return ItemsEnAttente;
+                case Statut.APrioriser:
+                    return ItemsAPrioriser;
+                case Statut.Afaire:
+                    return ItemsAfaire;
+                case Statut.EnCours:
+                    return ItemsEnCours;
+                case Statut.Test:
+                    return ItemsEnTest;
+                case Statut.Termine:
+                    return ItemsTermine;
+                default:
+                    return null;
+            }
+        }
+        
+        /// <summary>
+        /// Crée un KanbanItemViewModel à partir d'un BacklogItem
+        /// </summary>
+        private KanbanItemViewModel CreateKanbanItemViewModel(BacklogItem item)
+        {
+            var viewModel = new KanbanItemViewModel { Item = item };
+            
+            // Récupérer le nom du dev assigné
+            if (item.DevAssigneId.HasValue)
+            {
+                var dev = _backlogService.GetAllDevs().FirstOrDefault(d => d.Id == item.DevAssigneId.Value);
+                viewModel.AssignedDevName = dev?.Nom ?? "?";
+            }
+            
+            // Récupérer la couleur du projet
+            if (item.ProjetId.HasValue)
+            {
+                var projet = _backlogService.GetAllProjets().FirstOrDefault(p => p.Id == item.ProjetId.Value);
+                viewModel.ProjetCouleur = projet?.CouleurHex ?? "#00915A";
+            }
+            
+            return viewModel;
         }
 
         public KanbanViewModel(BacklogService backlogService, PermissionService permissionService = null, CRAService craService = null)
@@ -663,7 +785,7 @@ namespace BacklogManager.ViewModels
             CountEnTest = ItemsEnTest.Count;
         }
 
-        private void MoveItemLeft(BacklogItem item)
+        private async void MoveItemLeft(BacklogItem item)
         {
             if (item == null) return;
 
@@ -689,20 +811,11 @@ namespace BacklogManager.ViewModels
 
             if (newStatus != item.Statut)
             {
-                try
-                {
-                    Mouse.OverrideCursor = Cursors.Wait;
-                    _backlogService.UpdateBacklogItemStatus(item.Id, newStatus);
-                    LoadItems();
-                }
-                finally
-                {
-                    Mouse.OverrideCursor = null;
-                }
+                await ChangerStatutTacheAsync(item, newStatus);
             }
         }
 
-        private void MoveItemRight(BacklogItem item)
+        private async void MoveItemRight(BacklogItem item)
         {
             if (item == null) return;
 
@@ -728,16 +841,7 @@ namespace BacklogManager.ViewModels
 
             if (newStatus != item.Statut)
             {
-                try
-                {
-                    Mouse.OverrideCursor = Cursors.Wait;
-                    _backlogService.UpdateBacklogItemStatus(item.Id, newStatus);
-                    LoadItems();
-                }
-                finally
-                {
-                    Mouse.OverrideCursor = null;
-                }
+                await ChangerStatutTacheAsync(item, newStatus);
             }
         }
 
@@ -756,7 +860,7 @@ namespace BacklogManager.ViewModels
             LoadItems();
         }
 
-        private void MettreEnAttente(BacklogItem item)
+        private async void MettreEnAttente(BacklogItem item)
         {
             if (item == null) return;
             
@@ -771,19 +875,10 @@ namespace BacklogManager.ViewModels
                 return;
             }
 
-            try
-            {
-                Mouse.OverrideCursor = Cursors.Wait;
-                _backlogService.UpdateBacklogItemStatus(item.Id, Statut.EnAttente);
-                LoadItems();
-            }
-            finally
-            {
-                Mouse.OverrideCursor = null;
-            }
+            await ChangerStatutTacheAsync(item, Statut.EnAttente);
         }
 
-        private void ReactiverTache(BacklogItem item)
+        private async void ReactiverTache(BacklogItem item)
         {
             if (item == null) return;
             
@@ -821,19 +916,10 @@ namespace BacklogManager.ViewModels
                 nouveauStatut = Statut.Afaire;
             }
 
-            try
-            {
-                Mouse.OverrideCursor = Cursors.Wait;
-                _backlogService.UpdateBacklogItemStatus(item.Id, nouveauStatut);
-                LoadItems();
-            }
-            finally
-            {
-                Mouse.OverrideCursor = null;
-            }
+            await ChangerStatutTacheAsync(item, nouveauStatut);
         }
 
-        public void SupprimerTache(BacklogItem task)
+        public async System.Threading.Tasks.Task SupprimerTacheAsync(BacklogItem task)
         {
             if (task == null) return;
             
@@ -842,19 +928,39 @@ namespace BacklogManager.ViewModels
                 throw new UnauthorizedAccessException("Vous n'avez pas les permissions pour supprimer cette tâche.");
             }
 
+            // Retirer immédiatement de l'UI
+            var collection = GetCollectionForStatut(task.Statut);
+            var itemViewModel = collection?.FirstOrDefault(vm => vm.Item.Id == task.Id);
+            if (itemViewModel != null)
+            {
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    collection.Remove(itemViewModel);
+                });
+            }
+
             try
             {
-                Mouse.OverrideCursor = Cursors.Wait;
-                _backlogService.DeleteBacklogItem(task.Id);
-                LoadItems();
+                // Suppression en arrière-plan via la queue d'écriture
+                await DatabaseWriteQueue.Instance.EnqueueWriteAsync(
+                    () => _backlogService.DeleteBacklogItem(task.Id),
+                    $"DeleteBacklogItem_{task.Id}");
             }
-            finally
+            catch
             {
-                Mouse.OverrideCursor = null;
+                // En cas d'erreur, recharger pour restaurer l'état
+                Application.Current.Dispatcher.Invoke(() => LoadItems());
+                throw;
             }
         }
+        
+        public void SupprimerTache(BacklogItem task)
+        {
+            // Version synchrone pour compatibilité
+            _ = SupprimerTacheAsync(task);
+        }
 
-        private void ArchiverTache(BacklogItem item)
+        private async void ArchiverTache(BacklogItem item)
         {
             if (item == null || !EstAdministrateur) return;
 
@@ -866,24 +972,33 @@ namespace BacklogManager.ViewModels
 
             if (result == System.Windows.MessageBoxResult.Yes)
             {
-                try
+                // Retirer de l'UI immédiatement
+                var collection = GetCollectionForStatut(item.Statut);
+                var itemViewModel = collection?.FirstOrDefault(vm => vm.Item.Id == item.Id);
+                if (itemViewModel != null)
                 {
-                    Mouse.OverrideCursor = Cursors.Wait;
-                    item.EstArchive = true;
-                    item.DateDerniereMaj = DateTime.Now;
-                    _backlogService.SaveBacklogItem(item);
-                    LoadItems();
-                }
-                finally
-                {
-                    Mouse.OverrideCursor = null;
+                    collection.Remove(itemViewModel);
                 }
                 
-                System.Windows.MessageBox.Show(
-                    "Tâche archivée avec succès !",
-                    "Archivage",
-                    System.Windows.MessageBoxButton.OK,
-                    System.Windows.MessageBoxImage.Information);
+                try
+                {
+                    // Archivage en arrière-plan via la queue d'écriture
+                    item.EstArchive = true;
+                    item.DateDerniereMaj = DateTime.Now;
+                    await _backlogService.SaveBacklogItemAsync(item);
+                    
+                    System.Windows.MessageBox.Show(
+                        "Tâche archivée avec succès !",
+                        "Archivage",
+                        System.Windows.MessageBoxButton.OK,
+                        System.Windows.MessageBoxImage.Information);
+                }
+                catch
+                {
+                    // En cas d'erreur, recharger pour restaurer
+                    LoadItems();
+                    throw;
+                }
             }
         }
 

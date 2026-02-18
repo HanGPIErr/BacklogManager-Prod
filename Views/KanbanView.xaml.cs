@@ -116,7 +116,7 @@ namespace BacklogManager.Views
             }
         }
 
-        private void KanbanColumn_Drop(object sender, DragEventArgs e)
+        private async void KanbanColumn_Drop(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent("KanbanItem"))
             {
@@ -153,8 +153,8 @@ namespace BacklogManager.Views
                                 break;
                         }
                         
-                        // Changer le statut et sauvegarder
-                        viewModel.ChangerStatutTache(droppedItem.Item, newStatus);
+                        // Changer le statut de manière asynchrone (non-bloquant)
+                        await viewModel.ChangerStatutTacheAsync(droppedItem.Item, newStatus);
                     }
                 }
                 

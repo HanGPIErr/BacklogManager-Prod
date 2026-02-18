@@ -432,6 +432,7 @@
     <Compile Include="Services\LocalizationService.cs" />
     <Compile Include="Services\GuideContentService.cs" />
     <Compile Include="Services\DatabaseWrapper.cs" />
+    <Compile Include="Services\DatabaseWriteQueue.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\ProjetsViewModel.cs" />
     <Compile Include="ViewModels\BacklogViewModel.cs" />

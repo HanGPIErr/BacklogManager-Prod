@@ -33,7 +33,11 @@ namespace BacklogManager.Services
             return _database.GetBacklog().FirstOrDefault(x => x.Id == id);
         }
 
-        public BacklogItem SaveBacklogItem(BacklogItem item)
+        /// <summary>
+        /// Sauvegarde un BacklogItem de manière asynchrone via la queue d'écriture
+        /// Évite les conflits multi-utilisateurs
+        /// </summary>
+        public async System.Threading.Tasks.Task<BacklogItem> SaveBacklogItemAsync(BacklogItem item)
         {
             // Capture de l'état avant modification
             BacklogItem oldItem = null;
@@ -44,10 +48,12 @@ namespace BacklogManager.Services
                 oldItem = GetBacklogItemById(item.Id);
             }
 
-            // Sauvegarde de l'item
-            var savedItem = _database.AddOrUpdateBacklogItem(item);
+            // Sauvegarde via la queue d'écriture (évite les conflits)
+            var savedItem = await DatabaseWriteQueue.Instance.EnqueueWriteAsync(
+                () => _database.AddOrUpdateBacklogItem(item),
+                $"SaveBacklogItem_{item.Id}");
 
-            // Audit log
+            // Audit log (non-bloquant)
             if (_auditLogService != null && savedItem != null)
             {
                 try
@@ -74,6 +80,15 @@ namespace BacklogManager.Services
             }
 
             return savedItem;
+        }
+
+        /// <summary>
+        /// Version synchrone pour compatibilité - utilise la queue en arrière-plan
+        /// </summary>
+        public BacklogItem SaveBacklogItem(BacklogItem item)
+        {
+            // Utiliser la version async et attendre le résultat
+            return SaveBacklogItemAsync(item).GetAwaiter().GetResult();
         }
 
         public List<BacklogItem> SearchBacklog(string searchText, TypeDemande? type, Priorite? priorite, Statut? statut, int? devId)
