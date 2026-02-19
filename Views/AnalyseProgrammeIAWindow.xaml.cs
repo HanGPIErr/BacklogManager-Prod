@@ -121,6 +121,9 @@ Utilise des sections claires avec des titres en MAJUSCULES suivis de deux-points
 
                 // Appeler l'IA
                 var reponse = await AppelerIAAsync(prompt);
+                
+                // Nettoyer la réponse pour enlever les balises structurées
+                var reponseNettoyee = NettoyerBalises(reponse);
 
                 // Afficher les résultats
                 Dispatcher.Invoke(() =>
@@ -131,13 +134,24 @@ Utilise des sections claires avec des titres en MAJUSCULES suivis de deux-points
                     
                     // Utiliser le convertisseur Markdown pour formatter le texte
                     var converter = new MarkdownToFormattedTextConverter();
-                    TxtAnalyse.Document = converter.Convert(reponse, typeof(FlowDocument), null, null) as FlowDocument ?? new FlowDocument();
+                    TxtAnalyse.Document = converter.Convert(reponseNettoyee, typeof(FlowDocument), null, null) as FlowDocument ?? new FlowDocument();
                 });
             }
             catch (Exception ex)
             {
                 AfficherErreur(string.Format(LocalizationService.Instance.GetString("ProgramAIAnalysis_AnalysisError"), ex.Message));
             }
+        }
+        
+        private string NettoyerBalises(string texte)
+        {
+            if (string.IsNullOrEmpty(texte))
+                return texte;
+            
+            // Supprimer toutes les balises de type [NOM] et [/NOM]
+            // Pattern pour matcher [quelquechose] ou [/quelquechose]
+            var pattern = @"\[/?[A-Z_]+\]";
+            return System.Text.RegularExpressions.Regex.Replace(texte, pattern, "").Trim();
         }
 
         private async Task<string> AppelerIAAsync(string prompt)

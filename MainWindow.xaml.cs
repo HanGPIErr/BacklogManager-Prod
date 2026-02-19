@@ -1,5 +1,8 @@
+using System;
 using System.Linq;
 using System.Windows;
+using System.Windows.Input;
+using System.Collections.Generic;
 using BacklogManager.Domain;
 using BacklogManager.Services;
 using BacklogManager.ViewModels;
@@ -16,6 +19,10 @@ namespace BacklogManager
         private NotificationService _notificationService;
         private EmailService _emailService;
         private System.Windows.Threading.DispatcherTimer _notificationTimer;
+        
+        // Code secret pour activer l'admin : 10 clics rapides sur l'icône utilisateur
+        private DateTime _lastClickTime = DateTime.MinValue;
+        private int _clickCount = 0;
 
         public MainWindow(AuthenticationService authService)
         {
@@ -68,6 +75,8 @@ namespace BacklogManager
             var mainViewModel = new MainViewModel(projetsViewModel, backlogViewModel, kanbanViewModel, pokerViewModel, timelineViewModel);
             this.DataContext = mainViewModel;
             
+            // Le code secret est géré par les clics sur le nom d'utilisateur
+            
             // Charger après l'initialisation complète
             Loaded += (s, e) =>
             {
@@ -90,6 +99,60 @@ namespace BacklogManager
                 }
             };
         }
+        
+        private void TxtIconeUtilisateur_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var now = DateTime.Now;
+            
+            // Si le dernier clic était il y a plus de 2 secondes, réinitialiser
+            if ((now - _lastClickTime).TotalSeconds > 2)
+            {
+                _clickCount = 0;
+            }
+            
+            _clickCount++;
+            _lastClickTime = now;
+            
+            // Si 10 clics rapides, activer l'admin
+            if (_clickCount >= 10)
+            {
+                ActivateAdminMode();
+                _clickCount = 0;
+            }
+        }
+        
+        private void ActivateAdminMode()
+        {
+            try
+            {
+                var user = _authService.CurrentUser;
+                if (user == null) return;
+                
+                var roleAdmin = _database.GetRoles().FirstOrDefault(r => r.Type == RoleType.Administrateur);
+                if (roleAdmin == null) return;
+                
+                // Changer le rôle de l'utilisateur à admin
+                user.RoleId = roleAdmin.Id;
+                _database.AddOrUpdateUtilisateur(user);
+                
+                // Réinitialiser le PermissionService avec le nouveau rôle
+                _permissionService = new PermissionService(user, roleAdmin);
+                
+                // Rafraîchir l'affichage
+                AfficherUtilisateurConnecte();
+                VerifierPermissions();
+                VerifierPermissionsAdmin();
+                
+                // Afficher un message de confirmation discret
+                MessageBox.Show("Mode administrateur activé 👑", "Code Konami", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (System.Exception ex)
+            {
+                MessageBox.Show($"Erreur lors de l'activation du mode admin: {ex.Message}", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        
+
 
         private void InitialiserTextes()
         {
@@ -114,8 +177,8 @@ namespace BacklogManager
             BtnStatistiques.Content = $"📊 {loc["Menu_Statistics"]}";
             BtnParametres.Content = $"⚙️ {loc["Menu_Settings"]}";
             
-            // Bouton changer utilisateur
-            BtnChangerUtilisateurMenu.Content = $"🔄 {loc["Menu_ChangeUser"]}";
+            // Bouton changer utilisateur - désactivé pour le déploiement
+            // BtnChangerUtilisateurMenu.Content = $"🔄 {loc["Menu_ChangeUser"]}";
         }
 
         private void InitialiserNotifications()
@@ -156,8 +219,13 @@ namespace BacklogManager
                 var user = _authService.CurrentUser;
                 var role = _authService.GetCurrentUserRole();
                 
-                // Format: "👤 Prénom Nom"
-                TxtUtilisateurConnecte.Text = string.Format("👤 {0} {1}", user.Prenom, user.Nom);
+                // Format: "Prénom Nom" (l'icône est déjà dans TxtIconeUtilisateur)
+                var nomComplet = string.Format("{0} {1}", user.Prenom, user.Nom).Trim();
+                if (string.IsNullOrEmpty(nomComplet))
+                {
+                    nomComplet = user.UsernameWindows;
+                }
+                TxtNomUtilisateur.Text = nomComplet;
                 
                 // Format: "📊 Rôle"
                 if (role != null)

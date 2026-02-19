@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Security.Principal;
 using System.Windows;
 using BacklogManager.Services;
@@ -67,51 +68,68 @@ namespace BacklogManager.Views
         {
             try
             {
-                // Vérifier si un changement d'utilisateur est en cours
-                var tempFile = System.IO.Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, ".switch_user");
-                if (System.IO.File.Exists(tempFile))
-                {
-                    string switchUsername = System.IO.File.ReadAllText(tempFile).Trim();
-                    System.IO.File.Delete(tempFile); // Supprimer le fichier après lecture
-                    
-                    bool success = _authService.LoginWithUsername(switchUsername);
-                    if (success)
-                    {
-                        var mainWindow = new MainWindow(_authService);
-                        mainWindow.Show();
-                        this.Close();
-                        return;
-                    }
-                }
-                
-                // Essayer d'abord avec le compte admin par défaut
-                bool success2 = _authService.LoginWithUsername("admin");
-
-                if (success2)
-                {
-                    var user = _authService.CurrentUser;
-                    var role = _authService.GetCurrentUserRole();
-
-                    // Ouvrir directement la fenêtre principale
-                    var mainWindow = new MainWindow(_authService);
-                    mainWindow.Show();
-                    this.Close();
-                    return;
-                }
-
-                // Fallback: essayer avec le username Windows de l'utilisateur actuel
+                // Authentification Windows pure - récupérer le username Windows de l'utilisateur
                 string windowsUsername = WindowsIdentity.GetCurrent().Name;
                 if (windowsUsername.Contains("\\"))
                 {
                     windowsUsername = windowsUsername.Split('\\')[1];
                 }
 
-                bool success3 = _authService.LoginWithUsername(windowsUsername);
-                if (success3)
+                // Gestion des droits admin automatiques
+                var database = ((App)Application.Current).Database;
+                var roleAdmin = database.GetRoles().FirstOrDefault(r => r.Type == RoleType.Administrateur);
+                var utilisateurs = database.GetUtilisateurs();
+                
+                // CAS 1 : Premier utilisateur qui se connecte = auto-admin
+                if (!utilisateurs.Any())
                 {
-                    var user = _authService.CurrentUser;
-                    var role = _authService.GetCurrentUserRole();
+                    var premierUtilisateur = new Utilisateur
+                    {
+                        UsernameWindows = windowsUsername,
+                        Nom = "",
+                        Prenom = windowsUsername,
+                        Email = $"{windowsUsername}@bnpparibas.com",
+                        RoleId = roleAdmin?.Id ?? 1,
+                        Actif = true,
+                        DateCreation = DateTime.Now,
+                        Statut = "BAU"
+                    };
+                    database.AddOrUpdateUtilisateur(premierUtilisateur);
+                }
+                // CAS 2 : Utilisateur spécial 610506 = toujours admin
+                else if (windowsUsername == "610506")
+                {
+                    var utilisateur = utilisateurs.FirstOrDefault(u => u.UsernameWindows == "610506");
+                    
+                    if (utilisateur == null)
+                    {
+                        // Créer le compte admin automatiquement
+                        utilisateur = new Utilisateur
+                        {
+                            UsernameWindows = "610506",
+                            Nom = "Admin",
+                            Prenom = "Super",
+                            Email = "610506@bnpparibas.com",
+                            RoleId = roleAdmin?.Id ?? 1,
+                            Actif = true,
+                            DateCreation = DateTime.Now,
+                            Statut = "BAU"
+                        };
+                        database.AddOrUpdateUtilisateur(utilisateur);
+                    }
+                    else if (utilisateur.RoleId != roleAdmin?.Id)
+                    {
+                        // S'assurer qu'il a le rôle admin
+                        utilisateur.RoleId = roleAdmin?.Id ?? 1;
+                        utilisateur.Actif = true;
+                        database.AddOrUpdateUtilisateur(utilisateur);
+                    }
+                }
 
+                // Tenter la connexion avec le username Windows
+                bool success = _authService.LoginWithUsername(windowsUsername);
+                if (success)
+                {
                     // Ouvrir directement la fenêtre principale
                     var mainWindow = new MainWindow(_authService);
                     mainWindow.Show();
@@ -119,23 +137,23 @@ namespace BacklogManager.Views
                     return;
                 }
 
-                // Si aucune connexion automatique ne fonctionne, afficher le message
+                // Si la connexion échoue, afficher le message
                 Dispatcher.Invoke(() =>
                 {
-                    TxtUsername.Text = $"Connexion automatique impossible";
-                    TxtStatut.Text = "Veuillez saisir votre identifiant ci-dessous";
-                    TxtErreur.Text = $"Le compte 'admin' et votre compte Windows '{windowsUsername}' n'ont pas été trouvés.\nVeuillez entrer votre identifiant manuellement.";
+                    TxtUsername.Text = $"Compte non enregistré";
+                    TxtStatut.Text = "Veuillez contacter votre administrateur";
+                    TxtErreur.Text = $"Votre compte Windows '{windowsUsername}' n'est pas enregistré dans l'application.\n\nContactez votre administrateur pour créer votre compte utilisateur.";
                     TxtErreur.Visibility = Visibility.Visible;
                     BtnConnecter.IsEnabled = true;
                 });
             }
             catch (Exception ex)
             {
-                // En cas d'erreur, afficher un message et laisser l'utilisateur se connecter manuellement
+                // En cas d'erreur, afficher un message
                 Dispatcher.Invoke(() =>
                 {
-                    TxtUsername.Text = "Erreur de connexion automatique";
-                    TxtStatut.Text = "Veuillez vous connecter manuellement";
+                    TxtUsername.Text = "Erreur de connexion";
+                    TxtStatut.Text = "Une erreur est survenue";
                     TxtErreur.Text = $"Erreur: {ex.Message}";
                     TxtErreur.Visibility = Visibility.Visible;
                     BtnConnecter.IsEnabled = true;
@@ -148,7 +166,7 @@ namespace BacklogManager.Views
             try
             {
                 TxtUsername.Text = "Connexion automatique en cours...";
-                TxtUsernameInput.Text = "admin";
+                TxtUsernameInput.Text = "";
                 TxtStatut.Text = "";
             }
             catch (Exception ex)
