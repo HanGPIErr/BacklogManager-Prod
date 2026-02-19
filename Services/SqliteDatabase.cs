@@ -15,6 +15,9 @@ namespace BacklogManager.Services
         private readonly string _readConnectionString;
         private readonly string _writeConnectionString;
 
+        // Propriété publique pour accéder au chemin de la base de données
+        public string DatabasePath => _databasePath;
+
         public SqliteDatabase()
         {
             // Lire la configuration depuis config.ini

@@ -221,14 +221,26 @@ namespace BacklogManager.Views
             try
             {
                 // Version
-                TxtVersion.Text = "2.0.0";
+                TxtVersion.Text = "0.1.0";
 
-                // Taille DB
-                var dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "backlog.db");
-                if (File.Exists(dbPath))
+                // Taille DB - utiliser le chemin réel de la base de données
+                var sqliteDb = _database as SqliteDatabase;
+                if (sqliteDb != null)
                 {
-                    var fileInfo = new FileInfo(dbPath);
-                    TxtTailleDB.Text = $"{fileInfo.Length / 1024} KB";
+                    var dbPath = sqliteDb.DatabasePath;
+                    if (File.Exists(dbPath))
+                    {
+                        var fileInfo = new FileInfo(dbPath);
+                        TxtTailleDB.Text = $"{fileInfo.Length / 1024} KB";
+                    }
+                    else
+                    {
+                        TxtTailleDB.Text = "Base non créée";
+                    }
+                }
+                else
+                {
+                    TxtTailleDB.Text = "-";
                 }
 
                 // Statistiques
@@ -499,7 +511,7 @@ namespace BacklogManager.Views
             var sb = new StringBuilder();
             sb.AppendLine("{");
             sb.AppendLine($"  \"ExportDate\": \"{DateTime.Now:yyyy-MM-dd HH:mm:ss}\",");
-            sb.AppendLine($"  \"Version\": \"2.0\",");
+            sb.AppendLine($"  \"Version\": \"0.1\",");
             sb.AppendLine($"  \"Application\": \"BacklogManager\",");
 
             // BacklogItems
