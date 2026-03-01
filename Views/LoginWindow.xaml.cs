@@ -58,9 +58,10 @@ namespace BacklogManager.Views
                     });
                 }
             }
-            catch
+            catch (Exception ex)
             {
                 // Ignorer les erreurs de mise à jour pour ne pas bloquer l'application
+                System.Diagnostics.Debug.WriteLine($"Erreur vérification MAJ: {ex.Message}");
             }
         }
 

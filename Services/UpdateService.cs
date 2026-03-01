@@ -23,6 +23,58 @@ namespace BacklogManager.Services
             _currentVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
         }
 
+        public string GetDiagnosticInfo()
+        {
+            var info = new System.Text.StringBuilder();
+            info.AppendLine("=== DIAGNOSTIC MISE À JOUR ===\n");
+            
+            // Version actuelle
+            info.AppendLine($"Version actuelle: {_currentVersion}");
+            info.AppendLine($"Assembly: {Assembly.GetExecutingAssembly().GetName().Version}");
+            
+            // Config.ini
+            string configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.ini");
+            info.AppendLine($"\nconfig.ini: {configPath}");
+            info.AppendLine($"Existe: {File.Exists(configPath)}");
+            info.AppendLine($"UpdateServerPath: {_updateServerPath ?? "(null)"}");
+            
+            // version.json
+            if (!string.IsNullOrEmpty(_updateServerPath))
+            {
+                string versionFilePath = Path.Combine(_updateServerPath, "version.json");
+                info.AppendLine($"\nversion.json: {versionFilePath}");
+                info.AppendLine($"Existe: {File.Exists(versionFilePath)}");
+                
+                if (File.Exists(versionFilePath))
+                {
+                    try
+                    {
+                        string jsonContent = File.ReadAllText(versionFilePath, System.Text.Encoding.UTF8);
+                        
+                        // Options pour désérialisation case-insensitive
+                        var options = new JsonSerializerOptions
+                        {
+                            PropertyNameCaseInsensitive = true
+                        };
+                        
+                        var versionInfo = JsonSerializer.Deserialize<VersionInfo>(jsonContent, options);
+                        info.AppendLine($"Version remote: {versionInfo.Version}");
+                        info.AppendLine($"Download URL: {versionInfo.DownloadUrl}");
+                        
+                        // Test comparaison
+                        bool isNewer = IsNewerVersion(versionInfo.Version, _currentVersion);
+                        info.AppendLine($"\nIsNewerVersion('{versionInfo.Version}', '{_currentVersion}') = {isNewer}");
+                    }
+                    catch (Exception ex)
+                    {
+                        info.AppendLine($"ERREUR lecture: {ex.Message}");
+                    }
+                }
+            }
+            
+            return info.ToString();
+        }
+
         private string GetUpdateServerPath(string configPath)
         {
             if (File.Exists(configPath))
@@ -53,31 +105,57 @@ namespace BacklogManager.Services
 
         public Task<VersionInfo> CheckForUpdatesAsync()
         {
+            System.Diagnostics.Debug.WriteLine($"[UPDATE] CheckForUpdatesAsync démarré");
+            System.Diagnostics.Debug.WriteLine($"[UPDATE] _updateServerPath = {_updateServerPath}");
+            System.Diagnostics.Debug.WriteLine($"[UPDATE] _currentVersion = {_currentVersion}");
+            
             if (string.IsNullOrEmpty(_updateServerPath))
+            {
+                System.Diagnostics.Debug.WriteLine($"[UPDATE] updateServerPath vide, abandon");
                 return Task.FromResult<VersionInfo>(null);
+            }
 
             try
             {
                 string versionFilePath = Path.Combine(_updateServerPath, "version.json");
+                System.Diagnostics.Debug.WriteLine($"[UPDATE] Checking: {versionFilePath}");
                 
                 if (!File.Exists(versionFilePath))
+                {
+                    System.Diagnostics.Debug.WriteLine($"[UPDATE] Fichier version.json non trouvé!");
                     return Task.FromResult<VersionInfo>(null);
+                }
 
                 string jsonContent = File.ReadAllText(versionFilePath, System.Text.Encoding.UTF8);
-                var versionInfo = JsonSerializer.Deserialize<VersionInfo>(jsonContent);
+                System.Diagnostics.Debug.WriteLine($"[UPDATE] version.json lu: {jsonContent.Substring(0, Math.Min(100, jsonContent.Length))}...");
+                
+                // Options pour désérialisation case-insensitive
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+                
+                var versionInfo = JsonSerializer.Deserialize<VersionInfo>(jsonContent, options);
+                System.Diagnostics.Debug.WriteLine($"[UPDATE] Version remote: {versionInfo.Version}");
 
                 // Comparer les versions
-                if (IsNewerVersion(versionInfo.Version, _currentVersion))
+                bool isNewer = IsNewerVersion(versionInfo.Version, _currentVersion);
+                System.Diagnostics.Debug.WriteLine($"[UPDATE] IsNewerVersion({versionInfo.Version}, {_currentVersion}) = {isNewer}");
+                
+                if (isNewer)
                 {
+                    System.Diagnostics.Debug.WriteLine($"[UPDATE] Mise à jour disponible!");
                     return Task.FromResult(versionInfo);
                 }
 
+                System.Diagnostics.Debug.WriteLine($"[UPDATE] Pas de mise à jour (version actuelle >= version remote)");
                 return Task.FromResult<VersionInfo>(null);
             }
             catch (Exception ex)
             {
                 // Log l'erreur mais ne pas bloquer l'application
-                System.Diagnostics.Debug.WriteLine($"Erreur vérification mise à jour: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[UPDATE] ERREUR: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[UPDATE] StackTrace: {ex.StackTrace}");
                 return Task.FromResult<VersionInfo>(null);
             }
         }
@@ -86,12 +164,39 @@ namespace BacklogManager.Services
         {
             try
             {
-                Version remote = new Version(remoteVersion);
-                Version current = new Version(currentVersion);
-                return remote > current;
+                // Nettoyer les versions
+                string cleanRemote = remoteVersion.Trim();
+                string cleanCurrent = currentVersion.Trim();
+                
+                // S'assurer qu'on a bien 4 parties (X.Y.Z.W)
+                var remoteParts = cleanRemote.Split('.');
+                var currentParts = cleanCurrent.Split('.');
+                
+                // Si version remote a moins de 4 parties, ajouter des .0
+                if (remoteParts.Length < 4)
+                {
+                    for (int i = remoteParts.Length; i < 4; i++)
+                        cleanRemote += ".0";
+                }
+                if (currentParts.Length < 4)
+                {
+                    for (int i = currentParts.Length; i < 4; i++)
+                        cleanCurrent += ".0";
+                }
+                
+                System.Diagnostics.Debug.WriteLine($"[UPDATE] Comparing: '{cleanRemote}' vs '{cleanCurrent}'");
+                
+                Version remote = new Version(cleanRemote);
+                Version current = new Version(cleanCurrent);
+                
+                bool result = remote > current;
+                System.Diagnostics.Debug.WriteLine($"[UPDATE] remote > current = {result} (remote={remote}, current={current})");
+                
+                return result;
             }
-            catch
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"[UPDATE] IsNewerVersion ERROR: {ex.Message}");
                 return false;
             }
         }

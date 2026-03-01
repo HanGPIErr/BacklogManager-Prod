@@ -1,0 +1,8 @@
+{
+  "version": "0.2.0",
+  "releaseDate": "2026-03-01T00:00:00",
+  "downloadUrl": "C:\\sgi_support\\Updates\\BacklogManager-v0.2.0.zip",
+  "mandatory": false,
+  "changelog": "Version 0.2.0\n- Test du système de mise à jour automatique\n- Correction formatage IA Timeline\n- Correction affichage taille DB\n- Nettoyage balises analyse programme",
+  "minimumVersion": "0.1.0"
+}

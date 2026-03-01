@@ -511,7 +511,7 @@ namespace BacklogManager.Views
             var sb = new StringBuilder();
             sb.AppendLine("{");
             sb.AppendLine($"  \"ExportDate\": \"{DateTime.Now:yyyy-MM-dd HH:mm:ss}\",");
-            sb.AppendLine($"  \"Version\": \"0.1\",");
+            sb.AppendLine($"  \"Version\": \"0.2\",");
             sb.AppendLine($"  \"Application\": \"BacklogManager\",");
 
             // BacklogItems
