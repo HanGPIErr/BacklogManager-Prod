@@ -121,7 +121,7 @@ Sub CreateDesktopShortcut(strTargetPath)
         strDesktop = objWshShell.SpecialFolders("Desktop")
     End If
     
-    strShortcutPath = strDesktop & "\BacklogManager.lnk"
+    strShortcutPath = strDesktop & "\Orbitt.lnk"
     
     Set objShortcut = objWshShell.CreateShortcut(strShortcutPath)
     objShortcut.TargetPath = strTargetPath
