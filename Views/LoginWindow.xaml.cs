@@ -20,6 +20,9 @@ namespace BacklogManager.Views
             _authService = new AuthenticationService(database);
             _initService = new InitializationService(database);
             
+            // Initialiser le service de configuration IA
+            AIConfigService.Initialize(database);
+            
             // Assigner les services à App pour qu'ils soient accessibles partout
             var app = Application.Current as App;
             if (app != null)

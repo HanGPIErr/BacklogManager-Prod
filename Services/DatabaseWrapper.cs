@@ -193,5 +193,9 @@ namespace BacklogManager.Services
         
         // Notification avec utilisateur cible
         public void AjouterNotification(Notification notification, int utilisateurId) => ExecuteWriteWithRetry(() => _database.AjouterNotification(notification, utilisateurId), nameof(AjouterNotification));
+        
+        // Configuration
+        public string GetConfiguration(string key) => ExecuteReadWithRetry(() => _database.GetConfiguration(key), nameof(GetConfiguration));
+        public void SetConfiguration(string key, string value) => ExecuteWriteWithRetry(() => _database.SetConfiguration(key, value), nameof(SetConfiguration));
     }
 }

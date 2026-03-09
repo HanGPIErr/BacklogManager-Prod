@@ -363,6 +363,161 @@
                         <Frame x:Name="FrameAudit" NavigationUIVisibility="Hidden"/>
                     </Border>
                 </TabItem>
+
+                <!-- Tab Configuration IA -->
+                <TabItem>
+                    <TabItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🤖" FontSize="16" Margin="0,0,8,0"/>
+                            <TextBlock x:Name="TxtAIConfigTab" Text="Configuration IA" FontSize="14"/>
+                        </StackPanel>
+                    </TabItem.Header>
+                    <Border CornerRadius="10" Padding="30" Margin="0,10,0,0">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#FFFFFF" Offset="0"/>
+                                <GradientStop Color="#FAFAFA" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="16" ShadowDepth="0" Opacity="0.2" Color="#D0D0D0"/>
+                        </Border.Effect>
+                        <StackPanel>
+                            <!-- Titre section -->
+                            <TextBlock Text="🤖 Configuration de l'Intelligence Artificielle" 
+                                       FontSize="20" FontWeight="Bold" 
+                                       Foreground="#1A1919" Margin="0,0,0,10"/>
+                            <TextBlock x:Name="TxtAIConfigDescription" 
+                                       Text="Gérez le token d'authentification pour les appels à l'API IA"
+                                       FontSize="13" Foreground="#6D6D6D" Margin="0,0,0,25"/>
+
+                            <!-- URL API (lecture seule) -->
+                            <Border Background="#F8F9FA" CornerRadius="8" Padding="20" Margin="0,0,0,15">
+                                <StackPanel>
+                                    <TextBlock Text="URL de l'API" FontWeight="SemiBold" Foreground="#1A1919" Margin="0,0,0,8"/>
+                                    <TextBox x:Name="TxtAPIUrl" 
+                                             IsReadOnly="True" 
+                                             BorderThickness="0"
+                                             Background="Transparent"
+                                             Foreground="#6D6D6D"
+                                             FontSize="12"
+                                             TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Modèle IA (lecture seule) -->
+                            <Border Background="#F8F9FA" CornerRadius="8" Padding="20" Margin="0,0,0,15">
+                                <StackPanel>
+                                    <TextBlock Text="Modèle IA" FontWeight="SemiBold" Foreground="#1A1919" Margin="0,0,0,8"/>
+                                    <TextBox x:Name="TxtAIModel" 
+                                             IsReadOnly="True" 
+                                             BorderThickness="0"
+                                             Background="Transparent"
+                                             Foreground="#6D6D6D"
+                                             FontSize="12"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Token API (modifiable) -->
+                            <Border Background="White" BorderBrush="#E0E0E0" BorderThickness="1" 
+                                    CornerRadius="8" Padding="20" Margin="0,0,0,20">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                        <TextBlock Text="Token API" FontWeight="SemiBold" Foreground="#1A1919"/>
+                                        <TextBlock Text=" *" Foreground="#D32F2F"/>
+                                    </StackPanel>
+                                    <TextBox x:Name="TxtAPIToken" 
+                                             Height="100"
+                                             TextWrapping="Wrap"
+                                             AcceptsReturn="True"
+                                             VerticalScrollBarVisibility="Auto"
+                                             BorderBrush="#D0D0D0"
+                                             BorderThickness="1"
+                                             Padding="10"
+                                             FontSize="11"
+                                             FontFamily="Consolas"
+                                             Foreground="#1A1919"/>
+                                    <TextBlock x:Name="TxtTokenHelp" 
+                                               Text="Collez ici le token JWT complet obtenu depuis GenFactory"
+                                               FontSize="11" Foreground="#6D6D6D" 
+                                               Margin="0,8,0,0" FontStyle="Italic"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Statut du token -->
+                            <Border x:Name="BorderTokenStatus" 
+                                    Background="#E8F5E9" BorderBrush="#4CAF50" BorderThickness="1"
+                                    CornerRadius="8" Padding="15" Margin="0,0,0,20" Visibility="Collapsed">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock x:Name="TxtTokenStatusIcon" Text="✓" FontSize="16" 
+                                               Foreground="#4CAF50" Margin="0,0,10,0"/>
+                                    <TextBlock x:Name="TxtTokenStatus" 
+                                               Text="Token configuré et valide" 
+                                               FontSize="13" Foreground="#2E7D32"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Boutons d'action -->
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button x:Name="BtnTestToken" 
+                                        Content="🔍 Tester le token"
+                                        Background="White" Foreground="#00915A"
+                                        BorderBrush="#00915A" BorderThickness="2"
+                                        FontSize="14" FontWeight="SemiBold" 
+                                        Padding="20,12" Margin="0,0,10,0"
+                                        Cursor="Hand" Click="BtnTestToken_Click">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border Background="{TemplateBinding Background}" 
+                                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                                BorderThickness="{TemplateBinding BorderThickness}"
+                                                                CornerRadius="8" Padding="{TemplateBinding Padding}">
+                                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="#F0F8F5"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                                <Button x:Name="BtnSaveToken" 
+                                        Content="💾 Enregistrer"
+                                        Background="#00915A" Foreground="White"
+                                        FontSize="14" FontWeight="SemiBold" 
+                                        Padding="25,12" Cursor="Hand"
+                                        Click="BtnSaveToken_Click">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border Background="{TemplateBinding Background}" 
+                                                                CornerRadius="8" Padding="{TemplateBinding Padding}">
+                                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="#007A4D"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </TabItem>
             </TabControl>
         </Grid>
     </ScrollViewer>

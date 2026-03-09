@@ -104,11 +104,70 @@ namespace BacklogManager.Views
                             "Erreur Reporting", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 }
+
+                // Charger la configuration IA
+                ChargerConfigurationIA();
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Erreur lors du chargement des pages: {ex.Message}\n\nStackTrace: {ex.StackTrace}", 
                     "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void ChargerConfigurationIA()
+        {
+            try
+            {
+                // Charger l'URL et le modèle (constantes, toujours disponibles)
+                TxtAPIUrl.Text = AIConfigService.API_URL;
+                TxtAIModel.Text = AIConfigService.MODEL;
+
+                try
+                {
+                    // Charger le token actuel depuis la base de données
+                    var token = AIConfigService.GetToken();
+                    TxtAPIToken.Text = token;
+
+                    // Afficher le statut du token
+                    if (AIConfigService.IsTokenConfigured())
+                    {
+                        BorderTokenStatus.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E8F5E9"));
+                        BorderTokenStatus.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#4CAF50"));
+                        TxtTokenStatusIcon.Text = "✓";
+                        TxtTokenStatusIcon.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#4CAF50"));
+                        TxtTokenStatus.Text = "Token configuré";
+                        TxtTokenStatus.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2E7D32"));
+                        BorderTokenStatus.Visibility = Visibility.Visible;
+                    }
+                    else
+                    {
+                        BorderTokenStatus.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF3E0"));
+                        BorderTokenStatus.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF9800"));
+                        TxtTokenStatusIcon.Text = "⚠";
+                        TxtTokenStatusIcon.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F57C00"));
+                        TxtTokenStatus.Text = "Aucun token configuré - Les fonctionnalités IA sont désactivées";
+                        TxtTokenStatus.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E65100"));
+                        BorderTokenStatus.Visibility = Visibility.Visible;
+                    }
+                }
+                catch (Exception dbEx)
+                {
+                    // Si erreur d'accès à la DB, afficher un message mais ne pas bloquer l'interface
+                    TxtAPIToken.Text = "";
+                    BorderTokenStatus.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFEBEE"));
+                    BorderTokenStatus.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F44336"));
+                    TxtTokenStatusIcon.Text = "✗";
+                    TxtTokenStatusIcon.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F44336"));
+                    TxtTokenStatus.Text = $"Erreur d'accès à la base de données : {dbEx.Message}";
+                    TxtTokenStatus.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#C62828"));
+                    BorderTokenStatus.Visibility = Visibility.Visible;
+                }
+            }
+            catch (Exception ex)
+            {
+                // En cas d'erreur générale, logger mais ne pas afficher de popup
+                System.Diagnostics.Debug.WriteLine($"Erreur lors du chargement de la configuration IA: {ex.Message}");
             }
         }
 
@@ -215,6 +274,120 @@ namespace BacklogManager.Views
             catch (Exception ex)
             {
                 MessageBox.Show($"Erreur lors de l'ouverture de l'historique des conversations : {ex.Message}", 
+                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        // Gestion de la configuration IA
+        private void BtnSaveToken_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var token = TxtAPIToken.Text?.Trim();
+                
+                if (string.IsNullOrWhiteSpace(token))
+                {
+                    MessageBox.Show("Veuillez saisir un token valide.", 
+                        "Token manquant", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Vérifier le format basique du JWT (3 sections séparées par des points)
+                var parts = token.Split('.');
+                if (parts.Length != 3)
+                {
+                    MessageBox.Show("Le token ne semble pas être un JWT valide.\n\n" +
+                        "Un JWT doit avoir 3 sections séparées par des points : Header.Payload.Signature", 
+                        "Format invalide", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Enregistrer le token
+                AIConfigService.SetToken(token);
+
+                // Afficher le statut de succès
+                BorderTokenStatus.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E8F5E9"));
+                BorderTokenStatus.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#4CAF50"));
+                TxtTokenStatusIcon.Text = "✓";
+                TxtTokenStatusIcon.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#4CAF50"));
+                TxtTokenStatus.Text = "Token enregistré avec succès !";
+                TxtTokenStatus.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2E7D32"));
+                BorderTokenStatus.Visibility = Visibility.Visible;
+
+                MessageBox.Show("Le token API a été enregistré avec succès.\n\n" +
+                    "Les fonctionnalités IA utilisent maintenant ce nouveau token.", 
+                    "Succès", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                // Log dans l'audit si disponible
+                _auditLogService?.LogAction("CONFIG_IA", "CONFIGURATION", null, 
+                    "Token API", "Token configuré", "Configuration du token API IA");
+            }
+            catch (Exception ex)
+            {
+                // Afficher le statut d'erreur
+                BorderTokenStatus.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFEBEE"));
+                BorderTokenStatus.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F44336"));
+                TxtTokenStatusIcon.Text = "✗";
+                TxtTokenStatusIcon.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F44336"));
+                TxtTokenStatus.Text = "Erreur lors de l'enregistrement";
+                TxtTokenStatus.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#C62828"));
+                BorderTokenStatus.Visibility = Visibility.Visible;
+
+                MessageBox.Show($"Erreur lors de l'enregistrement du token : {ex.Message}", 
+                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void BtnTestToken_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var token = TxtAPIToken.Text?.Trim();
+                
+                if (string.IsNullOrWhiteSpace(token))
+                {
+                    MessageBox.Show("Veuillez saisir un token pour le tester.", 
+                        "Token manquant", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Vérifier le format basique du JWT
+                var parts = token.Split('.');
+                if (parts.Length != 3)
+                {
+                    // Afficher le statut d'erreur
+                    BorderTokenStatus.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFEBEE"));
+                    BorderTokenStatus.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F44336"));
+                    TxtTokenStatusIcon.Text = "✗";
+                    TxtTokenStatusIcon.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F44336"));
+                    TxtTokenStatus.Text = "Format de token invalide (doit être au format JWT)";
+                    TxtTokenStatus.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#C62828"));
+                    BorderTokenStatus.Visibility = Visibility.Visible;
+
+                    MessageBox.Show("Le token ne semble pas être un JWT valide.\n\n" +
+                        "Un JWT doit avoir 3 sections séparées par des points : Header.Payload.Signature\n\n" +
+                        $"Votre token a {parts.Length} section(s).", 
+                        "Format invalide", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Afficher le statut de succès (format OK)
+                BorderTokenStatus.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E8F5E9"));
+                BorderTokenStatus.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#4CAF50"));
+                TxtTokenStatusIcon.Text = "✓";
+                TxtTokenStatusIcon.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#4CAF50"));
+                TxtTokenStatus.Text = "Format de token valide (JWT)";
+                TxtTokenStatus.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2E7D32"));
+                BorderTokenStatus.Visibility = Visibility.Visible;
+
+                MessageBox.Show("Le format du token est valide.\n\n" +
+                    "Pour vérifier que le token fonctionne réellement avec l'API, " +
+                    "enregistrez-le et testez une fonctionnalité IA (analyse d'email, chat, etc.).", 
+                    "Format valide", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erreur lors du test du token : {ex.Message}", 
                     "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }

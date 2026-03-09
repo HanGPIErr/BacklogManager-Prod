@@ -103,5 +103,9 @@ namespace BacklogManager.Services
         
         // Notification avec utilisateur cible
         void AjouterNotification(Notification notification, int utilisateurId);
+        
+        // Configuration
+        string GetConfiguration(string key);
+        void SetConfiguration(string key, string value);
     }
 }

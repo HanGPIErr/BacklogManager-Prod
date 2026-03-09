@@ -31,6 +31,9 @@ namespace BacklogManager
             _authService = authService;
             _database = new SqliteDatabase();
             
+            // Initialiser le service de configuration IA
+            AIConfigService.Initialize(_database);
+            
             // Initialiser le PermissionService
             var currentUser = _authService.CurrentUser;
             var currentRole = _authService.GetCurrentUserRole();

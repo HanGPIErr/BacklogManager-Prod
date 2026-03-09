@@ -123,7 +123,9 @@ namespace BacklogManager.Services
 
         private SQLiteConnection GetConnectionForRead()
         {
-            return new SQLiteConnection(_readConnectionString);
+            var conn = new SQLiteConnection(_readConnectionString);
+            conn.Open();
+            return conn;
         }
 
         private void InitializeDatabase()
@@ -753,6 +755,24 @@ namespace BacklogManager.Services
                         
                         CREATE INDEX IF NOT EXISTS idx_chatmsg_convid ON ChatMessages(ConversationId);
                         CREATE INDEX IF NOT EXISTS idx_chatmsg_date ON ChatMessages(DateMessage);
+                    ";
+                    cmd.ExecuteNonQuery();
+                }
+                
+                // Vérifier et créer la table Configuration si elle n'existe pas
+                cmd.CommandText = @"SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='Configuration';";
+                var hasConfigurationTable = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                
+                if (!hasConfigurationTable)
+                {
+                    cmd.CommandText = @"
+                        CREATE TABLE Configuration (
+                            Key TEXT PRIMARY KEY NOT NULL,
+                            Value TEXT,
+                            DateModification TEXT NOT NULL
+                        );
+                        
+                        CREATE INDEX IF NOT EXISTS idx_configuration_key ON Configuration(Key);
                     ";
                     cmd.ExecuteNonQuery();
                 }
@@ -3453,6 +3473,41 @@ namespace BacklogManager.Services
                     cmd.Parameters.AddWithValue("@TacheId", notification.TacheId.HasValue ? (object)notification.TacheId.Value : DBNull.Value);
                     cmd.Parameters.AddWithValue("@UtilisateurId", utilisateurId);
                     cmd.Parameters.AddWithValue("@DemandeEchangeVMId", notification.DemandeEchangeVMId.HasValue ? (object)notification.DemandeEchangeVMId.Value : DBNull.Value);
+                    
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+        
+        #endregion
+        
+        #region Configuration
+        
+        public string GetConfiguration(string key)
+        {
+            using (var conn = GetConnectionForRead())
+            {
+                using (var cmd = new SQLiteCommand(@"
+                    SELECT Value FROM Configuration WHERE Key = @Key", conn))
+                {
+                    cmd.Parameters.AddWithValue("@Key", key);
+                    var result = cmd.ExecuteScalar();
+                    return result?.ToString();
+                }
+            }
+        }
+        
+        public void SetConfiguration(string key, string value)
+        {
+            using (var conn = GetConnectionForWrite())
+            {
+                using (var cmd = new SQLiteCommand(@"
+                    INSERT OR REPLACE INTO Configuration (Key, Value, DateModification)
+                    VALUES (@Key, @Value, @DateModification)", conn))
+                {
+                    cmd.Parameters.AddWithValue("@Key", key);
+                    cmd.Parameters.AddWithValue("@Value", value ?? string.Empty);
+                    cmd.Parameters.AddWithValue("@DateModification", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
                     
                     cmd.ExecuteNonQuery();
                 }

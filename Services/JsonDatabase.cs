@@ -847,5 +847,15 @@ namespace BacklogManager.Services
         {
             throw new NotSupportedException("Les notifications ciblées ne sont supportées qu'en mode SQLite.");
         }
+
+        public string GetConfiguration(string key)
+        {
+            throw new NotSupportedException("La configuration centralisée n'est supportée qu'en mode SQLite.");
+        }
+
+        public void SetConfiguration(string key, string value)
+        {
+            throw new NotSupportedException("La configuration centralisée n'est supportée qu'en mode SQLite.");
+        }
     }
 }
