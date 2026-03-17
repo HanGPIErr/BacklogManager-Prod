@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:BacklogManager.Services"
-        Title="Équipe" Height="500" Width="600"
+        Title="Équipe" Height="700" Width="650"
         WindowStartupLocation="CenterOwner"
         Background="#F5F5F5"
         ResizeMode="CanResize">
@@ -85,10 +85,17 @@
 
         <!-- Boutons -->
         <Border Grid.Row="2" Background="White" BorderBrush="#E0E0E0" BorderThickness="0,1,0,0" Padding="20">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button x:Name="BtnAnnuler" Content="Annuler" Click="BtnAnnuler_Click"
-                        Background="#6C757D" Foreground="White" Padding="20,10" Width="120"
-                        BorderThickness="0" Cursor="Hand" FontWeight="SemiBold" FontSize="14">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Supprimer (gauche, visible uniquement en mode édition) -->
+                <Button x:Name="BtnSupprimer" Grid.Column="0" Click="BtnSupprimer_Click"
+                        Background="#DC3545" Foreground="White" Padding="20,10" Width="160"
+                        BorderThickness="0" Cursor="Hand" FontWeight="SemiBold" FontSize="14"
+                        HorizontalAlignment="Left" Visibility="Collapsed">
                     <Button.Style>
                         <Style TargetType="Button">
                             <Setter Property="Template">
@@ -103,37 +110,64 @@
                             </Setter>
                             <Style.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Background" Value="#5A6268"/>
+                                    <Setter Property="Background" Value="#C82333"/>
                                 </Trigger>
                             </Style.Triggers>
                         </Style>
                     </Button.Style>
                 </Button>
-                
-                <Button x:Name="BtnEnregistrer" Content="Enregistrer" Click="BtnEnregistrer_Click" Margin="10,0,0,0"
-                        Background="#00915A" Foreground="White" Padding="20,10" Width="120"
-                        BorderThickness="0" Cursor="Hand" FontWeight="SemiBold" FontSize="14">
-                    <Button.Style>
-                        <Style TargetType="Button">
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="Button">
-                                        <Border Background="{TemplateBinding Background}" 
-                                                CornerRadius="6" Padding="{TemplateBinding Padding}">
-                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        </Border>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                            <Style.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Background" Value="#007A4D"/>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                </Button>
-            </StackPanel>
+
+                <!-- Annuler + Enregistrer (droite) -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button x:Name="BtnAnnuler" Content="Annuler" Click="BtnAnnuler_Click"
+                            Background="#6C757D" Foreground="White" Padding="20,10" Width="120"
+                            BorderThickness="0" Cursor="Hand" FontWeight="SemiBold" FontSize="14">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" 
+                                                    CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#5A6268"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <Button x:Name="BtnEnregistrer" Content="Enregistrer" Click="BtnEnregistrer_Click" Margin="10,0,0,0"
+                            Background="#00915A" Foreground="White" Padding="20,10" Width="120"
+                            BorderThickness="0" Cursor="Hand" FontWeight="SemiBold" FontSize="14">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" 
+                                                    CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#007A4D"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </StackPanel>
+            </Grid>
         </Border>
     </Grid>
 </Window>

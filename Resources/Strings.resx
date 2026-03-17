@@ -2090,6 +2090,14 @@ Cette action est irréversible.</value>
   <data name="Teams_NoManager" xml:space="preserve">
     <value>Aucun manager</value>
   </data>
+  <data name="Teams_Delete" xml:space="preserve">
+    <value>🗑️ Supprimer l'équipe</value>
+  </data>
+  <data name="Teams_ConfirmDelete" xml:space="preserve">
+    <value>Êtes-vous sûr de vouloir supprimer l'équipe "{0}" ?
+
+Cette action est irréversible.</value>
+  </data>
   <data name="Modal_Team_Title" xml:space="preserve">
     <value>GESTION DE L'ÉQUIPE</value>
   </data>

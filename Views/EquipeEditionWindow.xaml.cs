@@ -28,6 +28,7 @@ namespace BacklogManager.Views
             {
                 Title = "Modifier l'équipe";
                 ChargerEquipe();
+                BtnSupprimer.Visibility = System.Windows.Visibility.Visible;
             }
             else
             {
@@ -51,6 +52,7 @@ namespace BacklogManager.Views
             LblContact.Text = LocalizationService.Instance.GetString("Modal_Team_Contact");
             BtnAnnuler.Content = LocalizationService.Instance.GetString("Common_Cancel");
             BtnEnregistrer.Content = LocalizationService.Instance.GetString("Common_Save");
+            BtnSupprimer.Content = LocalizationService.Instance.GetString("Teams_Delete");
 
             // S'abonner aux changements de langue
             LocalizationService.Instance.PropertyChanged += (s, e) =>
@@ -66,6 +68,7 @@ namespace BacklogManager.Views
                 LblContact.Text = LocalizationService.Instance.GetString("Modal_Team_Contact");
                 BtnAnnuler.Content = LocalizationService.Instance.GetString("Common_Cancel");
                 BtnEnregistrer.Content = LocalizationService.Instance.GetString("Common_Save");
+                BtnSupprimer.Content = LocalizationService.Instance.GetString("Teams_Delete");
             };
         }
 
@@ -185,6 +188,27 @@ namespace BacklogManager.Views
             catch (Exception ex)
             {
                 MessageBox.Show($"Erreur lors de l'enregistrement: {ex.Message}", 
+                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void BtnSupprimer_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var message = string.Format(
+                    LocalizationService.Instance.GetString("Teams_ConfirmDelete"),
+                    _equipeActuelle?.Nom ?? "");
+                if (MessageBox.Show(message, "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+                {
+                    _equipeService.SupprimerEquipe(_equipeId.Value);
+                    DialogResult = true;
+                    Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erreur lors de la suppression: {ex.Message}",
                     "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }

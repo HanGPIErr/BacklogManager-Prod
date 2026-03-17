@@ -194,8 +194,8 @@
                 <ItemsControl.Items>
                 
                 <!-- Tâches terminées -->
-                <Border Style="{StaticResource KPICard}" Margin="0,0,12,12" Padding="22,20" 
-                        MinWidth="220" Width="255">
+                <Border Style="{StaticResource KPICard}" Margin="0,0,12,12" Padding="14,12" 
+                        MinWidth="150" Width="190">
                     <Border.Background>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                             <GradientStop Color="#C8E6C9" Offset="0"/>
@@ -207,12 +207,12 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
-                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,12">
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
                             <Border Background="#FFFFFF" CornerRadius="10" Padding="10,6" Margin="0,0,10,0">
                                 <Border.Effect>
                                     <DropShadowEffect Color="#4CAF50" BlurRadius="8" ShadowDepth="0" Opacity="0.3"/>
                                 </Border.Effect>
-                                <TextBlock Text="✅" FontSize="18"/>
+                                <TextBlock Text="✅" FontSize="14"/>
                             </Border>
                             <TextBlock Text="{Binding CompletedText, Mode=OneWay}" FontSize="14" 
                                        Foreground="#2E7D32" FontWeight="Bold" VerticalAlignment="Center"/>
@@ -222,7 +222,7 @@
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" FontSize="38" FontWeight="Bold" 
+                            <TextBlock Grid.Column="0" FontSize="28" FontWeight="Bold" 
                                        Foreground="#00915A" VerticalAlignment="Center">
                                 <Run Text="{Binding NbTachesTerminees, Mode=OneWay}"/>
                             </TextBlock>
@@ -236,8 +236,8 @@
                 </Border>
                 
                 <!-- Tâches en cours -->
-                <Border Style="{StaticResource KPICard}" Margin="0,0,12,12" Padding="22,20" 
-                        MinWidth="220" Width="255">
+                <Border Style="{StaticResource KPICard}" Margin="0,0,12,12" Padding="14,12" 
+                        MinWidth="150" Width="190">
                     <Border.Background>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                             <GradientStop Color="#BBDEFB" Offset="0"/>
@@ -249,24 +249,24 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
-                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,12">
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
                             <Border Background="#FFFFFF" CornerRadius="10" Padding="10,6" Margin="0,0,10,0">
                                 <Border.Effect>
                                     <DropShadowEffect Color="#2196F3" BlurRadius="8" ShadowDepth="0" Opacity="0.3"/>
                                 </Border.Effect>
-                                <TextBlock Text="🔄" FontSize="18"/>
+                                <TextBlock Text="🔄" FontSize="14"/>
                             </Border>
                             <TextBlock Text="{Binding InProgressText, Mode=OneWay}" FontSize="14" 
                                        Foreground="#1565C0" FontWeight="Bold" VerticalAlignment="Center"/>
                         </StackPanel>
                         <TextBlock Grid.Row="1" Text="{Binding NbTachesEnCours, Mode=OneWay}" 
-                                   FontSize="38" FontWeight="Bold" Foreground="#2196F3"/>
+                                   FontSize="28" FontWeight="Bold" Foreground="#2196F3"/>
                     </Grid>
                 </Border>
                 
                 <!-- Tâches urgentes -->
-                <Border Style="{StaticResource KPICard}" Margin="0,0,12,12" Padding="22,20" 
-                        MinWidth="220" Width="255">
+                <Border Style="{StaticResource KPICard}" Margin="0,0,12,12" Padding="14,12" 
+                        MinWidth="150" Width="190">
                     <Border.Background>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                             <GradientStop Color="#FFCCBC" Offset="0"/>
@@ -278,24 +278,24 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
-                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,12">
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
                             <Border Background="#FFFFFF" CornerRadius="10" Padding="10,6" Margin="0,0,10,0">
                                 <Border.Effect>
                                     <DropShadowEffect Color="#FF5722" BlurRadius="8" ShadowDepth="0" Opacity="0.3"/>
                                 </Border.Effect>
-                                <TextBlock Text="⚡" FontSize="18"/>
+                                <TextBlock Text="⚡" FontSize="14"/>
                             </Border>
                             <TextBlock Text="{Binding UrgentText, Mode=OneWay}" FontSize="14" 
                                        Foreground="#D84315" FontWeight="Bold" VerticalAlignment="Center"/>
                         </StackPanel>
                         <TextBlock Grid.Row="1" Text="{Binding NbTachesUrgentes, Mode=OneWay}" 
-                                   FontSize="38" FontWeight="Bold" Foreground="#FF5722"/>
+                                   FontSize="28" FontWeight="Bold" Foreground="#FF5722"/>
                     </Grid>
                 </Border>
                 
                 <!-- Projets actifs -->
-                <Border Style="{StaticResource KPICard}" Margin="0,0,12,12" Padding="22,20" 
-                        MinWidth="220" Width="255">
+                <Border Style="{StaticResource KPICard}" Margin="0,0,12,12" Padding="14,12" 
+                        MinWidth="150" Width="190">
                     <Border.Background>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                             <GradientStop Color="#FFE0B2" Offset="0"/>
@@ -307,24 +307,24 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
-                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,12">
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
                             <Border Background="#FFFFFF" CornerRadius="10" Padding="10,6" Margin="0,0,10,0">
                                 <Border.Effect>
                                     <DropShadowEffect Color="#FF9800" BlurRadius="8" ShadowDepth="0" Opacity="0.3"/>
                                 </Border.Effect>
-                                <TextBlock Text="📁" FontSize="18"/>
+                                <TextBlock Text="📁" FontSize="14"/>
                             </Border>
                             <TextBlock Text="{Binding ProjectsText, Mode=OneWay}" FontSize="14" 
                                        Foreground="#E65100" FontWeight="Bold" VerticalAlignment="Center"/>
                         </StackPanel>
                         <TextBlock Grid.Row="1" Text="{Binding NbProjetsActifs, Mode=OneWay}" 
-                                   FontSize="38" FontWeight="Bold" Foreground="#FF9800"/>
+                                   FontSize="28" FontWeight="Bold" Foreground="#FF9800"/>
                     </Grid>
                 </Border>
                 
                 <!-- Équipes actives -->
-                <Border Style="{StaticResource KPICard}" Margin="0,0,12,12" Padding="22,20" 
-                        MinWidth="220" Width="255">
+                <Border Style="{StaticResource KPICard}" Margin="0,0,12,12" Padding="14,12" 
+                        MinWidth="150" Width="190">
                     <Border.Background>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                             <GradientStop Color="#B3E5FC" Offset="0"/>
@@ -336,24 +336,24 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
-                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,12">
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
                             <Border Background="#FFFFFF" CornerRadius="10" Padding="10,6" Margin="0,0,10,0">
                                 <Border.Effect>
                                     <DropShadowEffect Color="#0288D1" BlurRadius="8" ShadowDepth="0" Opacity="0.3"/>
                                 </Border.Effect>
-                                <TextBlock Text="🏢" FontSize="18"/>
+                                <TextBlock Text="🏢" FontSize="14"/>
                             </Border>
                             <TextBlock Text="{Binding TeamsText, Mode=OneWay}" FontSize="14" 
                                        Foreground="#01579B" FontWeight="Bold" VerticalAlignment="Center"/>
                         </StackPanel>
                         <TextBlock Grid.Row="1" Text="{Binding NbEquipesActives, Mode=OneWay}" 
-                                   FontSize="38" FontWeight="Bold" Foreground="#0288D1"/>
+                                   FontSize="28" FontWeight="Bold" Foreground="#0288D1"/>
                     </Grid>
                 </Border>
                 
                 <!-- Total ressources -->
-                <Border Style="{StaticResource KPICard}" Margin="0,0,12,12" Padding="22,20" 
-                        MinWidth="220" Width="255">
+                <Border Style="{StaticResource KPICard}" Margin="0,0,12,12" Padding="14,12" 
+                        MinWidth="150" Width="190">
                     <Border.Background>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                             <GradientStop Color="#E1BEE7" Offset="0"/>
@@ -365,24 +365,24 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
-                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,12">
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
                             <Border Background="#FFFFFF" CornerRadius="10" Padding="10,6" Margin="0,0,10,0">
                                 <Border.Effect>
                                     <DropShadowEffect Color="#7B1FA2" BlurRadius="8" ShadowDepth="0" Opacity="0.3"/>
                                 </Border.Effect>
-                                <TextBlock Text="👥" FontSize="18"/>
+                                <TextBlock Text="👥" FontSize="14"/>
                             </Border>
                             <TextBlock Text="{Binding ResourcesText, Mode=OneWay}" FontSize="14" 
                                        Foreground="#4A148C" FontWeight="Bold" VerticalAlignment="Center"/>
                         </StackPanel>
                         <TextBlock Grid.Row="1" Text="{Binding NbRessourcesTotal, Mode=OneWay}" 
-                                   FontSize="38" FontWeight="Bold" Foreground="#7B1FA2"/>
+                                   FontSize="28" FontWeight="Bold" Foreground="#7B1FA2"/>
                     </Grid>
                 </Border>
                 
                 <!-- Charge moyenne par équipe -->
-                <Border Style="{StaticResource KPICard}" Margin="0,0,12,12" Padding="22,20" 
-                        MinWidth="220" Width="255">
+                <Border Style="{StaticResource KPICard}" Margin="0,0,12,12" Padding="14,12" 
+                        MinWidth="150" Width="190">
                     <Border.Background>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                             <GradientStop Color="#FFF59D" Offset="0"/>
@@ -394,12 +394,12 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
-                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,12">
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
                             <Border Background="#FFFFFF" CornerRadius="10" Padding="10,6" Margin="0,0,10,0">
                                 <Border.Effect>
                                     <DropShadowEffect Color="#F9A825" BlurRadius="8" ShadowDepth="0" Opacity="0.3"/>
                                 </Border.Effect>
-                                <TextBlock Text="⚖️" FontSize="18"/>
+                                <TextBlock Text="⚖️" FontSize="14"/>
                             </Border>
                             <TextBlock Text="{Binding LoadPerTeamText, Mode=OneWay}" FontSize="14" 
                                        Foreground="#F57F17" FontWeight="Bold" VerticalAlignment="Center"/>
@@ -409,7 +409,7 @@
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" FontSize="38" FontWeight="Bold" 
+                            <TextBlock Grid.Column="0" FontSize="28" FontWeight="Bold" 
                                        Foreground="#F57F17" VerticalAlignment="Center">
                                 <Run Text="{Binding ChargeMoyenneParEquipe, Mode=OneWay, StringFormat='{}{0:F1}'}"/>
                             </TextBlock>
@@ -554,7 +554,7 @@
                                     </Border.Background>
                                     <TextBlock FontSize="11" FontWeight="Bold" Foreground="#1B5E20">
                                         <Run Text="{Binding NbMembres}"/>
-                                        <Run Text=" 👥"/>
+                                        <Run Text=" ??"/>
                                     </TextBlock>
                                 </Border>
                                 <Border CornerRadius="8" Padding="10,5">
@@ -595,7 +595,7 @@
                                 </Grid.ColumnDefinitions>
                                 <Border Grid.Column="0" Background="#E8F5E9" CornerRadius="8" 
                                         Padding="10,6" Margin="0,0,12,0">
-                                    <TextBlock Text="📊" FontSize="18"/>
+                                    <TextBlock Text="📊" FontSize="14"/>
                                 </Border>
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                     <TextBlock Text="{Binding ResourceDistributionText, Mode=OneWay}" 
@@ -860,7 +860,7 @@
                                         </Grid>
                                         
                         <!-- Badges -->
-                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,12">
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,8">
                             <Border CornerRadius="8" Padding="10,5" Margin="0,0,8,0">
                                 <Border.Background>
                                     <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
@@ -975,7 +975,7 @@
                         <Border Grid.Column="0" Background="#FFEBEE" CornerRadius="6" 
                                 Padding="8,5" Margin="0,0,10,0">
                             <TextBlock FontSize="14" FontWeight="Bold" Foreground="#FF5722">
-                                <Run Text="⚡ "/>
+                                <Run Text="? "/>
                                 <Run Text="{Binding NbTachesUrgentes, Mode=OneWay}"/>
                             </TextBlock>
                         </Border>
@@ -1014,14 +1014,14 @@
                                             <Border Background="#FF5722" CornerRadius="4" 
                                                     Padding="6,3" HorizontalAlignment="Right" 
                                                     VerticalAlignment="Top">
-                                                <TextBlock Text="⚡" FontSize="12"/>
+                                                <TextBlock Text="?" FontSize="12"/>
                                             </Border>
                                         </Grid>
                                         <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
                                             <Border Background="#FFF3E0" CornerRadius="4" Padding="8,4" 
                                                     Margin="0,0,8,0">
                                                 <TextBlock FontSize="12" Foreground="#FF9800" FontWeight="SemiBold">
-                                                    <Run Text="📅 "/>
+                                                    <Run Text="?? "/>
                                                     <Run Text="{Binding DateFinAttendue, StringFormat='dd/MM'}"/>
                                                 </TextBlock>
                                             </Border>
@@ -1047,7 +1047,7 @@
                             </LinearGradientBrush>
                         </Border.Background>
                         <StackPanel HorizontalAlignment="Center">
-                            <TextBlock Text="✅" FontSize="32" TextAlignment="Center" Margin="0,0,0,8"/>
+                            <TextBlock Text="?" FontSize="32" TextAlignment="Center" Margin="0,0,0,8"/>
                             <TextBlock Text="Aucune tâche urgente pour le moment" 
                                        FontSize="14" Foreground="#1B5E20" TextAlignment="Center" FontWeight="Bold"/>
                             <TextBlock Text="Excellent travail ! Toutes vos priorités sont à jour." 
@@ -1304,7 +1304,7 @@
                                     </Style>
                                 </Button.Resources>
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="📅" FontSize="16" Foreground="#6A1B9A" 
+                                    <TextBlock Text="??" FontSize="16" Foreground="#6A1B9A" 
                                                Margin="0,0,8,0"/>
                                     <TextBlock Text="{Binding TimelineProjectText, Mode=OneWay}" FontSize="14" 
                                                FontWeight="Bold" Foreground="#6A1B9A"/>
