@@ -18,6 +18,8 @@ namespace BacklogManager.Views
         private readonly PermissionService _permissionService;
         private List<DemandeViewModel> _toutesLesDemandes;
         private bool _afficherArchives = false;
+        private int _pageActuelle = 1;
+        private const int PageSize = 15;
 
         public DemandesView(IDatabase database, AuthenticationService authService, PermissionService permissionService)
         {
@@ -27,11 +29,12 @@ namespace BacklogManager.Views
             _permissionService = permissionService;
             
             // Configurer les événements AVANT InitialiserFiltres
-            CmbFiltreStatut.SelectionChanged += (s, e) => AppliquerFiltres();
-            CmbFiltreCriticite.SelectionChanged += (s, e) => AppliquerFiltres();
-            CmbFiltreEquipe.SelectionChanged += (s, e) => AppliquerFiltres();
-            DpDateDebut.SelectedDateChanged += (s, e) => AppliquerFiltres();
-            DpDateFin.SelectedDateChanged += (s, e) => AppliquerFiltres();
+            CmbFiltreStatut.SelectionChanged += (s, e) => { _pageActuelle = 1; AppliquerFiltres(); };
+            CmbFiltreCriticite.SelectionChanged += (s, e) => { _pageActuelle = 1; AppliquerFiltres(); };
+            CmbFiltreEquipe.SelectionChanged += (s, e) => { _pageActuelle = 1; AppliquerFiltres(); };
+            DpDateDebut.SelectedDateChanged += (s, e) => { _pageActuelle = 1; AppliquerFiltres(); };
+            DpDateFin.SelectedDateChanged += (s, e) => { _pageActuelle = 1; AppliquerFiltres(); };
+            TxtRecherche.TextChanged += (s, e) => { _pageActuelle = 1; AppliquerFiltres(); };
             BtnEffacerFiltres.Click += (s, e) => EffacerFiltres();
             BtnNouvelleDemande.Click += BtnNouvelleDemande_Click;
             BtnAnalyseEmail.Click += BtnAnalyseEmail_Click;
@@ -160,6 +163,8 @@ namespace BacklogManager.Views
             CmbFiltreEquipe.SelectedIndex = 0;
             DpDateDebut.SelectedDate = null;
             DpDateFin.SelectedDate = null;
+            TxtRecherche.Text = string.Empty;
+            _pageActuelle = 1;
             AppliquerFiltres();
         }
 
@@ -282,7 +287,18 @@ namespace BacklogManager.Views
             // Filtre archives/actives
             filtered = filtered.Where(d => d.EstArchivee == _afficherArchives);
 
-            // Filtre statut - Comparer avec le statut formaté
+            // Filtre recherche textuelle
+            var recherche = TxtRecherche?.Text?.Trim();
+            if (!string.IsNullOrEmpty(recherche))
+            {
+                filtered = filtered.Where(d =>
+                    (d.Titre != null && d.Titre.IndexOf(recherche, StringComparison.OrdinalIgnoreCase) >= 0) ||
+                    (d.Description != null && d.Description.IndexOf(recherche, StringComparison.OrdinalIgnoreCase) >= 0) ||
+                    (d.Demandeur != null && d.Demandeur.IndexOf(recherche, StringComparison.OrdinalIgnoreCase) >= 0) ||
+                    (d.EquipesNoms != null && d.EquipesNoms.IndexOf(recherche, StringComparison.OrdinalIgnoreCase) >= 0));
+            }
+
+            // Filtre statut
             if (CmbFiltreStatut.SelectedIndex > 0)
             {
                 var statutSelectionne = CmbFiltreStatut.SelectedItem.ToString();
@@ -300,7 +316,6 @@ namespace BacklogManager.Views
             if (CmbFiltreEquipe.SelectedIndex > 0 && CmbFiltreEquipe.SelectedValue != null)
             {
                 var equipeId = (int)CmbFiltreEquipe.SelectedValue;
-                // Filtrer les demandes dont au moins une équipe assignée correspond
                 filtered = filtered.Where(d => 
                 {
                     if (d.EquipesAssigneesIds == null || d.EquipesAssigneesIds.Count == 0)
@@ -323,7 +338,54 @@ namespace BacklogManager.Views
                 filtered = filtered.Where(d => d.DateCreation.Date <= dateFin);
             }
 
-            ListeDemandes.ItemsSource = filtered.ToList();
+            var liste = filtered.ToList();
+            int total = liste.Count;
+            int totalPages = Math.Max(1, (int)Math.Ceiling(total / (double)PageSize));
+
+            // S'assurer que la page courante est valide
+            if (_pageActuelle < 1) _pageActuelle = 1;
+            if (_pageActuelle > totalPages) _pageActuelle = totalPages;
+
+            var page = liste.Skip((_pageActuelle - 1) * PageSize).Take(PageSize).ToList();
+            ListeDemandes.ItemsSource = page;
+
+            // Mettre à jour les contrôles de pagination
+            TxtInfoPagination.Text = string.Format("{0} demande{1}", total, total > 1 ? "s" : "");
+            TxtNumeroPage.Text = string.Format("Page {0} / {1}", _pageActuelle, totalPages);
+            TxtTotalDemandes.Text = string.Format("{0}-{1} sur {2}",
+                total == 0 ? 0 : (_pageActuelle - 1) * PageSize + 1,
+                Math.Min(_pageActuelle * PageSize, total),
+                total);
+
+            BtnPremierePage.IsEnabled = _pageActuelle > 1;
+            BtnPagePrecedente.IsEnabled = _pageActuelle > 1;
+            BtnPageSuivante.IsEnabled = _pageActuelle < totalPages;
+            BtnDernierePage.IsEnabled = _pageActuelle < totalPages;
+        }
+
+        private void BtnPremierePage_Click(object sender, RoutedEventArgs e)
+        {
+            _pageActuelle = 1;
+            AppliquerFiltres();
+        }
+
+        private void BtnPagePrecedente_Click(object sender, RoutedEventArgs e)
+        {
+            if (_pageActuelle > 1) { _pageActuelle--; AppliquerFiltres(); }
+        }
+
+        private void BtnPageSuivante_Click(object sender, RoutedEventArgs e)
+        {
+            _pageActuelle++;
+            AppliquerFiltres();
+        }
+
+        private void BtnDernierePage_Click(object sender, RoutedEventArgs e)
+        {
+            if (_toutesLesDemandes == null) return;
+            var total = _toutesLesDemandes.Count(d => d.EstArchivee == _afficherArchives);
+            _pageActuelle = Math.Max(1, (int)Math.Ceiling(total / (double)PageSize));
+            AppliquerFiltres();
         }
 
         private string ObtenirNomUtilisateur(int? userId, List<Utilisateur> utilisateurs)
