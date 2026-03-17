@@ -77,6 +77,8 @@ namespace BacklogManager.Views
             TxtLabelEquipe.Text = LocalizationService.Instance["Requests_FilterTeam"];
             TxtLabelDateDebut.Text = LocalizationService.Instance["Requests_FilterDateFrom"];
             TxtLabelDateFin.Text = LocalizationService.Instance["Requests_FilterDateTo"];
+            TxtLabelRecherche.Text = LocalizationService.Instance["Requests_FilterSearch"];
+            TxtRecherche.Tag = LocalizationService.Instance["Requests_FilterSearchHint"];
             
             // Boutons filtres
             BtnRefresh.Content = LocalizationService.Instance["Requests_Refresh"];
@@ -350,11 +352,14 @@ namespace BacklogManager.Views
             ListeDemandes.ItemsSource = page;
 
             // Mettre à jour les contrôles de pagination
-            TxtInfoPagination.Text = string.Format("{0} demande{1}", total, total > 1 ? "s" : "");
+            var label = LocalizationService.Instance["Requests_PaginationRequests"];
+            var of = LocalizationService.Instance["Requests_PaginationOf"];
+            TxtInfoPagination.Text = string.Format("{0} {1}", total, label);
             TxtNumeroPage.Text = string.Format("Page {0} / {1}", _pageActuelle, totalPages);
-            TxtTotalDemandes.Text = string.Format("{0}-{1} sur {2}",
+            TxtTotalDemandes.Text = string.Format("{0}-{1} {2} {3}",
                 total == 0 ? 0 : (_pageActuelle - 1) * PageSize + 1,
                 Math.Min(_pageActuelle * PageSize, total),
+                of,
                 total);
 
             BtnPremierePage.IsEnabled = _pageActuelle > 1;

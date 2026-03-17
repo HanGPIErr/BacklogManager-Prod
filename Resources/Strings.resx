@@ -972,6 +972,18 @@
   <data name="Requests_FilterDateTo" xml:space="preserve">
     <value>📅 Date à</value>
   </data>
+  <data name="Requests_FilterSearch" xml:space="preserve">
+    <value>🔍 Recherche</value>
+  </data>
+  <data name="Requests_FilterSearchHint" xml:space="preserve">
+    <value>Titre, description, demandeur...</value>
+  </data>
+  <data name="Requests_PaginationRequests" xml:space="preserve">
+    <value>demande(s)</value>
+  </data>
+  <data name="Requests_PaginationOf" xml:space="preserve">
+    <value>sur</value>
+  </data>
   <data name="Requests_FilterAll" xml:space="preserve">
     <value>Tous</value>
   </data>
