@@ -149,7 +149,34 @@
                         <!-- Contact -->
                         <StackPanel Grid.Row="0" Grid.Column="1">
                             <TextBlock Text="{Binding ContactText, Mode=OneWay}" FontSize="10" Foreground="#999" FontWeight="Bold"/>
-                            <TextBlock x:Name="TxtContact" FontSize="14" Margin="0,5,0,0"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,5,0,0" VerticalAlignment="Center">
+                                <TextBlock x:Name="TxtContact" FontSize="14" VerticalAlignment="Center"/>
+                                <Button x:Name="BtnCopyContact" Visibility="Collapsed" Click="BtnCopyContact_Click"
+                                        Margin="8,0,0,0" Padding="5,3" Cursor="Hand"
+                                        ToolTip="Copier l'email" BorderThickness="0">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Background" Value="#E8F5E9"/>
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="5"
+                                                                Padding="{TemplateBinding Padding}">
+                                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        </Border>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter TargetName="Bd" Property="Background" Value="#C8E6C9"/>
+                                                            </Trigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </Button.Style>
+                                    <TextBlock x:Name="TxtCopyIcon" Text="📋" FontSize="13" VerticalAlignment="Center"/>
+                                </Button>
+                            </StackPanel>
                         </StackPanel>
                         
                         <!-- Nombre de membres -->

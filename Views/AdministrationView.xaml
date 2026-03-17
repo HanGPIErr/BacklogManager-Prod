@@ -384,17 +384,29 @@
                         </Border.Effect>
                         <StackPanel>
                             <!-- Titre section -->
-                            <TextBlock Text="🤖 Configuration de l'Intelligence Artificielle" 
+                            <TextBlock x:Name="TxtAIConfigTitle" Text="🤖 Configuration de l'Intelligence Artificielle" 
                                        FontSize="20" FontWeight="Bold" 
                                        Foreground="#1A1919" Margin="0,0,0,10"/>
                             <TextBlock x:Name="TxtAIConfigDescription" 
                                        Text="Gérez le token d'authentification pour les appels à l'API IA"
-                                       FontSize="13" Foreground="#6D6D6D" Margin="0,0,0,25"/>
+                                       FontSize="13" Foreground="#6D6D6D" Margin="0,0,0,15"/>
+
+                            <!-- Bandeau d'avertissement -->
+                            <Border Background="#FFF8E1" BorderBrush="#FFB300" BorderThickness="1"
+                                    CornerRadius="8" Padding="15,12" Margin="0,0,0,20">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="⚠️" FontSize="16" Margin="0,0,10,0" VerticalAlignment="Top"/>
+                                    <TextBlock x:Name="TxtAIConfigWarning"
+                                               FontSize="12" Foreground="#5D4037"
+                                               TextWrapping="Wrap" VerticalAlignment="Center"
+                                               Text="Ces paramètres sont préconfigurés pour l'environnement de production. Ne les modifiez que si vous êtes certain de l'impact : toute erreur de configuration peut entraîner l'arrêt complet des fonctionnalités IA dans l'application."/>
+                                </StackPanel>
+                            </Border>
 
                             <!-- URL API (lecture seule) -->
                             <Border Background="#F8F9FA" CornerRadius="8" Padding="20" Margin="0,0,0,15">
                                 <StackPanel>
-                                    <TextBlock Text="URL de l'API" FontWeight="SemiBold" Foreground="#1A1919" Margin="0,0,0,8"/>
+                                    <TextBlock x:Name="LblApiUrl" Text="URL de l'API" FontWeight="SemiBold" Foreground="#1A1919" Margin="0,0,0,8"/>
                                     <TextBox x:Name="TxtAPIUrl" 
                                              IsReadOnly="True" 
                                              BorderThickness="0"
@@ -408,7 +420,7 @@
                             <!-- Modèle IA (lecture seule) -->
                             <Border Background="#F8F9FA" CornerRadius="8" Padding="20" Margin="0,0,0,15">
                                 <StackPanel>
-                                    <TextBlock Text="Modèle IA" FontWeight="SemiBold" Foreground="#1A1919" Margin="0,0,0,8"/>
+                                    <TextBlock x:Name="LblAIModel" Text="Modèle IA" FontWeight="SemiBold" Foreground="#1A1919" Margin="0,0,0,8"/>
                                     <TextBox x:Name="TxtAIModel" 
                                              IsReadOnly="True" 
                                              BorderThickness="0"
@@ -423,7 +435,7 @@
                                     CornerRadius="8" Padding="20" Margin="0,0,0,20">
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                        <TextBlock Text="Token API" FontWeight="SemiBold" Foreground="#1A1919"/>
+                                        <TextBlock x:Name="LblTokenAPI" Text="Token API" FontWeight="SemiBold" Foreground="#1A1919"/>
                                         <TextBlock Text=" *" Foreground="#D32F2F"/>
                                     </StackPanel>
                                     <TextBox x:Name="TxtAPIToken" 

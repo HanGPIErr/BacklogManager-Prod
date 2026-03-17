@@ -495,6 +495,15 @@
   <data name="Dashboard_TaskModification" xml:space="preserve">
     <value>Modificación de la tarea</value>
   </data>
+  <data name="Dashboard_NoActiveProjects" xml:space="preserve">
+    <value>Sin proyectos activos</value>
+  </data>
+  <data name="Dashboard_NoUrgentTasks" xml:space="preserve">
+    <value>Sin tareas urgentes por el momento</value>
+  </data>
+  <data name="Dashboard_AllPrioritiesUpToDate" xml:space="preserve">
+    <value>¡Buen trabajo! Todas sus prioridades están al día.</value>
+  </data>
   <data name="TeamDetail_Back" xml:space="preserve">
     <value>Volver</value>
   </data>
@@ -2172,6 +2181,45 @@ Esta acción es irreversible.</value>
   </data>
   <data name="Administration_OpenChatHistory" xml:space="preserve">
     <value>Abrir historial de conversaciones</value>
+  </data>
+  <data name="Administration_AIConfig" xml:space="preserve">
+    <value>Configuración IA</value>
+  </data>
+  <data name="AIConfig_Title" xml:space="preserve">
+    <value>Configuración de Inteligencia Artificial</value>
+  </data>
+  <data name="AIConfig_Description" xml:space="preserve">
+    <value>Gestione el token de autenticación para las llamadas a la API de IA</value>
+  </data>
+  <data name="AIConfig_Warning" xml:space="preserve">
+    <value>Estos parámetros están preconfigurados para el entorno de producción. Solo modifíquelos si está seguro del impacto: cualquier error de configuración puede desactivar por completo las funciones de IA en la aplicación.</value>
+  </data>
+  <data name="AIConfig_UrlLabel" xml:space="preserve">
+    <value>URL de la API</value>
+  </data>
+  <data name="AIConfig_ModelLabel" xml:space="preserve">
+    <value>Modelo IA</value>
+  </data>
+  <data name="AIConfig_TokenLabel" xml:space="preserve">
+    <value>Token API</value>
+  </data>
+  <data name="AIConfig_TokenHelp" xml:space="preserve">
+    <value>Pegue aquí el token JWT completo obtenido desde GenFactory</value>
+  </data>
+  <data name="AIConfig_TokenConfigured" xml:space="preserve">
+    <value>Token configurado</value>
+  </data>
+  <data name="AIConfig_TokenNotConfigured" xml:space="preserve">
+    <value>Ningún token configurado - Las funciones de IA están desactivadas</value>
+  </data>
+  <data name="AIConfig_TokenSaved" xml:space="preserve">
+    <value>¡Token guardado con éxito!</value>
+  </data>
+  <data name="AIConfig_TestToken" xml:space="preserve">
+    <value>🔍 Probar token</value>
+  </data>
+  <data name="AIConfig_Save" xml:space="preserve">
+    <value>💾 Guardar</value>
   </data>
   <data name="Reporting_Title" xml:space="preserve">
     <value>REPORTES &amp; DIRECCIÓN</value>

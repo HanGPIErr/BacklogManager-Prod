@@ -103,6 +103,16 @@ namespace BacklogManager.Views.Pages
             _retourCallback?.Invoke();
         }
 
+        private async void BtnCopyContact_Click(object sender, RoutedEventArgs e)
+        {
+            var email = TxtContact.Text;
+            if (string.IsNullOrWhiteSpace(email)) return;
+            System.Windows.Clipboard.SetText(email);
+            TxtCopyIcon.Text = "✅";
+            await System.Threading.Tasks.Task.Delay(1500);
+            TxtCopyIcon.Text = "📋";
+        }
+
         private string TraduireRole(string roleNom)
         {
             if (string.IsNullOrEmpty(roleNom))
@@ -170,8 +180,21 @@ namespace BacklogManager.Views.Pages
                 
                 TxtPerimetre.Text = !string.IsNullOrWhiteSpace(equipe.PerimetreFonctionnel) ? 
                     TraduirePerimetre(equipe.PerimetreFonctionnel) : loc["TeamDetail_NotDefined"];
-                TxtContact.Text = !string.IsNullOrWhiteSpace(equipe.Contact) ? 
-                    equipe.Contact : loc["TeamDetail_NotDefined"];
+                // Contact : champ propre de l'équipe, sinon email du manager
+                string contactEmail = null;
+                if (!string.IsNullOrWhiteSpace(equipe.Contact))
+                {
+                    contactEmail = equipe.Contact;
+                }
+                else if (equipe.ManagerId.HasValue)
+                {
+                    var utilisateurs = _database.GetUtilisateurs();
+                    var managerContact = utilisateurs.FirstOrDefault(u => u.Id == equipe.ManagerId.Value);
+                    if (!string.IsNullOrWhiteSpace(managerContact?.Email))
+                        contactEmail = managerContact.Email;
+                }
+                TxtContact.Text = contactEmail ?? loc["TeamDetail_NotDefined"];
+                BtnCopyContact.Visibility = contactEmail != null ? Visibility.Visible : Visibility.Collapsed;
 
                 // Afficher le bouton Planning VM uniquement pour Tactical Solutions
                 if (equipe.Code == "TACTICAL_SOLUTIONS")

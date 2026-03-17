@@ -492,6 +492,15 @@
   <data name="Dashboard_TaskModification" xml:space="preserve">
     <value>Task modification</value>
   </data>
+  <data name="Dashboard_NoActiveProjects" xml:space="preserve">
+    <value>No active projects</value>
+  </data>
+  <data name="Dashboard_NoUrgentTasks" xml:space="preserve">
+    <value>No urgent tasks at the moment</value>
+  </data>
+  <data name="Dashboard_AllPrioritiesUpToDate" xml:space="preserve">
+    <value>Great work! All your priorities are up to date.</value>
+  </data>
   <data name="TeamDetail_Back" xml:space="preserve">
     <value>Back</value>
   </data>
@@ -2163,6 +2172,45 @@ This action is irreversible.</value>
   </data>
   <data name="Administration_OpenChatHistory" xml:space="preserve">
     <value>Open conversation history</value>
+  </data>
+  <data name="Administration_AIConfig" xml:space="preserve">
+    <value>AI Configuration</value>
+  </data>
+  <data name="AIConfig_Title" xml:space="preserve">
+    <value>Artificial Intelligence Configuration</value>
+  </data>
+  <data name="AIConfig_Description" xml:space="preserve">
+    <value>Manage the authentication token for AI API calls</value>
+  </data>
+  <data name="AIConfig_Warning" xml:space="preserve">
+    <value>These settings are pre-configured for the production environment. Only modify them if you are certain of the impact: any configuration error may completely disable AI features across the application.</value>
+  </data>
+  <data name="AIConfig_UrlLabel" xml:space="preserve">
+    <value>API URL</value>
+  </data>
+  <data name="AIConfig_ModelLabel" xml:space="preserve">
+    <value>AI Model</value>
+  </data>
+  <data name="AIConfig_TokenLabel" xml:space="preserve">
+    <value>API Token</value>
+  </data>
+  <data name="AIConfig_TokenHelp" xml:space="preserve">
+    <value>Paste here the full JWT token obtained from GenFactory</value>
+  </data>
+  <data name="AIConfig_TokenConfigured" xml:space="preserve">
+    <value>Token configured</value>
+  </data>
+  <data name="AIConfig_TokenNotConfigured" xml:space="preserve">
+    <value>No token configured - AI features are disabled</value>
+  </data>
+  <data name="AIConfig_TokenSaved" xml:space="preserve">
+    <value>Token saved successfully!</value>
+  </data>
+  <data name="AIConfig_TestToken" xml:space="preserve">
+    <value>🔍 Test token</value>
+  </data>
+  <data name="AIConfig_Save" xml:space="preserve">
+    <value>💾 Save</value>
   </data>
   <data name="Reporting_Title" xml:space="preserve">
     <value>REPORTING &amp; STEERING</value>

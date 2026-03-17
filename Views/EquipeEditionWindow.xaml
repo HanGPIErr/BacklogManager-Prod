@@ -93,7 +93,7 @@
 
                 <!-- Supprimer (gauche, visible uniquement en mode édition) -->
                 <Button x:Name="BtnSupprimer" Grid.Column="0" Click="BtnSupprimer_Click"
-                        Background="#DC3545" Foreground="White" Padding="20,10" Width="160"
+                        Background="#DC3545" Foreground="White" Padding="20,10"
                         BorderThickness="0" Cursor="Hand" FontWeight="SemiBold" FontSize="14"
                         HorizontalAlignment="Left" Visibility="Collapsed">
                     <Button.Style>

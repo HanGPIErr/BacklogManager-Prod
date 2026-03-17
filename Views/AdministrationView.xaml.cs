@@ -52,6 +52,18 @@ namespace BacklogManager.Views
             // Bouton Historique Chat
             TxtOpenChatHistory.Text = LocalizationService.Instance.GetString("Administration_OpenChatHistory");
 
+            // Configuration IA
+            TxtAIConfigTab.Text = LocalizationService.Instance.GetString("Administration_AIConfig");
+            TxtAIConfigTitle.Text = "🤖 " + LocalizationService.Instance.GetString("AIConfig_Title");
+            TxtAIConfigDescription.Text = LocalizationService.Instance.GetString("AIConfig_Description");
+            LblApiUrl.Text = LocalizationService.Instance.GetString("AIConfig_UrlLabel");
+            LblAIModel.Text = LocalizationService.Instance.GetString("AIConfig_ModelLabel");
+            LblTokenAPI.Text = LocalizationService.Instance.GetString("AIConfig_TokenLabel");
+            TxtTokenHelp.Text = LocalizationService.Instance.GetString("AIConfig_TokenHelp");
+            BtnTestToken.Content = LocalizationService.Instance.GetString("AIConfig_TestToken");
+            BtnSaveToken.Content = LocalizationService.Instance.GetString("AIConfig_Save");
+            TxtAIConfigWarning.Text = LocalizationService.Instance.GetString("AIConfig_Warning");
+
             // S'abonner aux changements de langue
             LocalizationService.Instance.PropertyChanged += (s, e) =>
             {
@@ -68,6 +80,16 @@ namespace BacklogManager.Views
                 TxtProjectsSubTab.Text = LocalizationService.Instance.GetString("Administration_Projects");
                 TxtTeamsSubTab.Text = LocalizationService.Instance.GetString("Administration_Teams");
                 TxtOpenChatHistory.Text = LocalizationService.Instance.GetString("Administration_OpenChatHistory");
+                TxtAIConfigTab.Text = LocalizationService.Instance.GetString("Administration_AIConfig");
+                TxtAIConfigTitle.Text = "🤖 " + LocalizationService.Instance.GetString("AIConfig_Title");
+                TxtAIConfigDescription.Text = LocalizationService.Instance.GetString("AIConfig_Description");
+                LblApiUrl.Text = LocalizationService.Instance.GetString("AIConfig_UrlLabel");
+                LblAIModel.Text = LocalizationService.Instance.GetString("AIConfig_ModelLabel");
+                LblTokenAPI.Text = LocalizationService.Instance.GetString("AIConfig_TokenLabel");
+                TxtTokenHelp.Text = LocalizationService.Instance.GetString("AIConfig_TokenHelp");
+                BtnTestToken.Content = LocalizationService.Instance.GetString("AIConfig_TestToken");
+                BtnSaveToken.Content = LocalizationService.Instance.GetString("AIConfig_Save");
+                TxtAIConfigWarning.Text = LocalizationService.Instance.GetString("AIConfig_Warning");
             };
         }
 
@@ -136,7 +158,7 @@ namespace BacklogManager.Views
                         BorderTokenStatus.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#4CAF50"));
                         TxtTokenStatusIcon.Text = "✓";
                         TxtTokenStatusIcon.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#4CAF50"));
-                        TxtTokenStatus.Text = "Token configuré";
+                        TxtTokenStatus.Text = LocalizationService.Instance.GetString("AIConfig_TokenConfigured");
                         TxtTokenStatus.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2E7D32"));
                         BorderTokenStatus.Visibility = Visibility.Visible;
                     }
@@ -146,7 +168,7 @@ namespace BacklogManager.Views
                         BorderTokenStatus.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF9800"));
                         TxtTokenStatusIcon.Text = "⚠";
                         TxtTokenStatusIcon.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F57C00"));
-                        TxtTokenStatus.Text = "Aucun token configuré - Les fonctionnalités IA sont désactivées";
+                        TxtTokenStatus.Text = LocalizationService.Instance.GetString("AIConfig_TokenNotConfigured");
                         TxtTokenStatus.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E65100"));
                         BorderTokenStatus.Visibility = Visibility.Visible;
                     }
@@ -310,7 +332,7 @@ namespace BacklogManager.Views
                 BorderTokenStatus.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#4CAF50"));
                 TxtTokenStatusIcon.Text = "✓";
                 TxtTokenStatusIcon.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#4CAF50"));
-                TxtTokenStatus.Text = "Token enregistré avec succès !";
+                TxtTokenStatus.Text = LocalizationService.Instance.GetString("AIConfig_TokenSaved");
                 TxtTokenStatus.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2E7D32"));
                 BorderTokenStatus.Visibility = Visibility.Visible;
 

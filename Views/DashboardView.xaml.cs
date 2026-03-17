@@ -157,6 +157,9 @@ namespace BacklogManager.Views
         public string InProgressLabel => LocalizationService.Instance["Dashboard_InProgress"];
         public string CompletedLabel => LocalizationService.Instance["Dashboard_Completed"];
         public string DelayedLabel => LocalizationService.Instance["Dashboard_Delayed"];
+        public string NoActiveProjectsText => LocalizationService.Instance["Dashboard_NoActiveProjects"];
+        public string NoUrgentTasksText => LocalizationService.Instance["Dashboard_NoUrgentTasks"];
+        public string AllPrioritiesUpToDateText => LocalizationService.Instance["Dashboard_AllPrioritiesUpToDate"];
 
         private ObservableCollection<ActiviteViewModel> _activitesRecentes;
         public ObservableCollection<ActiviteViewModel> ActivitesRecentes
@@ -242,6 +245,9 @@ namespace BacklogManager.Views
             OnPropertyChanged(nameof(NewTaskText));
             OnPropertyChanged(nameof(ViewKanbanText));
             OnPropertyChanged(nameof(TimelineProjectText));
+            OnPropertyChanged(nameof(NoActiveProjectsText));
+            OnPropertyChanged(nameof(NoUrgentTasksText));
+            OnPropertyChanged(nameof(AllPrioritiesUpToDateText));
         }
 
         private void ChargerDonnees()
