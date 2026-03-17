@@ -1297,10 +1297,7 @@
     <value>ESTIMATION</value>
   </data>
   <data name="Requests_EstimatingDeveloper" xml:space="preserve">
-    <value>Estimating Developer</value>
-  </data>
-  <data name="Requests_EstimationDays" xml:space="preserve">
-    <value>Estimation (days)</value>
+    <value>Project Cost Manager</value>
   </data>
   <data name="Requests_ManagerValidation" xml:space="preserve">
     <value>MANAGER VALIDATION</value>
@@ -1549,10 +1546,7 @@
     <value>✅ Create Request</value>
   </data>
   <data name="Requests_EstimatingDeveloper" xml:space="preserve">
-    <value>Estimating Developer</value>
-  </data>
-  <data name="Requests_AlreadyImplemented" xml:space="preserve">
-    <value>Already Implemented</value>
+    <value>Project Cost Manager</value>
   </data>
   <data name="Requests_DriverAutomation" xml:space="preserve">
     <value>Automation</value>

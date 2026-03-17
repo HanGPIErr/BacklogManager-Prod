@@ -277,10 +277,6 @@
                         TextWrapping="Wrap" AcceptsReturn="True" 
                         VerticalScrollBarVisibility="Auto" Padding="8" Margin="0,0,0,15"/>
                 
-                <!-- Business Analyst -->
-                <TextBlock x:Name="TxtBusinessAnalystLabel" Text="Business Analyst" FontWeight="Bold" Margin="0,0,0,5"/>
-                <ComboBox x:Name="CmbBusinessAnalyst" Height="35" FontSize="13" Margin="0,0,0,15"/>
-                
                 <!-- Manager(s) -->
                 <TextBlock x:Name="TxtManagersLabel" Text="Manager(s)" FontWeight="Bold" Margin="0,0,0,5"/>
                 <TextBlock x:Name="TxtManagers" FontSize="13" Margin="0,0,0,15" 
@@ -304,7 +300,7 @@
                             </Grid.ColumnDefinitions>
                             
                             <StackPanel Grid.Column="0">
-                                <TextBlock x:Name="TxtEstimatingDeveloperLabel" Text="Développeur chiffreur" FontWeight="Bold" Margin="0,0,0,5"/>
+                                <TextBlock x:Name="TxtEstimatingDeveloperLabel" Text="Responsable chiffrage" FontWeight="Bold" Margin="0,0,0,5"/>
                                 <ComboBox x:Name="CmbDevChiffreur" Height="35" FontSize="13"/>
                             </StackPanel>
                             

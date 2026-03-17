@@ -70,11 +70,6 @@ namespace BacklogManager.Views
             CmbCriticiteResult.SelectedIndex = 0;
             
             // Utilisateurs - initialisation vide, sera rempli par FiltrerUtilisateursParEquipes
-            CmbBusinessAnalystResult.ItemsSource = new[] { new { Id = 0, Nom = "Non assigné" } };
-            CmbBusinessAnalystResult.DisplayMemberPath = "Nom";
-            CmbBusinessAnalystResult.SelectedValuePath = "Id";
-            CmbBusinessAnalystResult.SelectedIndex = 0;
-
             CmbDevChiffreurResult.ItemsSource = new[] { new { Id = 0, Nom = "Non assigné" } };
             CmbDevChiffreurResult.DisplayMemberPath = "Nom";
             CmbDevChiffreurResult.SelectedValuePath = "Id";
@@ -148,7 +143,6 @@ namespace BacklogManager.Views
             }
 
             var utilisateurs = _database.GetUtilisateurs().Where(u => u.Actif).ToList();
-            var roles = _database.GetRoles();
             
             // Mettre à jour les managers
             MettreAJourManagersResult();
@@ -156,24 +150,9 @@ namespace BacklogManager.Views
             // Si aucune équipe sélectionnée, afficher tous les utilisateurs
             if (equipesSelectionnees.Count == 0)
             {
-                // Business Analysts - tous
-                var tousBas = utilisateurs.Where(u =>
-                {
-                    var role = roles.FirstOrDefault(r => r.Id == u.RoleId);
-                    return role?.Type == RoleType.BusinessAnalyst;
-                }).Select(u => new { Id = u.Id, Nom = string.Format("{0} {1}", u.Prenom, u.Nom) }).ToList();
-                tousBas.Insert(0, new { Id = 0, Nom = "Non assigné" });
-                
-                var selectedBaId = CmbBusinessAnalystResult.SelectedValue;
-                CmbBusinessAnalystResult.ItemsSource = tousBas;
-                CmbBusinessAnalystResult.SelectedValue = selectedBaId;
-
-                // Développeurs - tous
-                var tousDevs = utilisateurs.Where(u =>
-                {
-                    var role = roles.FirstOrDefault(r => r.Id == u.RoleId);
-                    return role?.Type == RoleType.Developpeur;
-                }).Select(u => new { Id = u.Id, Nom = string.Format("{0} {1}", u.Prenom, u.Nom) }).ToList();
+                // Membres - tous
+                var tousDevs = utilisateurs
+                    .Select(u => new { Id = u.Id, Nom = string.Format("{0} {1}", u.Prenom, u.Nom) }).ToList();
                 tousDevs.Insert(0, new { Id = 0, Nom = "Non assigné" });
                 
                 var selectedDevId = CmbDevChiffreurResult.SelectedValue;
@@ -182,31 +161,11 @@ namespace BacklogManager.Views
             }
             else
             {
-                // Filtrer les BA par équipes sélectionnées
-                var basFiltres = utilisateurs.Where(u =>
-                {
-                    var role = roles.FirstOrDefault(r => r.Id == u.RoleId);
-                    return role?.Type == RoleType.BusinessAnalyst && 
-                           u.EquipeId.HasValue && 
-                           equipesSelectionnees.Contains(u.EquipeId.Value);
-                }).Select(u => new { Id = u.Id, Nom = string.Format("{0} {1}", u.Prenom, u.Nom) }).ToList();
-                basFiltres.Insert(0, new { Id = 0, Nom = "Non assigné" });
-                
-                var selectedBaId = CmbBusinessAnalystResult.SelectedValue;
-                CmbBusinessAnalystResult.ItemsSource = basFiltres;
-                if (selectedBaId != null && basFiltres.Any(b => b.Id == (int)selectedBaId))
-                    CmbBusinessAnalystResult.SelectedValue = selectedBaId;
-                else
-                    CmbBusinessAnalystResult.SelectedIndex = 0;
-
-                // Filtrer les Devs par équipes sélectionnées
+                // Filtrer les membres par équipes sélectionnées
                 var devsFiltres = utilisateurs.Where(u =>
-                {
-                    var role = roles.FirstOrDefault(r => r.Id == u.RoleId);
-                    return role?.Type == RoleType.Developpeur && 
-                           u.EquipeId.HasValue && 
-                           equipesSelectionnees.Contains(u.EquipeId.Value);
-                }).Select(u => new { Id = u.Id, Nom = string.Format("{0} {1}", u.Prenom, u.Nom) }).ToList();
+                    u.EquipeId.HasValue &&
+                    equipesSelectionnees.Contains(u.EquipeId.Value))
+                    .Select(u => new { Id = u.Id, Nom = string.Format("{0} {1}", u.Prenom, u.Nom) }).ToList();
                 devsFiltres.Insert(0, new { Id = 0, Nom = "Non assigné" });
                 
                 var selectedDevId = CmbDevChiffreurResult.SelectedValue;
@@ -919,10 +878,6 @@ Analyse cet email et réponds UNIQUEMENT avec le JSON complet (pas de texte avan
                 DemandeCreee.GainsTemps = TxtGainsTempsResult.Text?.Trim();
                 DemandeCreee.GainsFinanciers = TxtGainsFinanciersResult.Text?.Trim();
                 
-                // Assignations
-                var baId = (int)CmbBusinessAnalystResult.SelectedValue;
-                DemandeCreee.BusinessAnalystId = baId != 0 ? (int?)baId : null;
-
                 var devId = (int)CmbDevChiffreurResult.SelectedValue;
                 DemandeCreee.DevChiffreurId = devId != 0 ? (int?)devId : null;
                 

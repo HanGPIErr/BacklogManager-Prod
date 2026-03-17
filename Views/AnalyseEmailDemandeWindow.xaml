@@ -305,10 +305,6 @@
                             </StackPanel>
                         </Border>
                         
-                        <!-- Assignations -->
-                        <TextBlock Text="Business Analyst" FontWeight="Bold" Margin="0,0,0,5"/>
-                        <ComboBox x:Name="CmbBusinessAnalystResult" Height="35" FontSize="13" Margin="0,0,0,15"/>
-                        
                         <!-- Manager(s) -->
                         <TextBlock x:Name="TxtManagersLabel" Text="Manager(s)" FontWeight="Bold" Margin="0,0,0,5"/>
                         <TextBlock x:Name="TxtManagersResult" FontSize="13" Margin="0,0,0,15" 
@@ -316,8 +312,8 @@
                                   Text="Sélectionnez les équipes pour voir les managers" 
                                   TextWrapping="Wrap"/>
                         
-                        <!-- Dev Chiffreur -->
-                        <TextBlock Text="Développeur (pour chiffrage)" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <!-- Responsable chiffrage -->
+                        <TextBlock Text="Responsable chiffrage" FontWeight="Bold" Margin="0,0,0,5"/>
                         <ComboBox x:Name="CmbDevChiffreurResult" Height="35" FontSize="13" Margin="0,0,0,15"/>
 
                         <!-- Chiffrage estimé -->

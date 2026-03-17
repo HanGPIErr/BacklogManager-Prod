@@ -1300,7 +1300,7 @@
     <value>ESTIMACIÓN</value>
   </data>
   <data name="Requests_EstimatingDeveloper" xml:space="preserve">
-    <value>Desarrollador estimador</value>
+    <value>Responsable de costes</value>
   </data>
   <data name="Requests_EstimationDays" xml:space="preserve">
     <value>Estimación (días)</value>
@@ -1552,7 +1552,7 @@
     <value>✅ Crear Solicitud</value>
   </data>
   <data name="Requests_EstimatingDeveloper" xml:space="preserve">
-    <value>Desarrollador Estimador</value>
+    <value>Responsable de Costes</value>
   </data>
   <data name="Requests_AlreadyImplemented" xml:space="preserve">
     <value>Ya Implementado</value>

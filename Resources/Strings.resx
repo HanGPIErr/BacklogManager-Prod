@@ -1297,10 +1297,7 @@
     <value>CHIFFRAGE</value>
   </data>
   <data name="Requests_EstimatingDeveloper" xml:space="preserve">
-    <value>Développeur chiffreur</value>
-  </data>
-  <data name="Requests_EstimationDays" xml:space="preserve">
-    <value>Estimation (jours)</value>
+    <value>Responsable chiffrage</value>
   </data>
   <data name="Requests_ManagerValidation" xml:space="preserve">
     <value>VALIDATION MANAGER</value>
@@ -1549,10 +1546,7 @@
     <value>✅ Créer la Demande</value>
   </data>
   <data name="Requests_EstimatingDeveloper" xml:space="preserve">
-    <value>Développeur chiffreur</value>
-  </data>
-  <data name="Requests_AlreadyImplemented" xml:space="preserve">
-    <value>Déjà implémenté</value>
+    <value>Responsable chiffrage</value>
   </data>
   <data name="Requests_DriverAutomation" xml:space="preserve">
     <value>Automation</value>
