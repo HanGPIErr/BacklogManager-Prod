@@ -18,6 +18,48 @@ namespace BacklogManager.Services
         // Propriété publique pour accéder au chemin de la base de données
         public string DatabasePath => _databasePath;
 
+        /// <summary>
+        /// Constructeur permettant de spécifier directement un chemin de DB.
+        /// Utilisé par l'architecture local-first (local.db sur le poste).
+        /// </summary>
+        public SqliteDatabase(string explicitDbPath)
+        {
+            string dbPath = explicitDbPath;
+
+            _databasePath = dbPath;
+            var directory = Path.GetDirectoryName(_databasePath);
+            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+                Directory.CreateDirectory(directory);
+
+            // Local path → WAL activé
+            var readBuilder = new SQLiteConnectionStringBuilder
+            {
+                DataSource  = _databasePath,
+                Version     = 3,
+                JournalMode = SQLiteJournalModeEnum.Wal,
+                Pooling     = true,
+                ReadOnly    = true,
+                BusyTimeout = 3000,
+                SyncMode    = SynchronizationModes.Normal
+            };
+            _readConnectionString = readBuilder.ConnectionString;
+
+            var writeBuilder = new SQLiteConnectionStringBuilder
+            {
+                DataSource  = _databasePath,
+                Version     = 3,
+                JournalMode = SQLiteJournalModeEnum.Wal,
+                Pooling     = false,
+                ReadOnly    = false,
+                BusyTimeout = 3000,
+                SyncMode    = SynchronizationModes.Normal
+            };
+            _writeConnectionString = writeBuilder.ConnectionString;
+            _connectionString      = _readConnectionString;
+
+            InitializeDatabase();
+        }
+
         public SqliteDatabase()
         {
             // Lire la configuration depuis config.ini

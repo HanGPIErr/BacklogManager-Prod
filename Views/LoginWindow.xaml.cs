@@ -1,8 +1,10 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Security.Principal;
 using System.Windows;
 using BacklogManager.Services;
+using BacklogManager.Services.Sync;
 using BacklogManager.Domain;
 
 namespace BacklogManager.Views
@@ -16,7 +18,53 @@ namespace BacklogManager.Views
         {
             InitializeComponent();
             
-            var database = new SqliteDatabase();
+            // ─── Initialisation de la base de données ─────────────────────────
+            // Lire les clés de synchronisation depuis config.ini
+            string nasSyncPath     = ReadConfigKey("NasSyncPath");
+            string localDbOverride = ReadConfigKey("LocalDatabasePath");
+
+            IDatabase database;
+            SyncEngine syncEngine = null;
+
+            if (!string.IsNullOrWhiteSpace(nasSyncPath))
+            {
+                // ─── Mode local-first + sync NAS ─────────────────────────────
+                var localDbFactory = new LocalDatabaseFactory(
+                    string.IsNullOrWhiteSpace(localDbOverride) ? null : localDbOverride);
+                string localDbPath = localDbFactory.GetOrCreateLocalDb();
+
+                // SqliteDatabase local (WAL)
+                var innerDb = new SqliteDatabase(localDbPath);
+
+                // Construire le clientId à partir du nom de machine
+                string clientId = Environment.MachineName.ToUpperInvariant();
+
+                // Construire les composants de synchronisation
+                var nasStore    = new NasOperationStore(nasSyncPath);
+                nasStore.EnsureDirectoriesExist();
+
+                var leaseManager  = new LeaseManager(nasStore.LeasesPath, clientId);
+                var snapshotMgr   = new SnapshotManager(nasStore, leaseManager, localDbPath, clientId);
+                var syncApplier   = new SyncApplier(localDbFactory, clientId);
+                syncEngine        = new SyncEngine(localDbFactory, nasStore, syncApplier, snapshotMgr, clientId);
+
+                // Décorateur qui journalise chaque écriture
+                string windowsUser = WindowsIdentity.GetCurrent().Name;
+                if (windowsUser.Contains("\\")) windowsUser = windowsUser.Split('\\')[1];
+
+                database = new SyncedDatabase(innerDb, localDbFactory, windowsUser, clientId);
+                syncEngine.Start();
+
+                LoggingService.Instance.LogInfo($"[LoginWindow] Mode local-first activé. NAS={nasSyncPath}, localDb={localDbPath}");
+            }
+            else
+            {
+                // ─── Mode classique (DB partagée NAS ou locale, config.ini) ──
+                database = new SqliteDatabase();
+                LoggingService.Instance.LogInfo("[LoginWindow] Mode classique (DatabasePath de config.ini).");
+            }
+            // ─────────────────────────────────────────────────────────────────
+
             _authService = new AuthenticationService(database);
             _initService = new InitializationService(database);
             
@@ -27,8 +75,9 @@ namespace BacklogManager.Views
             var app = Application.Current as App;
             if (app != null)
             {
-                app.AuthService = _authService;
-                app.Database = database;
+                app.AuthService  = _authService;
+                app.Database     = database;
+                app.SyncEngine   = syncEngine;
             }
             
             // Initialiser les données par défaut
@@ -163,6 +212,24 @@ namespace BacklogManager.Views
                     BtnConnecter.IsEnabled = true;
                 });
             }
+        }
+
+        /// <summary>Lit une clé de config.ini (section [Sync] ou toute section).</summary>
+        private static string ReadConfigKey(string key)
+        {
+            try
+            {
+                string configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.ini");
+                if (!File.Exists(configPath)) return null;
+                foreach (var line in File.ReadAllLines(configPath, System.Text.Encoding.UTF8))
+                {
+                    var trimmed = line.Trim();
+                    if (trimmed.StartsWith(key + "="))
+                        return trimmed.Substring(key.Length + 1).Trim().Trim('"', '\'');
+                }
+            }
+            catch { /* ignorer */ }
+            return null;
         }
 
         private void AfficherUsername()

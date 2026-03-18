@@ -434,6 +434,16 @@
     <Compile Include="Services\IDatabase.cs" />
     <Compile Include="Services\JsonDatabase.cs" />
     <Compile Include="Services\SqliteDatabase.cs" />
+    <Compile Include="Services\SyncedDatabase.cs" />
+    <Compile Include="Services\Sync\SyncConstants.cs" />
+    <Compile Include="Services\Sync\SyncOperation.cs" />
+    <Compile Include="Services\Sync\SyncManifest.cs" />
+    <Compile Include="Services\Sync\LocalDatabaseFactory.cs" />
+    <Compile Include="Services\Sync\NasOperationStore.cs" />
+    <Compile Include="Services\Sync\LeaseManager.cs" />
+    <Compile Include="Services\Sync\SnapshotManager.cs" />
+    <Compile Include="Services\Sync\SyncApplier.cs" />
+    <Compile Include="Services\Sync\SyncEngine.cs" />
     <Compile Include="Services\NetworkPathMapper.cs" />
     <Compile Include="Services\BacklogService.cs" />
     <Compile Include="Services\ChatHistoryService.cs" />

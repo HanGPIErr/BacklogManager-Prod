@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Windows;
 using BacklogManager.Services;
+using BacklogManager.Services.Sync;
 using BacklogManager.ViewModels;
 using BacklogManager.Views;
 
@@ -13,6 +14,7 @@ namespace BacklogManager
         public EmailService EmailService { get; set; }
         public AuthenticationService AuthService { get; set; }
         public IDatabase Database { get; set; }
+        public SyncEngine SyncEngine { get; set; }
         
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -103,6 +105,13 @@ namespace BacklogManager
             {
                 // Ignorer les erreurs silencieusement (permissions, raccourci déjà existant, etc.)
             }
+        }
+
+        protected override void OnExit(ExitEventArgs e)
+        {
+            // Arrêter proprement le moteur de synchronisation
+            SyncEngine?.Stop();
+            base.OnExit(e);
         }
     }
 }
