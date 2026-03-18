@@ -49,9 +49,10 @@ namespace BacklogManager.Views
         {
             try
             {
-                // Récupérer les données du programme
-                var database = new SqliteDatabase();
-                var backlogService = new BacklogService(database);
+                // Récupérer les données du programme via les services de l'application
+                var app = Application.Current as App;
+                var backlogService = app?.BacklogService
+                    ?? new BacklogService(app?.Database ?? throw new InvalidOperationException("App.Database non initialisé."));
                 
                 var projets = backlogService.GetAllProjets()
                     .Where(p => p.ProgrammeId == _programme.Id && p.Actif)

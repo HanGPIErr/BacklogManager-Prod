@@ -944,7 +944,7 @@ namespace BacklogManager.ViewModels
                 // Suppression en arrière-plan via la queue d'écriture
                 await DatabaseWriteQueue.Instance.EnqueueWriteAsync(
                     () => _backlogService.DeleteBacklogItem(task.Id),
-                    $"DeleteBacklogItem_{task.Id}");
+                    $"DeleteBacklogItem_{task.Id}").ConfigureAwait(false);
             }
             catch
             {

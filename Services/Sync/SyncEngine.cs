@@ -181,13 +181,44 @@ namespace BacklogManager.Services.Sync
             try
             {
                 string cursor = _localDb.GetSyncState(NasCursorKey);   // null ou dernier fichier vu
+
+                // ── Détection nouveau client ou curseur périmé (post-compaction) ──
+                if (string.IsNullOrEmpty(cursor))
+                {
+                    // Premier démarrage : tenter de récupérer le snapshot NAS
+                    if (_snapshotMgr.TryRebuildFromSnapshot(_localDb))
+                    {
+                        LoggingService.Instance.LogInfo("[SyncEngine] DB locale reconstruite depuis snapshot (premier démarrage).");
+                        cursor = _localDb.GetSyncState(NasCursorKey);
+                    }
+                }
+
                 var remoteOps = _nasStore.PullSince(cursor, _clientId);
+
+                // Détection de gap : le curseur pointe un ancien fichier supprimé par compaction
+                // mais il existe des ops plus récentes qu'on ne voit pas (elles sont > cursor,
+                // mais cursor lui-même et les précédentes ont été archivées).
+                if (remoteOps.Count == 0 && !string.IsNullOrEmpty(cursor))
+                {
+                    string latestOnNas = _nasStore.GetLatestOperationFileName();
+                    if (latestOnNas != null && string.Compare(latestOnNas, cursor, System.StringComparison.Ordinal) > 0)
+                    {
+                        // Il existe des ops plus récentes, mais PullSince n'en a trouvé aucune
+                        // → le curseur est dans une zone compactée. Rebuild nécessaire.
+                        LoggingService.Instance.LogWarning("[SyncEngine] Gap détecté (cursor périmé après compaction), rebuild depuis snapshot...");
+                        if (_snapshotMgr.TryRebuildFromSnapshot(_localDb))
+                        {
+                            cursor = _localDb.GetSyncState(NasCursorKey);
+                            remoteOps = _nasStore.PullSince(cursor, _clientId);
+                        }
+                    }
+                }
 
                 if (remoteOps.Count == 0) return;
 
                 using (var conn = _localDb.OpenWriteConnection())
                 {
-                    conn.Open();
+                    // OpenWriteConnection() ouvre déjà la connexion — ne pas rappeler conn.Open()
                     using (var tx = conn.BeginTransaction())
                     {
                         foreach (var op in remoteOps)

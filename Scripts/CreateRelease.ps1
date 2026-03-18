@@ -1,12 +1,13 @@
 # Script de création du package de release
-$zipPath = "BacklogManager-Release.zip"
+$projectRoot = Resolve-Path "$PSScriptRoot\.."
+$zipPath = Join-Path $projectRoot "BacklogManager-Release.zip"
 
 # Supprimer l'ancien ZIP si existant
 if (Test-Path $zipPath) { 
     Remove-Item $zipPath -Force 
 }
 
-$sourceDir = "bin\Release"
+$sourceDir = Join-Path $projectRoot "bin\Release"
 $excludePatterns = @('*.log', '*.pdb', 'Logs', 'Backups', 'data', 'permissions_log.txt')
 
 # Fichiers d'installation à inclure depuis la racine
@@ -57,8 +58,9 @@ Write-Host "Copie des fichiers d'installation..." -ForegroundColor Cyan
 
 # Copier les fichiers d'installation à la racine du ZIP
 foreach ($file in $installFiles) {
-    if (Test-Path $file) {
-        Copy-Item $file -Destination $tempDir -Force
+    $filePath = Join-Path $PSScriptRoot $file
+    if (Test-Path $filePath) {
+        Copy-Item $filePath -Destination $tempDir -Force
         Write-Host "  + $file" -ForegroundColor Gray
     } else {
         Write-Host "  ! $file introuvable" -ForegroundColor Yellow

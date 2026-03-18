@@ -29,33 +29,43 @@ namespace BacklogManager.Views
             if (!string.IsNullOrWhiteSpace(nasSyncPath))
             {
                 // ─── Mode local-first + sync NAS ─────────────────────────────
-                var localDbFactory = new LocalDatabaseFactory(
-                    string.IsNullOrWhiteSpace(localDbOverride) ? null : localDbOverride);
-                string localDbPath = localDbFactory.GetOrCreateLocalDb();
+                try
+                {
+                    var localDbFactory = new LocalDatabaseFactory(
+                        string.IsNullOrWhiteSpace(localDbOverride) ? null : localDbOverride);
+                    string localDbPath = localDbFactory.GetOrCreateLocalDb();
 
-                // SqliteDatabase local (WAL)
-                var innerDb = new SqliteDatabase(localDbPath);
+                    // SqliteDatabase local (WAL)
+                    var innerDb = new SqliteDatabase(localDbPath);
 
-                // Construire le clientId à partir du nom de machine
-                string clientId = Environment.MachineName.ToUpperInvariant();
+                    // Construire le clientId à partir du nom de machine
+                    string clientId = Environment.MachineName.ToUpperInvariant();
 
-                // Construire les composants de synchronisation
-                var nasStore    = new NasOperationStore(nasSyncPath);
-                nasStore.EnsureDirectoriesExist();
+                    // Construire les composants de synchronisation
+                    var nasStore    = new NasOperationStore(nasSyncPath);
+                    nasStore.EnsureDirectoriesExist();
 
-                var leaseManager  = new LeaseManager(nasStore.LeasesPath, clientId);
-                var snapshotMgr   = new SnapshotManager(nasStore, leaseManager, localDbPath, clientId);
-                var syncApplier   = new SyncApplier(localDbFactory, clientId);
-                syncEngine        = new SyncEngine(localDbFactory, nasStore, syncApplier, snapshotMgr, clientId);
+                    var leaseManager  = new LeaseManager(nasStore.LeasesPath, clientId);
+                    var snapshotMgr   = new SnapshotManager(nasStore, leaseManager, localDbPath, clientId);
+                    var syncApplier   = new SyncApplier(localDbFactory, clientId);
+                    syncEngine        = new SyncEngine(localDbFactory, nasStore, syncApplier, snapshotMgr, clientId);
 
-                // Décorateur qui journalise chaque écriture
-                string windowsUser = WindowsIdentity.GetCurrent().Name;
-                if (windowsUser.Contains("\\")) windowsUser = windowsUser.Split('\\')[1];
+                    // Décorateur qui journalise chaque écriture
+                    string windowsUser = WindowsIdentity.GetCurrent().Name;
+                    if (windowsUser.Contains("\\")) windowsUser = windowsUser.Split('\\')[1];
 
-                database = new SyncedDatabase(innerDb, localDbFactory, windowsUser, clientId);
-                syncEngine.Start();
+                    database = new SyncedDatabase(innerDb, localDbFactory, windowsUser, clientId);
+                    syncEngine.Start();
 
-                LoggingService.Instance.LogInfo($"[LoginWindow] Mode local-first activé. NAS={nasSyncPath}, localDb={localDbPath}");
+                    LoggingService.Instance.LogInfo($"[LoginWindow] Mode local-first activé. NAS={nasSyncPath}, localDb={localDbPath}");
+                }
+                catch (Exception ex)
+                {
+                    // Fallback mode classique si l'init sync échoue (NAS inaccessible, etc.)
+                    LoggingService.Instance.LogWarning($"[LoginWindow] Échec init sync, fallback mode classique : {ex.Message}");
+                    database = new SqliteDatabase();
+                    syncEngine = null;
+                }
             }
             else
             {

@@ -21,8 +21,8 @@ namespace BacklogManager.Views
                 var timelineVM = this.DataContext as TimelineViewModel;
                 if (timelineVM != null)
                 {
-                    var backlogService = new BacklogService(new SqliteDatabase());
-                    var detailsWindow = new ProjetDetailsWindow(projetVM.Projet, backlogService);
+                    // Réutiliser le BacklogService déjà initialisé du ViewModel (ne pas créer une instance séparée)
+                    var detailsWindow = new ProjetDetailsWindow(projetVM.Projet, timelineVM.BacklogService);
                     detailsWindow.ShowDialog();
                 }
             }

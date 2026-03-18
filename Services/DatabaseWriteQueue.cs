@@ -152,7 +152,9 @@ namespace BacklogManager.Services
             public WriteOperation(Func<T> operation, string name) : base(name)
             {
                 _operation = operation;
-                CompletionSource = new TaskCompletionSource<T>();
+                // RunContinuationsAsynchronously empêche le deadlock quand un appelant
+                // bloque le thread UI avec .GetAwaiter().GetResult()
+                CompletionSource = new TaskCompletionSource<T>(TaskCreationOptions.RunContinuationsAsynchronously);
             }
 
             public override void Execute()

@@ -15,6 +15,10 @@ namespace BacklogManager
         public AuthenticationService AuthService { get; set; }
         public IDatabase Database { get; set; }
         public SyncEngine SyncEngine { get; set; }
+        public BacklogService BacklogService { get; set; }
+        public CRAService CRAService { get; set; }
+        public ProgrammeService ProgrammeService { get; set; }
+        public EquipeService EquipeService { get; set; }
         
         protected override void OnStartup(StartupEventArgs e)
         {

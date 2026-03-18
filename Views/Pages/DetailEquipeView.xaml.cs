@@ -388,9 +388,10 @@ namespace BacklogManager.Views.Pages
                     return;
                 }
 
-                // Créer le NotificationService
-                var backlogService = new BacklogService(_database);
-                var notificationService = new NotificationService(backlogService, _database);
+                // Réutiliser les services de l'application
+                var app = Application.Current as App;
+                var backlogService = app?.BacklogService ?? new BacklogService(_database);
+                var notificationService = app?.NotificationService ?? new NotificationService(backlogService, _database);
 
                 // Capture des variables pour le callback
                 var capturedEquipeId = _equipeId;

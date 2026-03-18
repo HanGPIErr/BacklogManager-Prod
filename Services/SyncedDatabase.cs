@@ -93,7 +93,7 @@ namespace BacklogManager.Services
 
                 using (var conn = _localDb.OpenWriteConnection())
                 {
-                    conn.Open();
+                    // OpenWriteConnection() ouvre déjà la connexion — ne pas rappeler conn.Open()
                     using (var tx = conn.BeginTransaction())
                     {
                         _localDb.AppendToJournal(conn, tx, op);
@@ -291,6 +291,7 @@ namespace BacklogManager.Services
             // L'historique est local-only par nature (chaque poste tient son propre audit)
         }
 
+        // L'historique de modifications est local-only (chaque poste tient son propre audit)
         public HistoriqueModification AddOrUpdateHistoriqueModification(HistoriqueModification h)
         {
             return _inner.AddOrUpdateHistoriqueModification(h);
@@ -357,11 +358,48 @@ namespace BacklogManager.Services
             Journal(SyncOp.NotificationDelete, "Notifications", id, $"{{\"id\":{id}}}");
         }
 
-        public void DeleteNotificationsLues()          => _inner.DeleteNotificationsLues();
-        public void SupprimerToutesLesNotifications()  => _inner.SupprimerToutesLesNotifications();
-        public void MarquerNotificationCommeLue(int id) => _inner.MarquerNotificationCommeLue(id);
-        public void MarquerToutesNotificationsCommeLues() => _inner.MarquerToutesNotificationsCommeLues();
-        public void AjouterNotification(Notification n, int utilisateurId) => _inner.AjouterNotification(n, utilisateurId);
+        public void DeleteNotificationsLues()
+        {
+            _inner.DeleteNotificationsLues();
+            Journal(SyncOp.NotificationBulkDelete, "Notifications", 0, "{\"filter\":\"EstLue=1\"}");
+        }
+
+        public void SupprimerToutesLesNotifications()
+        {
+            _inner.SupprimerToutesLesNotifications();
+            Journal(SyncOp.NotificationBulkDelete, "Notifications", 0, "{\"filter\":\"all\"}");
+        }
+
+        public void MarquerNotificationCommeLue(int id)
+        {
+            _inner.MarquerNotificationCommeLue(id);
+            Journal(SyncOp.NotificationBulkUpdate, "Notifications", id, $"{{\"id\":{id},\"estLue\":true}}");
+        }
+
+        public void MarquerToutesNotificationsCommeLues()
+        {
+            _inner.MarquerToutesNotificationsCommeLues();
+            Journal(SyncOp.NotificationBulkUpdate, "Notifications", 0, "{\"filter\":\"all\",\"estLue\":true}");
+        }
+
+        public void AjouterNotification(Notification n, int utilisateurId)
+        {
+            _inner.AjouterNotification(n, utilisateurId);
+            // UtilisateurId doit être explicitement ajouté car c'est un paramètre séparé.
+            var payload = new
+            {
+                n.Id,
+                n.Titre,
+                n.Message,
+                type = (int)n.Type,
+                n.DateCreation,
+                n.EstLue,
+                n.TacheId,
+                utilisateurId,
+                n.DemandeEchangeVMId
+            };
+            Journal(SyncOp.NotificationUpsert, "Notifications", n.Id, Serialize(payload));
+        }
 
         // ─── Chat ─────────────────────────────────────────────────────────────
 
@@ -448,15 +486,29 @@ namespace BacklogManager.Services
         public void AnnulerDemandeEchangeVM(int id)
         {
             _inner.AnnulerDemandeEchangeVM(id);
-            Journal(SyncOp.DemandeEchangeUpsert, "DemandeEchangeVM", id, $"{{\"id\":{id},\"statut\":\"annulée\"}}");
+            // L'inner supprime la demande ET les notifications liées → journaliser des DELETE
+            Journal(SyncOp.NotificationBulkDelete, "Notifications", 0,
+                $"{{\"filter\":\"DemandeEchangeVMId={id}\"}}");
+            Journal(SyncOp.DemandeEchangeDelete, "DemandeEchangeVM", id, $"{{\"id\":{id}}}");
         }
 
         public void AccepterEchangeVM(int demandeId, int planningVMJourId, int ancienUtilisateurId, int nouvelUtilisateurId)
         {
             _inner.AccepterEchangeVM(demandeId, planningVMJourId, ancienUtilisateurId, nouvelUtilisateurId);
-            // Journaliser les deux plannings modifiés + la demande
-            Journal(SyncOp.DemandeEchangeUpsert, "DemandeEchangeVM", demandeId,
-                $"{{\"id\":{demandeId},\"statut\":\"acceptée\",\"ancienUtilisateurId\":{ancienUtilisateurId},\"nouvelUtilisateurId\":{nouvelUtilisateurId}}}");
+
+            // 1. Journaliser la mise à jour du PlanningVM (re-lire l'entité complète)
+            var planning = _inner.GetPlanningVMById(planningVMJourId);
+            if (planning != null)
+                Journal(SyncOp.PlanningVMUpsert, "PlanningVM", planningVMJourId, Serialize(planning));
+
+            // 2. Journaliser la mise à jour de la demande (re-lire l'entité complète)
+            var demande = _inner.GetDemandeEchangeVMById(demandeId);
+            if (demande != null)
+                Journal(SyncOp.DemandeEchangeUpsert, "DemandeEchangeVM", demandeId, Serialize(demande));
+
+            // 3. Journaliser la suppression des notifications liées à cette demande
+            Journal(SyncOp.NotificationBulkDelete, "Notifications", 0,
+                $"{{\"filter\":\"DemandeEchangeVMId={demandeId}\"}}");
         }
 
         // ─── Configuration ────────────────────────────────────────────────────

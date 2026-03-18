@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Input;
 using BacklogManager.Domain;
 using BacklogManager.Services;
@@ -229,6 +230,8 @@ namespace BacklogManager.ViewModels
     public class TimelineViewModel : INotifyPropertyChanged
     {
         private readonly BacklogService _backlogService;
+        /// <summary>Exposé pour que TimelineView puisse passer le bon service aux fenêtres filles.</summary>
+        public BacklogService BacklogService => _backlogService;
         private int? _selectedDevId;
         private int? _selectedProjetId;
         private Statut? _selectedStatut;
@@ -472,7 +475,7 @@ namespace BacklogManager.ViewModels
             var projets = _backlogService.GetAllProjets();
             
             // Recalculer les DateDebut depuis les CRA pour toutes les tâches
-            var craService = new CRAService(_backlogService.Database);
+            var craService = (Application.Current as App)?.CRAService ?? new CRAService(_backlogService.Database);
             var allItemsForUpdate = _backlogService.GetAllBacklogItems();
             foreach (var item in allItemsForUpdate.Where(i => i.Id > 0))
             {

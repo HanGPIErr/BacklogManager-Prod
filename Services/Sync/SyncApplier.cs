@@ -40,10 +40,12 @@ namespace BacklogManager.Services.Sync
             if (_localDb.IsAlreadyApplied(op.OperationId))
                 return;
 
-            // Ne pas rejouer nos propres opérations (déjà dans la DB locale)
+            // Ne pas rejouer nos propres opérations — PullSince les filtre déjà,
+            // mais on garde ce double-check de sécurité.
+            // NOTE : on utilise MarkAppliedInline (même conn/tx) pour éviter le SQLite BUSY.
             if (op.OriginClientId == _clientId)
             {
-                _localDb.MarkApplied(op);
+                _localDb.MarkAppliedInline(conn, tx, op);
                 return;
             }
 
@@ -118,6 +120,12 @@ namespace BacklogManager.Services.Sync
                     case SyncOp.NotificationDelete:
                         ApplySimpleDelete(conn, tx, "Notifications", op.EntityId);
                         break;
+                    case SyncOp.NotificationBulkUpdate:
+                        ApplyNotificationBulkUpdate(conn, tx, op);
+                        break;
+                    case SyncOp.NotificationBulkDelete:
+                        ApplyNotificationBulkDelete(conn, tx, op);
+                        break;
 
                     case SyncOp.ConfigUpsert:
                         ApplyConfigUpsert(conn, tx, op);
@@ -161,7 +169,8 @@ namespace BacklogManager.Services.Sync
                     $"[SyncApplier] Erreur application {op.OperationType} #{op.EntityId} : {ex.Message}");
             }
 
-            _localDb.MarkApplied(op, hasConflict, conflictDetail);
+            // Toujours dans la même connexion/transaction que le apply → pas de BUSY
+            _localDb.MarkAppliedInline(conn, tx, op, hasConflict, conflictDetail);
         }
 
         // ─── Appliers spécialisés ────────────────────────────────────────
@@ -324,6 +333,71 @@ namespace BacklogManager.Services.Sync
                     {
                         cmd.Parameters.AddWithValue("@" + col, DBNull.Value);
                     }
+                }
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        // ─── Notifications bulk ──────────────────────────────────────
+
+        private void ApplyNotificationBulkUpdate(SQLiteConnection conn, SQLiteTransaction tx, SyncOperation op)
+        {
+            var doc = JsonDocument.Parse(op.PayloadJson);
+            var root = doc.RootElement;
+
+            using (var cmd = conn.CreateCommand())
+            {
+                cmd.Transaction = tx;
+
+                if (op.EntityId > 0)
+                {
+                    // Mise à jour d'une seule notification (par Id)
+                    cmd.CommandText = "UPDATE Notifications SET EstLue = 1 WHERE Id = @id";
+                    cmd.Parameters.AddWithValue("@id", op.EntityId);
+                }
+                else
+                {
+                    // Bulk update : toutes les notifications
+                    cmd.CommandText = "UPDATE Notifications SET EstLue = 1";
+                }
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        private void ApplyNotificationBulkDelete(SQLiteConnection conn, SQLiteTransaction tx, SyncOperation op)
+        {
+            var doc = JsonDocument.Parse(op.PayloadJson);
+            var root = doc.RootElement;
+            string filter = GetStr(root, "filter");
+
+            using (var cmd = conn.CreateCommand())
+            {
+                cmd.Transaction = tx;
+
+                if (filter == "EstLue=1")
+                {
+                    cmd.CommandText = "DELETE FROM Notifications WHERE EstLue = 1";
+                }
+                else if (filter != null && filter.StartsWith("DemandeEchangeVMId="))
+                {
+                    // Suppression ciblée par DemandeEchangeVMId
+                    int demandeId;
+                    if (int.TryParse(filter.Substring("DemandeEchangeVMId=".Length), out demandeId))
+                    {
+                        cmd.CommandText = "DELETE FROM Notifications WHERE DemandeEchangeVMId = @did";
+                        cmd.Parameters.AddWithValue("@did", demandeId);
+                    }
+                    else
+                    {
+                        return; // filtre invalide, ignorer silencieusement
+                    }
+                }
+                else
+                {
+                    // filter == "all" ou autre → supprimer toutes
+                    cmd.CommandText = "DELETE FROM Notifications";
                 }
 
                 cmd.ExecuteNonQuery();

@@ -143,7 +143,7 @@ namespace BacklogManager.Views
             if (DataContext is StatistiquesViewModel viewModel)
             {
                 _database = viewModel.Database;
-                _equipeService = new EquipeService(_database);
+                _equipeService = (Application.Current as App)?.EquipeService ?? new EquipeService(_database);
             }
         }
 
@@ -349,7 +349,7 @@ namespace BacklogManager.Views
                     double heuresDisponibles = 0;
                     
                     // Calculer les heures CRA réelles du développeur
-                    var craService = new CRAService(_database);
+                    var craService = (Application.Current as App)?.CRAService ?? new CRAService(_database);
                     
                     // Définir la période de calcul (filtrée ou toutes les données)
                     System.DateTime? dateDebut = null;

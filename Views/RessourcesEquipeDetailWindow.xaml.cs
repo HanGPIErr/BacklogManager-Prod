@@ -21,7 +21,7 @@ namespace BacklogManager.Views
         {
             InitializeComponent();
             _database = database;
-            _equipeService = new EquipeService(database);
+            _equipeService = (Application.Current as App)?.EquipeService ?? new EquipeService(database);
             _equipeIdFiltre = equipeId;
             
             Loaded += RessourcesEquipeDetailWindow_Loaded;

@@ -415,7 +415,7 @@ namespace BacklogManager.Views.Pages
                 // Remplir les informations du programme
                 RemplirInformationsProgramme(programme);
                 
-                var backlogService = new BacklogService(_database);
+                var backlogService = (Application.Current as App)?.BacklogService ?? new BacklogService(_database);
                 var toutesLesTaches = backlogService.GetAllBacklogItemsIncludingArchived();
                 
                 // Récupérer tous les projets du programme
@@ -665,10 +665,8 @@ namespace BacklogManager.Views.Pages
         {
             try
             {
-                var backlogService = new BacklogService(_database);
+                var backlogService = (Application.Current as App)?.BacklogService ?? new BacklogService(_database);
                 var toutesLesTaches = backlogService.GetAllBacklogItemsIncludingArchived();
-                
-                // Filtrer par projet
                 var tachesProjet = toutesLesTaches.Where(t => t.ProjetId == projet.Id).ToList();
                 
                 // Filtrer par équipe si sélectionnée (toutes les tâches de l'équipe pour ce projet)
@@ -1376,7 +1374,7 @@ namespace BacklogManager.Views.Pages
                 .ToList();
             
             // Récupérer toutes les tâches pour avoir plus d'infos
-            var backlogService = new BacklogService(_database);
+            var backlogService = (Application.Current as App)?.BacklogService ?? new BacklogService(_database);
             var toutesLesTaches = backlogService.GetAllBacklogItemsIncludingArchived();
             
             // Stocker pour usage dans la génération IA

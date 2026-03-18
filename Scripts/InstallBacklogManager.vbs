@@ -14,7 +14,7 @@ Set objWshShell = CreateObject("WScript.Shell")
 
 ' Chemin du script et destination
 strScriptPath = objFSO.GetParentFolderName(WScript.ScriptFullName)
-strSourcePath = strScriptPath & "\bin\Release"
+strSourcePath = objFSO.GetParentFolderName(strScriptPath) & "\bin\Release"
 strDestPath = "C:\SGI_SUPPORT\APPLICATIONS\BacklogManager"
 strExePath = strDestPath & "\BacklogManager.exe"
 

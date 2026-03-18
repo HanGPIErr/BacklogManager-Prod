@@ -20,7 +20,7 @@ namespace BacklogManager.Views.Pages
         {
             InitializeComponent();
             _database = database;
-            _backlogService = new BacklogService(_database);
+            _backlogService = (Application.Current as App)?.BacklogService ?? new BacklogService(_database);
             ChargerEquipe();
         }
 

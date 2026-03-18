@@ -18,6 +18,8 @@ namespace BacklogManager
         private PermissionService _permissionService;
         private NotificationService _notificationService;
         private EmailService _emailService;
+        private CRAService _craService;
+        private ProgrammeService _programmeService;
         private System.Windows.Threading.DispatcherTimer _notificationTimer;
         
         // Code secret pour activer l'admin : 10 clics rapides sur l'icône utilisateur
@@ -29,7 +31,9 @@ namespace BacklogManager
             InitializeComponent();
             
             _authService = authService;
-            _database = new SqliteDatabase();
+            // Utiliser la DB déjà initialisée par LoginWindow (SyncedDatabase en mode local-first)
+            _database = (Application.Current as App)?.Database
+                ?? throw new InvalidOperationException("App.Database non initialisé.");
             
             // Initialiser le service de configuration IA
             AIConfigService.Initialize(_database);
@@ -52,21 +56,26 @@ namespace BacklogManager
             // Initialiser l'EmailService
             _emailService = new EmailService(_backlogService, _authService);
             
-            // Exposer les services dans App pour NotificationsView
+            // Initialiser le CRAService et ProgrammeService
+            _craService = new CRAService(_database);
+            _programmeService = new ProgrammeService(_database);
+            
+            // Exposer les services dans App pour les vues qui en ont besoin
             var app = Application.Current as App;
             if (app != null)
             {
                 app.NotificationService = _notificationService;
                 app.EmailService = _emailService;
+                app.BacklogService = _backlogService;
+                app.CRAService = _craService;
+                app.ProgrammeService = _programmeService;
+                app.EquipeService = new EquipeService(_database);
             }
             
-            // Initialiser le CRAService
-            var craService = new CRAService(_database);
-            
             // Initialiser les ViewModels avec PermissionService et CRAService
-            var projetsViewModel = new ProjetsViewModel(_backlogService, _permissionService, craService);
-            var backlogViewModel = new BacklogViewModel(_backlogService, _permissionService, craService);
-            var kanbanViewModel = new KanbanViewModel(_backlogService, _permissionService, craService);
+            var projetsViewModel = new ProjetsViewModel(_backlogService, _permissionService, _craService);
+            var backlogViewModel = new BacklogViewModel(_backlogService, _permissionService, _craService);
+            var kanbanViewModel = new KanbanViewModel(_backlogService, _permissionService, _craService);
             var pokerViewModel = new PokerViewModel(_backlogService, pokerService);
             var timelineViewModel = new TimelineViewModel(_backlogService);
             
@@ -313,8 +322,7 @@ namespace BacklogManager
                 }
 
                 // Créer le ViewModel avec les services nécessaires
-                var craService = new CRAService(_database);
-                var statistiquesViewModel = new StatistiquesViewModel(_backlogService, craService, _database);
+                var statistiquesViewModel = new StatistiquesViewModel(_backlogService, _craService, _database);
 
                 // Créer la vue et lier le ViewModel
                 var statistiquesView = new Views.StatistiquesView();
@@ -431,9 +439,7 @@ namespace BacklogManager
                 return;
             }
 
-            var craService = new CRAService(_database);
-            var programmeService = new ProgrammeService(_database);
-            var suiviCRAViewModel = new SuiviCRAViewModel(craService, _backlogService, programmeService, _permissionService);
+            var suiviCRAViewModel = new SuiviCRAViewModel(_craService, _backlogService, _programmeService, _permissionService);
             var suiviCRAView = new Views.SuiviCRAView();
             suiviCRAView.DataContext = suiviCRAViewModel;
 
@@ -463,8 +469,7 @@ namespace BacklogManager
             try
             {
                 // Créer le ViewModel pour la vue calendrier
-                var craService = new CRAService(_database);
-                var vm = new ViewModels.CRACalendrierViewModel(craService, _backlogService, _authService, _permissionService);
+                var vm = new ViewModels.CRACalendrierViewModel(_craService, _backlogService, _authService, _permissionService);
                 
                 // Créer et afficher la vue
                 var craView = new Views.CRACalendrierView
@@ -591,9 +596,7 @@ namespace BacklogManager
                 }
 
                 // Créer le ViewModel et la vue
-                var craService = new CRAService(_database);
-                var programmeService = new ProgrammeService(_database);
-                var suiviCRAViewModel = new SuiviCRAViewModel(craService, _backlogService, programmeService, _permissionService);
+                var suiviCRAViewModel = new SuiviCRAViewModel(_craService, _backlogService, _programmeService, _permissionService);
                 var suiviCRAView = new Views.SuiviCRAView();
                 suiviCRAView.DataContext = suiviCRAViewModel;
 

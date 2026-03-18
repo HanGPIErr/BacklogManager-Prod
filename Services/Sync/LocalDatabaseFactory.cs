@@ -24,6 +24,10 @@ namespace BacklogManager.Services.Sync
         private readonly string _localDbPath;
         private bool _initialized;
 
+        // Compteur de séquence in-memory — élimine un SELECT MAX() par opération d'écriture
+        private long _sequenceCounter = -1;
+        private readonly object _seqLock = new object();
+
         public string LocalDbPath => _localDbPath;
 
         public LocalDatabaseFactory(string overridePath = null)
@@ -221,7 +225,7 @@ namespace BacklogManager.Services.Sync
                         (@OperationId, @LocalSequence, @OriginClientId, @OriginUsername,
                          @TimestampUtc, @OperationType, @TableName, @EntityId, @PayloadJson, 0)";
                 cmd.Parameters.AddWithValue("@OperationId",    op.OperationId);
-                cmd.Parameters.AddWithValue("@LocalSequence",  op.LocalSequence);
+                cmd.Parameters.AddWithValue("@LocalSequence",  NextSequence());
                 cmd.Parameters.AddWithValue("@OriginClientId", op.OriginClientId);
                 cmd.Parameters.AddWithValue("@OriginUsername", op.OriginUsername);
                 cmd.Parameters.AddWithValue("@TimestampUtc",   op.TimestampUtc.ToString("yyyy-MM-dd HH:mm:ss.fff"));
@@ -233,16 +237,49 @@ namespace BacklogManager.Services.Sync
             }
         }
 
-        /// <summary>
-        /// Retourne le prochain numéro de séquence local (thread-safe via SQLite AUTOINCREMENT).
-        /// </summary>
-        public long GetNextLocalSequence()
+        // Compteur de séquence thread-safe en mémoire
+        private long NextSequence()
         {
-            using (var conn = OpenWriteConnection())
+            lock (_seqLock)
+            {
+                if (_sequenceCounter < 0)
+                {
+                    // Initialisation paresseuse : lire le MAX actuel une seule fois
+                    using (var conn = OpenReadConnection())
+                    using (var cmd  = conn.CreateCommand())
+                    {
+                        cmd.CommandText = "SELECT COALESCE(MAX(LocalSequence), 0) FROM SyncJournal;";
+                        _sequenceCounter = Convert.ToInt64(cmd.ExecuteScalar());
+                    }
+                }
+                return ++_sequenceCounter;
+            }
+        }
+
+        /// <summary>
+        /// Marque une opération distante comme appliquée EN UTILISANT la connexion/transaction
+        /// courante (ne pas ouvrir de 2e connexion en écriture — évite le SQLite BUSY).
+        /// À appeler depuis SyncApplier.Apply() dans le contexte de PullAndApply().
+        /// </summary>
+        public void MarkAppliedInline(SQLiteConnection conn, SQLiteTransaction tx,
+            SyncOperation op, bool hasConflict = false, string conflictDetail = null)
+        {
             using (var cmd = conn.CreateCommand())
             {
-                cmd.CommandText = "SELECT COALESCE(MAX(LocalSequence), 0) + 1 FROM SyncJournal;";
-                return Convert.ToInt64(cmd.ExecuteScalar());
+                cmd.Transaction = tx;
+                cmd.CommandText = @"
+                    INSERT OR IGNORE INTO SyncApplied
+                        (OperationId, OriginClientId, TimestampUtc, OperationType,
+                         AppliedAtUtc, HasConflict, ConflictDetail)
+                    VALUES (@id, @client, @ts, @type, @applied, @conflict, @detail)";
+                cmd.Parameters.AddWithValue("@id",      op.OperationId);
+                cmd.Parameters.AddWithValue("@client",  op.OriginClientId ?? "");
+                cmd.Parameters.AddWithValue("@ts",      op.TimestampUtc.ToString("yyyy-MM-dd HH:mm:ss.fff"));
+                cmd.Parameters.AddWithValue("@type",    op.OperationType ?? "");
+                cmd.Parameters.AddWithValue("@applied", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.fff"));
+                cmd.Parameters.AddWithValue("@conflict", hasConflict ? 1 : 0);
+                cmd.Parameters.AddWithValue("@detail",  (object)conflictDetail ?? DBNull.Value);
+                cmd.ExecuteNonQuery();
             }
         }
 

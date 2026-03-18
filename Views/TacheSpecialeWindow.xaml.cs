@@ -19,9 +19,9 @@ namespace BacklogManager.Views
             _backlogService = backlogService;
             _permissionService = permissionService;
             
-            // Récupérer l'ID de l'utilisateur via AuthenticationService
-            var authService = new AuthenticationService(backlogService.Database);
-            _currentUserId = authService.CurrentUser?.Id ?? 0;
+            // Récupérer l'ID de l'utilisateur via l'AuthService de l'application
+            var authService = (Application.Current as App)?.AuthService;
+            _currentUserId = authService?.CurrentUser?.Id ?? 0;
 
             LoadData();
         }

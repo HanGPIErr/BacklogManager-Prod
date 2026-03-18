@@ -72,7 +72,7 @@ namespace BacklogManager.Views.Pages
             BadgeStatutRAG.Background = GetStatutRAGColor(statutRAG);
             
             // KPIs - Avancement
-            var backlogService = new BacklogService(_database);
+            var backlogService = (Application.Current as App)?.BacklogService ?? new BacklogService(_database);
             var toutesLesTaches = backlogService.GetAllBacklogItemsIncludingArchived();
             var taches = toutesLesTaches.Where(t => t.ProjetId == _projet.Id).ToList();
             
@@ -177,7 +177,7 @@ namespace BacklogManager.Views.Pages
 
         private void ChargerContributionsRessources()
         {
-            var backlogService = new BacklogService(_database);
+            var backlogService = (Application.Current as App)?.BacklogService ?? new BacklogService(_database);
             var toutesLesTaches = backlogService.GetAllBacklogItemsIncludingArchived();
             var tachesProjet = toutesLesTaches.Where(t => t.ProjetId == _projet.Id).ToList();
             
@@ -286,9 +286,10 @@ namespace BacklogManager.Views.Pages
                 }
 
                 // Créer la vue Timeline avec le viewmodel
-                var craService = new CRAService(_database);
-                var backlogService = new BacklogService(_database);
-                var programmeService = new ProgrammeService(_database);
+                var app = Application.Current as App;
+                var craService = app?.CRAService ?? new CRAService(_database);
+                var backlogService = app?.BacklogService ?? new BacklogService(_database);
+                var programmeService = app?.ProgrammeService ?? new ProgrammeService(_database);
                 var currentUser = _authService.CurrentUser;
                 var currentRole = _authService.GetCurrentUserRole();
                 var permissionService = new PermissionService(currentUser, currentRole);
@@ -321,7 +322,7 @@ namespace BacklogManager.Views.Pages
             try
             {
                 // Récupérer toutes les tâches du projet (incluant archivées)
-                var backlogService = new BacklogService(_database);
+                var backlogService = (Application.Current as App)?.BacklogService ?? new BacklogService(_database);
                 var toutesLesTaches = backlogService.GetAllBacklogItemsIncludingArchived();
                 var tachesProjet = toutesLesTaches.Where(t => t.ProjetId == _projet.Id).ToList();
                 

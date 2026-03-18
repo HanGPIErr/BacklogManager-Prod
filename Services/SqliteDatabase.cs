@@ -39,7 +39,7 @@ namespace BacklogManager.Services
                 JournalMode = SQLiteJournalModeEnum.Wal,
                 Pooling     = true,
                 ReadOnly    = true,
-                BusyTimeout = 3000,
+                BusyTimeout = 1500,   // UI : échec rapide, l'utilisateur peut reessayer
                 SyncMode    = SynchronizationModes.Normal
             };
             _readConnectionString = readBuilder.ConnectionString;
@@ -51,13 +51,18 @@ namespace BacklogManager.Services
                 JournalMode = SQLiteJournalModeEnum.Wal,
                 Pooling     = false,
                 ReadOnly    = false,
-                BusyTimeout = 3000,
+                BusyTimeout = 3000,   // UI : 3s max pour écrire (WAL = rare contention)
                 SyncMode    = SynchronizationModes.Normal
             };
             _writeConnectionString = writeBuilder.ConnectionString;
             _connectionString      = _readConnectionString;
 
-            InitializeDatabase();
+            // IMPORTANT : on n'appelle pas InitializeDatabase() ici car le fichier
+            // existe déjà (créé par LocalDatabaseFactory pour les sync tables).
+            // On force toujours CreateTables (IF NOT EXISTS = idempotent) puis migration.
+            CreateTables();
+            using (var conn = GetConnectionForWrite())
+                MigrateDatabaseSchema(conn);
         }
 
         public SqliteDatabase()
@@ -136,7 +141,7 @@ namespace BacklogManager.Services
                 DataSource = _databasePath,
                 Version = 3,
                 JournalMode = isUncPath ? SQLiteJournalModeEnum.Delete : SQLiteJournalModeEnum.Delete, // DELETE pour réseau
-                Pooling = true,
+                Pooling = false, // Pas de pool pour les writes : connexion exclusive
                 BusyTimeout = 3000, // 3 secondes (réduit de 30s pour échec rapide)
                 ReadOnly = false,
                 SyncMode = SynchronizationModes.Full // Sécurité maximale
@@ -3206,7 +3211,8 @@ namespace BacklogManager.Services
             {
                 using (var cmd = new SQLiteCommand(@"
                     INSERT INTO PlanningVM (EquipeId, Date, UtilisateurId, DateAssignation, Commentaire)
-                    VALUES (@EquipeId, @Date, @UtilisateurId, @DateAssignation, @Commentaire)", conn))
+                    VALUES (@EquipeId, @Date, @UtilisateurId, @DateAssignation, @Commentaire);
+                    SELECT last_insert_rowid();", conn))
                 {
                     cmd.Parameters.AddWithValue("@EquipeId", planning.EquipeId);
                     cmd.Parameters.AddWithValue("@Date", planning.Date.ToString("yyyy-MM-dd"));
@@ -3214,7 +3220,7 @@ namespace BacklogManager.Services
                     cmd.Parameters.AddWithValue("@DateAssignation", planning.DateAssignation.HasValue ? (object)planning.DateAssignation.Value.ToString("yyyy-MM-dd HH:mm:ss") : DBNull.Value);
                     cmd.Parameters.AddWithValue("@Commentaire", string.IsNullOrWhiteSpace(planning.Commentaire) ? DBNull.Value : (object)planning.Commentaire);
                     
-                    cmd.ExecuteNonQuery();
+                    planning.Id = Convert.ToInt32(cmd.ExecuteScalar());
                 }
             }
         }
@@ -3505,7 +3511,8 @@ namespace BacklogManager.Services
             {
                 using (var cmd = new SQLiteCommand(@"
                     INSERT INTO Notifications (Titre, Message, Type, DateCreation, EstLue, TacheId, UtilisateurId, DemandeEchangeVMId)
-                    VALUES (@Titre, @Message, @Type, @DateCreation, @EstLue, @TacheId, @UtilisateurId, @DemandeEchangeVMId)", conn))
+                    VALUES (@Titre, @Message, @Type, @DateCreation, @EstLue, @TacheId, @UtilisateurId, @DemandeEchangeVMId);
+                    SELECT last_insert_rowid();", conn))
                 {
                     cmd.Parameters.AddWithValue("@Titre", notification.Titre);
                     cmd.Parameters.AddWithValue("@Message", notification.Message);
@@ -3516,7 +3523,7 @@ namespace BacklogManager.Services
                     cmd.Parameters.AddWithValue("@UtilisateurId", utilisateurId);
                     cmd.Parameters.AddWithValue("@DemandeEchangeVMId", notification.DemandeEchangeVMId.HasValue ? (object)notification.DemandeEchangeVMId.Value : DBNull.Value);
                     
-                    cmd.ExecuteNonQuery();
+                    notification.Id = Convert.ToInt32(cmd.ExecuteScalar());
                 }
             }
         }

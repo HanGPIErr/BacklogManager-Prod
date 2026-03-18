@@ -18,7 +18,7 @@ namespace BacklogManager.Views.Pages
         {
             InitializeComponent();
             _database = database;
-            _equipeService = new EquipeService(_database);
+            _equipeService = (Application.Current as App)?.EquipeService ?? new EquipeService(_database);
             
             // Initialiser les textes traduits
             InitialiserTextes();

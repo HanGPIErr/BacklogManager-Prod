@@ -173,7 +173,7 @@ namespace BacklogManager.ViewModels
         public CRAHistoriqueViewModel(IDatabase db, int currentUserId, bool isAdmin)
         {
             _db = db ?? throw new ArgumentNullException(nameof(db));
-            _craService = new CRAService(db);
+            _craService = (Application.Current as App)?.CRAService ?? new CRAService(db);
             _currentUserId = currentUserId;
             _isAdmin = isAdmin;
 

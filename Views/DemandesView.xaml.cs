@@ -786,8 +786,8 @@ namespace BacklogManager.Views
                     return;
                 }
 
-                // Créer le projet pré-rempli avec les données de la demande
-                var backlogService = new BacklogService(_database);
+                // Réutiliser le BacklogService de l'application
+                var backlogService = (Application.Current as App)?.BacklogService ?? new BacklogService(_database);
                 var nouveauProjet = new Projet
                 {
                     Nom = demande.Titre,
@@ -901,8 +901,8 @@ namespace BacklogManager.Views
                     ChiffrageHeures = null
                 };
 
-                // Créer les services nécessaires
-                var backlogService = new BacklogService(_database);
+                // Réutiliser les services de l'application
+                var backlogService = (Application.Current as App)?.BacklogService ?? new BacklogService(_database);
 
                 // Ouvrir la fenêtre d'édition avec la tâche pré-remplie
                 var window = new EditTacheWindow(nouvelleTache, backlogService, _permissionService)

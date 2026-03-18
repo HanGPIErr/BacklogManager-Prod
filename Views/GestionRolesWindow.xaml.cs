@@ -13,7 +13,9 @@ namespace BacklogManager.Views
         public GestionRolesWindow()
         {
             InitializeComponent();
-            _database = new SqliteDatabase();
+            // Utiliser la DB de l'application (SyncedDatabase en mode local-first)
+            _database = (Application.Current as App)?.Database
+                ?? throw new InvalidOperationException("App.Database non initialisé.");
             ChargerRoles();
         }
 

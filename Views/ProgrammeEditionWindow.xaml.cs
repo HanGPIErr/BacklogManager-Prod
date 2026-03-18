@@ -18,7 +18,7 @@ namespace BacklogManager.Views
         {
             InitializeComponent();
             _database = database;
-            _programmeService = new ProgrammeService(_database);
+            _programmeService = (Application.Current as App)?.ProgrammeService ?? new ProgrammeService(_database);
             _programmeId = programmeId;
 
             // Initialiser les textes traduits

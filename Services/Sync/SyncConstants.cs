@@ -45,8 +45,10 @@ namespace BacklogManager.Services.Sync
         public const string CommentaireUpsert  = "Commentaire.Upsert";
 
         // Notifications
-        public const string NotificationUpsert = "Notification.Upsert";
-        public const string NotificationDelete = "Notification.Delete";
+        public const string NotificationUpsert     = "Notification.Upsert";
+        public const string NotificationDelete     = "Notification.Delete";
+        public const string NotificationBulkUpdate = "Notification.BulkUpdate";
+        public const string NotificationBulkDelete = "Notification.BulkDelete";
 
         // Configuration
         public const string ConfigUpsert       = "Config.Upsert";

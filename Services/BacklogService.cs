@@ -49,9 +49,12 @@ namespace BacklogManager.Services
             }
 
             // Sauvegarde via la queue d'écriture (évite les conflits)
+            // ConfigureAwait(false) est OBLIGATOIRE : SaveBacklogItem() synchrone appelle
+            // .GetAwaiter().GetResult() sur le thread UI. Sans ConfigureAwait(false),
+            // la continuation tente de se poster sur le Dispatcher WPF bloqué → deadlock.
             var savedItem = await DatabaseWriteQueue.Instance.EnqueueWriteAsync(
                 () => _database.AddOrUpdateBacklogItem(item),
-                $"SaveBacklogItem_{item.Id}");
+                $"SaveBacklogItem_{item.Id}").ConfigureAwait(false);
 
             // Audit log (non-bloquant)
             if (_auditLogService != null && savedItem != null)

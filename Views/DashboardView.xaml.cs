@@ -183,7 +183,7 @@ namespace BacklogManager.Views
             _notificationService = notificationService;
             _authService = authService;
             _auditLogService = authService.GetAuditLogService();
-            _craService = new CRAService(backlogService.Database);
+            _craService = (Application.Current as App)?.CRAService ?? new CRAService(backlogService.Database);
             _permissionService = permissionService;
 
             // Initialiser les collections AVANT InitializeComponent

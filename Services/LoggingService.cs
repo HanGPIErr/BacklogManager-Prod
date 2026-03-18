@@ -9,7 +9,7 @@ namespace BacklogManager.Services
     /// </summary>
     public class LoggingService
     {
-        private static LoggingService _instance;
+        private static volatile LoggingService _instance;
         private static readonly object _lock = new object();
         private readonly string _logFilePath;
 
