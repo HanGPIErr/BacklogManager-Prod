@@ -557,27 +557,58 @@ namespace BacklogManager.Views.Pages
                         string numPart = match.Groups[1].Value.Replace(",", ".");
                         if (double.TryParse(numPart, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double v)) 
                         {
-                            // Normalisation basique de l'unité
-                            string u = match.Groups[2].Value.Trim();
-                            string uLower = u.ToLowerInvariant();
-                            
-                            // Normalisation Temps et Argent
-                            if (uLower.StartsWith("h") || uLower.Contains("heure")) 
-                                u = System.Text.RegularExpressions.Regex.Replace(u, "heures?", "h", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-                                
-                            if (uLower.Contains("sem") || uLower.Contains("week")) 
-                                u = System.Text.RegularExpressions.Regex.Replace(u, "sem(aines?)?|week", "semaine", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-                                
-                            if (uLower.Contains("an")) 
-                                u = System.Text.RegularExpressions.Regex.Replace(u, "annuels?|years?", "an", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-                            
-                            return (v, u);
+                            string raw = match.Groups[2].Value.Trim();
+                            string normalized = NormalizeGainUnit(raw);
+                            return (v, normalized);
                         }
                     }
                     return (0, ""); // Non parsable
                 }
 
-                string FormatGainsList(List<Projet> projs, Func<Projet, string> selector) 
+                // Normalisation robuste des unités de gains
+                string NormalizeGainUnit(string raw)
+                {
+                    if (string.IsNullOrWhiteSpace(raw)) return "";
+                    // Nettoyer : retirer slashes, espaces multiples, mettre en minuscule
+                    string s = raw.ToLowerInvariant().Trim();
+                    s = System.Text.RegularExpressions.Regex.Replace(s, @"[/\\]+", " ");
+                    s = System.Text.RegularExpressions.Regex.Replace(s, @"\s+", " ").Trim();
+
+                    // Détecter la partie "durée" (h, heures, jours, j) et la partie "période" (semaine, mois, an)
+                    bool isHeure = System.Text.RegularExpressions.Regex.IsMatch(s, @"\bh\b|heure|hours?");
+                    bool isJour = System.Text.RegularExpressions.Regex.IsMatch(s, @"\bj\b|\bjours?\b|\bdays?\b");
+                    bool isSemainePeriode = System.Text.RegularExpressions.Regex.IsMatch(s, @"sem|week");
+                    bool isMoisPeriode = System.Text.RegularExpressions.Regex.IsMatch(s, @"mois|month");
+                    bool isAnPeriode = System.Text.RegularExpressions.Regex.IsMatch(s, @"\ban\b|ann|year");
+
+                    // Gains financiers : € ou euro
+                    bool isEuro = s.Contains("€") || s.Contains("euro");
+                    bool isMensuel = System.Text.RegularExpressions.Regex.IsMatch(s, @"mensuel|mois|month");
+                    bool isAnnuel = System.Text.RegularExpressions.Regex.IsMatch(s, @"\ban\b|ann|year");
+
+                    if (isEuro)
+                    {
+                        if (isMensuel) return "€ mensuels";
+                        if (isAnnuel) return "€ annuels";
+                        return "€";
+                    }
+
+                    // Gains temps : construire "unité / période"
+                    string duree = isHeure ? "h" : isJour ? "j" : "";
+                    string periode = isSemainePeriode ? "semaine" : isMoisPeriode ? "mois" : isAnPeriode ? "an" : "";
+
+                    if (!string.IsNullOrEmpty(duree) && !string.IsNullOrEmpty(periode))
+                        return $"{duree} / {periode}";
+                    if (!string.IsNullOrEmpty(duree))
+                        return duree;
+                    if (!string.IsNullOrEmpty(periode))
+                        return $"/ {periode}";
+
+                    // Fallback : retourner l'original nettoyé
+                    return raw.Trim();
+                }
+
+                (string summary, string detail, int count) FormatGainsSplit(List<Projet> projs, Func<Projet, string> selector) 
                 {
                     var items = new List<(string Name, double Val, string Unit, string Original)>();
                     bool hasParsableItems = false;
@@ -593,54 +624,77 @@ namespace BacklogManager.Views.Pages
                          }
                     }
                     
-                    if (items.Count == 0) return "Non spécifié";
+                    if (items.Count == 0) return ("Non spécifié", "", 0);
                     
-                    var sb = new System.Text.StringBuilder();
+                    var sbSummary = new System.Text.StringBuilder();
+                    var sbDetail = new System.Text.StringBuilder();
                     
-                    // Si on a des items parsables, on essaie de grouper
                     if (hasParsableItems)
                     {
                         var groups = items.GroupBy(x => x.Unit).OrderByDescending(g => g.Count());
+                        bool firstGroup = true;
                         
                         foreach(var group in groups) 
                         {
                              if (!string.IsNullOrEmpty(group.Key) && group.Sum(x => x.Val) > 0) 
                              {
                                  double total = group.Sum(x => x.Val);
-                                 sb.AppendLine($"TOTAL: {total} {group.Key}");
-                                 sb.AppendLine(""); 
+                                 if (!firstGroup) { sbSummary.AppendLine(); sbDetail.AppendLine("---"); }
+                                 sbSummary.AppendLine($"{total} {group.Key}");
                                  
                                  foreach(var item in group) 
                                  {
                                      double pct = total > 0 ? Math.Round((item.Val / total) * 100) : 0;
-                                     sb.AppendLine($"{item.Name}: {item.Original} ({pct}%)");
+                                     sbDetail.AppendLine($"{item.Name}: {item.Original} ({pct}%)");
                                  }
                              } 
                              else 
                              {
-                                 // Items non parsables ou sans unité claire
                                  foreach(var item in group) 
                                  {
-                                     sb.AppendLine($"{item.Name}: {item.Original}");
+                                     sbDetail.AppendLine($"{item.Name}: {item.Original}");
                                  }
                              }
-                             if (group != groups.Last()) sb.AppendLine("\n---");
+                             firstGroup = false;
                         }
                     }
                     else
                     {
-                         // Affichage simple si rien n'est calculable
+                         sbSummary.AppendLine("Voir détails");
                          foreach(var item in items) 
                          {
-                             sb.AppendLine($"{item.Name}: {item.Original}");
+                             sbDetail.AppendLine($"{item.Name}: {item.Original}");
                          }
                     }
                     
-                    return sb.ToString().TrimEnd();
+                    return (sbSummary.ToString().TrimEnd(), sbDetail.ToString().TrimEnd(), items.Count);
                 }
 
-                TxtGainsTemps.Text = FormatGainsList(projets, p => p.GainsTemps);
-                TxtGainsFinanciers.Text = FormatGainsList(projets, p => p.GainsFinanciers);
+                var gainsTempsResult = FormatGainsSplit(projets, p => p.GainsTemps);
+                TxtGainsTempsSummary.Text = gainsTempsResult.summary;
+                TxtGainsTempsDetail.Text = gainsTempsResult.detail;
+                if (gainsTempsResult.count > 1)
+                {
+                    ExpanderGainsTemps.Visibility = Visibility.Visible;
+                    TxtGainsTempsHeader.Text = $"Détails ({gainsTempsResult.count} projets)";
+                }
+                else
+                {
+                    ExpanderGainsTemps.Visibility = Visibility.Collapsed;
+                }
+
+                var gainsFinResult = FormatGainsSplit(projets, p => p.GainsFinanciers);
+                TxtGainsFinanciersSummary.Text = gainsFinResult.summary;
+                TxtGainsFinanciersDetail.Text = gainsFinResult.detail;
+                if (gainsFinResult.count > 1)
+                {
+                    ExpanderGainsFinanciers.Visibility = Visibility.Visible;
+                    TxtGainsFinanciersHeader.Text = $"Détails ({gainsFinResult.count} projets)";
+                }
+                else
+                {
+                    ExpanderGainsFinanciers.Visibility = Visibility.Collapsed;
+                }
                 
                 // Contributions des ressources - Agrégées sur tous les projets
                 ChargerContributionsRessources(taches);
@@ -779,8 +833,12 @@ namespace BacklogManager.Views.Pages
                 }
                 
                 // Gains
-                TxtGainsTemps.Text = projet.GainsTemps ?? "Non spécifié";
-                TxtGainsFinanciers.Text = projet.GainsFinanciers ?? "Non spécifié";
+                TxtGainsTempsSummary.Text = projet.GainsTemps ?? "Non spécifié";
+                TxtGainsTempsDetail.Text = "";
+                ExpanderGainsTemps.Visibility = Visibility.Collapsed;
+                TxtGainsFinanciersSummary.Text = projet.GainsFinanciers ?? "Non spécifié";
+                TxtGainsFinanciersDetail.Text = "";
+                ExpanderGainsFinanciers.Visibility = Visibility.Collapsed;
                 
                 // Contributions des ressources
                 ChargerContributionsRessources(taches);

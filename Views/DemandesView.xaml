@@ -285,7 +285,7 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Border BorderBrush="#E0E0E0" BorderThickness="1" 
-                               CornerRadius="10" Margin="0,0,0,15" Padding="22,18" Cursor="Hand">
+                               CornerRadius="10" Margin="0,0,0,8" Padding="16,12" Cursor="Hand">
                             <Border.Background>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                                     <GradientStop Color="#FFFFFF" Offset="0"/>
@@ -319,17 +319,17 @@
                                 </Grid.RowDefinitions>
                                 
                                 <!-- En-tête -->
-                                <Grid Grid.Row="0" Margin="0,0,0,12">
+                                <Grid Grid.Row="0" Margin="0,0,0,6">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     
                                     <StackPanel Grid.Column="0">
-                                        <TextBlock Text="{Binding Titre}" FontSize="16" FontWeight="Bold" 
-                                                  Foreground="#1A1919" TextWrapping="Wrap" LineHeight="22"/>
-                                        <TextBlock Text="{Binding Type}" FontSize="12" Foreground="#666" 
-                                                  Margin="0,4,0,0" FontWeight="Medium"/>
+                                        <TextBlock Text="{Binding Titre}" FontSize="14" FontWeight="Bold" 
+                                                  Foreground="#1A1919" TextWrapping="Wrap" LineHeight="18"/>
+                                        <TextBlock Text="{Binding Type}" FontSize="11" Foreground="#666" 
+                                                  Margin="0,2,0,0" FontWeight="Medium"/>
                                     </StackPanel>
                                     
                                     <StackPanel Grid.Column="1" Orientation="Horizontal">
@@ -420,70 +420,56 @@
                                 
                                 <!-- Description -->
                                 <TextBlock Grid.Row="1" Text="{Binding Description}" 
-                                          TextWrapping="Wrap" Foreground="#666" FontSize="13"
-                                          Margin="0,0,0,15" LineHeight="20"/>
+                                          TextWrapping="Wrap" Foreground="#666" FontSize="12"
+                                          Margin="0,0,0,8" LineHeight="17" MaxHeight="40" TextTrimming="CharacterEllipsis"/>
                                 
                                 <!-- Informations -->
-                                <Grid Grid.Row="2" Margin="0,0,0,15">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="8"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
+                                <Grid Grid.Row="2" Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="30"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
                                     
-                                    <!-- Première ligne -->
-                                    <Grid Grid.Row="0">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-                                        
-                                        <StackPanel Grid.Column="0">
-                                            <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Requests_Requester]}" FontSize="10" Foreground="#999" FontWeight="SemiBold"/>
-                                            <TextBlock Text="{Binding Demandeur}" FontSize="13" FontWeight="Bold" 
-                                                      Foreground="#1A1919" Margin="0,3,0,0"/>
-                                        </StackPanel>
-                                        
-                                        <StackPanel Grid.Column="1" Margin="20,0,0,0">
-                                            <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Requests_CreationDate], Mode=OneWay}" FontSize="10" Foreground="#999" FontWeight="SemiBold"/>
-                                            <TextBlock Text="{Binding DateCreation, StringFormat=dd/MM/yyyy}" 
-                                                      FontSize="13" FontWeight="Bold" Foreground="#00915A" Margin="0,3,0,0"/>
-                                        </StackPanel>
-                                    </Grid>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Requests_Requester]}" FontSize="9" Foreground="#999" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{Binding Demandeur}" FontSize="12" FontWeight="Bold" 
+                                                  Foreground="#1A1919" Margin="0,1,0,0"/>
+                                    </StackPanel>
                                     
-                                    <!-- Deuxième ligne -->
-                                    <Grid Grid.Row="2">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        
-                                        <StackPanel Grid.Column="0">
-                                            <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Requests_Teams], Mode=OneWay}" FontSize="10" Foreground="#999" FontWeight="SemiBold"/>
-                                            <TextBlock Text="{Binding EquipesNoms}" FontSize="12" 
-                                                      Foreground="#00915A" Margin="0,3,0,0" TextWrapping="Wrap"/>
-                                        </StackPanel>
-                                        
-                                        <StackPanel Grid.Column="1">
-                                            <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Requests_Managers], Mode=OneWay}" FontSize="10" Foreground="#999" FontWeight="SemiBold"/>
-                                            <TextBlock Text="{Binding Managers}" FontSize="12" 
-                                                      Foreground="#1976D2" Margin="0,3,0,0" TextWrapping="Wrap"/>
-                                        </StackPanel>
-                                        
-                                        <StackPanel Grid.Column="2">
-                                            <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Requests_TeamMembers], Mode=OneWay}" FontSize="10" Foreground="#999" FontWeight="SemiBold"/>
-                                            <TextBlock Text="{Binding MembresEquipes}" FontSize="11" 
-                                                      Foreground="#666" Margin="0,3,0,0" TextWrapping="Wrap"/>
-                                        </StackPanel>
-                                    </Grid>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Requests_Teams], Mode=OneWay}" FontSize="9" Foreground="#999" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{Binding EquipesNoms}" FontSize="11" 
+                                                  Foreground="#00915A" Margin="0,1,0,0" TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+                                    
+                                    <StackPanel Grid.Column="3">
+                                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Requests_Managers], Mode=OneWay}" FontSize="9" Foreground="#999" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{Binding Managers}" FontSize="11" 
+                                                  Foreground="#1976D2" Margin="0,1,0,0" TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+                                    
+                                    <StackPanel Grid.Column="4">
+                                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Requests_TeamMembers], Mode=OneWay}" FontSize="9" Foreground="#999" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{Binding MembresEquipes}" FontSize="10" 
+                                                  Foreground="#666" Margin="0,1,0,0" TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+                                    
+                                    <StackPanel Grid.Column="5" Margin="15,0,0,0">
+                                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Requests_CreationDate], Mode=OneWay}" FontSize="9" Foreground="#999" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{Binding DateCreation, StringFormat=dd/MM/yyyy}" 
+                                                  FontSize="12" FontWeight="Bold" Foreground="#00915A" Margin="0,1,0,0"/>
+                                    </StackPanel>
                                 </Grid>
                                 
                                 <!-- Actions -->
                                 <WrapPanel Grid.Row="3" Orientation="Horizontal">
-                                    <Button Height="34" Padding="14,0" Margin="0,0,8,0"
+                                    <Button Height="28" Padding="10,0" Margin="0,0,6,0"
                                            Background="#9C27B0" Foreground="White" BorderThickness="0"
-                                           FontSize="12" Cursor="Hand" Tag="{Binding Id}" FontWeight="SemiBold"
+                                           FontSize="11" Cursor="Hand" Tag="{Binding Id}" FontWeight="SemiBold"
                                            Click="BtnCreerProjetClick"
                                            Visibility="{Binding EstAccepteeSansProjet, Converter={StaticResource BooleanToVisibilityConverter}}">
                                         <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Requests_CreateProject], Mode=OneWay}"/>
@@ -507,9 +493,9 @@
                                             </Style>
                                         </Button.Style>
                                     </Button>
-                                    <Button Height="34" Padding="14,0" Margin="0,0,8,0"
+                                    <Button Height="28" Padding="10,0" Margin="0,0,6,0"
                                            Background="#FF6F00" Foreground="White" BorderThickness="0"
-                                           FontSize="12" Cursor="Hand" Tag="{Binding Id}" FontWeight="SemiBold"
+                                           FontSize="11" Cursor="Hand" Tag="{Binding Id}" FontWeight="SemiBold"
                                            Click="BtnCreerTacheClick"
                                            Visibility="{Binding EstAccepteeAvecProjet, Converter={StaticResource BooleanToVisibilityConverter}}">
                                         <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Requests_CreateTask], Mode=OneWay}"/>
@@ -533,9 +519,9 @@
                                             </Style>
                                         </Button.Style>
                                     </Button>
-                                    <Button Height="34" Padding="14,0" Margin="0,0,8,0"
+                                    <Button Height="28" Padding="10,0" Margin="0,0,6,0"
                                            Background="#00915A" Foreground="White" BorderThickness="0"
-                                           FontSize="12" Cursor="Hand" Tag="{Binding Id}" FontWeight="SemiBold"
+                                           FontSize="11" Cursor="Hand" Tag="{Binding Id}" FontWeight="SemiBold"
                                            Click="BtnDetailsClick">
                                         <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Requests_Details], Mode=OneWay}"/>
                                         <Button.Style>
@@ -558,9 +544,9 @@
                                             </Style>
                                         </Button.Style>
                                     </Button>
-                                    <Button Height="34" Padding="14,0" Margin="0,0,8,0"
+                                    <Button Height="28" Padding="10,0" Margin="0,0,6,0"
                                            Background="#0078D7" Foreground="White" BorderThickness="0"
-                                           FontSize="12" Cursor="Hand" Tag="{Binding Id}" FontWeight="SemiBold"
+                                           FontSize="11" Cursor="Hand" Tag="{Binding Id}" FontWeight="SemiBold"
                                            Click="BtnModifierClick">
                                         <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Requests_Modify], Mode=OneWay}"/>
                                         <Button.Style>
@@ -583,9 +569,9 @@
                                             </Style>
                                         </Button.Style>
                                     </Button>
-                                    <Button Height="34" Padding="14,0" Margin="0,0,8,0"
+                                    <Button Height="28" Padding="10,0" Margin="0,0,6,0"
                                            Background="#666666" Foreground="White" BorderThickness="0"
-                                           FontSize="12" Cursor="Hand" Tag="{Binding Id}" FontWeight="SemiBold"
+                                           FontSize="11" Cursor="Hand" Tag="{Binding Id}" FontWeight="SemiBold"
                                            Click="BtnCommentairesClick">
                                         <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Requests_Comments], Mode=OneWay}"/>
                                         <Button.Style>
@@ -608,9 +594,9 @@
                                             </Style>
                                         </Button.Style>
                                     </Button>
-                                    <Button Height="34" Padding="14,0" Margin="0,0,8,0"
+                                    <Button Height="28" Padding="10,0" Margin="0,0,6,0"
                                            Background="#9C27B0" Foreground="White" BorderThickness="0"
-                                           FontSize="12" Cursor="Hand" Tag="{Binding Id}" FontWeight="SemiBold"
+                                           FontSize="11" Cursor="Hand" Tag="{Binding Id}" FontWeight="SemiBold"
                                            Click="BtnArchiverClick"
                                            Visibility="{Binding DataContext.PeutArchiverDemandes, 
                                                        RelativeSource={RelativeSource AncestorType=UserControl},

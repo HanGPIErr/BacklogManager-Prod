@@ -432,13 +432,13 @@
 
             <!-- Section Comparative (avant / période / reste) -->
             <Border x:Name="PanelComparatif" Grid.Row="4" Background="White" CornerRadius="12" 
-                    Padding="30,25" Margin="0,0,0,20" Visibility="Collapsed">
+                    Padding="20,15" Margin="0,0,0,15" Visibility="Collapsed">
                 <Border.Effect>
                     <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.1" Color="#000000"/>
                 </Border.Effect>
                 <StackPanel>
-                    <TextBlock x:Name="LblComparativeView" Text="📈 VUE COMPARATIVE" FontSize="16" FontWeight="Bold" 
-                               Foreground="#333" Margin="0,0,0,20"/>
+                    <TextBlock x:Name="LblComparativeView" Text="📈 VUE COMPARATIVE" FontSize="13" FontWeight="Bold" 
+                               Foreground="#333" Margin="0,0,0,12"/>
                     
                     <Grid x:Name="GridComparatif3Col">
                         <Grid.ColumnDefinitions>
@@ -450,44 +450,44 @@
                         </Grid.ColumnDefinitions>
                         
                         <!-- Avant la période -->
-                        <Border Grid.Column="0" Background="#F5F5F5" CornerRadius="10" Padding="20">
+                        <Border Grid.Column="0" Background="#F5F5F5" CornerRadius="10" Padding="14,10">
                             <StackPanel>
-                                <TextBlock x:Name="LblBeforePeriod1" Text="⏮️ AVANT LA PÉRIODE" FontSize="13" FontWeight="Bold" 
-                                           Foreground="#666" Margin="0,0,0,15" TextAlignment="Center"/>
-                                <TextBlock x:Name="LblCompletedTasksLabel1" Text="Tâches terminées" FontSize="11" Foreground="#999" Margin="0,0,0,5"/>
-                                <TextBlock x:Name="TxtAvantTaches" FontSize="24" FontWeight="Bold" 
+                                <TextBlock x:Name="LblBeforePeriod1" Text="⏮️ AVANT LA PÉRIODE" FontSize="11" FontWeight="Bold" 
+                                           Foreground="#666" Margin="0,0,0,8" TextAlignment="Center"/>
+                                <TextBlock x:Name="LblCompletedTasksLabel1" Text="tâche(s) terminée(s)" FontSize="10" Foreground="#999" Margin="0,0,0,2"/>
+                                <TextBlock x:Name="TxtAvantTaches" FontSize="18" FontWeight="Bold" 
                                            Foreground="#4CAF50" Text="0"/>
-                                <TextBlock x:Name="LblWorkloadDays1" Text="Charge (jours)" FontSize="11" Foreground="#999" Margin="0,10,0,5"/>
-                                <TextBlock x:Name="TxtAvantCharge" FontSize="18" FontWeight="Bold" 
+                                <TextBlock x:Name="LblWorkloadDays1" Text="Charge (jours)" FontSize="10" Foreground="#999" Margin="0,6,0,2"/>
+                                <TextBlock x:Name="TxtAvantCharge" FontSize="14" FontWeight="Bold" 
                                            Foreground="#666" Text="0j"/>
                             </StackPanel>
                         </Border>
                         
                         <!-- Pendant la période -->
                         <Border Grid.Column="2" Background="#E3F2FD" BorderBrush="#2196F3" 
-                                BorderThickness="2" CornerRadius="10" Padding="20">
+                                BorderThickness="2" CornerRadius="10" Padding="14,10">
                             <StackPanel>
-                                <TextBlock x:Name="LblSelectedPeriod1" Text="🔍 PÉRIODE SÉLECTIONNÉE" FontSize="13" FontWeight="Bold" 
-                                           Foreground="#1976D2" Margin="0,0,0,15" TextAlignment="Center"/>
-                                <TextBlock x:Name="LblTasksLabel1" Text="Tâches" FontSize="11" Foreground="#1565C0" Margin="0,0,0,5"/>
-                                <TextBlock x:Name="TxtPeriodeTaches" FontSize="24" FontWeight="Bold" 
+                                <TextBlock x:Name="LblSelectedPeriod1" Text="🔍 PÉRIODE SÉLECTIONNÉE" FontSize="11" FontWeight="Bold" 
+                                           Foreground="#1976D2" Margin="0,0,0,8" TextAlignment="Center"/>
+                                <TextBlock x:Name="LblTasksLabel1" Text="Tâches" FontSize="10" Foreground="#1565C0" Margin="0,0,0,2"/>
+                                <TextBlock x:Name="TxtPeriodeTaches" FontSize="18" FontWeight="Bold" 
                                            Foreground="#2196F3" Text="0"/>
-                                <TextBlock x:Name="LblWorkloadDays2" Text="Charge (jours)" FontSize="11" Foreground="#1565C0" Margin="0,10,0,5"/>
-                                <TextBlock x:Name="TxtPeriodeCharge" FontSize="18" FontWeight="Bold" 
+                                <TextBlock x:Name="LblWorkloadDays2" Text="Charge (jours)" FontSize="10" Foreground="#1565C0" Margin="0,6,0,2"/>
+                                <TextBlock x:Name="TxtPeriodeCharge" FontSize="14" FontWeight="Bold" 
                                            Foreground="#1976D2" Text="0j"/>
                             </StackPanel>
                         </Border>
                         
                         <!-- Reste à faire -->
-                        <Border Grid.Column="4" Background="#FFF3E0" CornerRadius="10" Padding="20">
+                        <Border Grid.Column="4" Background="#FFF3E0" CornerRadius="10" Padding="14,10">
                             <StackPanel>
-                                <TextBlock x:Name="LblToDoRemaining" Text="⏭️ RESTE À FAIRE" FontSize="13" FontWeight="Bold" 
-                                           Foreground="#E65100" Margin="0,0,0,15" TextAlignment="Center"/>
-                                <TextBlock x:Name="LblRemainingTasksComp" Text="Tâches restantes" FontSize="11" Foreground="#999" Margin="0,0,0,5"/>
-                                <TextBlock x:Name="TxtResteTaches" FontSize="24" FontWeight="Bold" 
+                                <TextBlock x:Name="LblToDoRemaining" Text="⏭️ RESTE À FAIRE" FontSize="11" FontWeight="Bold" 
+                                           Foreground="#E65100" Margin="0,0,0,8" TextAlignment="Center"/>
+                                <TextBlock x:Name="LblRemainingTasksComp" Text="tâche(s) restante(s)" FontSize="10" Foreground="#999" Margin="0,0,0,2"/>
+                                <TextBlock x:Name="TxtResteTaches" FontSize="18" FontWeight="Bold" 
                                            Foreground="#FF9800" Text="0"/>
-                                <TextBlock x:Name="LblEstimatedWorkloadDays" Text="Charge estimée (jours)" FontSize="11" Foreground="#999" Margin="0,10,0,5"/>
-                                <TextBlock x:Name="TxtResteCharge" FontSize="18" FontWeight="Bold" 
+                                <TextBlock x:Name="LblEstimatedWorkloadDays" Text="Charge estimée (jours)" FontSize="10" Foreground="#999" Margin="0,6,0,2"/>
+                                <TextBlock x:Name="TxtResteCharge" FontSize="14" FontWeight="Bold" 
                                            Foreground="#F57C00" Text="0j"/>
                             </StackPanel>
                         </Border>
@@ -502,30 +502,30 @@
                         </Grid.ColumnDefinitions>
                         
                         <!-- Avant la période -->
-                        <Border Grid.Column="0" Background="#F5F5F5" CornerRadius="10" Padding="20">
+                        <Border Grid.Column="0" Background="#F5F5F5" CornerRadius="10" Padding="14,10">
                             <StackPanel>
-                                <TextBlock x:Name="LblBeforePeriod2" Text="⏮️ AVANT LA PÉRIODE" FontSize="13" FontWeight="Bold" 
-                                           Foreground="#666" Margin="0,0,0,15" TextAlignment="Center"/>
-                                <TextBlock x:Name="LblCompletedTasksLabel2" Text="Tâches terminées" FontSize="11" Foreground="#999" Margin="0,0,0,5"/>
-                                <TextBlock x:Name="TxtAvantTaches2Col" FontSize="24" FontWeight="Bold" 
+                                <TextBlock x:Name="LblBeforePeriod2" Text="⏮️ AVANT LA PÉRIODE" FontSize="11" FontWeight="Bold" 
+                                           Foreground="#666" Margin="0,0,0,8" TextAlignment="Center"/>
+                                <TextBlock x:Name="LblCompletedTasksLabel2" Text="tâche(s) terminée(s)" FontSize="10" Foreground="#999" Margin="0,0,0,2"/>
+                                <TextBlock x:Name="TxtAvantTaches2Col" FontSize="18" FontWeight="Bold" 
                                            Foreground="#4CAF50" Text="0"/>
-                                <TextBlock x:Name="LblWorkloadDays3" Text="Charge (jours)" FontSize="11" Foreground="#999" Margin="0,10,0,5"/>
-                                <TextBlock x:Name="TxtAvantCharge2Col" FontSize="18" FontWeight="Bold" 
+                                <TextBlock x:Name="LblWorkloadDays3" Text="Charge (jours)" FontSize="10" Foreground="#999" Margin="0,6,0,2"/>
+                                <TextBlock x:Name="TxtAvantCharge2Col" FontSize="14" FontWeight="Bold" 
                                            Foreground="#666" Text="0j"/>
                             </StackPanel>
                         </Border>
                         
                         <!-- Pendant la période -->
                         <Border Grid.Column="2" Background="#E3F2FD" BorderBrush="#2196F3" 
-                                BorderThickness="2" CornerRadius="10" Padding="20">
+                                BorderThickness="2" CornerRadius="10" Padding="14,10">
                             <StackPanel>
-                                <TextBlock x:Name="LblSelectedPeriod2" Text="🔍 PÉRIODE SÉLECTIONNÉE" FontSize="13" FontWeight="Bold" 
-                                           Foreground="#1976D2" Margin="0,0,0,15" TextAlignment="Center"/>
-                                <TextBlock x:Name="LblTasksLabel2" Text="Tâches" FontSize="11" Foreground="#1565C0" Margin="0,0,0,5"/>
-                                <TextBlock x:Name="TxtPeriodeTaches2Col" FontSize="24" FontWeight="Bold" 
+                                <TextBlock x:Name="LblSelectedPeriod2" Text="🔍 PÉRIODE SÉLECTIONNÉE" FontSize="11" FontWeight="Bold" 
+                                           Foreground="#1976D2" Margin="0,0,0,8" TextAlignment="Center"/>
+                                <TextBlock x:Name="LblTasksLabel2" Text="Tâches" FontSize="10" Foreground="#1565C0" Margin="0,0,0,2"/>
+                                <TextBlock x:Name="TxtPeriodeTaches2Col" FontSize="18" FontWeight="Bold" 
                                            Foreground="#2196F3" Text="0"/>
-                                <TextBlock x:Name="LblWorkloadDays4" Text="Charge (jours)" FontSize="11" Foreground="#1565C0" Margin="0,10,0,5"/>
-                                <TextBlock x:Name="TxtPeriodeCharge2Col" FontSize="18" FontWeight="Bold" 
+                                <TextBlock x:Name="LblWorkloadDays4" Text="Charge (jours)" FontSize="10" Foreground="#1565C0" Margin="0,6,0,2"/>
+                                <TextBlock x:Name="TxtPeriodeCharge2Col" FontSize="14" FontWeight="Bold" 
                                            Foreground="#1976D2" Text="0j"/>
                                 <Border Background="#4CAF50" CornerRadius="5" Padding="10,5" Margin="0,15,0,0">
                                     <TextBlock x:Name="LblAllCompleted" Text="✅ TOUT EST TERMINÉ" FontSize="11" FontWeight="Bold" 
@@ -538,7 +538,7 @@
             </Border>
 
             <!-- Timeline & Gains (caché par défaut) -->
-            <Grid x:Name="PanelTimelineGains" Grid.Row="5" Margin="0,0,0,20" Visibility="Collapsed">
+            <Grid x:Name="PanelTimelineGains" Grid.Row="5" Margin="0,0,0,15" Visibility="Collapsed">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="15"/>
@@ -548,13 +548,13 @@
                 </Grid.ColumnDefinitions>
                 
                 <!-- Timeline visuelle -->
-                <Border Grid.Column="0" Background="White" CornerRadius="12" Padding="25,20">
+                <Border Grid.Column="0" Background="White" CornerRadius="12" Padding="15,12">
                     <Border.Effect>
                         <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.1" Color="#000000"/>
                     </Border.Effect>
                     <StackPanel>
-                        <TextBlock Text="📅 TIMELINE &amp; ÉCHÉANCES" FontSize="14" FontWeight="Bold" 
-                                   Foreground="#333" Margin="0,0,0,15"/>
+                        <TextBlock Text="📅 TIMELINE &amp; ÉCHÉANCES" FontSize="11" FontWeight="Bold" 
+                                   Foreground="#333" Margin="0,0,0,10"/>
                         
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -564,54 +564,68 @@
                             </Grid.ColumnDefinitions>
                             
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="DATE DÉBUT" FontSize="10" Foreground="#999" FontWeight="Bold"/>
-                                <TextBlock x:Name="TxtDateDebut" FontSize="16" FontWeight="Bold" 
-                                           Foreground="#666" Margin="0,5,0,0"/>
+                                <TextBlock Text="DATE DÉBUT" FontSize="9" Foreground="#999" FontWeight="Bold"/>
+                                <TextBlock x:Name="TxtDateDebut" FontSize="12" FontWeight="Bold" 
+                                           Foreground="#666" Margin="0,3,0,0"/>
                             </StackPanel>
                             
                             <StackPanel Grid.Column="2">
-                                <TextBlock Text="DATE FIN" FontSize="10" Foreground="#999" FontWeight="Bold"/>
-                                <TextBlock x:Name="TxtDateFin" FontSize="16" FontWeight="Bold" 
-                                           Foreground="#666" Margin="0,5,0,0"/>
+                                <TextBlock Text="DATE FIN" FontSize="9" Foreground="#999" FontWeight="Bold"/>
+                                <TextBlock x:Name="TxtDateFin" FontSize="12" FontWeight="Bold" 
+                                           Foreground="#666" Margin="0,3,0,0"/>
                             </StackPanel>
                         </Grid>
                         
-                        <Grid Margin="0,15,0,10">
-                            <Border Height="10" Background="#E8EAF0" CornerRadius="5"/>
-                            <Border x:Name="ProgressTemporel" Height="10" Background="#2196F3" 
-                                    CornerRadius="5" HorizontalAlignment="Left" Width="0"/>
+                        <Grid Margin="0,10,0,6">
+                            <Border Height="8" Background="#E8EAF0" CornerRadius="4"/>
+                            <Border x:Name="ProgressTemporel" Height="8" Background="#2196F3" 
+                                    CornerRadius="4" HorizontalAlignment="Left" Width="0"/>
                         </Grid>
                         
-                        <TextBlock x:Name="TxtProgressionTemps" FontSize="12" Foreground="#666" 
-                                   TextAlignment="Center" Margin="0,5,0,0" Text="--"/>
+                        <TextBlock x:Name="TxtProgressionTemps" FontSize="10" Foreground="#666" 
+                                   TextAlignment="Center" Margin="0,3,0,0" Text="--"/>
                     </StackPanel>
                 </Border>
 
                 <!-- Gains Temps -->
                 <Border Grid.Column="2" Background="#E3F2FD" BorderBrush="#2196F3" BorderThickness="2" 
-                        CornerRadius="12" Padding="25,20">
+                        CornerRadius="12" Padding="15,12">
                     <Border.Effect>
                         <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.1" Color="#2196F3"/>
                     </Border.Effect>
                     <StackPanel>
-                        <TextBlock Text="⏱️ GAINS TEMPS" FontSize="14" Foreground="#1976D2" FontWeight="Bold" Margin="0,0,0,15"/>
-                        <TextBlock x:Name="TxtGainsTemps" FontSize="26" FontWeight="Bold" 
+                        <TextBlock Text="⏱️ GAINS TEMPS" FontSize="11" Foreground="#1976D2" FontWeight="Bold" Margin="0,0,0,6"/>
+                        <TextBlock x:Name="TxtGainsTempsSummary" FontSize="14" FontWeight="Bold" 
                                    Foreground="#1565C0" TextWrapping="Wrap" TextAlignment="Center" 
-                                   VerticalAlignment="Center" Margin="0,20,0,20" Text="--"/>
+                                   Margin="0,2,0,4" Text="--"/>
+                        <Expander x:Name="ExpanderGainsTemps" IsExpanded="False" Visibility="Collapsed">
+                            <Expander.Header>
+                                <TextBlock x:Name="TxtGainsTempsHeader" FontSize="9" Foreground="#1976D2" Text="Détails"/>
+                            </Expander.Header>
+                            <TextBlock x:Name="TxtGainsTempsDetail" FontSize="10" 
+                                       Foreground="#1565C0" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                        </Expander>
                     </StackPanel>
                 </Border>
                 
                 <!-- Gains Financiers -->
                 <Border Grid.Column="4" Background="#E8F5E9" BorderBrush="#4CAF50" BorderThickness="2" 
-                        CornerRadius="12" Padding="25,20">
+                        CornerRadius="12" Padding="15,12">
                     <Border.Effect>
                         <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.1" Color="#4CAF50"/>
                     </Border.Effect>
                     <StackPanel>
-                        <TextBlock Text="💰 GAINS FINANCIERS" FontSize="14" Foreground="#2E7D32" FontWeight="Bold" Margin="0,0,0,15"/>
-                        <TextBlock x:Name="TxtGainsFinanciers" FontSize="26" FontWeight="Bold" 
+                        <TextBlock Text="💰 GAINS FINANCIERS" FontSize="11" Foreground="#2E7D32" FontWeight="Bold" Margin="0,0,0,6"/>
+                        <TextBlock x:Name="TxtGainsFinanciersSummary" FontSize="14" FontWeight="Bold" 
                                    Foreground="#1B5E20" TextWrapping="Wrap" TextAlignment="Center"
-                                   VerticalAlignment="Center" Margin="0,20,0,20" Text="--"/>
+                                   Margin="0,2,0,4" Text="--"/>
+                        <Expander x:Name="ExpanderGainsFinanciers" IsExpanded="False" Visibility="Collapsed">
+                            <Expander.Header>
+                                <TextBlock x:Name="TxtGainsFinanciersHeader" FontSize="9" Foreground="#2E7D32" Text="Détails"/>
+                            </Expander.Header>
+                            <TextBlock x:Name="TxtGainsFinanciersDetail" FontSize="10" 
+                                       Foreground="#1B5E20" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                        </Expander>
                     </StackPanel>
                 </Border>
             </Grid>
