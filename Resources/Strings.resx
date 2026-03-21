@@ -1167,6 +1167,9 @@
   <data name="Administration_AuditLog" xml:space="preserve">
     <value>Journal d'audit</value>
   </data>
+  <data name="Administration_AuditStats" xml:space="preserve">
+    <value>Statistiques</value>
+  </data>
   <data name="Administration_Users" xml:space="preserve">
     <value>Utilisateurs</value>
   </data>
@@ -2154,6 +2157,9 @@ Cette action est irréversible.</value>
   </data>
   <data name="Administration_AuditLog" xml:space="preserve">
     <value>Journal d'audit</value>
+  </data>
+  <data name="Administration_AuditStats" xml:space="preserve">
+    <value>Statistiques</value>
   </data>
   <data name="Administration_Users" xml:space="preserve">
     <value>Utilisateurs</value>

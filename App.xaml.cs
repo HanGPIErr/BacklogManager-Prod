@@ -113,9 +113,38 @@ namespace BacklogManager
 
         protected override void OnExit(ExitEventArgs e)
         {
-            // Arrêter proprement le moteur de synchronisation
-            SyncEngine?.Stop();
+            try
+            {
+                if (SyncEngine != null)
+                {
+                    // Lire le chemin de la DB réseau depuis config.ini
+                    string networkDbPath = ReadConfigKey("DatabasePath");
+                    SyncEngine.GracefulShutdown(networkDbPath);
+                }
+            }
+            catch (Exception ex)
+            {
+                LoggingService.Instance.LogWarning($"[App] Erreur à l'arrêt propre : {ex.Message}");
+            }
             base.OnExit(e);
+        }
+
+        /// <summary>Lit une clé de config.ini.</summary>
+        private static string ReadConfigKey(string key)
+        {
+            try
+            {
+                string configPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.ini");
+                if (!System.IO.File.Exists(configPath)) return null;
+                foreach (var line in System.IO.File.ReadAllLines(configPath, System.Text.Encoding.UTF8))
+                {
+                    var trimmed = line.Trim();
+                    if (trimmed.StartsWith(key + "="))
+                        return trimmed.Substring(key.Length + 1).Trim().Trim('"', '\'');
+                }
+            }
+            catch { }
+            return null;
         }
     }
 }

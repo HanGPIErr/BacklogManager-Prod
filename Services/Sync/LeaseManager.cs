@@ -61,7 +61,19 @@ namespace BacklogManager.Services.Sync
                     }
 
                     // Lease expiré (stale) → on peut le prendre
-                    try { File.Delete(leasePath); } catch { }
+                    try { File.Delete(leasePath); }
+                    catch
+                    {
+                        // Le fichier peut être verrouillé par un NAS — attendre et réessayer
+                        System.Threading.Thread.Sleep(200);
+                        try { File.Delete(leasePath); }
+                        catch (Exception exDel)
+                        {
+                            LoggingService.Instance.LogWarning(
+                                $"[LeaseManager] Impossible de supprimer le lease stale : {exDel.Message}");
+                            return false;
+                        }
+                    }
                 }
 
                 // Écrire notre lease

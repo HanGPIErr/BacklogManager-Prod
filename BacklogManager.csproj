@@ -344,6 +344,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Pages\AuditStatsPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Pages\ProjetsListPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -435,6 +439,7 @@
     <Compile Include="Services\JsonDatabase.cs" />
     <Compile Include="Services\SqliteDatabase.cs" />
     <Compile Include="Services\SyncedDatabase.cs" />
+    <Compile Include="Services\SyncTestService.cs" />
     <Compile Include="Services\Sync\SyncConstants.cs" />
     <Compile Include="Services\Sync\SyncOperation.cs" />
     <Compile Include="Services\Sync\SyncManifest.cs" />
@@ -633,6 +638,9 @@
     <Compile Include="Services\ProgrammeService.cs" />
     <Compile Include="Views\Pages\AuditLogPage.xaml.cs">
       <DependentUpon>AuditLogPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Pages\AuditStatsPage.xaml.cs">
+      <DependentUpon>AuditStatsPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Pages\ProjetsListPage.xaml.cs">
       <DependentUpon>ProjetsListPage.xaml</DependentUpon>

@@ -34,6 +34,10 @@ namespace BacklogManager.Services
         private readonly LocalDatabaseFactory _localDb;
         private readonly string              _clientId;
         private readonly string              _username;
+        private Sync.SyncEngine              _syncEngine;
+
+        /// <summary>Identifiant unique de ce client (ex: "DESKTOP-ABC_1F2E3D4C").</summary>
+        public string ClientId => _clientId;
 
         // ─── Options de sérialisation JSON ───────────────────────────────────
         private static readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions
@@ -56,56 +60,74 @@ namespace BacklogManager.Services
             _clientId = clientId ?? Environment.MachineName;
         }
 
+        /// <summary>
+        /// Connecte le SyncEngine pour recevoir les notifications de push immédiat.
+        /// Appelé après construction quand le SyncEngine est créé.
+        /// </summary>
+        public void SetSyncEngine(Sync.SyncEngine engine)
+        {
+            _syncEngine = engine;
+        }
+
         // ─── Helpers ──────────────────────────────────────────────────────────
 
         private string Serialize<T>(T entity) =>
             JsonSerializer.Serialize(entity, _jsonOptions);
 
         /// <summary>
-        /// Enregistre une opération dans SyncJournal.
+        /// Enregistre une opération dans SyncJournal avec retry.
         /// Appelé APRÈS chaque écriture métier réussie.
-        /// ATTENTION : cette méthode ouvre sa propre connexion (hors tx métier).
-        /// Si une atomicité stricte est requise, utiliser AppendToJournal avec la connexion/tx de la DB interne.
-        /// Ici on accepte la fenêtre race : si le process crash entre l'écriture et le journal,
-        /// la donnée est présente localement mais n'est pas diffusée → sera visible après le prochain
-        /// restart si l'app est le seul client.
-        ///
-        /// Pour une atomicité parfaite, SqliteDatabase devrait exposer ses connexions — ce n'est pas le cas
-        /// dans l'architecture actuelle, donc on enregistre juste après.
+        /// 3 tentatives avec backoff pour survivre aux BUSY transitoires
+        /// (SyncApplier peut occuper le write lock pendant l'application de batches).
         /// </summary>
         private void Journal(string operationType, string tableName, int entityId, string payloadJson)
         {
-            try
+            var op = new SyncOperation
             {
-                var op = new SyncOperation
-                {
-                    OperationId     = Guid.NewGuid().ToString("N"),
-                    OriginClientId  = _clientId,
-                    OriginUsername  = _username,
-                    TimestampUtc    = DateTime.UtcNow,
-                    OperationType   = operationType,
-                    TableName       = tableName,
-                    EntityId        = entityId,
-                    PayloadJson     = payloadJson,
-                    IsPublished     = false,
-                    IsApplied       = false
-                };
+                OperationId     = Guid.NewGuid().ToString("N"),
+                OriginClientId  = _clientId,
+                OriginUsername  = _username,
+                TimestampUtc    = DateTime.UtcNow,
+                OperationType   = operationType,
+                TableName       = tableName,
+                EntityId        = entityId,
+                PayloadJson     = payloadJson,
+                IsPublished     = false,
+                IsApplied       = false
+            };
 
-                using (var conn = _localDb.OpenWriteConnection())
+            const int MaxRetries = 3;
+            for (int attempt = 1; attempt <= MaxRetries; attempt++)
+            {
+                try
                 {
-                    // OpenWriteConnection() ouvre déjà la connexion — ne pas rappeler conn.Open()
-                    using (var tx = conn.BeginTransaction())
+                    using (var conn = _localDb.OpenWriteConnection())
                     {
-                        _localDb.AppendToJournal(conn, tx, op);
-                        tx.Commit();
+                        using (var tx = conn.BeginTransaction())
+                        {
+                            _localDb.AppendToJournal(conn, tx, op);
+                            tx.Commit();
+                        }
+                    }
+                    // Signaler au SyncEngine de pousser immédiatement
+                    _syncEngine?.NotifyNewOperation();
+                    return; // Succès
+                }
+                catch (Exception ex)
+                {
+                    if (attempt < MaxRetries)
+                    {
+                        // Backoff exponentiel : 100ms, 300ms
+                        System.Threading.Thread.Sleep(100 * attempt);
+                    }
+                    else
+                    {
+                        // Dernière tentative échouée — log en erreur (pas juste warning)
+                        LoggingService.Instance.LogError(
+                            $"[SyncedDatabase] PERTE JOURNAL après {MaxRetries} tentatives ({operationType}#{entityId})",
+                            ex);
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                // Ne jamais laisser le journal bloquer l'opération métier
-                LoggingService.Instance.LogWarning(
-                    $"[SyncedDatabase] Impossible d'enregistrer dans SyncJournal ({operationType}#{entityId}): {ex.Message}");
             }
         }
 
@@ -262,8 +284,7 @@ namespace BacklogManager.Services
         public Dev AddOrUpdateDev(Dev dev)
         {
             var result = _inner.AddOrUpdateDev(dev);
-            // Devs est une projection de Utilisateurs — on ne journalise pas séparément
-            // pour éviter les doublons (AddOrUpdateUtilisateur couvre déjà ce cas).
+            Journal(SyncOp.DevUpsert, "Devs", result.Id, Serialize(result));
             return result;
         }
 

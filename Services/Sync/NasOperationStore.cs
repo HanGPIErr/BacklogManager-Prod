@@ -158,7 +158,9 @@ namespace BacklogManager.Services.Sync
                         continue;
 
                     // Filtrer les opérations de notre propre client (déjà dans le journal local)
-                    if (!string.IsNullOrEmpty(excludeClientId) && name.Contains(SanitizeForFilename(excludeClientId)))
+                    // Utiliser les délimiteurs _ pour éviter les faux positifs (ex: PC1 vs PC10)
+                    if (!string.IsNullOrEmpty(excludeClientId) &&
+                        name.Contains("_" + SanitizeForFilename(excludeClientId) + "_"))
                         continue;
 
                     try
@@ -167,6 +169,11 @@ namespace BacklogManager.Services.Sync
                         var op = JsonSerializer.Deserialize<SyncOperation>(json, _jsonOptions);
                         if (op != null)
                             result.Add(op);
+                    }
+                    catch (FileNotFoundException)
+                    {
+                        // Race condition bénigne : le fichier a été supprimé par une compaction
+                        // entre le Directory.GetFiles() et le ReadAllText(). Ignorer silencieusement.
                     }
                     catch (Exception ex)
                     {
@@ -284,6 +291,72 @@ namespace BacklogManager.Services.Sync
                 LoggingService.Instance.LogWarning($"[NasStore] Erreur lors de l'archivage : {ex.Message}");
             }
             return count;
+        }
+
+        /// <summary>
+        /// Supprime TOUS les fichiers .syncop, tous les snapshots et le manifest.
+        /// Utilisé après un BackupToNetworkDb réussi : la DB réseau est complète,
+        /// les fichiers de sync intermédiaires sont devenus redondants.
+        /// </summary>
+        public void CleanAllSyncFiles()
+        {
+            int opsDeleted = 0, snapshotsDeleted = 0;
+
+            // 1. Supprimer tous les .syncop
+            try
+            {
+                if (Directory.Exists(_opsPath))
+                {
+                    foreach (var file in Directory.GetFiles(_opsPath, "*" + NasLayout.OpExtension))
+                    {
+                        try { File.Delete(file); opsDeleted++; } catch { }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LoggingService.Instance.LogWarning($"[NasStore] Erreur nettoyage ops : {ex.Message}");
+            }
+
+            // 2. Supprimer tous les snapshots
+            try
+            {
+                if (Directory.Exists(_snapshotsPath))
+                {
+                    foreach (var file in Directory.GetFiles(_snapshotsPath, "*" + NasLayout.SnapshotExtension))
+                    {
+                        try { File.Delete(file); snapshotsDeleted++; } catch { }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LoggingService.Instance.LogWarning($"[NasStore] Erreur nettoyage snapshots : {ex.Message}");
+            }
+
+            // 3. Supprimer le manifest (il référence un snapshot qui n'existe plus)
+            try
+            {
+                string manifestPath = Path.Combine(_nasSyncPath, NasLayout.ManifestFile);
+                if (File.Exists(manifestPath)) File.Delete(manifestPath);
+            }
+            catch { }
+
+            // 4. Supprimer les leases stale
+            try
+            {
+                if (Directory.Exists(_leasesPath))
+                {
+                    foreach (var file in Directory.GetFiles(_leasesPath))
+                    {
+                        try { File.Delete(file); } catch { }
+                    }
+                }
+            }
+            catch { }
+
+            LoggingService.Instance.LogInfo(
+                $"[NasStore] Nettoyage complet : {opsDeleted} ops + {snapshotsDeleted} snapshots supprimés.");
         }
 
         // ─── Helpers ─────────────────────────────────────────────────────

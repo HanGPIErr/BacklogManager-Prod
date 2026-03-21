@@ -1,8 +1,10 @@
 using System;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using BacklogManager.Services;
+using BacklogManager.Services.Sync;
 using BacklogManager.Views.Pages;
 
 namespace BacklogManager.Views
@@ -49,6 +51,10 @@ namespace BacklogManager.Views
             TxtProjectsSubTab.Text = LocalizationService.Instance.GetString("Administration_Projects");
             TxtTeamsSubTab.Text = LocalizationService.Instance.GetString("Administration_Teams");
 
+            // Sous-onglets Journal d'audit
+            TxtAuditLogSubTab.Text = LocalizationService.Instance.GetString("Administration_AuditLog");
+            TxtAuditStatsSubTab.Text = LocalizationService.Instance.GetString("Administration_AuditStats");
+
             // Bouton Historique Chat
             TxtOpenChatHistory.Text = LocalizationService.Instance.GetString("Administration_OpenChatHistory");
 
@@ -79,6 +85,8 @@ namespace BacklogManager.Views
                 TxtProgramsSubTab.Text = LocalizationService.Instance.GetString("Administration_Programs");
                 TxtProjectsSubTab.Text = LocalizationService.Instance.GetString("Administration_Projects");
                 TxtTeamsSubTab.Text = LocalizationService.Instance.GetString("Administration_Teams");
+                TxtAuditLogSubTab.Text = LocalizationService.Instance.GetString("Administration_AuditLog");
+                TxtAuditStatsSubTab.Text = LocalizationService.Instance.GetString("Administration_AuditStats");
                 TxtOpenChatHistory.Text = LocalizationService.Instance.GetString("Administration_OpenChatHistory");
                 TxtAIConfigTab.Text = LocalizationService.Instance.GetString("Administration_AIConfig");
                 TxtAIConfigTitle.Text = "🤖 " + LocalizationService.Instance.GetString("AIConfig_Title");
@@ -282,6 +290,33 @@ namespace BacklogManager.Views
             FrameProjetsEquipe.Content = new GestionEquipesPage(_database);
         }
 
+        // Gestion des sous-onglets Journal d'audit
+        private void BtnSousOngletAuditLog_Click(object sender, RoutedEventArgs e)
+        {
+            BtnSousOngletAuditLog.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00915A"));
+            BtnSousOngletAuditLog.Foreground = Brushes.White;
+            BtnSousOngletAuditLog.FontWeight = FontWeights.SemiBold;
+
+            BtnSousOngletAuditStats.Background = Brushes.Transparent;
+            BtnSousOngletAuditStats.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#6D6D6D"));
+            BtnSousOngletAuditStats.FontWeight = FontWeights.Normal;
+
+            FrameAudit.Content = new AuditLogPage(_database, _auditLogService);
+        }
+
+        private void BtnSousOngletAuditStats_Click(object sender, RoutedEventArgs e)
+        {
+            BtnSousOngletAuditStats.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00915A"));
+            BtnSousOngletAuditStats.Foreground = Brushes.White;
+            BtnSousOngletAuditStats.FontWeight = FontWeights.SemiBold;
+
+            BtnSousOngletAuditLog.Background = Brushes.Transparent;
+            BtnSousOngletAuditLog.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#6D6D6D"));
+            BtnSousOngletAuditLog.FontWeight = FontWeights.Normal;
+
+            FrameAudit.Content = new AuditStatsPage(_database);
+        }
+
         private void BtnOuvrirHistoriqueChat_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -412,6 +447,135 @@ namespace BacklogManager.Views
                 MessageBox.Show($"Erreur lors du test du token : {ex.Message}", 
                     "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        // ═══════════════════════════════════════════════════════════════════
+        //  TEST UNITAIRE SYNCHRONISATION
+        // ═══════════════════════════════════════════════════════════════════
+
+        private SyncTestService _syncTestService;
+
+        private async void BtnLancerTest_Click(object sender, RoutedEventArgs e)
+        {
+            var app = (App)Application.Current;
+            var syncEngine = app.SyncEngine;
+            if (syncEngine == null)
+            {
+                MessageBox.Show("Le moteur de synchronisation n'est pas actif.\nCe test nécessite le mode local-first avec NAS.",
+                    "Sync non disponible", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var result = MessageBox.Show(
+                "Ce test va créer ~36 entités de test dans la base de données.\n" +
+                "Il doit être lancé simultanément sur 2 postes.\n\n" +
+                "Les entités de test seront préfixées par [TEST_<ClientId>].\n\n" +
+                "Voulez-vous continuer ?",
+                "Confirmation test synchronisation",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+
+            if (result != MessageBoxResult.Yes) return;
+
+            // Récupérer le NasSyncPath et le ClientId
+            string nasSyncPath = null;
+            string clientId = null;
+            try
+            {
+                nasSyncPath = ReadConfigKey("NasSyncPath");
+                if (_database is SyncedDatabase sdb)
+                    clientId = sdb.ClientId;
+                else
+                    clientId = Environment.MachineName.ToUpperInvariant();
+            }
+            catch { }
+
+            if (string.IsNullOrWhiteSpace(nasSyncPath))
+            {
+                MessageBox.Show("NasSyncPath non configuré dans config.ini.", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            // UI
+            BtnLancerTest.IsEnabled = false;
+            BtnAnnulerTest.IsEnabled = true;
+            TxtTestLog.Text = "";
+            ProgressTest.Value = 0;
+            TxtTestStatus.Text = "Initialisation...";
+
+            _syncTestService = new SyncTestService(_database, syncEngine, clientId, nasSyncPath);
+
+            _syncTestService.LogUpdated += msg =>
+            {
+                Dispatcher.BeginInvoke((Action)(() =>
+                {
+                    TxtTestLog.Text += msg + "\n";
+                    ScrollTestLog.ScrollToEnd();
+                }));
+            };
+
+            _syncTestService.ProgressChanged += pct =>
+            {
+                Dispatcher.BeginInvoke((Action)(() =>
+                {
+                    ProgressTest.Value = pct;
+                    TxtTestStatus.Text = $"Progression : {pct}%";
+                }));
+            };
+
+            _syncTestService.TestCompleted += testResult =>
+            {
+                Dispatcher.BeginInvoke((Action)(() =>
+                {
+                    BtnLancerTest.IsEnabled = true;
+                    BtnAnnulerTest.IsEnabled = false;
+                    ProgressTest.Value = 100;
+
+                    if (testResult.Success)
+                    {
+                        TxtTestStatus.Text = $"✅ RÉUSSI — {testResult.TotalFound}/{testResult.TotalExpected} entités synchronisées";
+                        TxtTestStatus.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2E7D32"));
+                    }
+                    else
+                    {
+                        TxtTestStatus.Text = $"❌ ÉCHOUÉ — {testResult.Failures.Count} entité(s) manquante(s)";
+                        TxtTestStatus.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#C62828"));
+                    }
+                }));
+            };
+
+            await Task.Run(() => _syncTestService.RunAsync());
+        }
+
+        private void BtnAnnulerTest_Click(object sender, RoutedEventArgs e)
+        {
+            _syncTestService?.Cancel();
+            BtnAnnulerTest.IsEnabled = false;
+            TxtTestStatus.Text = "Annulation en cours...";
+        }
+
+        private static string ReadConfigKey(string key)
+        {
+            try
+            {
+                string configPath = System.IO.Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+                    @"sgi_support\APPLICATIONS\config.ini");
+                if (!System.IO.File.Exists(configPath))
+                {
+                    configPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.ini");
+                }
+                if (!System.IO.File.Exists(configPath)) return null;
+
+                foreach (var line in System.IO.File.ReadAllLines(configPath))
+                {
+                    var trimmed = line.Trim();
+                    if (trimmed.StartsWith(key + "=", StringComparison.OrdinalIgnoreCase))
+                        return trimmed.Substring(key.Length + 1).Trim();
+                }
+            }
+            catch { }
+            return null;
         }
     }
 }

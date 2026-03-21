@@ -67,6 +67,9 @@ namespace BacklogManager.Services.Sync
 
         // Disponibilites
         public const string DisponibiliteUpsert = "Disponibilite.Upsert";
+
+        // Devs
+        public const string DevUpsert = "Dev.Upsert";
     }
 
     /// <summary>

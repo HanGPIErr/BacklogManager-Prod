@@ -39,7 +39,7 @@ namespace BacklogManager.Services
                 JournalMode = SQLiteJournalModeEnum.Wal,
                 Pooling     = true,
                 ReadOnly    = true,
-                BusyTimeout = 1500,   // UI : échec rapide, l'utilisateur peut reessayer
+                BusyTimeout = 5000,   // Sync : SyncApplier peut occuper le write lock
                 SyncMode    = SynchronizationModes.Normal
             };
             _readConnectionString = readBuilder.ConnectionString;
@@ -51,7 +51,7 @@ namespace BacklogManager.Services
                 JournalMode = SQLiteJournalModeEnum.Wal,
                 Pooling     = false,
                 ReadOnly    = false,
-                BusyTimeout = 3000,   // UI : 3s max pour écrire (WAL = rare contention)
+                BusyTimeout = 10000,  // Sync : attendre que SyncApplier libère le write lock
                 SyncMode    = SynchronizationModes.Normal
             };
             _writeConnectionString = writeBuilder.ConnectionString;
@@ -108,6 +108,12 @@ namespace BacklogManager.Services
             if (dbPath.StartsWith("\\\\"))
             {
                 dbPath = NetworkPathMapper.MapUncPathToDrive(dbPath);
+            }
+
+            // Si le chemin pointe vers un dossier existant → ajouter backlog.db
+            if (Directory.Exists(dbPath))
+            {
+                dbPath = Path.Combine(dbPath, "backlog.db");
             }
 
             _databasePath = dbPath;
@@ -478,12 +484,13 @@ namespace BacklogManager.Services
 
                         CREATE TABLE IF NOT EXISTS Disponibilites (
                             Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                            DevId INTEGER NOT NULL,
-                            SprintId INTEGER NOT NULL,
-                            JoursDisponibles REAL NOT NULL,
-                            Commentaire TEXT,
-                            FOREIGN KEY (DevId) REFERENCES Utilisateurs(Id),
-                            FOREIGN KEY (SprintId) REFERENCES Sprints(Id)
+                            UtilisateurId INTEGER NOT NULL,
+                            Type TEXT NOT NULL,
+                            DateDebut TEXT NOT NULL,
+                            DateFin TEXT NOT NULL,
+                            Motif TEXT,
+                            EstValide INTEGER NOT NULL DEFAULT 0,
+                            FOREIGN KEY (UtilisateurId) REFERENCES Utilisateurs(Id)
                         );
 
                         CREATE TABLE IF NOT EXISTS Devs (
@@ -1118,6 +1125,27 @@ namespace BacklogManager.Services
                 if (!hasDemandeEchangeVMId)
                 {
                     cmd.CommandText = @"ALTER TABLE Notifications ADD COLUMN DemandeEchangeVMId INTEGER REFERENCES DemandeEchangeVM(Id);";
+                    cmd.ExecuteNonQuery();
+                }
+
+                // Migration Disponibilites : ancien schéma (DevId, SprintId, JoursDisponibles) → nouveau (UtilisateurId, Type, DateDebut, DateFin, Motif, EstValide)
+                cmd.CommandText = @"SELECT COUNT(*) FROM pragma_table_info('Disponibilites') WHERE name='DevId';";
+                var hasOldDispoSchema = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                if (hasOldDispoSchema)
+                {
+                    cmd.CommandText = @"DROP TABLE IF EXISTS Disponibilites;";
+                    cmd.ExecuteNonQuery();
+                    cmd.CommandText = @"
+                        CREATE TABLE IF NOT EXISTS Disponibilites (
+                            Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            UtilisateurId INTEGER NOT NULL,
+                            Type TEXT NOT NULL,
+                            DateDebut TEXT NOT NULL,
+                            DateFin TEXT NOT NULL,
+                            Motif TEXT,
+                            EstValide INTEGER NOT NULL DEFAULT 0,
+                            FOREIGN KEY (UtilisateurId) REFERENCES Utilisateurs(Id)
+                        );";
                     cmd.ExecuteNonQuery();
                 }
             }
@@ -1773,7 +1801,7 @@ namespace BacklogManager.Services
             using (var conn = GetConnection())
             {
                 conn.Open();
-                using (var cmd = new SQLiteCommand("SELECT Id, Nom, DateDebut, DateFin, Objectif, EstActif FROM Sprints", conn))
+                using (var cmd = new SQLiteCommand("SELECT Id, Nom, ProjetId, DateDebut, DateFin, Objectif, EstActif FROM Sprints", conn))
                 using (var reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
@@ -1782,10 +1810,11 @@ namespace BacklogManager.Services
                         {
                             Id = reader.GetInt32(0),
                             Nom = reader.GetString(1),
-                            DateDebut = DateTime.Parse(reader.GetString(2)),
-                            DateFin = DateTime.Parse(reader.GetString(3)),
-                            Objectif = reader.IsDBNull(4) ? null : reader.GetString(4),
-                            EstActif = reader.GetInt32(5) == 1
+                            ProjetId = reader.GetInt32(2),
+                            DateDebut = DateTime.Parse(reader.GetString(3)),
+                            DateFin = DateTime.Parse(reader.GetString(4)),
+                            Objectif = reader.IsDBNull(5) ? null : reader.GetString(5),
+                            EstActif = reader.GetInt32(6) == 1
                         });
                     }
                 }
@@ -1857,7 +1886,39 @@ namespace BacklogManager.Services
         public List<HistoriqueModification> GetHistoriqueModifications() { return new List<HistoriqueModification>(); }
         public List<PokerSession> GetPokerSessions() { return new List<PokerSession>(); }
         public List<PokerVote> GetPokerVotes() { return new List<PokerVote>(); }
-        public List<Disponibilite> GetDisponibilites() { return new List<Disponibilite>(); }
+        public List<Disponibilite> GetDisponibilites()
+        {
+            var disponibilites = new List<Disponibilite>();
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = "SELECT Id, UtilisateurId, Type, DateDebut, DateFin, Motif, EstValide FROM Disponibilites";
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            TypeIndisponibilite typeVal;
+                            if (!Enum.TryParse(reader.GetString(2), out typeVal))
+                                typeVal = TypeIndisponibilite.Autre;
+
+                            disponibilites.Add(new Disponibilite
+                            {
+                                Id = reader.GetInt32(0),
+                                UtilisateurId = reader.GetInt32(1),
+                                Type = typeVal,
+                                DateDebut = DateTime.Parse(reader.GetString(3)),
+                                DateFin = DateTime.Parse(reader.GetString(4)),
+                                Motif = reader.IsDBNull(5) ? null : reader.GetString(5),
+                                EstValide = reader.GetInt32(6) == 1
+                            });
+                        }
+                    }
+                }
+            }
+            return disponibilites;
+        }
 
         public BacklogItem AddOrUpdateBacklogItem(BacklogItem item)
         {
@@ -2036,19 +2097,20 @@ namespace BacklogManager.Services
                         {
                             if (sprint.Id == 0)
                             {
-                                cmd.CommandText = @"INSERT INTO Sprints (Nom, DateDebut, DateFin, Objectif, EstActif) 
-                                    VALUES (@Nom, @DateDebut, @DateFin, @Objectif, @EstActif);
+                                cmd.CommandText = @"INSERT INTO Sprints (Nom, ProjetId, DateDebut, DateFin, Objectif, EstActif) 
+                                    VALUES (@Nom, @ProjetId, @DateDebut, @DateFin, @Objectif, @EstActif);
                                     SELECT last_insert_rowid();";
                             }
                             else
                             {
-                                cmd.CommandText = @"UPDATE Sprints SET Nom = @Nom, 
+                                cmd.CommandText = @"UPDATE Sprints SET Nom = @Nom, ProjetId = @ProjetId,
                                     DateDebut = @DateDebut, DateFin = @DateFin, Objectif = @Objectif, EstActif = @EstActif 
                                     WHERE Id = @Id";
                                 cmd.Parameters.AddWithValue("@Id", sprint.Id);
                             }
 
                             cmd.Parameters.AddWithValue("@Nom", sprint.Nom);
+                            cmd.Parameters.AddWithValue("@ProjetId", sprint.ProjetId);
                             cmd.Parameters.AddWithValue("@DateDebut", sprint.DateDebut.ToString("yyyy-MM-dd HH:mm:ss"));
                             cmd.Parameters.AddWithValue("@DateFin", sprint.DateFin.ToString("yyyy-MM-dd HH:mm:ss"));
                             cmd.Parameters.AddWithValue("@Objectif", (object)sprint.Objectif ?? DBNull.Value);
@@ -2152,7 +2214,50 @@ namespace BacklogManager.Services
         public HistoriqueModification AddOrUpdateHistoriqueModification(HistoriqueModification historique) { return historique; }
         public PokerSession AddOrUpdatePokerSession(PokerSession session) { return session; }
         public PokerVote AddPokerVote(PokerVote vote) { return vote; }
-        public Disponibilite AddOrUpdateDisponibilite(Disponibilite disponibilite) { return disponibilite; }
+        public Disponibilite AddOrUpdateDisponibilite(Disponibilite disponibilite)
+        {
+            using (var conn = GetConnectionForWrite())
+            {
+                using (var cmd = conn.CreateCommand())
+                {
+                    if (disponibilite.Id == 0)
+                    {
+                        cmd.CommandText = @"
+                            INSERT INTO Disponibilites (UtilisateurId, Type, DateDebut, DateFin, Motif, EstValide)
+                            VALUES (@UtilisateurId, @Type, @DateDebut, @DateFin, @Motif, @EstValide);
+                            SELECT last_insert_rowid();";
+                        cmd.Parameters.AddWithValue("@UtilisateurId", disponibilite.UtilisateurId);
+                        cmd.Parameters.AddWithValue("@Type", disponibilite.Type.ToString());
+                        cmd.Parameters.AddWithValue("@DateDebut", disponibilite.DateDebut.ToString("yyyy-MM-dd"));
+                        cmd.Parameters.AddWithValue("@DateFin", disponibilite.DateFin.ToString("yyyy-MM-dd"));
+                        cmd.Parameters.AddWithValue("@Motif", (object)disponibilite.Motif ?? DBNull.Value);
+                        cmd.Parameters.AddWithValue("@EstValide", disponibilite.EstValide ? 1 : 0);
+                        disponibilite.Id = Convert.ToInt32(cmd.ExecuteScalar());
+                    }
+                    else
+                    {
+                        cmd.CommandText = @"
+                            UPDATE Disponibilites 
+                            SET UtilisateurId = @UtilisateurId,
+                                Type = @Type,
+                                DateDebut = @DateDebut,
+                                DateFin = @DateFin,
+                                Motif = @Motif,
+                                EstValide = @EstValide
+                            WHERE Id = @Id";
+                        cmd.Parameters.AddWithValue("@Id", disponibilite.Id);
+                        cmd.Parameters.AddWithValue("@UtilisateurId", disponibilite.UtilisateurId);
+                        cmd.Parameters.AddWithValue("@Type", disponibilite.Type.ToString());
+                        cmd.Parameters.AddWithValue("@DateDebut", disponibilite.DateDebut.ToString("yyyy-MM-dd"));
+                        cmd.Parameters.AddWithValue("@DateFin", disponibilite.DateFin.ToString("yyyy-MM-dd"));
+                        cmd.Parameters.AddWithValue("@Motif", (object)disponibilite.Motif ?? DBNull.Value);
+                        cmd.Parameters.AddWithValue("@EstValide", disponibilite.EstValide ? 1 : 0);
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+            }
+            return disponibilite;
+        }
 
         // Notifications
         public List<Notification> GetNotifications()

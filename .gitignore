@@ -80,6 +80,7 @@ backlog-db.json
 *~
 
 # User-specific files
+config.ini
 UTILISATEURS_TEST.txt
 
 # Documentation files

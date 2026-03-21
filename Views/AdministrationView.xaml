@@ -360,7 +360,69 @@
                         <Border.Effect>
                             <DropShadowEffect BlurRadius="16" ShadowDepth="0" Opacity="0.2" Color="#D0D0D0"/>
                         </Border.Effect>
-                        <Frame x:Name="FrameAudit" NavigationUIVisibility="Hidden"/>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            
+                            <!-- Sous-navigation avec style pill -->
+                            <Border Grid.Row="0" Background="#F5F5F5" CornerRadius="25" Padding="5" Margin="0,0,0,25">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                    <Button x:Name="BtnSousOngletAuditLog" 
+                                            Background="#00915A" Foreground="White" 
+                                            FontSize="13" FontWeight="SemiBold" Padding="22,10"
+                                            Margin="0" BorderThickness="0" Cursor="Hand"
+                                            Click="BtnSousOngletAuditLog_Click">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border Background="{TemplateBinding Background}" 
+                                                                    CornerRadius="20" Padding="{TemplateBinding Padding}">
+                                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                            </Border>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Style>
+                                        </Button.Style>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="📋" Margin="0,0,6,0"/>
+                                            <TextBlock x:Name="TxtAuditLogSubTab" Text="Journal d'audit"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button x:Name="BtnSousOngletAuditStats" 
+                                            Background="Transparent" Foreground="#6D6D6D" 
+                                            FontSize="13" FontWeight="Normal" Padding="22,10"
+                                            Margin="5,0,0,0" BorderThickness="0" Cursor="Hand"
+                                            Click="BtnSousOngletAuditStats_Click">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border Background="{TemplateBinding Background}" 
+                                                                    CornerRadius="20" Padding="{TemplateBinding Padding}">
+                                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                            </Border>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Style>
+                                        </Button.Style>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="📊" Margin="0,0,6,0"/>
+                                            <TextBlock x:Name="TxtAuditStatsSubTab" Text="Statistiques"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                            </Border>
+                            
+                            <!-- Contenu dynamique -->
+                            <Frame x:Name="FrameAudit" Grid.Row="1" NavigationUIVisibility="Hidden"/>
+                        </Grid>
                     </Border>
                 </TabItem>
 
@@ -528,6 +590,120 @@
                                 </Button>
                             </StackPanel>
                         </StackPanel>
+                    </Border>
+                </TabItem>
+
+                <!-- Tab Test Unitaire Sync -->
+                <TabItem>
+                    <TabItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🧪" FontSize="16" Margin="0,0,8,0"/>
+                            <TextBlock Text="Test Unitaire" FontSize="14"/>
+                        </StackPanel>
+                    </TabItem.Header>
+                    <Border CornerRadius="10" Padding="30" Margin="0,10,0,0">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#FFFFFF" Offset="0"/>
+                                <GradientStop Color="#FAFAFA" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="16" ShadowDepth="0" Opacity="0.2" Color="#D0D0D0"/>
+                        </Border.Effect>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Titre -->
+                            <TextBlock Grid.Row="0" Text="🧪 Test d'intégration multi-utilisateur (Synchronisation)" 
+                                       FontSize="20" FontWeight="Bold" 
+                                       Foreground="#1A1919" Margin="0,0,0,10"/>
+                            <TextBlock Grid.Row="1" 
+                                       Text="Lance un scénario de test complet sur 2 postes simultanés. Crée des utilisateurs, projets, demandes, backlog items, CRA, commentaires, etc. puis vérifie que toutes les données sont synchronisées entre les postes."
+                                       FontSize="13" Foreground="#6D6D6D" Margin="0,0,0,15" TextWrapping="Wrap"/>
+
+                            <!-- Bandeau d'info -->
+                            <Border Grid.Row="2" Background="#E3F2FD" BorderBrush="#1976D2" BorderThickness="1"
+                                    CornerRadius="8" Padding="15,12" Margin="0,0,0,20">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="ℹ️" FontSize="16" Margin="0,0,10,0" VerticalAlignment="Top"/>
+                                    <TextBlock FontSize="12" Foreground="#1565C0" TextWrapping="Wrap" VerticalAlignment="Center"
+                                               Text="Ce test doit être lancé simultanément sur 2 postes. Les 2 postes s'attendent mutuellement (timeout 2 min). Ensuite, chaque poste crée ~36 entités de test préfixées par son ClientId. Après synchronisation, le script vérifie que toutes les entités des 2 postes sont présentes dans chaque base locale."/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Boutons + barre de progression -->
+                            <StackPanel Grid.Row="3" Margin="0,0,0,15">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                    <Button x:Name="BtnLancerTest" Content="🚀 Lancer le test"
+                                            Background="#00915A" Foreground="White"
+                                            FontSize="14" FontWeight="SemiBold" 
+                                            Padding="25,12" Cursor="Hand"
+                                            Click="BtnLancerTest_Click">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border Background="{TemplateBinding Background}" 
+                                                                    CornerRadius="8" Padding="{TemplateBinding Padding}">
+                                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                            </Border>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="#007A4D"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                    <Button x:Name="BtnAnnulerTest" Content="⏹ Annuler"
+                                            Background="#D32F2F" Foreground="White"
+                                            FontSize="14" FontWeight="SemiBold" 
+                                            Padding="20,12" Margin="10,0,0,0" Cursor="Hand"
+                                            IsEnabled="False"
+                                            Click="BtnAnnulerTest_Click">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border Background="{TemplateBinding Background}" 
+                                                                    CornerRadius="8" Padding="{TemplateBinding Padding}">
+                                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                            </Border>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                    <TextBlock x:Name="TxtTestStatus" Text="" FontSize="14" Foreground="#6D6D6D"
+                                               VerticalAlignment="Center" Margin="15,0,0,0"/>
+                                </StackPanel>
+                                <ProgressBar x:Name="ProgressTest" Height="8" Minimum="0" Maximum="100" Value="0"
+                                             Foreground="#00915A" Background="#E0E0E0" Margin="0,0,0,5"/>
+                            </StackPanel>
+
+                            <!-- Log en temps réel -->
+                            <Border Grid.Row="4" Background="#1A1919" CornerRadius="8" Padding="15"
+                                    MinHeight="300" MaxHeight="500">
+                                <ScrollViewer x:Name="ScrollTestLog" VerticalScrollBarVisibility="Auto">
+                                    <TextBlock x:Name="TxtTestLog" Text="En attente du lancement du test..."
+                                               FontFamily="Consolas" FontSize="12" Foreground="#C0C0C0"
+                                               TextWrapping="Wrap"/>
+                                </ScrollViewer>
+                            </Border>
+                        </Grid>
                     </Border>
                 </TabItem>
             </TabControl>

@@ -1,0 +1,241 @@
+<Page x:Class="BacklogManager.Views.Pages.AuditStatsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      mc:Ignorable="d" 
+      d:DesignHeight="600" d:DesignWidth="900"
+      Background="#F5F5F5">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="0">
+            <!-- Header -->
+            <Border Background="White" CornerRadius="12" Padding="25,20" Margin="0,0,0,20">
+                <Border.Effect>
+                    <DropShadowEffect Color="#00915A" BlurRadius="15" ShadowDepth="0" Opacity="0.1"/>
+                </Border.Effect>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" Background="#00915A" Width="4" CornerRadius="2" 
+                            Margin="0,0,18,0" VerticalAlignment="Stretch"/>
+                    <StackPanel Grid.Column="1">
+                        <TextBlock FontSize="22" FontWeight="Bold">
+                            <Run Text="📊" FontSize="24"/>
+                            <Run x:Name="TxtTitle" Text=" Statistiques d'Audit" Foreground="#1A1919"/>
+                        </TextBlock>
+                        <TextBlock x:Name="TxtSubtitle" Text="Vue d'ensemble de l'activité du système" 
+                                   FontSize="13" Foreground="#6D6D6D" Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- KPI Cards -->
+            <Grid Margin="0,0,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Total Actions -->
+                <Border Grid.Column="0" Background="White" CornerRadius="12" Padding="20" Margin="0,0,10,0">
+                    <Border.Effect>
+                        <DropShadowEffect Color="#E0E0E0" BlurRadius="12" ShadowDepth="2" Opacity="0.2" Direction="270"/>
+                    </Border.Effect>
+                    <StackPanel>
+                        <TextBlock Text="📋" FontSize="28" HorizontalAlignment="Center"/>
+                        <TextBlock x:Name="TxtTotalActions" Text="0" FontSize="32" FontWeight="Bold" 
+                                   Foreground="#00915A" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                        <TextBlock x:Name="TxtTotalActionsLabel" Text="Actions totales" FontSize="12" 
+                                   Foreground="#6D6D6D" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Users Active -->
+                <Border Grid.Column="1" Background="White" CornerRadius="12" Padding="20" Margin="5,0,5,0">
+                    <Border.Effect>
+                        <DropShadowEffect Color="#E0E0E0" BlurRadius="12" ShadowDepth="2" Opacity="0.2" Direction="270"/>
+                    </Border.Effect>
+                    <StackPanel>
+                        <TextBlock Text="👥" FontSize="28" HorizontalAlignment="Center"/>
+                        <TextBlock x:Name="TxtActiveUsers" Text="0" FontSize="32" FontWeight="Bold" 
+                                   Foreground="#2196F3" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                        <TextBlock x:Name="TxtActiveUsersLabel" Text="Utilisateurs actifs" FontSize="12" 
+                                   Foreground="#6D6D6D" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Actions Today -->
+                <Border Grid.Column="2" Background="White" CornerRadius="12" Padding="20" Margin="5,0,5,0">
+                    <Border.Effect>
+                        <DropShadowEffect Color="#E0E0E0" BlurRadius="12" ShadowDepth="2" Opacity="0.2" Direction="270"/>
+                    </Border.Effect>
+                    <StackPanel>
+                        <TextBlock Text="📅" FontSize="28" HorizontalAlignment="Center"/>
+                        <TextBlock x:Name="TxtTodayActions" Text="0" FontSize="32" FontWeight="Bold" 
+                                   Foreground="#FF9800" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                        <TextBlock x:Name="TxtTodayActionsLabel" Text="Aujourd'hui" FontSize="12" 
+                                   Foreground="#6D6D6D" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Actions This Week -->
+                <Border Grid.Column="3" Background="White" CornerRadius="12" Padding="20" Margin="10,0,0,0">
+                    <Border.Effect>
+                        <DropShadowEffect Color="#E0E0E0" BlurRadius="12" ShadowDepth="2" Opacity="0.2" Direction="270"/>
+                    </Border.Effect>
+                    <StackPanel>
+                        <TextBlock Text="📆" FontSize="28" HorizontalAlignment="Center"/>
+                        <TextBlock x:Name="TxtWeekActions" Text="0" FontSize="32" FontWeight="Bold" 
+                                   Foreground="#9C27B0" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                        <TextBlock x:Name="TxtWeekActionsLabel" Text="Cette semaine" FontSize="12" 
+                                   Foreground="#6D6D6D" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- Two columns: Actions par type + Utilisateurs les plus actifs -->
+            <Grid Margin="0,0,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Actions par type -->
+                <Border Grid.Column="0" Background="White" CornerRadius="12" Padding="20" Margin="0,0,10,0">
+                    <Border.Effect>
+                        <DropShadowEffect Color="#E0E0E0" BlurRadius="12" ShadowDepth="2" Opacity="0.2" Direction="270"/>
+                    </Border.Effect>
+                    <StackPanel>
+                        <TextBlock x:Name="TxtActionsByTypeTitle" Text="📊 Répartition par type d'action" 
+                                   FontSize="15" FontWeight="SemiBold" Foreground="#1A1919" Margin="0,0,0,15"/>
+                        <ItemsControl x:Name="ActionsByTypeList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,0,0,8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="120"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{Binding Label}" FontSize="12" 
+                                                   Foreground="#333" VerticalAlignment="Center"/>
+                                        <Border Grid.Column="1" Background="#F0F0F0" CornerRadius="4" Height="20" Margin="10,0">
+                                            <Border Background="{Binding Color}" CornerRadius="4" Height="20"
+                                                    HorizontalAlignment="Left" Width="{Binding BarWidth}"/>
+                                        </Border>
+                                        <TextBlock Grid.Column="2" Text="{Binding Count}" FontSize="12" 
+                                                   FontWeight="SemiBold" Foreground="#333" VerticalAlignment="Center" MinWidth="30" TextAlignment="Right"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <!-- Utilisateurs les plus actifs -->
+                <Border Grid.Column="1" Background="White" CornerRadius="12" Padding="20" Margin="10,0,0,0">
+                    <Border.Effect>
+                        <DropShadowEffect Color="#E0E0E0" BlurRadius="12" ShadowDepth="2" Opacity="0.2" Direction="270"/>
+                    </Border.Effect>
+                    <StackPanel>
+                        <TextBlock x:Name="TxtTopUsersTitle" Text="👥 Utilisateurs les plus actifs" 
+                                   FontSize="15" FontWeight="SemiBold" Foreground="#1A1919" Margin="0,0,0,15"/>
+                        <ItemsControl x:Name="TopUsersList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,0,0,8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="120"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{Binding Rank}" FontSize="14" 
+                                                   FontWeight="Bold" Foreground="#00915A" VerticalAlignment="Center"
+                                                   MinWidth="25"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding Username}" FontSize="12" 
+                                                   Foreground="#333" VerticalAlignment="Center"/>
+                                        <Border Grid.Column="2" Background="#F0F0F0" CornerRadius="4" Height="20" Margin="10,0">
+                                            <Border Background="{Binding Color}" CornerRadius="4" Height="20"
+                                                    HorizontalAlignment="Left" Width="{Binding BarWidth}"/>
+                                        </Border>
+                                        <TextBlock Grid.Column="3" Text="{Binding Count}" FontSize="12" 
+                                                   FontWeight="SemiBold" Foreground="#333" VerticalAlignment="Center" MinWidth="30" TextAlignment="Right"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- Entités les plus modifiées -->
+            <Border Background="White" CornerRadius="12" Padding="20" Margin="0,0,0,20">
+                <Border.Effect>
+                    <DropShadowEffect Color="#E0E0E0" BlurRadius="12" ShadowDepth="2" Opacity="0.2" Direction="270"/>
+                </Border.Effect>
+                <StackPanel>
+                    <TextBlock x:Name="TxtEntityTypesTitle" Text="🏷️ Activité par type d'entité" 
+                               FontSize="15" FontWeight="SemiBold" Foreground="#1A1919" Margin="0,0,0,15"/>
+                    <ItemsControl x:Name="EntityTypesList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{Binding Label}" FontSize="12" 
+                                               Foreground="#333" VerticalAlignment="Center"/>
+                                    <Border Grid.Column="1" Background="#F0F0F0" CornerRadius="4" Height="20" Margin="10,0">
+                                        <Border Background="{Binding Color}" CornerRadius="4" Height="20"
+                                                HorizontalAlignment="Left" Width="{Binding BarWidth}"/>
+                                    </Border>
+                                    <TextBlock Grid.Column="2" Text="{Binding Count}" FontSize="12" 
+                                               FontWeight="SemiBold" Foreground="#333" VerticalAlignment="Center" MinWidth="30" TextAlignment="Right"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- Activité des 7 derniers jours -->
+            <Border Background="White" CornerRadius="12" Padding="20" Margin="0,0,0,20">
+                <Border.Effect>
+                    <DropShadowEffect Color="#E0E0E0" BlurRadius="12" ShadowDepth="2" Opacity="0.2" Direction="270"/>
+                </Border.Effect>
+                <StackPanel>
+                    <TextBlock x:Name="TxtRecentActivityTitle" Text="📈 Activité des 7 derniers jours" 
+                               FontSize="15" FontWeight="SemiBold" Foreground="#1A1919" Margin="0,0,0,15"/>
+                    <ItemsControl x:Name="RecentActivityList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,0,0,6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="100"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{Binding Label}" FontSize="12" 
+                                               Foreground="#333" VerticalAlignment="Center"/>
+                                    <Border Grid.Column="1" Background="#F0F0F0" CornerRadius="4" Height="24" Margin="10,0">
+                                        <Border Background="{Binding Color}" CornerRadius="4" Height="24"
+                                                HorizontalAlignment="Left" Width="{Binding BarWidth}"/>
+                                    </Border>
+                                    <TextBlock Grid.Column="2" Text="{Binding Count}" FontSize="12" 
+                                               FontWeight="SemiBold" Foreground="#333" VerticalAlignment="Center" MinWidth="30" TextAlignment="Right"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

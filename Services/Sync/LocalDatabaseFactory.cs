@@ -70,6 +70,42 @@ namespace BacklogManager.Services.Sync
             return _localDbPath;
         }
 
+        /// <summary>
+        /// Décale les séquences AUTOINCREMENT de toutes les tables pour éviter les collisions d'IDs
+        /// entre plusieurs postes qui ont été amorcés depuis la même DB réseau.
+        /// Chaque ClientId produit un offset unique (100 000 – 999 999).
+        /// À appeler UNE SEULE FOIS après le seeding initial.
+        /// </summary>
+        public void OffsetAutoIncrementSequences(string clientId)
+        {
+            try
+            {
+                int offset = (Math.Abs(clientId.GetHashCode()) % 900000) + 100000;
+
+                using (var conn = OpenWriteConnection())
+                using (var cmd = conn.CreateCommand())
+                {
+                    // Vérifier si la table sqlite_sequence existe (créée par AUTOINCREMENT)
+                    cmd.CommandText = "SELECT name FROM sqlite_master WHERE type='table' AND name='sqlite_sequence'";
+                    if (cmd.ExecuteScalar() == null)
+                    {
+                        LoggingService.Instance.LogInfo("[LocalDatabase] Pas de sqlite_sequence, offset ignoré.");
+                        return;
+                    }
+
+                    cmd.CommandText = $"UPDATE sqlite_sequence SET seq = seq + {offset}";
+                    int rows = cmd.ExecuteNonQuery();
+                    LoggingService.Instance.LogInfo(
+                        $"[LocalDatabase] Séquences AUTOINCREMENT décalées de +{offset} ({rows} tables) pour ClientId={clientId}");
+                }
+            }
+            catch (Exception ex)
+            {
+                LoggingService.Instance.LogWarning(
+                    $"[LocalDatabase] Impossible de décaler les séquences : {ex.Message}");
+            }
+        }
+
         // ─── Connexions ──────────────────────────────────────────────────
 
         public SQLiteConnection OpenReadConnection()
@@ -191,6 +227,32 @@ namespace BacklogManager.Services.Sync
                     );
                     CREATE INDEX IF NOT EXISTS idx_syncapplied_client ON SyncApplied(OriginClientId);
                     CREATE INDEX IF NOT EXISTS idx_syncapplied_ts     ON SyncApplied(TimestampUtc);
+                ";
+                cmd.ExecuteNonQuery();
+
+                // Table de mapping d'identifiants par entité distante :
+                // Permet de retrouver l'Id local d'une entité distante même après remapping
+                // lors d'une collision d'Id. PK = (Table, RemoteId, Client).
+                // Migration : si l'ancien schéma existe (colonne 'EntityId'), on drop et recrée.
+                {
+                    var existingCols = new System.Collections.Generic.List<string>();
+                    cmd.CommandText = "SELECT name FROM pragma_table_info('SyncEntityOrigin')";
+                    using (var r = cmd.ExecuteReader())
+                        while (r.Read()) existingCols.Add(r.GetString(0));
+                    if (existingCols.Count > 0 && !existingCols.Contains("RemoteEntityId"))
+                    {
+                        cmd.CommandText = "DROP TABLE SyncEntityOrigin";
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+                cmd.CommandText = @"
+                    CREATE TABLE IF NOT EXISTS SyncEntityOrigin (
+                        TableName       TEXT    NOT NULL,
+                        RemoteEntityId  INTEGER NOT NULL,
+                        OriginClientId  TEXT    NOT NULL,
+                        LocalEntityId   INTEGER NOT NULL,
+                        PRIMARY KEY (TableName, RemoteEntityId, OriginClientId)
+                    );
                 ";
                 cmd.ExecuteNonQuery();
 

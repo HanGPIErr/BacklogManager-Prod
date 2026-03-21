@@ -6,6 +6,7 @@ namespace BacklogManager.Domain
     {
         public int Id { get; set; }
         public string Nom { get; set; }
+        public int ProjetId { get; set; }
         public DateTime DateDebut { get; set; }
         public DateTime DateFin { get; set; }
         public string Objectif { get; set; }

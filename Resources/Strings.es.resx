@@ -1170,6 +1170,9 @@
   <data name="Administration_AuditLog" xml:space="preserve">
     <value>Registro de Auditoría</value>
   </data>
+  <data name="Administration_AuditStats" xml:space="preserve">
+    <value>Estadísticas</value>
+  </data>
   <data name="Administration_Users" xml:space="preserve">
     <value>Usuarios</value>
   </data>
@@ -2163,6 +2166,9 @@ Esta acción es irreversible.</value>
   </data>
   <data name="Administration_AuditLog" xml:space="preserve">
     <value>Registro de auditoría</value>
+  </data>
+  <data name="Administration_AuditStats" xml:space="preserve">
+    <value>Estadísticas</value>
   </data>
   <data name="Administration_Users" xml:space="preserve">
     <value>Usuarios</value>

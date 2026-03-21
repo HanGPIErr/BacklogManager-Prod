@@ -18,7 +18,7 @@ namespace BacklogManager.Services
         /// Si un mapping existe déjà, utilise le lecteur existant.
         /// Sinon, crée un nouveau mapping automatique.
         /// </summary>
-        public static string MapUncPathToDrive(string path)
+        public static string MapUncPathToDrive(string path, bool silent = false)
         {
             if (string.IsNullOrEmpty(path))
                 return path;
@@ -51,15 +51,18 @@ namespace BacklogManager.Services
                     return Path.Combine(newDrive + ":\\", relativePath);
                 }
 
-                // Si le mapping a échoué, afficher un message d'erreur
-                System.Windows.MessageBox.Show(
-                    $"Impossible de mapper automatiquement le chemin réseau:\n{path}\n\n" +
-                    "Veuillez mapper manuellement un lecteur réseau (ex: Z:) vers ce partage,\n" +
-                    "puis modifier le chemin dans config.ini pour utiliser le lecteur mappé.\n\n" +
-                    "Exemple: DatabasePath=Z:\\backlog.db",
-                    "Erreur de mapping réseau",
-                    System.Windows.MessageBoxButton.OK,
-                    System.Windows.MessageBoxImage.Warning);
+                // Si le mapping a échoué, afficher un message d'erreur (sauf en mode silent)
+                if (!silent)
+                {
+                    System.Windows.MessageBox.Show(
+                        $"Impossible de mapper automatiquement le chemin réseau:\n{path}\n\n" +
+                        "Veuillez mapper manuellement un lecteur réseau (ex: Z:) vers ce partage,\n" +
+                        "puis modifier le chemin dans config.ini pour utiliser le lecteur mappé.\n\n" +
+                        "Exemple: DatabasePath=Z:\\backlog.db",
+                        "Erreur de mapping réseau",
+                        System.Windows.MessageBoxButton.OK,
+                        System.Windows.MessageBoxImage.Warning);
+                }
 
                 // Retourner le chemin original (échouera probablement avec SQLite)
                 return path;
